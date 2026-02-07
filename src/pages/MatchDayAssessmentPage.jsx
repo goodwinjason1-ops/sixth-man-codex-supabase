@@ -143,7 +143,7 @@ const MatchDayAssessmentPage = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { userProfile, currentUser } = useAuth();
-  const { addDocument, isOnline, pendingSync } = useData();
+  const { players: firestorePlayers, teams: firestoreTeams, addDocument, isOnline, pendingSync } = useData();
   const tabsContainerRef = useRef(null);
   const draftIdFromUrl = searchParams.get('draftId');
   const [draftLoaded, setDraftLoaded] = useState(false);
@@ -156,10 +156,37 @@ const MatchDayAssessmentPage = () => {
   const [showGameSelector, setShowGameSelector] = useState(false);
   const [gameDayLoaded, setGameDayLoaded] = useState(false);
 
-  // Get coach's teams (sample data for now)
+  // Get coach's teams from Firestore, fall back to sample data
   const coachTeams = useMemo(() => {
+    if (firestoreTeams && firestoreTeams.length > 0 && currentUser) {
+      const isAdmin = userProfile?.role === 'admin';
+      const filtered = isAdmin
+        ? firestoreTeams
+        : firestoreTeams.filter(t => t.coachId === currentUser.uid);
+      if (filtered.length > 0) {
+        return filtered.map(t => ({
+          id: t.id,
+          name: t.name || t.teamName || 'Unknown Team',
+          ageGroup: t.ageGroup || ''
+        }));
+      }
+    }
     return sampleTeamsData;
-  }, []);
+  }, [firestoreTeams, currentUser, userProfile]);
+
+  // Build players grouped by team from Firestore, fall back to sample data
+  const playersByTeam = useMemo(() => {
+    if (firestorePlayers && firestorePlayers.length > 0 && coachTeams !== sampleTeamsData) {
+      const grouped = {};
+      coachTeams.forEach(team => {
+        grouped[team.id] = firestorePlayers
+          .filter(p => p.teamId === team.id || p.team === team.name || p.teamName === team.name)
+          .map(p => ({ id: p.id, name: p.name || p.displayName || 'Unknown', number: p.number || p.jerseyNumber || 0 }));
+      });
+      return grouped;
+    }
+    return samplePlayersData;
+  }, [firestorePlayers, coachTeams]);
 
   const hasMultipleTeams = coachTeams.length > 1;
 
@@ -195,8 +222,8 @@ const MatchDayAssessmentPage = () => {
 
   // Get players for active team
   const teamPlayers = useMemo(() => {
-    return samplePlayersData[activeTeamId] || [];
-  }, [activeTeamId]);
+    return playersByTeam[activeTeamId] || [];
+  }, [activeTeamId, playersByTeam]);
 
   // Get active team info
   const activeTeam = useMemo(() => {
