@@ -391,7 +391,7 @@ const CoachAssessmentPage = () => {
 
   const handleReturnToDashboard = () => {
     setShowPostSaveModal(false);
-    navigate('/coach');
+    navigate('/dashboard');
   };
 
   // Scroll active tab into view on mobile
@@ -452,7 +452,7 @@ const CoachAssessmentPage = () => {
           <Breadcrumb
             path={[
               { label: 'Home', url: '/welcome' },
-              { label: 'Coach Dashboard', url: '/coach' },
+              { label: 'Dashboard', url: '/dashboard' },
               { label: 'Skills Assessment' }
             ]}
             className="mb-3"

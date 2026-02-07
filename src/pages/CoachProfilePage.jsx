@@ -237,7 +237,7 @@ const CoachProfilePage = () => {
     <PageShell
       title="Coach Profile"
       subtitle={`${yearsCoaching} Years Coaching \u2022 Season ${currentSeason}`}
-      backTo="/welcome"
+      backTo="/dashboard"
       breadcrumbs={[
         { label: 'Home', url: '/welcome' },
         { label: 'Dashboard', url: '/dashboard' },
@@ -669,7 +669,7 @@ const CoachProfilePage = () => {
 
           {/* View All Link */}
           <button
-            onClick={() => navigate('/coach')}
+            onClick={() => navigate('/dashboard')}
             className="w-full mt-2 py-2 text-center text-[#4ade80] text-sm hover:text-white transition-colors"
           >
             View All Activity →

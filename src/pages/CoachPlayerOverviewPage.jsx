@@ -252,7 +252,7 @@ const CoachPlayerOverviewPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { userProfile, currentUser } = useAuth();
-  const { players: firestorePlayers, evaluations, teams: firestoreTeams } = useData();
+  const { players: firestorePlayers, evaluations, teams: firestoreTeams, loading: dataLoading } = useData();
 
   // Read query params for deep-linking
   const teamParam = searchParams.get('team');
@@ -453,6 +453,29 @@ const CoachPlayerOverviewPage = () => {
   const handleAssessPlayer = (playerId) => {
     navigate(`/coach-assessment?playerId=${playerId}`);
   };
+
+  if (dataLoading) {
+    return (
+      <PageShell
+        title="Player Overview"
+        subtitle="Loading..."
+        backTo="/dashboard"
+        breadcrumbs={[
+          { label: 'Home', url: '/welcome' },
+          { label: 'Dashboard', url: '/dashboard' },
+          { label: 'My Players' }
+        ]}
+        maxWidth="4xl"
+      >
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-[#1a8a68] border-t-[#22c55e] rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-white font-medium">Loading players...</p>
+          </div>
+        </div>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell

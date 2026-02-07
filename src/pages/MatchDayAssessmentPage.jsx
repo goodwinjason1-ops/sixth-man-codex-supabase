@@ -532,7 +532,7 @@ const MatchDayAssessmentPage = () => {
 
   const handleReturnToDashboard = () => {
     setShowPostSaveModal(false);
-    navigate('/coach');
+    navigate('/dashboard');
   };
 
   // Calculate if form is complete enough to save
@@ -665,7 +665,7 @@ const MatchDayAssessmentPage = () => {
           <Breadcrumb
             path={[
               { label: 'Home', url: '/welcome' },
-              { label: 'Coach Dashboard', url: '/coach' },
+              { label: 'Dashboard', url: '/dashboard' },
               { label: 'Match Day Assessment' }
             ]}
             className="mb-3"
@@ -842,7 +842,7 @@ const MatchDayAssessmentPage = () => {
               {/* Exit Game Day Mode link */}
               <div className="mt-3 pt-3 border-t border-[#22c55e]/30">
                 <button
-                  onClick={() => navigate('/coach', { state: { skipGameDayRedirect: true } })}
+                  onClick={() => navigate('/dashboard', { state: { skipGameDayRedirect: true } })}
                   className="text-xs text-[#4ade80]/70 hover:text-[#4ade80] transition-colors"
                 >
                   ← Return to Dashboard

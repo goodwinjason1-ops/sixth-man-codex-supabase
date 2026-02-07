@@ -129,7 +129,7 @@ const sampleTeams = [
 const TrainingPlansListPage = () => {
   const navigate = useNavigate();
   const { currentUser, userProfile } = useAuth();
-  const { trainingPlans: firestorePlans, teams: firestoreTeams, deleteDocument, updateDocument } = useData();
+  const { trainingPlans: firestorePlans, teams: firestoreTeams, deleteDocument, updateDocument, loading: dataLoading } = useData();
 
   // Use Firestore data, fall back to samples only if no real data
   const plans = useMemo(() => {
@@ -281,6 +281,29 @@ const TrainingPlansListPage = () => {
       console.error('Error updating plan status:', error);
     }
   };
+
+  if (dataLoading) {
+    return (
+      <PageShell
+        title="Training Plans"
+        subtitle="Loading..."
+        backTo="/dashboard"
+        breadcrumbs={[
+          { label: 'Home', url: '/welcome' },
+          { label: 'Dashboard', url: '/dashboard' },
+          { label: 'Training Plans' }
+        ]}
+        maxWidth="4xl"
+      >
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-[#1a8a68] border-t-[#22c55e] rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-white font-medium">Loading training plans...</p>
+          </div>
+        </div>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell

@@ -189,32 +189,11 @@ const WelcomePage = () => {
     if (role === 'coach') {
       const coachTiles = [
         {
-          id: 'profile',
-          title: 'My Profile',
-          icon: User,
-          path: '/coach/profile',
-          description: 'View your coach profile'
-        },
-        {
-          id: 'team',
-          title: 'My Team',
-          icon: Users,
-          path: '/team',
-          description: 'Team roster and info'
-        },
-        {
-          id: 'training',
-          title: 'My Training Program',
-          icon: Dumbbell,
-          path: '/training',
-          description: 'Training schedules and drills'
-        },
-        {
           id: 'dashboard',
-          title: 'My Dashboard',
+          title: 'Coach Dashboard',
           icon: LayoutDashboard,
           path: '/dashboard',
-          description: 'Your personalized dashboard'
+          description: 'Your coaching hub'
         },
         {
           id: 'match-day',
@@ -224,11 +203,32 @@ const WelcomePage = () => {
           description: 'Game day assessments'
         },
         {
+          id: 'assess-skills',
+          title: 'Assess Skills',
+          icon: ClipboardCheck,
+          path: '/coach-assessment',
+          description: 'Player skill assessments'
+        },
+        {
           id: 'player-overview',
           title: 'My Players',
           icon: ClipboardList,
           path: '/coach/players',
           description: 'View and assess all players'
+        },
+        {
+          id: 'training-plans',
+          title: 'Training Plans',
+          icon: Dumbbell,
+          path: '/coach/training-plans',
+          description: 'Create and manage plans'
+        },
+        {
+          id: 'profile',
+          title: 'My Profile',
+          icon: User,
+          path: '/coach/profile',
+          description: 'View your coach profile'
         },
         {
           id: 'notifications',
