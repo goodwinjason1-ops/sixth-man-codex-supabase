@@ -122,7 +122,6 @@ const CoachDashboard = () => {
   useEffect(() => {
     // Wait until data is fully ready
     if (!dataReady || gameDayLoading) {
-      console.log('[CoachDashboard] Waiting for data...', { dataReady, gameDayLoading });
       return;
     }
 
@@ -133,14 +132,6 @@ const CoachDashboard = () => {
     const skipAutoRedirect = location.state?.skipGameDayRedirect;
     const hasSeenGameDayToday = sessionStorage.getItem('gameDayRedirectShown');
 
-    console.log('[CoachDashboard] Game Day check:', {
-      isGameDay,
-      gamesCount: todaysGames.length,
-      skipAutoRedirect,
-      hasSeenGameDayToday,
-      gameDayDismissed
-    });
-
     if (
       isGameDay &&
       primaryGame &&
@@ -148,8 +139,6 @@ const CoachDashboard = () => {
       !hasSeenGameDayToday &&
       !gameDayDismissed
     ) {
-      console.log('[CoachDashboard] 🏀 Redirecting to Match Day Assessment!');
-
       // Mark that we've shown the redirect this session
       sessionStorage.setItem('gameDayRedirectShown', 'true');
 
@@ -164,8 +153,6 @@ const CoachDashboard = () => {
           allTodaysGames: todaysGames.map(formatGameForDisplay)
         }
       });
-    } else if (!isGameDay) {
-      console.log('[CoachDashboard] No games today - staying on dashboard');
     }
   }, [dataReady, gameDayLoading, isGameDay, primaryGame, todaysGames, navigate, location.state, gameDayDismissed]);
 

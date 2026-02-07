@@ -40,33 +40,16 @@ const WelcomePage = () => {
   // Unread notifications count (in real app, this would come from context or Firestore)
   const [unreadCount, setUnreadCount] = useState(3);
 
-  // Debug logging
+  // Game Day auto-redirect
   useEffect(() => {
-    console.log('[WelcomePage] userProfile:', userProfile?.displayName, 'role:', userProfile?.role);
-    console.log('[WelcomePage] authLoading:', authLoading, 'dataLoading:', dataLoading);
-    console.log('[WelcomePage] isCoach:', isCoach, 'isAdmin:', isAdmin);
-  }, [userProfile, authLoading, dataLoading, isCoach, isAdmin]);
-
-  // Game Day logging and auto-redirect
-  useEffect(() => {
-    // Wait for data to be ready
     if (!dataReady || gameDayLoading) {
-      console.log('[WelcomePage] Waiting for Game Day data...', { dataReady, gameDayLoading });
       return;
     }
-
-    console.log('[WelcomePage] Game Day check:', {
-      isGameDay,
-      gamesCount: todaysGames.length,
-      isCoach,
-      primaryGame: primaryGame ? `${primaryGame.teamName} vs ${primaryGame.opponent}` : null
-    });
 
     // Auto-redirect coaches on game day (only once per session)
     const hasSeenGameDayToday = sessionStorage.getItem('gameDayRedirectShown');
 
     if (isCoach && isGameDay && primaryGame && !hasSeenGameDayToday && !hasAutoRedirected) {
-      console.log('[WelcomePage] 🏀 GAME DAY! Auto-redirecting to Match Day Assessment...');
       setHasAutoRedirected(true);
       sessionStorage.setItem('gameDayRedirectShown', 'true');
 
@@ -361,8 +344,6 @@ const WelcomePage = () => {
   }, [userProfile?.role, unreadCount]);
 
   const handleTileClick = (path) => {
-    console.log('Navigating to:', path);
-    console.log('Current userProfile.role:', userProfile?.role);
     navigate(path);
   };
 

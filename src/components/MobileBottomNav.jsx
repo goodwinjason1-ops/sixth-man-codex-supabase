@@ -9,7 +9,7 @@ import {
   Bell,
   ClipboardList,
   Gamepad2,
-  UserCircle,
+  Dumbbell,
   Lightbulb,
 } from 'lucide-react';
 
@@ -26,7 +26,7 @@ const roleNavItems = {
     { icon: BarChart3, label: 'Dashboard', path: '/dashboard' },
     { icon: ClipboardList, label: 'Assess', path: '/coach-assessment' },
     { icon: Gamepad2, label: 'Match Day', path: '/coach/match-assessment' },
-    { icon: UserCircle, label: 'Players', path: '/coach/players' },
+    { icon: Dumbbell, label: 'Plans', path: '/coach/training-plans' },
   ],
   default: [
     { icon: Home, label: 'Home', path: '/welcome' },
