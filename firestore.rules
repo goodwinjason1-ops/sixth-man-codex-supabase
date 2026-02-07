@@ -1,99 +1,235 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
+    // ───────────────────────────────────────
     // Helper functions
+    // ───────────────────────────────────────
     function isSignedIn() {
       return request.auth != null;
     }
-    
+
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-    
+
     function getUserData() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
-    
-    function isAdmin() {
-      return isSignedIn() && getUserData().role == 'admin';
+
+    function hasRole(role) {
+      return isSignedIn() && getUserData().role == role;
     }
-    
+
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
     function isCoach() {
       return isSignedIn() && (getUserData().role == 'coach' || getUserData().role == 'admin');
     }
-    
-    function isPlayer() {
-      return isSignedIn() && getUserData().role == 'player';
+
+    function isParent() {
+      return hasRole('parent');
     }
-    
+
+    function isTeamManager() {
+      return hasRole('team_manager');
+    }
+
+    function isCommitteeMember() {
+      return hasRole('committee_member');
+    }
+
+    // Can assess tryouts: coaches, admins, team managers, committee members
+    function canAssessTryouts() {
+      return isSignedIn() && getUserData().role in ['admin', 'coach', 'team_manager', 'committee_member'];
+    }
+
+    // Validate that a role field is one of the allowed values
+    function isValidRole(role) {
+      return role in ['admin', 'coach', 'player', 'parent', 'team_manager', 'committee_member'];
+    }
+
+    // ───────────────────────────────────────
     // Users collection
+    // ───────────────────────────────────────
     match /users/{userId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow create: if isSignedIn() && isOwner(userId)
+        && request.resource.data.keys().hasAll(['email', 'role', 'createdAt'])
+        && isValidRole(request.resource.data.role)
+        // Prevent self-assigning admin role on signup
+        && (request.resource.data.role != 'admin');
+      allow update: if isSignedIn() && (isOwner(userId) || isAdmin())
+        // Non-admins cannot change their own role
+        && (isAdmin() || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
       allow delete: if isAdmin();
     }
-    
+
+    // ───────────────────────────────────────
+    // Teams collection
+    // ───────────────────────────────────────
+    match /teams/{teamId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (isCoach() && resource.data.coachId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
     // Players collection
+    // ───────────────────────────────────────
     match /players/{playerId} {
       allow read: if isSignedIn();
-      allow create: if isCoach();
-      allow update: if isCoach();
+      allow create: if isCoach() || isAdmin();
+      allow update: if isCoach() || isAdmin();
       allow delete: if isAdmin();
     }
-    
+
+    // ───────────────────────────────────────
     // Curriculum/Skills collection
+    // ───────────────────────────────────────
     match /curriculum/{skillId} {
       allow read: if isSignedIn();
       allow write: if isCoach();
     }
-    
+
+    // ───────────────────────────────────────
     // Evaluations collection
+    // ───────────────────────────────────────
     match /evaluations/{evaluationId} {
       allow read: if isSignedIn();
       allow create: if isCoach();
       allow update: if isCoach();
       allow delete: if isCoach();
     }
-    
+
+    // ───────────────────────────────────────
     // Games collection
+    // ───────────────────────────────────────
     match /games/{gameId} {
       allow read: if isSignedIn();
       allow write: if isCoach();
     }
-    
+
+    // ───────────────────────────────────────
     // Attendance collection
+    // ───────────────────────────────────────
     match /attendance/{attendanceId} {
       allow read: if isSignedIn();
       allow write: if isCoach();
     }
-    
+
+    // ───────────────────────────────────────
     // Training notes collection
+    // ───────────────────────────────────────
     match /training_notes/{noteId} {
       allow read: if isSignedIn();
       allow write: if isCoach();
     }
-    
+
+    // ───────────────────────────────────────
     // Schedule collection
+    // ───────────────────────────────────────
     match /schedule/{scheduleId} {
       allow read: if isSignedIn();
       allow write: if isCoach();
     }
-    
+
+    // ───────────────────────────────────────
     // Notifications collection
+    // ───────────────────────────────────────
     match /notifications/{notificationId} {
-      allow read: if isSignedIn() && resource.data.recipientId == request.auth.uid;
-      allow create: if isCoach();
-      allow update: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+      // Recipients can read their own; admins can read all
+      allow read: if isSignedIn()
+        && (resource.data.recipientId == request.auth.uid || isAdmin());
+      allow create: if isCoach() || isAdmin();
+      // Recipients can mark as read; admins can manage
+      allow update: if isSignedIn()
+        && (resource.data.recipientId == request.auth.uid || isAdmin());
       allow delete: if isAdmin();
     }
-    
-    // Audit logs collection
+
+    // ───────────────────────────────────────
+    // Scoring assignments collection
+    // ───────────────────────────────────────
+    match /scoring_assignments/{assignmentId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin();
+      allow update: if isAdmin()
+        || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // Swap requests collection
+    // ───────────────────────────────────────
+    match /swap_requests/{requestId} {
+      allow read: if isSignedIn()
+        && (resource.data.requesterId == request.auth.uid
+            || resource.data.targetUserId == request.auth.uid
+            || isAdmin());
+      allow create: if isSignedIn();
+      allow update: if isSignedIn()
+        && (resource.data.requesterId == request.auth.uid
+            || resource.data.targetUserId == request.auth.uid
+            || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // Tryout sessions collection
+    // ───────────────────────────────────────
+    match /tryout_sessions/{sessionId} {
+      allow read: if isSignedIn() && canAssessTryouts();
+      allow create: if isAdmin();
+      allow update: if canAssessTryouts();
+      allow delete: if isAdmin();
+
+      // Tryout evaluations sub-collection
+      match /evaluations/{evalId} {
+        allow read: if isSignedIn() && canAssessTryouts();
+        allow create: if canAssessTryouts();
+        allow update: if canAssessTryouts();
+        allow delete: if isAdmin();
+      }
+    }
+
+    // ───────────────────────────────────────
+    // Youth programs collection
+    // ───────────────────────────────────────
+    match /youth_programs/{programId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin();
+      allow update: if isCoach() || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // Training plans collection
+    // ───────────────────────────────────────
+    match /training_plans/{planId} {
+      allow read: if isSignedIn();
+      allow create: if isCoach();
+      allow update: if isCoach();
+      allow delete: if isCoach();
+    }
+
+    // ───────────────────────────────────────
+    // Audit logs collection — immutable
+    // ───────────────────────────────────────
     match /audit_logs/{logId} {
       allow read: if isAdmin();
       allow create: if isSignedIn();
       allow update, delete: if false; // Logs are immutable
+    }
+
+    // ───────────────────────────────────────
+    // Deny-all fallback for unknown collections
+    // ───────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

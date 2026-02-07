@@ -73,8 +73,13 @@ const LoginPage = () => {
       return;
     }
 
-    if (mode === 'signup' && !displayName) {
+    if (mode === 'signup' && !displayName?.trim()) {
       setError('Please enter your name');
+      return;
+    }
+
+    if (mode === 'signup' && password.length < 8) {
+      setError('Password must be at least 8 characters');
       return;
     }
 
@@ -94,11 +99,18 @@ const LoginPage = () => {
       } else if (err.message.includes('email-already-in-use')) {
         setError('An account with this email already exists');
       } else if (err.message.includes('weak-password')) {
-        setError('Password should be at least 6 characters');
+        setError('Password must be at least 8 characters');
+      } else if (err.message.includes('too-many-requests')) {
+        setError('Too many attempts. Please try again later.');
+      } else if (err.message.includes('invalid-email')) {
+        setError('Please enter a valid email address.');
       } else {
         setError('Authentication failed. Please try again.');
       }
-      console.error(err);
+      // Only log error code in development, not the full error object
+      if (import.meta.env.DEV) {
+        console.error('Auth error:', err.code);
+      }
     } finally {
       setLoading(false);
     }
@@ -184,6 +196,8 @@ const LoginPage = () => {
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lakers-600 focus:border-transparent outline-none"
                       placeholder="Enter your name"
                       disabled={loading}
+                      autoComplete="name"
+                      maxLength={100}
                     />
                   </div>
                 </div>
@@ -236,6 +250,8 @@ const LoginPage = () => {
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lakers-600 focus:border-transparent outline-none"
                   placeholder="you@example.com"
                   disabled={loading}
+                  autoComplete="email"
+                  maxLength={254}
                 />
               </div>
             </div>
@@ -252,8 +268,10 @@ const LoginPage = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lakers-600 focus:border-transparent outline-none"
-                    placeholder="Enter password"
+                    placeholder={mode === 'signup' ? 'Min. 8 characters' : 'Enter password'}
                     disabled={loading}
+                    autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                    minLength={mode === 'signup' ? 8 : undefined}
                   />
                 </div>
               </div>

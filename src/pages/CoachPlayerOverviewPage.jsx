@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import {
@@ -35,7 +35,7 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts';
-import Breadcrumb from '../components/Breadcrumb';
+import PageShell from '../components/PageShell';
 import { SKILL_CATEGORIES, LEVEL_LABELS } from '../data/skillBenchmarks';
 
 // Skill icons mapping
@@ -250,12 +250,17 @@ const sampleTeams = [
 
 const CoachPlayerOverviewPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { userProfile, currentUser } = useAuth();
   const { players: firestorePlayers, evaluations, teams: firestoreTeams } = useData();
 
+  // Read query params for deep-linking
+  const teamParam = searchParams.get('team');
+  const playerParam = searchParams.get('player');
+
   // State
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTeam, setSelectedTeam] = useState('all');
+  const [selectedTeam, setSelectedTeam] = useState(teamParam || 'all');
   const [filterType, setFilterType] = useState('all'); // all, recently-assessed, needs-assessment
   const [sortBy, setSortBy] = useState('name'); // name, last-assessment, progress
   const [showFilters, setShowFilters] = useState(false);
@@ -301,6 +306,17 @@ const CoachPlayerOverviewPage = () => {
     return sampleTeams;
   }, [firestoreTeams]);
 
+  // Auto-open player detail modal from ?player= query param
+  useEffect(() => {
+    if (playerParam && players.length > 0) {
+      const player = players.find(p => p.id === playerParam);
+      if (player) {
+        setSelectedPlayer(player);
+        setShowPlayerModal(true);
+      }
+    }
+  }, [playerParam, players]);
+
   // Calculate player stats
   const getPlayerStats = (player) => {
     const skills = player.skills || {};
@@ -345,9 +361,13 @@ const CoachPlayerOverviewPage = () => {
   const filteredPlayers = useMemo(() => {
     let result = [...players];
 
-    // Filter by team
+    // Filter by team (match by teamId or team name)
     if (selectedTeam !== 'all') {
-      result = result.filter(p => p.teamId === selectedTeam);
+      result = result.filter(p =>
+        p.teamId === selectedTeam ||
+        p.teamName === selectedTeam ||
+        p.team === selectedTeam
+      );
     }
 
     // Filter by search query
@@ -435,34 +455,17 @@ const CoachPlayerOverviewPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
-      {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68]">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          {/* Breadcrumb */}
-          <Breadcrumb
-            path={[
-              { label: 'Home', url: '/welcome' },
-              { label: 'Player Overview' }
-            ]}
-            className="mb-4"
-          />
-
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-full flex items-center justify-center">
-              <Users className="w-8 h-8 text-[#4ade80]" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Player Overview</h1>
-              <p className="text-[#4ade80] mt-1">
-                {filteredPlayers.length} players • {teams.length} teams
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-6">
+    <PageShell
+      title="Player Overview"
+      subtitle={`${filteredPlayers.length} players \u2022 ${teams.length} teams`}
+      backTo="/dashboard"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Dashboard', url: '/dashboard' },
+        { label: 'My Players' }
+      ]}
+      maxWidth="4xl"
+    >
         {/* Team Filter Tabs */}
         <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
           <button
@@ -698,13 +701,6 @@ const CoachPlayerOverviewPage = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="py-4 text-center border-t border-[#1a8a68]">
-        <p className="text-[#1a8a68] text-xs">Emerald Lakers Player Overview</p>
-      </footer>
-
       {/* Player Detail Modal */}
       {showPlayerModal && selectedPlayer && (
         <PlayerDetailModal
@@ -713,7 +709,7 @@ const CoachPlayerOverviewPage = () => {
           onAssess={() => handleAssessPlayer(selectedPlayer.id)}
         />
       )}
-    </div>
+    </PageShell>
   );
 };
 

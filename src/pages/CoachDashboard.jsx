@@ -23,6 +23,7 @@ import {
   Zap
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
+import EmptyState from '../components/EmptyState';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -55,7 +56,6 @@ const CoachDashboard = () => {
   const { players, games, evaluations, attendance, teams, loading: dataLoading } = useData();
   const { userProfile, currentUser, loading: authLoading } = useAuth();
   const [selectedTeam, setSelectedTeam] = useState('all');
-  const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [pendingDrafts, setPendingDrafts] = useState([]);
   const [loadingDrafts, setLoadingDrafts] = useState(true);
   const [gameDayDismissed, setGameDayDismissed] = useState(false);
@@ -222,6 +222,28 @@ const CoachDashboard = () => {
     // Fallback: try userProfile.teams if set, otherwise show all
     return userProfile?.teams || [...new Set(players.map(p => p.team))].filter(Boolean);
   }, [players, userProfile, teams, currentUser]);
+
+  // Get full team objects for the coach's teams (with player counts)
+  const coachTeamObjects = useMemo(() => {
+    if (userProfile?.role === 'admin') {
+      const teamNames = [...new Set(players.map(p => p.team))].filter(Boolean);
+      return teamNames.map(name => ({
+        id: name,
+        name,
+        playerCount: players.filter(p => p.team === name).length
+      }));
+    }
+    if (teams?.length > 0 && currentUser) {
+      return teams
+        .filter(t => t.coachId === currentUser.uid)
+        .map(t => ({
+          ...t,
+          displayName: t.name || t.teamName,
+          playerCount: players.filter(p => p.team === (t.name || t.teamName)).length
+        }));
+    }
+    return [];
+  }, [players, teams, userProfile, currentUser]);
 
   // Filter players by selected team
   const filteredPlayers = useMemo(() => {
@@ -644,53 +666,58 @@ const CoachDashboard = () => {
           </div>
         </div>
 
-        {/* Player List */}
+        {/* My Teams */}
         <div className="bg-lakers-800 rounded-xl border border-lakers-700 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-white">Team Roster</h2>
-            <span className="text-sm text-lakers-400">{filteredPlayers.length} players</span>
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-lakers-400" />
+              <h2 className="text-lg font-bold text-white">My Teams</h2>
+              <span className="text-sm text-lakers-400">
+                {coachTeamObjects.reduce((sum, t) => sum + t.playerCount, 0)} players
+              </span>
+            </div>
+            <button
+              onClick={() => navigate('/coach/players')}
+              className="text-sm text-lakers-300 hover:text-white transition-colors flex items-center gap-1"
+            >
+              View All <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredPlayers.map(player => {
-              const playerGames = games.filter(g => g.team === player.team);
-              const mvpCount = playerGames.filter(g => g.mvp === player.id).length;
-              const playerEvals = Object.values(evaluations).filter(e => e.playerId === player.id);
-              const avgLevel = playerEvals.length > 0
-                ? (playerEvals.reduce((sum, e) => sum + (e.level || 0), 0) / playerEvals.length).toFixed(1)
-                : 'N/A';
-
-              return (
+          {coachTeamObjects.length === 0 ? (
+            <EmptyState
+              icon={Users}
+              title="No Teams Assigned"
+              message="You haven't been assigned to any teams yet. Contact your administrator."
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {coachTeamObjects.map(team => (
                 <div
-                  key={player.id}
-                  onClick={() => setSelectedPlayer(player.id)}
-                  className="p-4 bg-lakers-700 border border-lakers-600 rounded-lg hover:border-lakers-500 transition-all cursor-pointer"
+                  key={team.id}
+                  onClick={() => navigate(`/coach/players?team=${encodeURIComponent(team.id || team.name || team.displayName)}`)}
+                  className="p-4 bg-lakers-700 border border-lakers-600 rounded-lg hover:border-lakers-500 transition-all cursor-pointer group"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <h3 className="font-semibold text-white">{player.name}</h3>
-                      <p className="text-xs text-lakers-400">{player.team}</p>
+                      <h3 className="font-semibold text-white group-hover:text-lakers-200 transition-colors">
+                        {team.displayName || team.name}
+                      </h3>
+                      {team.ageGroup && (
+                        <p className="text-xs text-lakers-400">{team.ageGroup}</p>
+                      )}
                     </div>
-                    {mvpCount > 0 && (
-                      <div className="flex items-center gap-1 bg-lakers-600 border border-lakers-500 px-2 py-1 rounded-full">
-                        <Award className="w-3 h-3 text-white" />
-                        <span className="text-xs font-bold text-white">{mvpCount}</span>
-                      </div>
-                    )}
+                    <ChevronRight className="w-4 h-4 text-lakers-500 group-hover:text-lakers-300 group-hover:translate-x-0.5 transition-all" />
                   </div>
 
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-lakers-400">Avg Skill Level:</span>
-                    <span className="font-bold text-white">{avgLevel}</span>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Users className="w-4 h-4 text-lakers-400" />
+                    <span className="text-lakers-300">{team.playerCount} player{team.playerCount !== 1 ? 's' : ''}</span>
                   </div>
-
-                  <button className="mt-3 w-full text-xs text-lakers-300 font-semibold flex items-center justify-center gap-1 hover:text-white transition-all">
-                    View Details <ChevronRight className="w-3 h-3" />
-                  </button>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

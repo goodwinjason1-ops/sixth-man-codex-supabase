@@ -34,7 +34,7 @@ import {
   Cell,
   Legend
 } from 'recharts';
-import Breadcrumb from '../components/Breadcrumb';
+import PageShell from '../components/PageShell';
 
 // Sample data for coaches without real data
 const sampleAccreditations = [
@@ -234,55 +234,51 @@ const CoachProfilePage = () => {
   const currentSeason = '2025/2026';
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
-      {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68]">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          {/* Breadcrumb */}
-          <Breadcrumb
-            path={[
-              { label: 'Home', url: '/welcome' },
-              { label: 'My Profile' }
-            ]}
-            className="mb-4"
-          />
-
-          {/* Profile Header */}
-          <div className="flex items-center gap-4">
-            {/* Photo Placeholder */}
-            <div className="w-20 h-20 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-full flex items-center justify-center">
-              {userProfile?.photoURL ? (
-                <img
-                  src={userProfile.photoURL}
-                  alt={userProfile.displayName}
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                <User className="w-10 h-10 text-[#4ade80]" />
-              )}
-            </div>
-
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-white">
-                {userProfile?.displayName || 'Coach'}
-              </h1>
-              <p className="text-[#4ade80] text-sm mt-1">
-                {yearsCoaching} Years Coaching • Season {currentSeason}
-              </p>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="px-2 py-1 bg-[#22c55e]/20 border border-[#22c55e] rounded-full text-[#4ade80] text-xs font-medium">
-                  Head Coach
-                </span>
-                <span className="px-2 py-1 bg-[#1a8a68]/20 border border-[#1a8a68] rounded-full text-[#4ade80] text-xs font-medium">
-                  {teamsCoached.filter(t => t.current).length} Active Teams
-                </span>
-              </div>
+    <PageShell
+      title="Coach Profile"
+      subtitle={`${yearsCoaching} Years Coaching \u2022 Season ${currentSeason}`}
+      backTo="/welcome"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Dashboard', url: '/dashboard' },
+        { label: 'Coach Profile' }
+      ]}
+      maxWidth="4xl"
+    >
+      {/* Profile Header */}
+      <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5 mb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-20 h-20 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-full flex items-center justify-center">
+            {userProfile?.photoURL ? (
+              <img
+                src={userProfile.photoURL}
+                alt={userProfile.displayName}
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              <User className="w-10 h-10 text-[#4ade80]" />
+            )}
+          </div>
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-white">
+              {userProfile?.displayName || 'Coach'}
+            </h2>
+            <p className="text-[#4ade80] text-sm mt-1">
+              {yearsCoaching} Years Coaching &bull; Season {currentSeason}
+            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="px-2 py-1 bg-[#22c55e]/20 border border-[#22c55e] rounded-full text-[#4ade80] text-xs font-medium">
+                Head Coach
+              </span>
+              <span className="px-2 py-1 bg-[#1a8a68]/20 border border-[#1a8a68] rounded-full text-[#4ade80] text-xs font-medium">
+                {teamsCoached.filter(t => t.current).length} Active Teams
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <div className="space-y-6">
         {/* Accreditations & Certifications */}
         <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
@@ -680,12 +676,7 @@ const CoachProfilePage = () => {
           </button>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="py-4 text-center border-t border-[#1a8a68]">
-        <p className="text-[#1a8a68] text-xs">Emerald Lakers Coach Profile</p>
-      </footer>
-    </div>
+    </PageShell>
   );
 };
 

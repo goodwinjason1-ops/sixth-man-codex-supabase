@@ -50,8 +50,8 @@ export const AuthProvider = ({ children }) => {
             setUserProfile(initialProfile);
           }
         } catch (err) {
-          console.error('Error fetching user profile:', err);
-          setError(err.message);
+          console.error('Error fetching user profile:', err.code || 'unknown');
+          setError('Failed to load user profile. Please try again.');
         }
       } else {
         setUserProfile(null);
@@ -96,24 +96,32 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Allowed roles that users can self-select during signup
+  const SELF_ASSIGNABLE_ROLES = ['player', 'coach', 'parent'];
+
   const signUpWithEmail = async (email, password, displayName, additionalData = {}) => {
     try {
       setError(null);
       const result = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // Create user profile in Firestore
+
+      // Sanitize the requested role — only allow safe self-assignable roles.
+      // Admin, team_manager, committee_member must be set by an admin.
+      const requestedRole = additionalData.role;
+      const safeRole = SELF_ASSIGNABLE_ROLES.includes(requestedRole) ? requestedRole : 'player';
+
+      // Create user profile in Firestore with only allowed fields
       const profile = {
         uid: result.user.uid,
-        email,
-        displayName,
-        role: 'player',
+        email: email.trim().toLowerCase(),
+        displayName: (displayName || '').trim(),
+        role: safeRole,
         createdAt: new Date().toISOString(),
-        ...additionalData
+        photoURL: null
       };
-      
+
       await setDoc(doc(db, 'users', result.user.uid), profile);
       setUserProfile(profile);
-      
+
       return result.user;
     } catch (err) {
       setError(err.message);
@@ -144,11 +152,14 @@ export const AuthProvider = ({ children }) => {
 
   const updateUserProfile = async (updates) => {
     if (!currentUser) return;
-    
+
     try {
       setError(null);
-      await setDoc(doc(db, 'users', currentUser.uid), updates, { merge: true });
-      setUserProfile(prev => ({ ...prev, ...updates }));
+      // Strip sensitive fields that users should not self-modify
+      // Role changes must go through admin workflows
+      const { role, uid, createdAt, ...safeUpdates } = updates;
+      await setDoc(doc(db, 'users', currentUser.uid), safeUpdates, { merge: true });
+      setUserProfile(prev => ({ ...prev, ...safeUpdates }));
     } catch (err) {
       setError(err.message);
       throw err;
