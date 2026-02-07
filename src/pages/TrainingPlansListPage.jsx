@@ -128,11 +128,31 @@ const sampleTeams = [
 
 const TrainingPlansListPage = () => {
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
-  const { deleteDocument, updateDocument } = useData();
+  const { currentUser, userProfile } = useAuth();
+  const { trainingPlans: firestorePlans, teams: firestoreTeams, deleteDocument, updateDocument } = useData();
+
+  // Use Firestore data, fall back to samples only if no real data
+  const plans = useMemo(() => {
+    if (firestorePlans && firestorePlans.length > 0) {
+      // Filter to this coach's plans (admins see all)
+      if (userProfile?.role === 'admin') return firestorePlans;
+      return firestorePlans.filter(p => p.coachId === currentUser?.uid);
+    }
+    return samplePlans;
+  }, [firestorePlans, currentUser, userProfile]);
+
+  const teamsList = useMemo(() => {
+    if (firestoreTeams && firestoreTeams.length > 0) {
+      return firestoreTeams.map(t => ({
+        id: t.id,
+        name: t.name || t.teamName || 'Unknown Team',
+        ageGroup: t.ageGroup || ''
+      }));
+    }
+    return sampleTeams;
+  }, [firestoreTeams]);
 
   // State
-  const [plans, setPlans] = useState(samplePlans);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTeam, setSelectedTeam] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
@@ -246,9 +266,7 @@ const TrainingPlansListPage = () => {
 
   const handleDelete = async (planId) => {
     try {
-      // In production, delete from Firestore
-      // await deleteDocument('training_plans', planId);
-      setPlans(plans.filter(p => p.id !== planId));
+      await deleteDocument('training_plans', planId);
       setConfirmDelete(null);
     } catch (error) {
       console.error('Error deleting plan:', error);
@@ -257,11 +275,7 @@ const TrainingPlansListPage = () => {
 
   const handleStatusChange = async (planId, newStatus) => {
     try {
-      // In production, update in Firestore
-      // await updateDocument('training_plans', planId, { status: newStatus });
-      setPlans(plans.map(p =>
-        p.id === planId ? { ...p, status: newStatus, updatedAt: new Date().toISOString() } : p
-      ));
+      await updateDocument('training_plans', planId, { status: newStatus, updatedAt: new Date().toISOString() });
       setActionMenuPlan(null);
     } catch (error) {
       console.error('Error updating plan status:', error);
@@ -271,7 +285,7 @@ const TrainingPlansListPage = () => {
   return (
     <PageShell
       title="Training Plans"
-      subtitle={`${plans.length} total plans \u2022 ${stats.active} active`}
+      subtitle={plans.length > 0 ? `${plans.length} total plan${plans.length !== 1 ? 's' : ''} \u2022 ${stats.active} active` : 'No plans yet'}
       backTo="/dashboard"
       breadcrumbs={[
         { label: 'Home', url: '/welcome' },
@@ -382,7 +396,7 @@ const TrainingPlansListPage = () => {
                   >
                     All Teams
                   </button>
-                  {sampleTeams.map(team => (
+                  {teamsList.map(team => (
                     <button
                       key={team.id}
                       onClick={() => setSelectedTeam(team.id)}

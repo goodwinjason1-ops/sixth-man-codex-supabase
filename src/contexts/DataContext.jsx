@@ -83,6 +83,7 @@ export const DataProvider = ({ children }) => {
   const [schedule, setSchedule] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [teams, setTeams] = useState([]);
+  const [trainingPlans, setTrainingPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pendingSync, setPendingSync] = useState([]);
@@ -310,6 +311,20 @@ export const DataProvider = ({ children }) => {
       })
     );
 
+    // Training Plans
+    const trainingPlansQuery = query(collection(db, 'training_plans'), orderBy('updatedAt', 'desc'));
+    unsubscribers.push(
+      onSnapshot(trainingPlansQuery, async (snapshot) => {
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setTrainingPlans(data);
+        await dbService.setAll('trainingPlans', data);
+      }, async (error) => {
+        console.error('Training plans snapshot error:', error);
+        const offlineData = await dbService.getAll('trainingPlans');
+        setTrainingPlans(offlineData || []);
+      })
+    );
+
     setLoading(false);
 
     return () => {
@@ -404,6 +419,7 @@ export const DataProvider = ({ children }) => {
     schedule,
     notifications,
     teams,
+    trainingPlans,
     loading,
     isOnline,
     pendingSync: pendingSync.length,

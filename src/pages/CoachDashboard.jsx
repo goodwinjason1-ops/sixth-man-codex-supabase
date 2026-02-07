@@ -53,7 +53,7 @@ ChartJS.register(
 const CoachDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { players, games, evaluations, attendance, teams, loading: dataLoading } = useData();
+  const { players, games, evaluations, attendance, teams, trainingPlans, loading: dataLoading } = useData();
   const { userProfile, currentUser, loading: authLoading } = useAuth();
   const [selectedTeam, setSelectedTeam] = useState('all');
   const [pendingDrafts, setPendingDrafts] = useState([]);
@@ -244,6 +244,33 @@ const CoachDashboard = () => {
     }
     return [];
   }, [players, teams, userProfile, currentUser]);
+
+  // Training plans for this coach
+  const coachPlansData = useMemo(() => {
+    const myPlans = currentUser
+      ? trainingPlans.filter(p => p.coachId === currentUser.uid)
+      : [];
+    // For admins, show all plans
+    const plans = userProfile?.role === 'admin' ? trainingPlans : myPlans;
+    const activePlans = plans.filter(p => p.status === 'active');
+
+    // Find next upcoming session from active plans
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let nextSession = null;
+    activePlans.forEach(plan => {
+      (plan.sessions || []).forEach(session => {
+        const sessionDate = new Date(session.date);
+        if (sessionDate >= today) {
+          if (!nextSession || sessionDate < new Date(nextSession.date)) {
+            nextSession = { ...session, planName: plan.name };
+          }
+        }
+      });
+    });
+
+    return { total: plans.length, active: activePlans.length, nextSession };
+  }, [trainingPlans, currentUser, userProfile]);
 
   // Filter players by selected team
   const filteredPlayers = useMemo(() => {
@@ -562,31 +589,57 @@ const CoachDashboard = () => {
           onClick={() => navigate('/coach/training-plans')}
           className="bg-gradient-to-r from-[#0d5943] to-[#0a3d2e] border-2 border-[#1a8a68] rounded-xl p-6 mb-6 cursor-pointer hover:border-[#22c55e] transition-all group"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-[#22c55e]/20 border-2 border-[#22c55e] rounded-xl flex items-center justify-center">
-                <Dumbbell className="w-7 h-7 text-[#4ade80]" />
+          {coachPlansData.total === 0 ? (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-[#22c55e]/20 border-2 border-[#1a8a68] rounded-xl flex items-center justify-center">
+                  <Dumbbell className="w-7 h-7 text-[#4ade80]" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">Training Plans</h2>
+                  <p className="text-[#1a8a68] text-sm">No training plans yet</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-white">Training Plans</h2>
-                <p className="text-[#4ade80] text-sm">
-                  3 active plans • Next session: Feb 10
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate('/coach/training-plans/new');
                 }}
-                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[#22c55e] text-[#0a3d2e] rounded-lg font-medium hover:bg-[#4ade80] transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-[#22c55e] text-[#0a3d2e] rounded-lg font-medium hover:bg-[#4ade80] transition-colors"
               >
-                New Plan
+                Create Your First Plan
               </button>
-              <ChevronRight className="w-6 h-6 text-[#4ade80] group-hover:translate-x-1 transition-transform" />
             </div>
-          </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-[#22c55e]/20 border-2 border-[#22c55e] rounded-xl flex items-center justify-center">
+                  <Dumbbell className="w-7 h-7 text-[#4ade80]" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">Training Plans</h2>
+                  <p className="text-[#4ade80] text-sm">
+                    {coachPlansData.active} active plan{coachPlansData.active !== 1 ? 's' : ''}
+                    {coachPlansData.nextSession && (
+                      <> &bull; Next: {new Date(coachPlansData.nextSession.date).toLocaleDateString('en-AU', { month: 'short', day: 'numeric' })}</>
+                    )}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate('/coach/training-plans/new');
+                  }}
+                  className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[#22c55e] text-[#0a3d2e] rounded-lg font-medium hover:bg-[#4ade80] transition-colors"
+                >
+                  New Plan
+                </button>
+                <ChevronRight className="w-6 h-6 text-[#4ade80] group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Main Content Grid */}
