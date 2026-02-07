@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && getUserData().role == 'admin';
+    }
+    
+    function isCoach() {
+      return isSignedIn() && (getUserData().role == 'coach' || getUserData().role == 'admin');
+    }
+    
+    function isPlayer() {
+      return isSignedIn() && getUserData().role == 'player';
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow delete: if isAdmin();
+    }
+    
+    // Players collection
+    match /players/{playerId} {
+      allow read: if isSignedIn();
+      allow create: if isCoach();
+      allow update: if isCoach();
+      allow delete: if isAdmin();
+    }
+    
+    // Curriculum/Skills collection
+    match /curriculum/{skillId} {
+      allow read: if isSignedIn();
+      allow write: if isCoach();
+    }
+    
+    // Evaluations collection
+    match /evaluations/{evaluationId} {
+      allow read: if isSignedIn();
+      allow create: if isCoach();
+      allow update: if isCoach();
+      allow delete: if isCoach();
+    }
+    
+    // Games collection
+    match /games/{gameId} {
+      allow read: if isSignedIn();
+      allow write: if isCoach();
+    }
+    
+    // Attendance collection
+    match /attendance/{attendanceId} {
+      allow read: if isSignedIn();
+      allow write: if isCoach();
+    }
+    
+    // Training notes collection
+    match /training_notes/{noteId} {
+      allow read: if isSignedIn();
+      allow write: if isCoach();
+    }
+    
+    // Schedule collection
+    match /schedule/{scheduleId} {
+      allow read: if isSignedIn();
+      allow write: if isCoach();
+    }
+    
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+      allow create: if isCoach();
+      allow update: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+    
+    // Audit logs collection
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+      allow update, delete: if false; // Logs are immutable
+    }
+  }
+}
