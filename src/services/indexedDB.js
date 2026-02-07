@@ -1,7 +1,7 @@
 import { openDB } from 'idb';
 
 const DB_NAME = 'emerald-lakers-db';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 const initDB = async () => {
   return openDB(DB_NAME, DB_VERSION, {
@@ -38,6 +38,10 @@ const initDB = async () => {
       }
       if (!db.objectStoreNames.contains('teams')) {
         db.createObjectStore('teams', { keyPath: 'id' });
+      }
+      // v3: Add parent_invitations store
+      if (!db.objectStoreNames.contains('parent_invitations')) {
+        db.createObjectStore('parent_invitations', { keyPath: 'id' });
       }
     },
   });

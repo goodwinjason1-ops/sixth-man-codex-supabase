@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Chrome, Apple as AppleIcon, AlertCircle, Users, ClipboardCheck } from 'lucide-react';
+import { Mail, Lock, User, Chrome, Apple as AppleIcon, AlertCircle, Users, ClipboardCheck, KeyRound } from 'lucide-react';
 
 const LoginPage = () => {
   const {
@@ -21,6 +21,8 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [showInvitationInput, setShowInvitationInput] = useState(false);
+  const [invitationCodeInput, setInvitationCodeInput] = useState('');
 
   const handleGoogleSignIn = async () => {
     try {
@@ -289,6 +291,66 @@ const LoginPage = () => {
             </button>
           </form>
 
+          {/* Parent Invitation Code Entry */}
+          {mode === 'signin' && (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              {!showInvitationInput ? (
+                <button
+                  onClick={() => setShowInvitationInput(true)}
+                  className="w-full flex items-center justify-center gap-2 text-sm text-lakers-700 hover:text-lakers-800 font-medium"
+                >
+                  <KeyRound className="w-4 h-4" />
+                  Have a parent invitation code?
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Enter Invitation Code
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={invitationCodeInput}
+                      onChange={(e) => setInvitationCodeInput(e.target.value.toUpperCase())}
+                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lakers-600 focus:border-transparent outline-none font-mono text-center tracking-wider"
+                      placeholder="XXXX-XXXX"
+                      maxLength={9}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const code = invitationCodeInput.trim();
+                        if (code) navigate(`/signup/${code}`);
+                      }}
+                      disabled={!invitationCodeInput.trim()}
+                      className="px-4 py-3 bg-lakers-700 text-white rounded-lg font-semibold hover:bg-lakers-800 transition-colors disabled:opacity-50"
+                    >
+                      Continue
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowInvitationInput(false);
+                      setInvitationCodeInput('');
+                    }}
+                    className="text-sm text-gray-500 hover:text-gray-700"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Info note for signup mode */}
+          {mode === 'signup' && (
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-700">
+                Parents need an invitation code from the club admin to create a parent account.
+              </p>
+            </div>
+          )}
+
           {/* Mode Toggle */}
           <div className="mt-6 text-center space-y-2">
             {mode === 'signin' && (
@@ -311,6 +373,9 @@ const LoginPage = () => {
                   >
                     Sign up
                   </button>
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Parents: contact your club admin for an invitation code
                 </p>
               </>
             )}

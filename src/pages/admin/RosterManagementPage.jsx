@@ -12,6 +12,7 @@ import {
   Trash2,
   Users,
   User,
+  UserPlus,
   Phone,
   Mail,
   AlertCircle,
@@ -23,6 +24,7 @@ import {
   Save
 } from 'lucide-react';
 import PageShell from '../../components/PageShell';
+import InviteParentModal from '../../components/InviteParentModal';
 import { playerHQService } from '../../services/playerHQService';
 
 // Sample teams
@@ -63,6 +65,7 @@ const RosterManagementPage = () => {
   const [importErrors, setImportErrors] = useState([]);
   const [importSuccess, setImportSuccess] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [invitePlayer, setInvitePlayer] = useState(null);
 
   // Filter players
   const filteredPlayers = useMemo(() => {
@@ -361,6 +364,13 @@ const RosterManagementPage = () => {
                         </div>
                         <div className="flex gap-2">
                           <button
+                            onClick={() => setInvitePlayer(player)}
+                            className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg"
+                            title="Invite Parent"
+                          >
+                            <UserPlus className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={() => {
                               setEditingPlayer(player);
                               setShowAddModal(true);
@@ -412,6 +422,13 @@ const RosterManagementPage = () => {
                         <p className="text-[#1a8a68] text-xs">{player.parentPhone || '-'}</p>
                       </div>
                       <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => setInvitePlayer(player)}
+                          className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors"
+                          title="Invite Parent"
+                        >
+                          <UserPlus className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={() => {
                             setEditingPlayer(player);
@@ -466,6 +483,15 @@ const RosterManagementPage = () => {
             setImportData(null);
             setImportErrors([]);
           }}
+        />
+      )}
+
+      {/* Invite Parent Modal */}
+      {invitePlayer && (
+        <InviteParentModal
+          player={invitePlayer}
+          onClose={() => setInvitePlayer(null)}
+          onSuccess={() => {}}
         />
       )}
 

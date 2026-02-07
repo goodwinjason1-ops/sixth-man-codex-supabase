@@ -97,7 +97,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Allowed roles that users can self-select during signup
-  const SELF_ASSIGNABLE_ROLES = ['player', 'coach', 'parent'];
+  const SELF_ASSIGNABLE_ROLES = ['player', 'coach'];
 
   const signUpWithEmail = async (email, password, displayName, additionalData = {}) => {
     try {
@@ -117,6 +117,74 @@ export const AuthProvider = ({ children }) => {
         role: safeRole,
         createdAt: new Date().toISOString(),
         photoURL: null
+      };
+
+      await setDoc(doc(db, 'users', result.user.uid), profile);
+      setUserProfile(profile);
+
+      return result.user;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const signUpParentWithInvitation = async (email, password, displayName) => {
+    try {
+      setError(null);
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+
+      const profile = {
+        uid: result.user.uid,
+        email: email.trim().toLowerCase(),
+        displayName: (displayName || '').trim(),
+        role: 'parent',
+        linkedPlayerIds: [],
+        invitationCode: '',
+        createdAt: new Date().toISOString(),
+        photoURL: null
+      };
+
+      await setDoc(doc(db, 'users', result.user.uid), profile);
+      setUserProfile(profile);
+
+      return result.user;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const signUpParentWithGoogle = async (requiredEmail) => {
+    try {
+      setError(null);
+      const result = await signInWithPopup(auth, googleProvider);
+
+      // Validate the Google email matches the invitation email (if provided)
+      if (requiredEmail && result.user.email?.toLowerCase() !== requiredEmail.toLowerCase()) {
+        // Sign out the mismatched Google account
+        await firebaseSignOut(auth);
+        throw new Error('google-email-mismatch');
+      }
+
+      // Check if user already exists in Firestore
+      const existingDoc = await getDoc(doc(db, 'users', result.user.uid));
+      if (existingDoc.exists()) {
+        // User already has an account — just return the user
+        setUserProfile(existingDoc.data());
+        return result.user;
+      }
+
+      // Create new parent profile
+      const profile = {
+        uid: result.user.uid,
+        email: result.user.email,
+        displayName: result.user.displayName || '',
+        role: 'parent',
+        linkedPlayerIds: [],
+        invitationCode: '',
+        createdAt: new Date().toISOString(),
+        photoURL: result.user.photoURL || null
       };
 
       await setDoc(doc(db, 'users', result.user.uid), profile);
@@ -180,6 +248,8 @@ export const AuthProvider = ({ children }) => {
     signInWithApple,
     signInWithEmail,
     signUpWithEmail,
+    signUpParentWithInvitation,
+    signUpParentWithGoogle,
     resetPassword,
     signOut,
     updateUserProfile,

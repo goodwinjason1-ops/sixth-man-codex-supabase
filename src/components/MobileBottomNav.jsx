@@ -11,6 +11,7 @@ import {
   Gamepad2,
   Dumbbell,
   Lightbulb,
+  Calendar,
 } from 'lucide-react';
 
 const roleNavItems = {
@@ -27,6 +28,12 @@ const roleNavItems = {
     { icon: ClipboardList, label: 'Assess', path: '/coach-assessment' },
     { icon: Gamepad2, label: 'Match Day', path: '/coach/match-assessment' },
     { icon: Dumbbell, label: 'Plans', path: '/coach/training-plans' },
+  ],
+  parent: [
+    { icon: Home, label: 'Home', path: '/welcome' },
+    { icon: BarChart3, label: 'Dashboard', path: '/dashboard' },
+    { icon: Calendar, label: 'Schedule', path: '/dashboard' },
+    { icon: Bell, label: 'Alerts', path: '/notifications' },
   ],
   default: [
     { icon: Home, label: 'Home', path: '/welcome' },
@@ -48,7 +55,8 @@ const MobileBottomNav = () => {
   // Don't render on login or tryout assessor pages (has custom bottom bar)
   if (
     location.pathname === '/login' ||
-    location.pathname.startsWith('/tryout/')
+    location.pathname.startsWith('/tryout/') ||
+    location.pathname.startsWith('/signup/')
   ) {
     return null;
   }

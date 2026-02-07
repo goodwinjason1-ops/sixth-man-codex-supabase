@@ -37,11 +37,14 @@ import TrainingPlansLibraryPage from './pages/admin/TrainingPlansLibraryPage';
 import GameResultsPage from './pages/admin/GameResultsPage';
 import NotificationsAdminPage from './pages/admin/NotificationsPage';
 import SampleDataPage from './pages/admin/SampleDataPage';
+import ParentInvitationsPage from './pages/admin/ParentInvitationsPage';
 import TryoutSessionsPage from './pages/admin/TryoutSessionsPage';
 import TryoutResultsPage from './pages/admin/TryoutResultsPage';
 import TryoutAssessorPage from './pages/TryoutAssessorPage';
 import YouthProgramsPage from './pages/admin/YouthProgramsPage';
 import YouthCoachPage from './pages/YouthCoachPage';
+import ParentSignupPage from './pages/ParentSignupPage';
+import ParentDashboard from './pages/ParentDashboard';
 // User Pages
 import NotificationsInboxPage from './pages/NotificationsInboxPage';
 import NotificationPreferencesPage from './pages/NotificationPreferencesPage';
@@ -82,6 +85,8 @@ const AppRoutes = () => {
 
   return (
     <Routes>
+      <Route path="/signup/:invitationCode" element={<ParentSignupPage />} />
+
       <Route
         path="/login"
         element={currentUser ? <Navigate to="/welcome" replace /> : <LoginPage />}
@@ -104,7 +109,7 @@ const AppRoutes = () => {
               {userProfile?.role === 'admin' ? <AdminDashboard /> :
                userProfile?.role === 'coach' ? <CoachDashboard /> :
                userProfile?.role === 'player' ? <PlayerPortal /> :
-               userProfile?.role === 'parent' ? <PlayerPortal /> :
+               userProfile?.role === 'parent' ? <ParentDashboard /> :
                userProfile?.role === 'team_manager' ? <PlayerPortal /> :
                userProfile?.role === 'committee_member' ? <PlayerPortal /> :
                <Navigate to="/welcome" replace />}
@@ -488,6 +493,17 @@ const AppRoutes = () => {
           <ProtectedRoute allowedRoles={['admin']}>
             <ErrorBoundary fallbackMessage="Unable to load sample data tools.">
               <SampleDataPage />
+            </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/parent-invitations"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <ErrorBoundary fallbackMessage="Unable to load parent invitations.">
+              <ParentInvitationsPage />
             </ErrorBoundary>
           </ProtectedRoute>
         }

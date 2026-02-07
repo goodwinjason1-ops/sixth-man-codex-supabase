@@ -27,7 +27,8 @@ import {
   ArrowRightLeft,
   AlertCircle,
   Database,
-  ClipboardCheck
+  ClipboardCheck,
+  UserPlus
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
 
@@ -149,6 +150,14 @@ const AdminDashboard = () => {
       icon: ClipboardCheck,
       path: '/admin/tryouts',
       color: 'from-violet-500 to-violet-600'
+    },
+    {
+      id: 'parent-invitations',
+      title: 'Parent Invitations',
+      description: 'Invite parents and manage access codes',
+      icon: UserPlus,
+      path: '/admin/parent-invitations',
+      color: 'from-sky-500 to-sky-600'
     },
     {
       id: 'rosters',

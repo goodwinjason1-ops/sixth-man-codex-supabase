@@ -278,6 +278,27 @@ const WelcomePage = () => {
     if (role === 'parent') {
       return [
         {
+          id: 'dashboard',
+          title: 'Parent Dashboard',
+          icon: LayoutDashboard,
+          path: '/dashboard',
+          description: 'Your child\'s progress'
+        },
+        {
+          id: 'schedule',
+          title: 'Schedule',
+          icon: Calendar,
+          path: '/dashboard',
+          description: 'Games and training'
+        },
+        {
+          id: 'skills',
+          title: 'Skills Progress',
+          icon: Award,
+          path: '/skills-passport',
+          description: 'Track development'
+        },
+        {
           id: 'notifications',
           title: 'Notifications',
           icon: Bell,
@@ -287,10 +308,10 @@ const WelcomePage = () => {
         },
         {
           id: 'team',
-          title: 'My Team',
+          title: 'Team Info',
           icon: Users,
           path: '/team',
-          description: 'Team info'
+          description: 'Team roster and info'
         }
       ];
     }

@@ -15,7 +15,9 @@ export const NOTIFICATION_TYPES = {
   ANNOUNCEMENT: 'announcement',
   GAME_DAY: 'game_day',
   TRAINING_CHANGE: 'training_change',
-  EVENT: 'event'
+  EVENT: 'event',
+  PARENT_INVITATION: 'parent_invitation',
+  PARENT_WELCOME: 'parent_welcome'
 };
 
 export const NOTIFICATION_TYPE_CONFIG = {
@@ -54,6 +56,18 @@ export const NOTIFICATION_TYPE_CONFIG = {
     icon: 'PartyPopper',
     color: 'pink',
     description: 'Club events and social activities'
+  },
+  parent_invitation: {
+    label: 'Parent Invitation',
+    icon: 'UserPlus',
+    color: 'sky',
+    description: 'Invitation for parent to create an account'
+  },
+  parent_welcome: {
+    label: 'Parent Welcome',
+    icon: 'Heart',
+    color: 'green',
+    description: 'Welcome message for new parent accounts'
   }
 };
 
@@ -164,6 +178,38 @@ Location: {eventLocation}
 Please RSVP by {rsvpDate} if required.
 
 We look forward to seeing you there!
+
+Emerald Lakers Basketball Club`
+  },
+  parent_invitation: {
+    subject: 'Parent Portal Invitation - Emerald Lakers',
+    message: `Hi {parentName},
+
+You've been invited to join the Emerald Lakers parent portal for {playerName}.
+
+Use the link below to create your account:
+{signupLink}
+
+Or enter this code on the login page: {invitationCode}
+
+This invitation expires on {expiresAt}.
+
+Emerald Lakers Basketball Club`
+  },
+  parent_welcome: {
+    subject: 'Welcome to Emerald Lakers Parent Portal',
+    message: `Hi {parentName},
+
+Welcome to the Emerald Lakers Basketball Club parent portal!
+
+You now have access to:
+- Your child's skills progress and assessments
+- Team schedules and game information
+- Club notifications and announcements
+
+Log in anytime at {loginUrl}
+
+Thank you for being part of the Lakers family!
 
 Emerald Lakers Basketball Club`
   }
