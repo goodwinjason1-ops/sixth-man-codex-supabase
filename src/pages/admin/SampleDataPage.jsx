@@ -14,8 +14,8 @@ import {
   deleteField
 } from 'firebase/firestore';
 import { db } from '../../services/firebase';
+import PageShell from '../../components/PageShell';
 import {
-  ArrowLeft,
   Database,
   Plus,
   Trash2,
@@ -35,7 +35,6 @@ import {
   CalendarClock,
   Wrench
 } from 'lucide-react';
-import Breadcrumb from '../../components/Breadcrumb';
 import {
   getNextSaturday,
   formatDateForStorage,
@@ -790,34 +789,16 @@ const SampleDataPage = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e] text-white">
-      {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68]/30">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <button
-            onClick={() => navigate('/admin')}
-            className="flex items-center gap-2 text-white/70 hover:text-white mb-3"
-          >
-            <ArrowLeft size={20} />
-            Back to Admin
-          </button>
-          <Breadcrumb
-            path={[
-              { label: 'Home', url: '/welcome' },
-              { label: 'Admin', url: '/admin' },
-              { label: 'Sample Data Tools' }
-            ]}
-            className="mb-3"
-          />
-          <h1 className="text-2xl font-bold flex items-center gap-3">
-            <Database className="text-[#4ade80]" size={28} />
-            Sample Data Tools
-          </h1>
-          <p className="text-white/60 text-sm mt-1">Create and manage sample data for testing</p>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+    <PageShell
+      title="Sample Data Manager"
+      subtitle="Generate and manage test data"
+      backTo="/welcome"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Sample Data' }
+      ]}
+    >
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Status Message */}
         {statusMessage && (
           <div className={`p-4 rounded-xl flex items-start gap-3 ${
@@ -1055,7 +1036,7 @@ const SampleDataPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 };
 

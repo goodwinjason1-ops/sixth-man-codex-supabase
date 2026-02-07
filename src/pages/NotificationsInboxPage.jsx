@@ -493,8 +493,8 @@ Emerald Lakers Basketball Club`,
       <div className="bg-[#0d5943] px-4 py-4 sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate(-1)}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            onClick={() => navigate('/welcome')}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
             <ArrowLeft size={24} />
           </button>

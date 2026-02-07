@@ -2,8 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../contexts/DataContext';
 import {
-  ArrowLeft,
-  ChevronRight,
   Star,
   TrendingUp,
   Award,
@@ -15,6 +13,7 @@ import {
   Zap,
   Medal
 } from 'lucide-react';
+import PageShell from '../../components/PageShell';
 import {
   RadarChart,
   PolarGrid,
@@ -166,32 +165,17 @@ const RepTeamProspectsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e] text-white pb-20">
-      {/* Header */}
-      <div className="bg-[#0d5943] px-4 py-4 sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/admin')}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold">Rep Team Prospects</h1>
-            <p className="text-white/60 text-sm">Identify standout players</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Breadcrumbs */}
-      <div className="px-4 py-2 text-sm text-white/60 flex items-center gap-2">
-        <span className="hover:text-white cursor-pointer" onClick={() => navigate('/admin')}>Admin</span>
-        <ChevronRight size={14} />
-        <span className="text-white">Rep Team Prospects</span>
-      </div>
-
+    <PageShell
+      title="Rep Team Prospects"
+      subtitle="Top performers across age groups"
+      backTo="/welcome"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Rep Team Prospects' }
+      ]}
+    >
       {/* Filters */}
-      <div className="px-4 mb-4 space-y-3">
+      <div className="mb-4 space-y-3">
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={18} />
@@ -238,7 +222,7 @@ const RepTeamProspectsPage = () => {
         </div>
       </div>
 
-      <div className="px-4 space-y-6">
+      <div className="space-y-6">
         {/* Top Prospects Highlight */}
         {topProspects.length > 0 && (
           <div className="bg-gradient-to-br from-[#0d5943] to-[#1a8a68] rounded-xl p-4 border border-[#22c55e]/30">
@@ -381,7 +365,7 @@ const RepTeamProspectsPage = () => {
           )}
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 };
 

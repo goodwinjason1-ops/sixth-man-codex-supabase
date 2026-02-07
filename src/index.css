@@ -143,6 +143,9 @@
   animation: assessor-pulse 2s ease-in-out infinite;
 }
 
+/* Safe area padding for mobile bottom nav */
+.safe-area-pb { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
 /* PWA specific styles */
 @media (display-mode: standalone) {
   body {

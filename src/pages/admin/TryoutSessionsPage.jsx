@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
-  ArrowLeft,
   Plus,
   Calendar,
   Users,
@@ -28,7 +27,7 @@ import {
   Search,
   Clipboard
 } from 'lucide-react';
-import Breadcrumb from '../../components/Breadcrumb';
+import PageShell from '../../components/PageShell';
 import {
   createTryoutSession,
   updateTryoutSession,
@@ -169,41 +168,27 @@ const TryoutSessionsPage = () => {
   }, {});
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
-      {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68]">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <Breadcrumb
-            path={[
-              { label: 'Home', url: '/welcome' },
-              { label: 'Admin', url: '/admin' },
-              { label: 'Tryout Sessions' }
-            ]}
-            className="mb-3"
-          />
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#22c55e]/20 border-2 border-[#22c55e] rounded-xl flex items-center justify-center">
-                <ClipboardList className="w-6 h-6 text-[#4ade80]" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white">Tryout Sessions</h1>
-                <p className="text-[#4ade80] text-sm">2-Stage Tryout Format</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#22c55e] hover:bg-[#4ade80] text-[#0a3d2e] rounded-lg font-medium transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-              <span className="hidden sm:inline">New Session</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
+    <PageShell
+      title="Tryout Sessions"
+      subtitle="2-Stage Tryout Format"
+      backTo="/welcome"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Tryout Sessions' }
+      ]}
+      maxWidth="6xl"
+      headerActions={
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-[#22c55e] hover:bg-[#4ade80] text-[#0a3d2e] rounded-lg font-medium transition-colors"
+        >
+          <Plus className="w-5 h-5" />
+          <span className="hidden sm:inline">New Session</span>
+        </button>
+      }
+    >
       {/* Info Banner */}
-      <div className="max-w-6xl mx-auto px-4 pt-4">
+      <div className="pt-0">
         <div className="bg-gradient-to-r from-violet-500/20 to-orange-500/20 border border-violet-500/30 rounded-xl p-4">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div className="flex items-start gap-3">
@@ -228,7 +213,7 @@ const TryoutSessionsPage = () => {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="py-2">
         {/* Error Alert */}
         {error && (
           <div className="bg-red-500/20 border border-red-500 rounded-xl p-4 mb-6 flex items-start gap-3">
@@ -330,7 +315,7 @@ const TryoutSessionsPage = () => {
           }}
         />
       )}
-    </div>
+    </PageShell>
   );
 };
 

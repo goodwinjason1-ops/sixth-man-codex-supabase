@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PageShell from '../../components/PageShell';
 import {
-  ArrowLeft,
   Link2,
   CheckCircle,
   XCircle,
@@ -18,7 +18,6 @@ import {
   Settings,
   Play,
   Pause,
-  ChevronRight,
   Info
 } from 'lucide-react';
 import {
@@ -131,32 +130,17 @@ const PlayerHQIntegrationPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e] text-white pb-20">
-      {/* Header */}
-      <div className="bg-[#0d5943] px-4 py-4 sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/admin')}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold">PlayerHQ Integration</h1>
-            <p className="text-white/60 text-sm">Manage Basketball Victoria data sync</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Breadcrumbs */}
-      <div className="px-4 py-2 text-sm text-white/60 flex items-center gap-2">
-        <span className="hover:text-white cursor-pointer" onClick={() => navigate('/admin')}>Admin</span>
-        <ChevronRight size={14} />
-        <span className="text-white">PlayerHQ Integration</span>
-      </div>
-
+    <PageShell
+      title="PlayerHQ Integration"
+      subtitle="Sync with PlayerHQ platform"
+      backTo="/welcome"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'PlayerHQ Integration' }
+      ]}
+    >
       {/* Tab Navigation */}
-      <div className="px-4 mb-4">
+      <div className="mb-4">
         <div className="flex gap-2 overflow-x-auto pb-2">
           {tabs.map(tab => (
             <button
@@ -175,7 +159,7 @@ const PlayerHQIntegrationPage = () => {
         </div>
       </div>
 
-      <div className="px-4">
+      <div>
         {/* Connection Status Tab */}
         {activeTab === 'status' && (
           <div className="space-y-4">
@@ -561,7 +545,7 @@ const PlayerHQIntegrationPage = () => {
           </div>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 };
 

@@ -135,6 +135,14 @@ const AdminDashboard = () => {
       color: 'from-yellow-500 to-yellow-600'
     },
     {
+      id: 'youth-programs',
+      title: 'Youth Programs',
+      description: 'Little Lakers (4-5) & Lakers Ready (6-7)',
+      icon: Star,
+      path: '/admin/youth-programs',
+      color: 'from-yellow-400 to-orange-500'
+    },
+    {
       id: 'tryouts',
       title: 'Tryout Evaluations',
       description: 'Run tryout sessions and evaluate players',

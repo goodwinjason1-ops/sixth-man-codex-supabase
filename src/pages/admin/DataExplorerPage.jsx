@@ -1,9 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useData } from '../../contexts/DataContext';
 import {
-  ArrowLeft,
-  ChevronRight,
   Search,
   Database,
   Table,
@@ -16,9 +13,9 @@ import {
   Calendar,
   FileText
 } from 'lucide-react';
+import PageShell from '../../components/PageShell';
 
 const DataExplorerPage = () => {
-  const navigate = useNavigate();
   const { players, evaluations, teams } = useData();
   const [selectedCollection, setSelectedCollection] = useState('players');
   const [searchTerm, setSearchTerm] = useState('');
@@ -124,32 +121,17 @@ const DataExplorerPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e] text-white pb-20">
-      {/* Header */}
-      <div className="bg-[#0d5943] px-4 py-4 sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/admin')}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold">Data Explorer</h1>
-            <p className="text-white/60 text-sm">Query and analyze data</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Breadcrumbs */}
-      <div className="px-4 py-2 text-sm text-white/60 flex items-center gap-2">
-        <span className="hover:text-white cursor-pointer" onClick={() => navigate('/admin')}>Admin</span>
-        <ChevronRight size={14} />
-        <span className="text-white">Data Explorer</span>
-      </div>
-
+    <PageShell
+      title="Data Explorer"
+      subtitle="Raw data access and analysis"
+      backTo="/welcome"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Data Explorer' }
+      ]}
+    >
       {/* Collection Tabs */}
-      <div className="px-4 mb-4">
+      <div className="mb-4">
         <div className="flex gap-2 overflow-x-auto pb-2">
           {Object.entries(collections).map(([key, col]) => (
             <button
@@ -176,7 +158,7 @@ const DataExplorerPage = () => {
         </div>
       </div>
 
-      <div className="px-4 space-y-4">
+      <div className="space-y-4">
         {/* Search and Filter Bar */}
         <div className="bg-[#0d5943] rounded-xl p-4">
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -356,7 +338,7 @@ const DataExplorerPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 };
 

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
 import {
-  ArrowLeft,
   ChevronRight,
   Search,
   Filter,
@@ -25,7 +24,7 @@ import {
   TrendingUp,
   BookOpen
 } from 'lucide-react';
-import Breadcrumb from '../../components/Breadcrumb';
+import PageShell from '../../components/PageShell';
 
 // Sample training plans from all coaches
 const allCoachPlans = [
@@ -311,35 +310,17 @@ const TrainingPlansLibraryPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e] pb-20">
-      {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68]">
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <Breadcrumb
-            path={[
-              { label: 'Admin', url: '/admin' },
-              { label: 'Training Plans Library' }
-            ]}
-            className="mb-4"
-          />
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
-                <BookOpen className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">Training Plans Library</h1>
-                <p className="text-white/60 text-sm">
-                  Review and approve coach training plans
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <PageShell
+      title="Training Plans Library"
+      subtitle="Review and approve coach training plans"
+      backTo="/welcome"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Training Plans Library' }
+      ]}
+      maxWidth="6xl"
+    >
+      <div className="space-y-6">
         {/* Stats Overview */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4 text-center">
@@ -705,7 +686,7 @@ const TrainingPlansLibraryPage = () => {
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 };
 

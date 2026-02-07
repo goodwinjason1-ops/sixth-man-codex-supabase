@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import {
-  ArrowLeft,
   Settings,
   Save,
   Loader2,
@@ -24,7 +23,7 @@ import {
   LEVEL_LABELS,
   DEFAULT_BENCHMARKS
 } from '../data/skillBenchmarks';
-import Breadcrumb from '../components/Breadcrumb';
+import PageShell from '../components/PageShell';
 
 const levelColors = {
   1: 'bg-[#1a8a68]',
@@ -249,44 +248,26 @@ const BenchmarkAdminPage = () => {
   const currentAgeGroupName = AGE_GROUPS.find(g => g.id === selectedAgeGroup)?.name;
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
-      {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68] sticky top-0 z-20">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          {/* Breadcrumb Navigation */}
-          <Breadcrumb
-            path={[
-              { label: 'Home', url: '/welcome' },
-              { label: 'Admin Dashboard', url: '/admin' },
-              { label: 'Manage Benchmarks' }
-            ]}
-            className="mb-3"
-          />
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-xl flex items-center justify-center">
-                <Settings className="w-6 h-6 text-[#4ade80]" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white">Benchmark Editor</h1>
-                <p className="text-[#4ade80] text-sm">Manage skill criteria by age group</p>
-              </div>
-            </div>
-
-            {/* Online Status */}
-            <div className={`px-3 py-1.5 rounded-full text-xs font-medium ${
-              isOnline
-                ? 'bg-[#065f46] text-[#4ade80] border border-[#22c55e]'
-                : 'bg-yellow-900/50 text-yellow-400 border border-yellow-600'
-            }`}>
-              {isOnline ? 'Online' : 'Offline'}
-            </div>
-          </div>
+    <PageShell
+      title="Benchmark Editor"
+      subtitle="Manage skill criteria by age group"
+      backTo="/welcome"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Benchmarks' }
+      ]}
+      maxWidth="4xl"
+      headerActions={
+        <div className={`px-3 py-1.5 rounded-full text-xs font-medium ${
+          isOnline
+            ? 'bg-[#065f46] text-[#4ade80] border border-[#22c55e]'
+            : 'bg-yellow-900/50 text-yellow-400 border border-yellow-600'
+        }`}>
+          {isOnline ? 'Online' : 'Offline'}
         </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      }
+    >
+      <div className="space-y-6">
         {/* Selection Row */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           {/* Age Group Selector */}
@@ -596,7 +577,7 @@ const BenchmarkAdminPage = () => {
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 };
 

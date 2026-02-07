@@ -22,7 +22,7 @@ import {
   ChevronUp,
   Save
 } from 'lucide-react';
-import Breadcrumb from '../../components/Breadcrumb';
+import PageShell from '../../components/PageShell';
 import { playerHQService } from '../../services/playerHQService';
 
 // Sample teams
@@ -215,77 +215,59 @@ const RosterManagementPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
-      {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68]">
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <Breadcrumb
-            path={[
-              { label: 'Home', url: '/welcome' },
-              { label: 'Admin Dashboard', url: '/admin' },
-              { label: 'Roster Management' }
-            ]}
-            className="mb-4"
+    <PageShell
+      title="Roster Management"
+      subtitle={`${players.length} players across ${sampleTeams.length} teams`}
+      backTo="/welcome"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Roster Management' }
+      ]}
+      maxWidth="6xl"
+      headerActions={
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={downloadTemplate}
+            className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            <span className="hidden sm:inline">Template</span>
+          </button>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
+          >
+            <Upload className="w-4 h-4" />
+            <span className="hidden sm:inline">Import CSV</span>
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            onChange={handleFileUpload}
+            className="hidden"
           />
-
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-xl flex items-center justify-center">
-                <Users className="w-7 h-7 text-[#4ade80]" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">Roster Management</h1>
-                <p className="text-[#4ade80] text-sm">
-                  {players.length} players across {sampleTeams.length} teams
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-2 flex-wrap">
-              <button
-                onClick={downloadTemplate}
-                className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">Template</span>
-              </button>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
-              >
-                <Upload className="w-4 h-4" />
-                <span className="hidden sm:inline">Import CSV</span>
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-              <button
-                onClick={exportRoster}
-                className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
-              >
-                <FileText className="w-4 h-4" />
-                <span className="hidden sm:inline">Export</span>
-              </button>
-              <button
-                onClick={() => {
-                  setEditingPlayer(null);
-                  setShowAddModal(true);
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-[#22c55e] text-[#0a3d2e] rounded-lg font-semibold hover:bg-[#4ade80] transition-colors"
-              >
-                <Plus className="w-5 h-5" />
-                Add Player
-              </button>
-            </div>
-          </div>
+          <button
+            onClick={exportRoster}
+            className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            <span className="hidden sm:inline">Export</span>
+          </button>
+          <button
+            onClick={() => {
+              setEditingPlayer(null);
+              setShowAddModal(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-[#22c55e] text-[#0a3d2e] rounded-lg font-semibold hover:bg-[#4ade80] transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            Add Player
+          </button>
         </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+      }
+    >
+      <div className="space-y-6">
         {/* Success Message */}
         {importSuccess && (
           <div className="bg-[#22c55e]/20 border border-[#22c55e] rounded-xl p-4 flex items-center gap-3">
@@ -514,7 +496,7 @@ const RosterManagementPage = () => {
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 };
 

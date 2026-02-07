@@ -169,6 +169,13 @@ const WelcomePage = () => {
           badge: unreadCount
         },
         {
+          id: 'youth-programs',
+          title: 'Youth Programs',
+          icon: Award,
+          path: '/admin/youth-programs',
+          description: 'Little Lakers & Lakers Ready'
+        },
+        {
           id: 'profile',
           title: 'Admin Profile',
           icon: Shield,

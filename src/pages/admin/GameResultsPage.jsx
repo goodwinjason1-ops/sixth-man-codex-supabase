@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
 import {
-  ArrowLeft,
   ChevronRight,
   Trophy,
   Calendar,
@@ -22,7 +21,7 @@ import {
   Clock,
   Award
 } from 'lucide-react';
-import Breadcrumb from '../../components/Breadcrumb';
+import PageShell from '../../components/PageShell';
 import {
   BarChart,
   Bar,
@@ -309,43 +308,26 @@ const GameResultsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e] pb-20">
-      {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68]">
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <Breadcrumb
-            path={[
-              { label: 'Admin', url: '/admin' },
-              { label: 'Game Results' }
-            ]}
-            className="mb-4"
-          />
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Trophy className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">Game Results</h1>
-                <p className="text-white/60 text-sm">
-                  {stats.totalGames} games • {stats.winRate}% win rate
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowAddResultModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#22c55e] text-[#0a3d2e] rounded-xl font-semibold hover:bg-[#4ade80] transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-              <span className="hidden sm:inline">Add Result</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <PageShell
+      title="Game Results"
+      subtitle={`${stats.totalGames} games • ${stats.winRate}% win rate`}
+      backTo="/welcome"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Game Results' }
+      ]}
+      maxWidth="6xl"
+      headerActions={
+        <button
+          onClick={() => setShowAddResultModal(true)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#22c55e] text-[#0a3d2e] rounded-xl font-semibold hover:bg-[#4ade80] transition-colors"
+        >
+          <Plus className="w-5 h-5" />
+          <span className="hidden sm:inline">Add Result</span>
+        </button>
+      }
+    >
+      <div className="space-y-6">
         {/* Stats Overview */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
           <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4 text-center">
@@ -664,7 +646,7 @@ const GameResultsPage = () => {
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 };
 

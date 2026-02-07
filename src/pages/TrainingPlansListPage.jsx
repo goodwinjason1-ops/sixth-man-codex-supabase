@@ -22,7 +22,7 @@ import {
   MoreVertical,
   X
 } from 'lucide-react';
-import Breadcrumb from '../components/Breadcrumb';
+import PageShell from '../components/PageShell';
 import { SKILL_CATEGORIES } from '../data/skillBenchmarks';
 
 // Sample training plans data
@@ -269,43 +269,27 @@ const TrainingPlansListPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
-      {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68]">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <Breadcrumb
-            path={[
-              { label: 'Home', url: '/welcome' },
-              { label: 'Training Plans' }
-            ]}
-            className="mb-4"
-          />
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-xl flex items-center justify-center">
-                <Dumbbell className="w-7 h-7 text-[#4ade80]" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">Training Plans</h1>
-                <p className="text-[#4ade80] text-sm">
-                  {plans.length} total plans • {stats.active} active
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => navigate('/coach/training-plans/new')}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#22c55e] text-[#0a3d2e] rounded-xl font-semibold hover:bg-[#4ade80] transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-              <span className="hidden sm:inline">New Plan</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+    <PageShell
+      title="Training Plans"
+      subtitle={`${plans.length} total plans \u2022 ${stats.active} active`}
+      backTo="/dashboard"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Dashboard', url: '/dashboard' },
+        { label: 'Training Plans' }
+      ]}
+      maxWidth="4xl"
+      headerActions={
+        <button
+          onClick={() => navigate('/coach/training-plans/new')}
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#22c55e] text-[#0a3d2e] rounded-xl font-semibold hover:bg-[#4ade80] transition-colors"
+        >
+          <Plus className="w-5 h-5" />
+          <span className="hidden sm:inline">New Plan</span>
+        </button>
+      }
+    >
+      <div className="space-y-6">
         {/* Quick Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4">
@@ -588,11 +572,6 @@ const TrainingPlansListPage = () => {
         )}
       </div>
 
-      {/* Footer */}
-      <footer className="py-4 text-center border-t border-[#1a8a68]">
-        <p className="text-[#1a8a68] text-xs">Emerald Lakers Training Plans</p>
-      </footer>
-
       {/* Delete Confirmation Modal */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setConfirmDelete(null)}>
@@ -635,7 +614,7 @@ const TrainingPlansListPage = () => {
           onClick={() => setActionMenuPlan(null)}
         />
       )}
-    </div>
+    </PageShell>
   );
 };
 

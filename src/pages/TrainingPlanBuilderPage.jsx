@@ -26,7 +26,7 @@ import {
   Play,
   Award
 } from 'lucide-react';
-import Breadcrumb from '../components/Breadcrumb';
+import PageShell from '../components/PageShell';
 import {
   DRILL_LIBRARY,
   getDrillsByCategory,
@@ -352,56 +352,38 @@ const TrainingPlanBuilderPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
-      {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68] sticky top-0 z-20">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <Breadcrumb
-            path={[
-              { label: 'Home', url: '/welcome' },
-              { label: 'Training Plans', url: '/coach/training-plans' },
-              { label: planId ? 'Edit Plan' : 'New Plan' }
-            ]}
-            className="mb-3"
-          />
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-xl flex items-center justify-center">
-                <Dumbbell className="w-6 h-6 text-[#4ade80]" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white">
-                  {planId ? 'Edit Training Plan' : 'New Training Plan'}
-                </h1>
-                <p className="text-[#4ade80] text-sm">
-                  {planName || 'Untitled Plan'}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowPreview(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
-              >
-                <Eye className="w-4 h-4" />
-                <span className="hidden sm:inline">Preview</span>
-              </button>
-              <button
-                onClick={() => handleSave('draft')}
-                disabled={saving}
-                className="flex items-center gap-2 px-3 py-2 bg-[#1a8a68] text-white rounded-lg hover:bg-[#22c55e] transition-colors disabled:opacity-50"
-              >
-                <Save className="w-4 h-4" />
-                <span className="hidden sm:inline">{saving ? 'Saving...' : 'Save Draft'}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+    <PageShell
+      title={planId ? 'Edit Training Plan' : 'New Training Plan'}
+      subtitle={planName || 'Untitled Plan'}
+      backTo="/coach/training-plans"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Coach', url: '/dashboard' },
+        { label: 'Training Plans', url: '/coach/training-plans' },
+        { label: planId ? 'Edit Plan' : 'New Plan' }
+      ]}
+      maxWidth="4xl"
+      headerActions={
+        <>
+          <button
+            onClick={() => setShowPreview(true)}
+            className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
+          >
+            <Eye className="w-4 h-4" />
+            <span className="hidden sm:inline">Preview</span>
+          </button>
+          <button
+            onClick={() => handleSave('draft')}
+            disabled={saving}
+            className="flex items-center gap-2 px-3 py-2 bg-[#1a8a68] text-white rounded-lg hover:bg-[#22c55e] transition-colors disabled:opacity-50"
+          >
+            <Save className="w-4 h-4" />
+            <span className="hidden sm:inline">{saving ? 'Saving...' : 'Save Draft'}</span>
+          </button>
+        </>
+      }
+    >
+      <div className="space-y-6">
         {/* Error Banner */}
         {errors.save && (
           <div className="bg-red-500/20 border border-red-500 rounded-xl p-4 flex items-center gap-3">
@@ -684,7 +666,7 @@ const TrainingPlanBuilderPage = () => {
           onClose={() => setShowPreview(false)}
         />
       )}
-    </div>
+    </PageShell>
   );
 };
 

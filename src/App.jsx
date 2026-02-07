@@ -40,11 +40,14 @@ import SampleDataPage from './pages/admin/SampleDataPage';
 import TryoutSessionsPage from './pages/admin/TryoutSessionsPage';
 import TryoutResultsPage from './pages/admin/TryoutResultsPage';
 import TryoutAssessorPage from './pages/TryoutAssessorPage';
+import YouthProgramsPage from './pages/admin/YouthProgramsPage';
+import YouthCoachPage from './pages/YouthCoachPage';
 // User Pages
 import NotificationsInboxPage from './pages/NotificationsInboxPage';
 import NotificationPreferencesPage from './pages/NotificationPreferencesPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
+import MobileBottomNav from './components/MobileBottomNav';
 import './index.css';
 
 // Protected Route Component
@@ -53,10 +56,10 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a3d2e] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-lakers-700 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <div className="w-16 h-16 border-4 border-[#22c55e] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white">Loading...</p>
         </div>
       </div>
     );
@@ -490,6 +493,29 @@ const AppRoutes = () => {
         }
       />
 
+      {/* Youth Programs Routes */}
+      <Route
+        path="/admin/youth-programs"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <ErrorBoundary fallbackMessage="Unable to load youth programs.">
+              <YouthProgramsPage />
+            </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/youth-programs/:programId"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'coach']}>
+            <ErrorBoundary fallbackMessage="Unable to load youth session.">
+              <YouthCoachPage />
+            </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+
       {/* Tryout Evaluation Routes */}
       <Route
         path="/admin/tryouts"
@@ -547,6 +573,7 @@ function App() {
       <AuthProvider>
         <DataProvider>
           <AppRoutes />
+          <MobileBottomNav />
         </DataProvider>
       </AuthProvider>
     </Router>

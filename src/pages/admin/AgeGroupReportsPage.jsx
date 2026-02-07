@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../contexts/DataContext';
+import PageShell from '../../components/PageShell';
 import {
-  ArrowLeft,
-  ChevronRight,
   Users,
   TrendingUp,
   Award,
@@ -114,31 +113,16 @@ const AgeGroupReportsPage = () => {
   }, [ageGroupStats]);
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e] text-white pb-20">
-      {/* Header */}
-      <div className="bg-[#0d5943] px-4 py-4 sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/admin')}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold">Age Group Reports</h1>
-            <p className="text-white/60 text-sm">Performance by age group</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Breadcrumbs */}
-      <div className="px-4 py-2 text-sm text-white/60 flex items-center gap-2">
-        <span className="hover:text-white cursor-pointer" onClick={() => navigate('/admin')}>Admin</span>
-        <ChevronRight size={14} />
-        <span className="text-white">Age Group Reports</span>
-      </div>
-
-      <div className="px-4 space-y-6">
+    <PageShell
+      title="Age Group Reports"
+      subtitle="Performance analysis by age group"
+      backTo="/welcome"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Age Group Reports' }
+      ]}
+    >
+      <div className="space-y-6">
         {/* Comparison Chart */}
         <div className="bg-[#0d5943] rounded-xl p-4">
           <h3 className="font-bold mb-4 flex items-center gap-2">
@@ -281,7 +265,7 @@ const AgeGroupReportsPage = () => {
           })}
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 };
 

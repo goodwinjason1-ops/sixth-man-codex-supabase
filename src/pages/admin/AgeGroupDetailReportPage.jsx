@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useData } from '../../contexts/DataContext';
+import PageShell from '../../components/PageShell';
 import {
-  ArrowLeft,
-  ChevronRight,
   Users,
   TrendingUp,
   TrendingDown,
@@ -257,52 +256,36 @@ const AgeGroupDetailReportPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e] text-white pb-20 print:bg-white print:text-black">
-      {/* Header */}
-      <div className="bg-[#0d5943] px-4 py-4 sticky top-0 z-10 print:bg-white print:border-b print:border-gray-300">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/admin/age-groups')}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors print:hidden"
-            >
-              <ArrowLeft size={24} />
-            </button>
-            <div>
-              <h1 className="text-xl font-bold print:text-2xl print:text-black">{ageGroupConfig.name} Report</h1>
-              <p className="text-white/60 text-sm print:text-gray-600">Comprehensive age group analysis</p>
-            </div>
-          </div>
-          <div className="flex gap-2 print:hidden">
-            <button
-              onClick={exportToCSV}
-              disabled={exporting}
-              className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors"
-            >
-              <Download size={16} />
-              {exporting ? 'Exporting...' : 'CSV'}
-            </button>
-            <button
-              onClick={printReport}
-              className="flex items-center gap-2 px-3 py-2 bg-[#22c55e] hover:bg-[#1a8a68] rounded-lg text-sm transition-colors"
-            >
-              <FileText size={16} />
-              Print/PDF
-            </button>
-          </div>
+    <PageShell
+      title={`${ageGroupConfig.name} Report`}
+      subtitle="Comprehensive age group analysis"
+      backTo="/admin/age-groups"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Age Groups', url: '/admin/age-groups' },
+        { label: ageGroupConfig.name }
+      ]}
+      headerActions={
+        <div className="flex gap-2 print:hidden">
+          <button
+            onClick={exportToCSV}
+            disabled={exporting}
+            className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors"
+          >
+            <Download size={16} />
+            {exporting ? 'Exporting...' : 'CSV'}
+          </button>
+          <button
+            onClick={printReport}
+            className="flex items-center gap-2 px-3 py-2 bg-[#22c55e] hover:bg-[#1a8a68] rounded-lg text-sm transition-colors"
+          >
+            <FileText size={16} />
+            Print/PDF
+          </button>
         </div>
-      </div>
-
-      {/* Breadcrumbs */}
-      <div className="px-4 py-2 text-sm text-white/60 flex items-center gap-2 print:hidden">
-        <span className="hover:text-white cursor-pointer" onClick={() => navigate('/admin')}>Admin</span>
-        <ChevronRight size={14} />
-        <span className="hover:text-white cursor-pointer" onClick={() => navigate('/admin/age-groups')}>Age Groups</span>
-        <ChevronRight size={14} />
-        <span className="text-white">{ageGroupConfig.name}</span>
-      </div>
-
-      <div className="px-4 space-y-6">
+      }
+    >
+      <div className="space-y-6 print:bg-white print:text-black">
         {/* Overview Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <div className="bg-[#0d5943] rounded-xl p-4 text-center print:border print:border-gray-300 print:bg-white">
@@ -547,7 +530,7 @@ const AgeGroupDetailReportPage = () => {
           </button>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 };
 

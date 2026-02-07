@@ -97,11 +97,21 @@ const AdminProfilePage = () => {
     Object.values(evaluations || {}).forEach(ev => {
       const date = ev.date || ev.createdAt;
       if (date) {
+        let isoDate;
+        try {
+          const raw = date?.toDate ? date.toDate()
+            : date?.seconds ? new Date(date.seconds * 1000)
+            : typeof date === 'string' ? new Date(date)
+            : new Date(date);
+          isoDate = isNaN(raw.getTime()) ? new Date().toISOString() : raw.toISOString();
+        } catch {
+          isoDate = new Date().toISOString();
+        }
         activities.push({
           id: `eval-${ev.id}`,
           type: 'benchmark',
           action: `Assessment recorded for ${ev.playerName || 'a player'} - ${ev.skillName || ev.skillId || 'skill'}`,
-          date: typeof date === 'string' ? date : new Date(date).toISOString(),
+          date: isoDate,
           user: ev.coachName || 'Coach'
         });
       }
@@ -138,9 +148,14 @@ const AdminProfilePage = () => {
 
   // Format date for display
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    if (!dateString) return 'No date';
+    // Handle Firestore Timestamp objects
+    const raw = dateString?.toDate ? dateString.toDate()
+      : dateString?.seconds ? new Date(dateString.seconds * 1000)
+      : new Date(dateString);
+    if (isNaN(raw.getTime())) return 'No date';
     const now = new Date();
-    const diff = now - date;
+    const diff = now - raw;
 
     if (diff < 3600000) {
       const minutes = Math.floor(diff / 60000);
@@ -149,7 +164,7 @@ const AdminProfilePage = () => {
       const hours = Math.floor(diff / 3600000);
       return `${hours}h ago`;
     } else {
-      return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+      return raw.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
     }
   };
 
@@ -170,9 +185,13 @@ const AdminProfilePage = () => {
     }
   };
 
-  const memberSince = userProfile?.createdAt
-    ? new Date(userProfile.createdAt).toLocaleDateString('en-AU', { month: 'long', year: 'numeric' })
-    : 'January 2024';
+  const memberSince = (() => {
+    if (!userProfile?.createdAt) return 'January 2024';
+    const raw = userProfile.createdAt?.toDate ? userProfile.createdAt.toDate()
+      : userProfile.createdAt?.seconds ? new Date(userProfile.createdAt.seconds * 1000)
+      : new Date(userProfile.createdAt);
+    return isNaN(raw.getTime()) ? 'January 2024' : raw.toLocaleDateString('en-AU', { month: 'long', year: 'numeric' });
+  })();
 
   return (
     <div className="min-h-screen bg-[#0a3d2e]">

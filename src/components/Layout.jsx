@@ -178,7 +178,7 @@ const Layout = ({ children }) => {
       )}
 
       {/* Main Content */}
-      <main>
+      <main className="pb-20 lg:pb-0">
         {children}
       </main>
     </div>

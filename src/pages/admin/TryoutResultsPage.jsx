@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  ArrowLeft, Download, Users, BarChart3, Filter, Star,
+  Download, Users, BarChart3, Filter, Star,
   ChevronDown, ChevronUp, User, Eye, X, Clock, CheckCircle,
   AlertCircle, ArrowUpCircle, Timer, Zap, Lock, FileText,
   Send, Search, Printer, ChevronRight, AlertTriangle,
@@ -12,7 +12,7 @@ import {
   Tooltip as RTooltip, BarChart, Bar, Cell, ResponsiveContainer,
   Legend, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis
 } from 'recharts';
-import Breadcrumb from '../../components/Breadcrumb';
+import PageShell from '../../components/PageShell';
 import {
   getTryoutSession,
   updateTryoutSession,
@@ -372,84 +372,55 @@ const TryoutResultsPage = () => {
     { id: 'calibration', label: 'Calibration', icon: Target }
   ];
 
+  const subtitleText = `${evaluations.length} evaluations from ${assessors.length} assessors` +
+    (session.startTime ? ` · ${formatTime24to12(session.startTime)}` : '') +
+    (session.endTime ? ` - ${formatTime24to12(session.endTime)}` : '');
+
   return (
-    <div className="min-h-screen bg-[#0a3d2e] print:bg-white">
-      {/* Header */}
-      <div className={`border-b no-print ${
-        session.sessionType === 'hour-1' ? 'bg-gradient-to-r from-[#0d5943] to-violet-900/30 border-violet-500/30' :
-        session.sessionType === 'hour-2' ? 'bg-gradient-to-r from-[#0d5943] to-orange-900/30 border-orange-500/30' :
-        'bg-[#0d5943] border-[#1a8a68]'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <Breadcrumb
-            path={[
-              { label: 'Home', url: '/welcome' },
-              { label: 'Admin', url: '/admin' },
-              { label: 'Tryouts', url: '/admin/tryouts' },
-              { label: 'Results' }
-            ]}
-            className="mb-3"
-          />
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                {session.sessionType === 'hour-1' && (
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-violet-500/30 text-violet-300 border border-violet-500/50">
-                    <Timer className="w-3 h-3" /> Hour 1
-                  </span>
-                )}
-                {session.sessionType === 'hour-2' && (
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-orange-500/30 text-orange-300 border border-orange-500/50">
-                    <Zap className="w-3 h-3" /> Hour 2
-                  </span>
-                )}
-                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[#1a8a68]/50 text-white">{session.ageGroup}</span>
-                {session.status === 'closed' && (
-                  <span className="flex items-center gap-1 px-2 py-0.5 bg-red-500/20 text-red-400 text-xs rounded-full border border-red-500/50">
-                    <Lock className="w-3 h-3" /> Closed
-                  </span>
-                )}
-              </div>
-              <h1 className="text-xl font-bold text-white">{session.name}</h1>
-              <p className="text-[#4ade80] text-sm">
-                {evaluations.length} evaluations from {assessors.length} assessors
-                {session.startTime && ` · ${formatTime24to12(session.startTime)}`}
-                {session.endTime && ` - ${formatTime24to12(session.endTime)}`}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {assignmentsDirty && (
-                <button onClick={saveAssignments} disabled={savingAssignments}
-                  className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-white rounded-lg font-medium transition-colors animate-pulse">
-                  {savingAssignments ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                  Save Assignments
-                </button>
-              )}
-              {(session.status === 'active' || session.status === 'completed') && (
-                <button onClick={handleCloseSession} className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-medium">
-                  <Lock className="w-4 h-4" /> Close
-                </button>
-              )}
-              <button onClick={handleCopySummary} className="flex items-center gap-2 px-3 py-2 bg-[#1a8a68] hover:bg-[#22c55e] text-white rounded-lg text-sm font-medium">
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? 'Copied!' : 'Copy Summary'}
-              </button>
-              <button onClick={handlePrint} className="flex items-center gap-2 px-3 py-2 bg-[#1a8a68] hover:bg-[#22c55e] text-white rounded-lg text-sm font-medium">
-                <Printer className="w-4 h-4" /> Print
-              </button>
-              <div className="relative group">
-                <button className="flex items-center gap-2 px-3 py-2 bg-[#22c55e] hover:bg-[#4ade80] text-[#0a3d2e] rounded-lg text-sm font-medium">
-                  <Download className="w-4 h-4" /> Export
-                </button>
-                <div className="absolute right-0 mt-1 bg-[#0d5943] border border-[#1a8a68] rounded-lg shadow-xl z-30 hidden group-hover:block min-w-[180px]">
-                  <button onClick={handleExportCSV} className="w-full text-left px-4 py-2 text-white text-sm hover:bg-white/10">Raw Evaluations CSV</button>
-                  <button onClick={handleExportTeamRoster} className="w-full text-left px-4 py-2 text-white text-sm hover:bg-white/10">Team Roster CSV</button>
-                </div>
-              </div>
+    <PageShell
+      title={session.name || 'Tryout Results'}
+      subtitle={subtitleText}
+      backTo="/admin/tryouts"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Tryouts', url: '/admin/tryouts' },
+        { label: 'Results' }
+      ]}
+      maxWidth="6xl"
+      noPadding
+      headerActions={
+        <div className="flex flex-wrap gap-2">
+          {assignmentsDirty && (
+            <button onClick={saveAssignments} disabled={savingAssignments}
+              className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-white rounded-lg font-medium transition-colors animate-pulse">
+              {savingAssignments ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+              Save Assignments
+            </button>
+          )}
+          {(session.status === 'active' || session.status === 'completed') && (
+            <button onClick={handleCloseSession} className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-medium">
+              <Lock className="w-4 h-4" /> Close
+            </button>
+          )}
+          <button onClick={handleCopySummary} className="flex items-center gap-2 px-3 py-2 bg-[#1a8a68] hover:bg-[#22c55e] text-white rounded-lg text-sm font-medium">
+            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            {copied ? 'Copied!' : 'Copy Summary'}
+          </button>
+          <button onClick={handlePrint} className="flex items-center gap-2 px-3 py-2 bg-[#1a8a68] hover:bg-[#22c55e] text-white rounded-lg text-sm font-medium">
+            <Printer className="w-4 h-4" /> Print
+          </button>
+          <div className="relative group">
+            <button className="flex items-center gap-2 px-3 py-2 bg-[#22c55e] hover:bg-[#4ade80] text-[#0a3d2e] rounded-lg text-sm font-medium">
+              <Download className="w-4 h-4" /> Export
+            </button>
+            <div className="absolute right-0 mt-1 bg-[#0d5943] border border-[#1a8a68] rounded-lg shadow-xl z-30 hidden group-hover:block min-w-[180px]">
+              <button onClick={handleExportCSV} className="w-full text-left px-4 py-2 text-white text-sm hover:bg-white/10">Raw Evaluations CSV</button>
+              <button onClick={handleExportTeamRoster} className="w-full text-left px-4 py-2 text-white text-sm hover:bg-white/10">Team Roster CSV</button>
             </div>
           </div>
         </div>
-      </div>
+      }
+    >
 
       {/* Tab Navigation */}
       <div className="bg-[#0d5943]/50 border-b border-[#1a8a68] no-print sticky top-0 z-20 backdrop-blur-sm">
@@ -522,7 +493,7 @@ const TryoutResultsPage = () => {
           assignTeam={assignTeam}
         />
       )}
-    </div>
+    </PageShell>
   );
 };
 

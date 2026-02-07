@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
+import PageShell from '../../components/PageShell';
 import {
   collection,
   query,
@@ -1941,25 +1942,17 @@ const NotificationsPage = () => {
   const dropdownOptionStyles = "bg-white text-gray-900";
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e] text-white pb-20">
-      {/* Header */}
-      <div className="bg-[#0d5943] px-4 py-4 sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/admin')}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold">Manage Notifications</h1>
-            <p className="text-white/60 text-sm">Send notifications to parents and players</p>
-          </div>
-        </div>
-      </div>
-
+    <PageShell
+      title="Notifications Management"
+      subtitle="Send announcements and alerts"
+      backTo="/welcome"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Notifications' }
+      ]}
+    >
       {/* Tab Navigation */}
-      <div className="px-4 py-3">
+      <div className="py-3">
         <div className="flex gap-2 overflow-x-auto pb-2">
           {tabs.map(tab => (
             <button
@@ -1978,7 +1971,7 @@ const NotificationsPage = () => {
         </div>
       </div>
 
-      <div className="px-4">
+      <div>
         {/* Create Notification Tab */}
         {activeTab === 'create' && (
           <div className="space-y-4">
@@ -4021,7 +4014,7 @@ const NotificationsPage = () => {
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 };
 
