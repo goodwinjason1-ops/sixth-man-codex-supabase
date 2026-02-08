@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Search,
   Copy,
@@ -12,14 +12,17 @@ import {
   CheckCircle2,
   XCircle,
   Users as UsersIcon,
-  RefreshCw
+  RefreshCw,
+  User
 } from 'lucide-react';
 import PageShell from '../../components/PageShell';
+import InviteParentModal from '../../components/InviteParentModal';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
 import {
   listInvitations,
   revokeInvitation,
+  revokeAllPending,
   createInvitation
 } from '../../services/parentInvitationService';
 
@@ -33,6 +36,15 @@ const ParentInvitationsPage = () => {
   const [copiedCode, setCopiedCode] = useState(null);
   const [bulkLoading, setBulkLoading] = useState(false);
   const [bulkResult, setBulkResult] = useState(null);
+  const [revokeAllLoading, setRevokeAllLoading] = useState(false);
+  const [revokeAllResult, setRevokeAllResult] = useState(null);
+  const [confirmRevokeAll, setConfirmRevokeAll] = useState(false);
+  const [playerSearch, setPlayerSearch] = useState('');
+  const [playerDropdownOpen, setPlayerDropdownOpen] = useState(false);
+  const [highlightedIdx, setHighlightedIdx] = useState(-1);
+  const [invitePlayer, setInvitePlayer] = useState(null);
+  const playerSearchRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   const fetchInvitations = async () => {
     setLoading(true);
@@ -61,6 +73,56 @@ const ParentInvitationsPage = () => {
     });
     return c;
   }, [invitations]);
+
+  // Player search results
+  const playerResults = useMemo(() => {
+    if (!playerSearch.trim() || !players?.length) return [];
+    const q = playerSearch.toLowerCase();
+    return players
+      .filter(p =>
+        p.name?.toLowerCase().includes(q) ||
+        p.parentEmail?.toLowerCase().includes(q) ||
+        p.playerNumber?.toString().includes(q)
+      )
+      .slice(0, 8);
+  }, [playerSearch, players]);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(e.target) &&
+        playerSearchRef.current && !playerSearchRef.current.contains(e.target)
+      ) {
+        setPlayerDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handlePlayerSelect = (player) => {
+    setInvitePlayer(player);
+    setPlayerSearch('');
+    setPlayerDropdownOpen(false);
+    setHighlightedIdx(-1);
+  };
+
+  const handlePlayerSearchKeyDown = (e) => {
+    if (!playerDropdownOpen || playerResults.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightedIdx(prev => Math.min(prev + 1, playerResults.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightedIdx(prev => Math.max(prev - 1, 0));
+    } else if (e.key === 'Enter' && highlightedIdx >= 0) {
+      e.preventDefault();
+      handlePlayerSelect(playerResults[highlightedIdx]);
+    } else if (e.key === 'Escape') {
+      setPlayerDropdownOpen(false);
+    }
+  };
 
   // Filtered invitations
   const filtered = useMemo(() => {
@@ -102,6 +164,26 @@ const ParentInvitationsPage = () => {
       case 'accepted': return { label: 'Accepted', color: 'text-green-400 bg-green-500/20 border-green-500', icon: CheckCircle2 };
       case 'revoked': return { label: 'Revoked', color: 'text-red-400 bg-red-500/20 border-red-500', icon: XCircle };
       default: return { label: inv.status, color: 'text-gray-400 bg-gray-500/20 border-gray-500', icon: AlertCircle };
+    }
+  };
+
+  // Revoke All Pending
+  const handleRevokeAllPending = async () => {
+    setRevokeAllLoading(true);
+    setRevokeAllResult(null);
+    try {
+      const result = await revokeAllPending();
+      if (result.success) {
+        setRevokeAllResult({ count: result.count });
+        await fetchInvitations();
+      } else {
+        setError(result.error || 'Failed to revoke invitations');
+      }
+    } catch (err) {
+      setError(err.message || 'Revoke all failed');
+    } finally {
+      setRevokeAllLoading(false);
+      setConfirmRevokeAll(false);
     }
   };
 
@@ -153,7 +235,17 @@ const ParentInvitationsPage = () => {
   };
 
   const headerActions = (
-    <div className="flex gap-2">
+    <div className="flex flex-wrap gap-2">
+      {counts.pending > 0 && (
+        <button
+          onClick={() => setConfirmRevokeAll(true)}
+          disabled={revokeAllLoading}
+          className="flex items-center gap-2 px-4 py-2 bg-red-500/20 text-red-400 border border-red-500 rounded-lg text-sm font-medium hover:bg-red-500/30 transition-colors disabled:opacity-50"
+        >
+          {revokeAllLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Ban className="w-4 h-4" />}
+          Revoke All Pending ({counts.pending})
+        </button>
+      )}
       <button
         onClick={handleBulkGenerate}
         disabled={bulkLoading}
@@ -176,7 +268,8 @@ const ParentInvitationsPage = () => {
     <PageShell
       title="Parent Invitations"
       subtitle="Manage parent signup invitation codes"
-      breadcrumb={[
+      backTo="/welcome"
+      breadcrumbs={[
         { label: 'Home', url: '/welcome' },
         { label: 'Admin', url: '/admin' },
         { label: 'Parent Invitations' }
@@ -192,6 +285,40 @@ const ParentInvitationsPage = () => {
           <SummaryCard label="Revoked" count={counts.revoked} color="text-red-400" bgColor="bg-red-500/10" />
         </div>
 
+        {/* Confirm Revoke All */}
+        {confirmRevokeAll && (
+          <div className="bg-red-500/10 border border-red-500 rounded-xl p-4 flex items-center justify-between gap-4">
+            <p className="text-red-400 text-sm">
+              Are you sure you want to revoke all {counts.pending} pending invitations? This cannot be undone.
+            </p>
+            <div className="flex gap-2 flex-shrink-0">
+              <button
+                onClick={handleRevokeAllPending}
+                disabled={revokeAllLoading}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {revokeAllLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                Yes, Revoke All
+              </button>
+              <button
+                onClick={() => setConfirmRevokeAll(false)}
+                className="px-4 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg text-sm font-medium hover:border-white transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Revoke All Result */}
+        {revokeAllResult && (
+          <div className="bg-red-500/10 border border-red-500 rounded-xl p-4">
+            <p className="text-red-400 text-sm">
+              {revokeAllResult.count} pending invitation(s) revoked.
+            </p>
+          </div>
+        )}
+
         {/* Bulk Result */}
         {bulkResult && (
           <div className="bg-[#22c55e]/10 border border-[#22c55e] rounded-xl p-4">
@@ -201,21 +328,96 @@ const ParentInvitationsPage = () => {
           </div>
         )}
 
-        {/* Search */}
+        {/* Invite Player Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1a8a68]" />
-          <input
-            type="text"
-            placeholder="Search by email or code..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
-          />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#1a8a68] hover:text-white">
-              <X className="w-5 h-5" />
-            </button>
+          <div className="flex items-center gap-2 mb-2">
+            <UserPlus className="w-4 h-4 text-[#4ade80]" />
+            <label className="text-[#4ade80] text-sm font-medium">Invite a Parent</label>
+          </div>
+          <div className="relative" ref={playerSearchRef}>
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1a8a68]" />
+            <input
+              type="text"
+              placeholder="Search player by name, email, or number..."
+              value={playerSearch}
+              onChange={(e) => {
+                setPlayerSearch(e.target.value);
+                setPlayerDropdownOpen(true);
+                setHighlightedIdx(-1);
+              }}
+              onFocus={() => playerSearch.trim() && setPlayerDropdownOpen(true)}
+              onKeyDown={handlePlayerSearchKeyDown}
+              className="w-full pl-10 pr-4 py-3 bg-[#0a3d2e] border border-[#22c55e]/50 rounded-xl text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+            />
+            {playerSearch && (
+              <button
+                onClick={() => { setPlayerSearch(''); setPlayerDropdownOpen(false); }}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#1a8a68] hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+
+          {/* Player Search Dropdown */}
+          {playerDropdownOpen && playerSearch.trim() && (
+            <div
+              ref={dropdownRef}
+              className="absolute z-30 w-full mt-1 bg-[#0d5943] border border-[#1a8a68] rounded-xl shadow-2xl overflow-hidden max-h-72 overflow-y-auto"
+            >
+              {playerResults.length === 0 ? (
+                <div className="px-4 py-3 text-[#1a8a68] text-sm text-center">No players found</div>
+              ) : (
+                playerResults.map((p, idx) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => handlePlayerSelect(p)}
+                    onMouseEnter={() => setHighlightedIdx(idx)}
+                    className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-colors cursor-pointer ${
+                      idx === highlightedIdx
+                        ? 'bg-[#22c55e]/20 border-l-2 border-[#22c55e]'
+                        : 'hover:bg-[#0a3d2e] border-l-2 border-transparent'
+                    }`}
+                  >
+                    <div className="w-8 h-8 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center flex-shrink-0">
+                      <User className="w-4 h-4 text-[#4ade80]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-sm font-medium truncate">{p.name}</p>
+                      <p className="text-[#1a8a68] text-xs truncate">
+                        {p.playerNumber ? `#${p.playerNumber}` : ''}{p.ageGroup ? ` · ${p.ageGroup}` : ''}{p.parentEmail ? ` · ${p.parentEmail}` : ''}
+                      </p>
+                    </div>
+                    <UserPlus className="w-4 h-4 text-[#4ade80] flex-shrink-0" />
+                  </button>
+                ))
+              )}
+            </div>
           )}
+        </div>
+
+        {/* Filter Existing Invitations */}
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-2">
+            <Search className="w-4 h-4 text-white/60" />
+            <label className="text-white/60 text-sm font-medium">Filter Invitations</label>
+          </div>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1a8a68]" />
+            <input
+              type="text"
+              placeholder="Filter by email or code..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#1a8a68] hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Error */}
@@ -327,6 +529,15 @@ const ParentInvitationsPage = () => {
           </div>
         )}
       </div>
+
+      {/* Invite Parent Modal */}
+      {invitePlayer && (
+        <InviteParentModal
+          player={invitePlayer}
+          onClose={() => setInvitePlayer(null)}
+          onSuccess={() => fetchInvitations()}
+        />
+      )}
     </PageShell>
   );
 };

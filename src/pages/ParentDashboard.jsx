@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
@@ -14,16 +14,27 @@ import {
   Shield,
   Activity,
   MapPin,
-  Clock
+  Clock,
+  Loader2
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
 
 const ParentDashboard = () => {
   const navigate = useNavigate();
-  const { userProfile } = useAuth();
+  const { userProfile, refreshUserProfile } = useAuth();
   const { players, teams, evaluations, schedule } = useData();
+  const [refreshing, setRefreshing] = useState(false);
 
   const linkedPlayerIds = userProfile?.linkedPlayerIds || [];
+
+  // If linkedPlayerIds is empty but user is a parent, try refreshing from Firestore
+  // in case the profile is stale (e.g. acceptInvitation updated it after initial fetch)
+  useEffect(() => {
+    if (userProfile?.role === 'parent' && linkedPlayerIds.length === 0 && !refreshing) {
+      setRefreshing(true);
+      refreshUserProfile().finally(() => setRefreshing(false));
+    }
+  }, [userProfile?.role]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Get linked children's data
   const linkedPlayers = useMemo(() => {
@@ -71,7 +82,7 @@ const ParentDashboard = () => {
       .slice(0, 3);
   }, [selectedChild, schedule, childTeam]);
 
-  // Empty state
+  // Empty state (show loading if still refreshing)
   if (linkedPlayerIds.length === 0) {
     return (
       <div className="min-h-screen bg-[#0a3d2e]">
@@ -88,13 +99,20 @@ const ParentDashboard = () => {
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-8 text-center max-w-md mx-auto">
-            <AlertCircle className="w-16 h-16 text-[#1a8a68] mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-white mb-2">No Linked Children</h2>
-            <p className="text-[#1a8a68] text-sm">
-              Your account is not yet linked to any players. Please contact your club administrator for assistance.
-            </p>
-          </div>
+          {refreshing ? (
+            <div className="text-center py-8">
+              <Loader2 className="w-10 h-10 text-[#4ade80] animate-spin mx-auto mb-3" />
+              <p className="text-white/60 text-sm">Loading your children&apos;s data...</p>
+            </div>
+          ) : (
+            <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-8 text-center max-w-md mx-auto">
+              <AlertCircle className="w-16 h-16 text-[#1a8a68] mx-auto mb-4" />
+              <h2 className="text-xl font-bold text-white mb-2">No Linked Children</h2>
+              <p className="text-[#1a8a68] text-sm">
+                Your account is not yet linked to any players. Please contact your club administrator for assistance.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, AlertCircle, Loader2, Users, CheckCircle2, Chrome } from 'lucide-react';
+import { Mail, Lock, User, AlertCircle, Loader2, Users, CheckCircle2, Chrome, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { validateInvitationCode, acceptInvitation, getPlayerNames } from '../services/parentInvitationService';
 
 const ParentSignupPage = () => {
   const { invitationCode } = useParams();
   const navigate = useNavigate();
-  const { signUpParentWithInvitation, signUpParentWithGoogle, currentUser } = useAuth();
+  const { signUpParentWithInvitation, signUpParentWithGoogle, signOut, refreshUserProfile, currentUser, userProfile } = useAuth();
 
   const [validating, setValidating] = useState(true);
   const [invitation, setInvitation] = useState(null);
@@ -20,36 +20,54 @@ const ParentSignupPage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
-  // If already logged in, redirect
-  useEffect(() => {
-    if (currentUser) {
-      navigate('/welcome', { replace: true });
-    }
-  }, [currentUser, navigate]);
-
-  // Validate code on mount
+  // Validate code on mount (don't wait for auth — rules allow public read)
   useEffect(() => {
     const validate = async () => {
       setValidating(true);
-      const result = await validateInvitationCode(invitationCode);
-      if (result.valid) {
-        setInvitation(result.invitation);
-        setEmail(result.invitation.parentEmail || '');
-        setDisplayName(result.invitation.parentName || '');
 
-        // Fetch player names
-        if (result.invitation.playerIds?.length > 0) {
-          const names = await getPlayerNames(result.invitation.playerIds);
-          setPlayerNames(names);
+      // Add a timeout so we don't hang forever
+      const timeoutId = setTimeout(() => {
+        setValidating(false);
+        setValidationError('Validation is taking too long. Please check your internet connection and try again.');
+      }, 10000);
+
+      try {
+        const result = await validateInvitationCode(invitationCode);
+        clearTimeout(timeoutId);
+
+        if (result.valid) {
+          setInvitation(result.invitation);
+          setEmail(result.invitation.parentEmail || '');
+          setDisplayName(result.invitation.parentName || '');
+
+          // Fetch player names
+          if (result.invitation.playerIds?.length > 0) {
+            const names = await getPlayerNames(result.invitation.playerIds);
+            setPlayerNames(names);
+          }
+        } else {
+          setValidationError(result.error);
         }
-      } else {
-        setValidationError(result.error);
+      } catch (err) {
+        clearTimeout(timeoutId);
+        setValidationError('Unable to validate invitation. Please try again later.');
       }
       setValidating(false);
     };
     validate();
   }, [invitationCode]);
+
+  const handleLogoutAndContinue = async () => {
+    setLoggingOut(true);
+    try {
+      await signOut();
+    } catch {
+      // Even if signOut fails, auth state should clear
+    }
+    setLoggingOut(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -71,14 +89,20 @@ const ParentSignupPage = () => {
     try {
       setLoading(true);
 
-      // Create parent account
-      const user = await signUpParentWithInvitation(email.trim(), password, displayName.trim());
+      // Create parent account with linkedPlayerIds set from the start
+      const user = await signUpParentWithInvitation(email.trim(), password, displayName.trim(), {
+        playerIds: invitation.playerIds || [],
+        invitationCode: invitation.invitationCode || ''
+      });
 
-      // Accept invitation (links parent to players)
+      // Accept invitation (marks it used, links parent on player docs too)
       const acceptResult = await acceptInvitation(invitation.id, user.uid);
       if (!acceptResult.success) {
         console.error('Failed to accept invitation:', acceptResult.error);
       }
+
+      // Refresh profile to ensure latest data
+      await refreshUserProfile();
 
       navigate('/welcome');
     } catch (err) {
@@ -105,13 +129,19 @@ const ParentSignupPage = () => {
 
     try {
       const requiredEmail = invitation?.parentEmail || null;
-      const user = await signUpParentWithGoogle(requiredEmail);
+      const user = await signUpParentWithGoogle(requiredEmail, {
+        playerIds: invitation.playerIds || [],
+        invitationCode: invitation.invitationCode || ''
+      });
 
-      // Accept invitation (links parent to players)
+      // Accept invitation (marks it used, links parent on player docs too)
       const acceptResult = await acceptInvitation(invitation.id, user.uid);
       if (!acceptResult.success) {
         console.error('Failed to accept invitation:', acceptResult.error);
       }
+
+      // Refresh profile to ensure latest data
+      await refreshUserProfile();
 
       navigate('/welcome');
     } catch (err) {
@@ -137,6 +167,63 @@ const ParentSignupPage = () => {
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-[#4ade80] animate-spin mx-auto mb-4" />
           <p className="text-white font-medium">Validating invitation code...</p>
+          <p className="text-lakers-200 text-sm mt-2">Code: {invitationCode}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Already logged in — show log-out prompt instead of silently redirecting
+  if (currentUser && invitation) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-lakers-900 via-lakers-800 to-lakers-700 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-yellow-400 rounded-full mb-4 shadow-lg">
+              <span className="text-4xl font-bold text-lakers-900">L</span>
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-2">Emerald Lakers</h1>
+            <p className="text-lakers-200">Parent Registration</p>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-2xl p-8">
+            <div className="text-center">
+              <LogOut className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Already Logged In</h2>
+              <p className="text-gray-600 mb-2">
+                You are currently signed in as <span className="font-semibold">{userProfile?.displayName || currentUser.email}</span>
+                {userProfile?.role && <span className="text-gray-400"> ({userProfile.role})</span>}.
+              </p>
+              <p className="text-gray-500 text-sm mb-6">
+                Please log out first to create a new parent account with this invitation.
+              </p>
+
+              <button
+                onClick={handleLogoutAndContinue}
+                disabled={loggingOut}
+                className="w-full bg-lakers-700 text-white py-3 rounded-lg font-semibold hover:bg-lakers-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mb-3"
+              >
+                {loggingOut ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Logging out...
+                  </>
+                ) : (
+                  <>
+                    <LogOut className="w-5 h-5" />
+                    Log Out and Continue
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() => navigate('/welcome')}
+                className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+              >
+                Go to Dashboard Instead
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );

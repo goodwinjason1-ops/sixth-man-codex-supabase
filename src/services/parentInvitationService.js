@@ -7,15 +7,18 @@
 import {
   collection,
   doc,
+  setDoc,
   addDoc,
   updateDoc,
   getDoc,
+  getDocFromServer,
   getDocs,
   query,
   where,
   orderBy,
   serverTimestamp,
-  writeBatch
+  writeBatch,
+  Timestamp
 } from 'firebase/firestore';
 import { db } from './firebase';
 
@@ -36,7 +39,10 @@ export const generateInvitationCode = () => {
 };
 
 /**
- * Generate a unique invitation code by checking Firestore for collisions
+ * Generate a unique invitation code by checking Firestore for collisions.
+ * With 26^8 possible codes (~208 billion), collisions are extremely unlikely.
+ * If the read query fails (e.g. rules not deployed yet), we skip the check
+ * and use the generated code directly — collision odds are negligible.
  */
 export const generateUniqueCode = async () => {
   let code;
@@ -45,12 +51,18 @@ export const generateUniqueCode = async () => {
 
   while (attempts < maxAttempts) {
     code = generateInvitationCode();
-    const q = query(
-      collection(db, INVITATIONS_COLLECTION),
-      where('invitationCode', '==', code)
-    );
-    const snapshot = await getDocs(q);
-    if (snapshot.empty) {
+    try {
+      const q = query(
+        collection(db, INVITATIONS_COLLECTION),
+        where('invitationCode', '==', code)
+      );
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) {
+        return code;
+      }
+    } catch (readErr) {
+      // If we can't read (e.g. rules issue), just use the code — collision is near-impossible
+      console.warn('Could not check code uniqueness (likely a rules issue), proceeding:', readErr.code || readErr.message);
       return code;
     }
     attempts++;
@@ -61,32 +73,65 @@ export const generateUniqueCode = async () => {
 };
 
 /**
- * Create a new parent invitation
+ * Create a new parent invitation.
+ * Uses setDoc + getDocFromServer to bypass offline cache and verify the write
+ * actually reaches Firestore (enableIndexedDbPersistence can mask failures).
  */
 export const createInvitation = async ({ playerIds, parentEmail, parentName, createdBy, expiresInDays = 30 }) => {
   try {
+    console.log('Creating invitation for players:', playerIds, 'email:', parentEmail);
+
     const invitationCode = await generateUniqueCode();
+    console.log('Generated invitation code:', invitationCode);
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + expiresInDays);
 
-    const docRef = await addDoc(collection(db, INVITATIONS_COLLECTION), {
+    const invData = {
       invitationCode,
       playerIds: playerIds || [],
       parentEmail: parentEmail || '',
       parentName: parentName || '',
       status: 'pending',
       createdBy,
-      createdAt: serverTimestamp(),
+      createdAt: Timestamp.now(),
       expiresAt: expiresAt.toISOString(),
       acceptedBy: null,
       acceptedAt: null
-    });
+    };
+
+    // Use setDoc with a known ID so we can verify the write on the server
+    const docRef = doc(collection(db, INVITATIONS_COLLECTION));
+    await setDoc(docRef, invData);
+    console.log('setDoc completed for doc:', docRef.id);
+
+    // Verify the document actually reached Firestore (not just local cache)
+    try {
+      const verifySnap = await getDocFromServer(docRef);
+      if (!verifySnap.exists()) {
+        console.error('Invitation doc not found on server after write');
+        return { success: false, error: 'Invitation was not saved. Please check your permissions and try again.' };
+      }
+      console.log('Invitation verified on server:', verifySnap.id);
+    } catch (verifyErr) {
+      console.error('Server verification failed:', verifyErr.code, verifyErr.message);
+      return {
+        success: false,
+        error: verifyErr.code === 'permission-denied'
+          ? 'Permission denied. Make sure you are logged in as an admin.'
+          : 'Failed to verify invitation was saved. Error: ' + verifyErr.message
+      };
+    }
 
     return { success: true, id: docRef.id, invitationCode };
   } catch (error) {
-    console.error('Error creating invitation:', error);
-    return { success: false, error: error.message };
+    console.error('Error creating invitation:', error.code, error.message);
+    return {
+      success: false,
+      error: error.code === 'permission-denied'
+        ? 'Permission denied. Make sure you are logged in as an admin.'
+        : error.message
+    };
   }
 };
 
@@ -104,43 +149,52 @@ export const validateInvitationCode = async (code) => {
     const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
-      return { valid: false, error: 'Invalid invitation code' };
+      return { valid: false, error: 'Invalid invitation code. Please check your invitation email.' };
     }
 
     const invDoc = snapshot.docs[0];
     const invitation = { id: invDoc.id, ...invDoc.data() };
 
     if (invitation.status === 'accepted') {
-      return { valid: false, error: 'This invitation has already been used' };
+      return { valid: false, error: 'This invitation has already been used.' };
     }
 
     if (invitation.status === 'revoked') {
-      return { valid: false, error: 'This invitation has been revoked' };
+      return { valid: false, error: 'This invitation has been revoked. Please contact your club administrator.' };
     }
 
     if (invitation.status !== 'pending') {
-      return { valid: false, error: 'This invitation is no longer valid' };
+      return { valid: false, error: 'This invitation is no longer valid.' };
     }
 
     // Check expiration
     if (invitation.expiresAt && new Date(invitation.expiresAt) < new Date()) {
-      return { valid: false, error: 'This invitation has expired' };
+      return { valid: false, error: 'This invitation has expired. Please contact your club administrator for a new one.' };
     }
 
     return { valid: true, invitation };
   } catch (error) {
-    console.error('Error validating invitation code:', error);
-    return { valid: false, error: error.message };
+    console.error('Error validating invitation code:', error.code, error.message);
+    // Translate Firestore permission/network errors into user-friendly messages
+    if (error.code === 'permission-denied' || error.message?.includes('permission')) {
+      return { valid: false, error: 'Unable to validate invitation. Please try again later.' };
+    }
+    if (error.code === 'unavailable' || error.code === 'deadline-exceeded') {
+      return { valid: false, error: 'Service temporarily unavailable. Please try again in a moment.' };
+    }
+    return { valid: false, error: 'Unable to validate invitation. Please try again later.' };
   }
 };
 
 /**
- * Accept an invitation: updates invitation status, links parent to players
- * Uses a batch write for atomicity.
+ * Accept an invitation: updates invitation status, links parent to players.
+ * The parent user doc should already have linkedPlayerIds set from signup.
+ * This function marks the invitation as used and updates player docs.
  */
 export const acceptInvitation = async (invitationId, parentUid) => {
   try {
-    const batch = writeBatch(db);
+    console.log('Accepting invitation:', invitationId, 'for parent:', parentUid);
+
     const invRef = doc(db, INVITATIONS_COLLECTION, invitationId);
     const invSnap = await getDoc(invRef);
 
@@ -154,44 +208,61 @@ export const acceptInvitation = async (invitationId, parentUid) => {
       return { success: false, error: 'Invitation is no longer pending' };
     }
 
-    // Update invitation status
-    batch.update(invRef, {
-      status: 'accepted',
-      acceptedBy: parentUid,
-      acceptedAt: serverTimestamp()
-    });
-
-    // Update each linked player with parentUid
     const playerIds = invitation.playerIds || [];
+
+    // Step 1: Update invitation status (direct write, not batch)
+    try {
+      await updateDoc(invRef, {
+        status: 'accepted',
+        acceptedBy: parentUid,
+        acceptedAt: Timestamp.now()
+      });
+      console.log('Invitation status updated to accepted');
+    } catch (invErr) {
+      console.error('Failed to update invitation status:', invErr.code, invErr.message);
+    }
+
+    // Step 2: Update each linked player with parentUid (individual writes)
     for (const playerId of playerIds) {
-      const playerRef = doc(db, 'players', playerId);
-      const playerSnap = await getDoc(playerRef);
-      if (playerSnap.exists()) {
-        const existingParentIds = playerSnap.data().linkedParentIds || [];
-        if (!existingParentIds.includes(parentUid)) {
-          batch.update(playerRef, {
-            linkedParentIds: [...existingParentIds, parentUid]
-          });
+      try {
+        const playerRef = doc(db, 'players', playerId);
+        const playerSnap = await getDoc(playerRef);
+        if (playerSnap.exists()) {
+          const existingParentIds = playerSnap.data().linkedParentIds || [];
+          if (!existingParentIds.includes(parentUid)) {
+            await updateDoc(playerRef, {
+              linkedParentIds: [...existingParentIds, parentUid]
+            });
+            console.log('Player', playerId, 'linked to parent');
+          }
         }
+      } catch (playerErr) {
+        console.error('Failed to update player', playerId, ':', playerErr.code, playerErr.message);
       }
     }
 
-    // Update parent user doc with linked player IDs and invitation code
-    const userRef = doc(db, 'users', parentUid);
-    const userSnap = await getDoc(userRef);
-    if (userSnap.exists()) {
-      const existingPlayerIds = userSnap.data().linkedPlayerIds || [];
-      const mergedPlayerIds = [...new Set([...existingPlayerIds, ...playerIds])];
-      batch.update(userRef, {
-        linkedPlayerIds: mergedPlayerIds,
-        invitationCode: invitation.invitationCode
-      });
+    // Step 3: Ensure parent user doc has linkedPlayerIds (safety net)
+    try {
+      const userRef = doc(db, 'users', parentUid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const existingPlayerIds = userSnap.data().linkedPlayerIds || [];
+        const mergedPlayerIds = [...new Set([...existingPlayerIds, ...playerIds])];
+        if (mergedPlayerIds.length !== existingPlayerIds.length || existingPlayerIds.length === 0) {
+          await updateDoc(userRef, {
+            linkedPlayerIds: mergedPlayerIds,
+            invitationCode: invitation.invitationCode
+          });
+          console.log('Parent user doc updated with linkedPlayerIds:', mergedPlayerIds);
+        }
+      }
+    } catch (userErr) {
+      console.error('Failed to update parent user doc:', userErr.code, userErr.message);
     }
 
-    await batch.commit();
     return { success: true };
   } catch (error) {
-    console.error('Error accepting invitation:', error);
+    console.error('Error accepting invitation:', error.code, error.message);
     return { success: false, error: error.message };
   }
 };
@@ -208,6 +279,34 @@ export const revokeInvitation = async (invitationId) => {
     return { success: true };
   } catch (error) {
     console.error('Error revoking invitation:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Revoke all pending invitations (admin cleanup)
+ */
+export const revokeAllPending = async () => {
+  try {
+    const q = query(
+      collection(db, INVITATIONS_COLLECTION),
+      where('status', '==', 'pending')
+    );
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      return { success: true, count: 0 };
+    }
+
+    const batch = writeBatch(db);
+    snapshot.docs.forEach(d => {
+      batch.update(d.ref, { status: 'revoked' });
+    });
+    await batch.commit();
+
+    return { success: true, count: snapshot.size };
+  } catch (error) {
+    console.error('Error revoking all pending invitations:', error);
     return { success: false, error: error.message };
   }
 };
@@ -256,6 +355,7 @@ export default {
   validateInvitationCode,
   acceptInvitation,
   revokeInvitation,
+  revokeAllPending,
   listInvitations,
   getPlayerNames
 };

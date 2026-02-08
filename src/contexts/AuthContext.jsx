@@ -25,19 +25,28 @@ export const AuthProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Flag to prevent onAuthStateChanged from creating a default profile
+  // during signup flows that create their own profile
+  const [signupInProgress, setSignupInProgress] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
-      
+
       if (user) {
+        // If a signup flow is in progress, it will create its own profile.
+        // Don't race it by creating a default 'player' profile here.
+        if (signupInProgress) {
+          return;
+        }
+
         // Fetch user profile from Firestore
         try {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             setUserProfile(userDoc.data());
           } else {
-            // Create initial profile for new users
+            // Create initial profile for new users (social login without signup flow)
             const initialProfile = {
               uid: user.uid,
               email: user.email,
@@ -56,12 +65,12 @@ export const AuthProvider = ({ children }) => {
       } else {
         setUserProfile(null);
       }
-      
+
       setLoading(false);
     });
 
     return unsubscribe;
-  }, []);
+  }, [signupInProgress]);
 
   const signInWithGoogle = async () => {
     try {
@@ -102,6 +111,8 @@ export const AuthProvider = ({ children }) => {
   const signUpWithEmail = async (email, password, displayName, additionalData = {}) => {
     try {
       setError(null);
+      setSignupInProgress(true);
+
       const result = await createUserWithEmailAndPassword(auth, email, password);
 
       // Sanitize the requested role — only allow safe self-assignable roles.
@@ -121,17 +132,21 @@ export const AuthProvider = ({ children }) => {
 
       await setDoc(doc(db, 'users', result.user.uid), profile);
       setUserProfile(profile);
+      setSignupInProgress(false);
 
       return result.user;
     } catch (err) {
+      setSignupInProgress(false);
       setError(err.message);
       throw err;
     }
   };
 
-  const signUpParentWithInvitation = async (email, password, displayName) => {
+  const signUpParentWithInvitation = async (email, password, displayName, invitationData = {}) => {
     try {
       setError(null);
+      setSignupInProgress(true);
+
       const result = await createUserWithEmailAndPassword(auth, email, password);
 
       const profile = {
@@ -139,39 +154,60 @@ export const AuthProvider = ({ children }) => {
         email: email.trim().toLowerCase(),
         displayName: (displayName || '').trim(),
         role: 'parent',
-        linkedPlayerIds: [],
-        invitationCode: '',
+        linkedPlayerIds: invitationData.playerIds || [],
+        invitationCode: invitationData.invitationCode || '',
         createdAt: new Date().toISOString(),
         photoURL: null
       };
 
       await setDoc(doc(db, 'users', result.user.uid), profile);
       setUserProfile(profile);
+      setSignupInProgress(false);
 
       return result.user;
     } catch (err) {
+      setSignupInProgress(false);
       setError(err.message);
       throw err;
     }
   };
 
-  const signUpParentWithGoogle = async (requiredEmail) => {
+  const signUpParentWithGoogle = async (requiredEmail, invitationData = {}) => {
     try {
       setError(null);
+      setSignupInProgress(true);
+
       const result = await signInWithPopup(auth, googleProvider);
 
       // Validate the Google email matches the invitation email (if provided)
       if (requiredEmail && result.user.email?.toLowerCase() !== requiredEmail.toLowerCase()) {
         // Sign out the mismatched Google account
         await firebaseSignOut(auth);
+        setSignupInProgress(false);
         throw new Error('google-email-mismatch');
       }
 
       // Check if user already exists in Firestore
       const existingDoc = await getDoc(doc(db, 'users', result.user.uid));
       if (existingDoc.exists()) {
-        // User already has an account — just return the user
-        setUserProfile(existingDoc.data());
+        // User already has an account — merge linkedPlayerIds if needed
+        const existingData = existingDoc.data();
+        const existingPlayerIds = existingData.linkedPlayerIds || [];
+        const newPlayerIds = invitationData.playerIds || [];
+        const mergedPlayerIds = [...new Set([...existingPlayerIds, ...newPlayerIds])];
+
+        if (newPlayerIds.length > 0 && mergedPlayerIds.length !== existingPlayerIds.length) {
+          await setDoc(doc(db, 'users', result.user.uid), {
+            linkedPlayerIds: mergedPlayerIds,
+            invitationCode: invitationData.invitationCode || existingData.invitationCode || ''
+          }, { merge: true });
+          const updated = { ...existingData, linkedPlayerIds: mergedPlayerIds };
+          setUserProfile(updated);
+        } else {
+          setUserProfile(existingData);
+        }
+
+        setSignupInProgress(false);
         return result.user;
       }
 
@@ -181,17 +217,19 @@ export const AuthProvider = ({ children }) => {
         email: result.user.email,
         displayName: result.user.displayName || '',
         role: 'parent',
-        linkedPlayerIds: [],
-        invitationCode: '',
+        linkedPlayerIds: invitationData.playerIds || [],
+        invitationCode: invitationData.invitationCode || '',
         createdAt: new Date().toISOString(),
         photoURL: result.user.photoURL || null
       };
 
       await setDoc(doc(db, 'users', result.user.uid), profile);
       setUserProfile(profile);
+      setSignupInProgress(false);
 
       return result.user;
     } catch (err) {
+      setSignupInProgress(false);
       setError(err.message);
       throw err;
     }
@@ -216,6 +254,21 @@ export const AuthProvider = ({ children }) => {
       setError(err.message);
       throw err;
     }
+  };
+
+  const refreshUserProfile = async () => {
+    if (!currentUser) return null;
+    try {
+      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+      if (userDoc.exists()) {
+        const freshProfile = userDoc.data();
+        setUserProfile(freshProfile);
+        return freshProfile;
+      }
+    } catch (err) {
+      console.error('Error refreshing user profile:', err.code || 'unknown');
+    }
+    return null;
   };
 
   const updateUserProfile = async (updates) => {
@@ -253,6 +306,7 @@ export const AuthProvider = ({ children }) => {
     resetPassword,
     signOut,
     updateUserProfile,
+    refreshUserProfile,
     // Role helper methods
     isAdmin: role === 'admin',
     isCoach: role === 'coach',
