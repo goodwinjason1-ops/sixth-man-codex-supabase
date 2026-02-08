@@ -13,7 +13,8 @@ import {
   WifiOff,
   Wifi,
   Bell,
-  User
+  User,
+  HelpCircle
 } from 'lucide-react';
 
 const Layout = ({ children }) => {
@@ -91,6 +92,15 @@ const Layout = ({ children }) => {
                   </div>
                 )}
               </div>
+
+              {/* Help */}
+              <button
+                onClick={() => navigate('/help')}
+                className="p-2 rounded-lg hover:bg-lakers-700 text-lakers-300 hover:text-white"
+                title="Help Center"
+              >
+                <HelpCircle className="w-5 h-5" />
+              </button>
 
               {/* Notifications */}
               <button

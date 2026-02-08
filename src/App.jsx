@@ -51,6 +51,9 @@ import NotificationsInboxPage from './pages/NotificationsInboxPage';
 import NotificationPreferencesPage from './pages/NotificationPreferencesPage';
 import AssessorDashboard from './pages/AssessorDashboard';
 import UserCreationPage from './pages/admin/UserCreationPage';
+import HelpCenter from './pages/help/HelpCenter';
+import AssessorGuide from './pages/help/AssessorGuide';
+import LittleLakersGuide from './pages/help/LittleLakersGuide';
 import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES } from './constants/roles';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
@@ -610,6 +613,31 @@ const AppRoutes = () => {
             <ErrorBoundary fallbackMessage="Unable to load user creation.">
               <UserCreationPage />
             </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/help"
+        element={
+          <ProtectedRoute>
+            <HelpCenter />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/help/assessor-guide"
+        element={
+          <ProtectedRoute>
+            <AssessorGuide />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/help/little-lakers-guide"
+        element={
+          <ProtectedRoute>
+            <LittleLakersGuide />
           </ProtectedRoute>
         }
       />

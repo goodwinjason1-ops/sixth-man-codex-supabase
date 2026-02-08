@@ -10,7 +10,8 @@ import {
   Users,
   ChevronRight,
   Loader2,
-  MapPin
+  MapPin,
+  HelpCircle
 } from 'lucide-react';
 
 const AssessorDashboard = () => {
@@ -101,6 +102,14 @@ const AssessorDashboard = () => {
           </div>
 
           <p className="text-[#4ade80] text-sm tracking-wide">Tryout Assessor Portal</p>
+
+          <button
+            onClick={() => navigate('/help/assessor-guide')}
+            className="mt-2 flex items-center gap-1.5 px-3 py-1.5 bg-[#0d5943] border border-[#1a8a68] rounded-full text-[#4ade80] text-xs hover:bg-[#1a8a68] hover:text-white transition-all"
+          >
+            <HelpCircle className="w-3.5 h-3.5" />
+            Quick Guide
+          </button>
 
           {userProfile?.displayName && (
             <div className="mt-3 text-center">

@@ -25,7 +25,8 @@ import {
   Zap,
   MapPin,
   Clock,
-  ChevronRight
+  ChevronRight,
+  HelpCircle
 } from 'lucide-react';
 
 const WelcomePage = () => {
@@ -632,6 +633,19 @@ const WelcomePage = () => {
           </div>
         </div>
       </main>
+
+      {/* Help Link */}
+      <div className="px-4 pb-6">
+        <div className="max-w-lg mx-auto">
+          <button
+            onClick={() => navigate('/help')}
+            className="w-full flex items-center justify-center gap-2 py-3 text-[#4ade80]/60 hover:text-[#4ade80] text-sm transition-colors"
+          >
+            <HelpCircle className="w-4 h-4" />
+            Help Center
+          </button>
+        </div>
+      </div>
 
       {/* Footer */}
       <footer className="fixed bottom-0 left-0 right-0 py-4 text-center">
