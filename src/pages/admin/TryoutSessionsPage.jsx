@@ -531,8 +531,11 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
   // Fetch system coaches on mount
   useEffect(() => {
     const loadCoaches = async () => {
-      const coaches = await fetchUsersByRole('coach');
-      setSystemCoaches(coaches);
+      const [coaches, assessors] = await Promise.all([
+        fetchUsersByRole('coach'),
+        fetchUsersByRole('tryout_assessor')
+      ]);
+      setSystemCoaches([...coaches, ...assessors]);
     };
     loadCoaches();
   }, []);
@@ -696,12 +699,12 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
 
   const selectCoach = (coach) => {
     const teamLabel = (coach.teamNames || []).join(', ');
-    setNewAssessor({
+    setNewAssessor(prev => ({
       name: coach.displayName,
       email: coach.email,
-      role: 'coach',
+      role: prev.role,
       userId: coach.id
-    });
+    }));
     setCoachSearch(coach.displayName + (teamLabel ? ` (${teamLabel})` : ''));
     setShowCoachDropdown(false);
   };
@@ -1079,12 +1082,12 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                   <option value="volunteer">Volunteer</option>
                   <option value="coach">Coach</option>
                   <option value="team_manager">Team Manager</option>
-                  <option value="committee">Committee Member</option>
+                  <option value="tryout_assessor">Tryout Assessor</option>
                 </select>
               </div>
 
               {/* Coach selection from system users */}
-              {newAssessor.role === 'coach' ? (
+              {(newAssessor.role === 'coach' || newAssessor.role === 'tryout_assessor') ? (
                 <div className="space-y-2">
                   <div className="relative">
                     <div className="flex items-center gap-1 bg-[#0d5943] border border-[#1a8a68] rounded-lg px-3 py-2">
@@ -1183,12 +1186,12 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                       {assessor.email && <span className="text-[#4ade80] text-xs">{assessor.email}</span>}
                       <span className={`px-1.5 py-0.5 text-xs rounded ${
                         assessor.role === 'coach' ? 'bg-green-500/20 text-green-300' :
-                        assessor.role === 'committee' ? 'bg-purple-500/20 text-purple-300' :
+                        assessor.role === 'tryout_assessor' ? 'bg-violet-500/20 text-violet-300' :
                         assessor.role === 'team_manager' ? 'bg-blue-500/20 text-blue-300' :
                         'bg-[#1a8a68]/50 text-white/70'
                       }`}>
                         {assessor.role === 'team_manager' ? 'Team Manager' :
-                         assessor.role === 'committee' ? 'Committee' :
+                         assessor.role === 'tryout_assessor' ? 'Assessor' :
                          assessor.role || 'volunteer'}
                       </span>
                       {assessor.userId && (

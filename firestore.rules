@@ -25,8 +25,12 @@ service cloud.firestore {
       return hasRole('admin');
     }
 
+    function isLeadership() {
+      return isSignedIn() && getUserData().role in ['admin', 'president', 'vice_president'];
+    }
+
     function isCoach() {
-      return isSignedIn() && (getUserData().role == 'coach' || getUserData().role == 'admin');
+      return isSignedIn() && getUserData().role in ['coach', 'admin', 'president', 'vice_president'];
     }
 
     function isParent() {
@@ -37,18 +41,19 @@ service cloud.firestore {
       return hasRole('team_manager');
     }
 
-    function isCommitteeMember() {
-      return hasRole('committee_member');
+    // Can view tryout results: leadership + coordinators + youth head coach
+    function canViewTryoutResults() {
+      return isSignedIn() && getUserData().role in ['admin', 'president', 'vice_president', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach'];
     }
 
-    // Can assess tryouts: coaches, admins, team managers, committee members
+    // Can assess tryouts: leadership, coaches, team managers, tryout assessors
     function canAssessTryouts() {
-      return isSignedIn() && getUserData().role in ['admin', 'coach', 'team_manager', 'committee_member'];
+      return isSignedIn() && getUserData().role in ['admin', 'president', 'vice_president', 'coach', 'team_manager', 'tryout_assessor'];
     }
 
     // Validate that a role field is one of the allowed values
     function isValidRole(role) {
-      return role in ['admin', 'coach', 'player', 'parent', 'team_manager', 'committee_member'];
+      return role in ['admin', 'president', 'vice_president', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach', 'coach', 'youth_coach', 'tryout_assessor', 'team_manager', 'player', 'parent'];
     }
 
     // ───────────────────────────────────────
@@ -59,12 +64,12 @@ service cloud.firestore {
       allow create: if isSignedIn() && isOwner(userId)
         && request.resource.data.keys().hasAll(['email', 'role', 'createdAt'])
         && isValidRole(request.resource.data.role)
-        // Prevent self-assigning admin role on signup
-        && (request.resource.data.role != 'admin');
-      allow update: if isSignedIn() && (isOwner(userId) || isAdmin())
-        // Non-admins cannot change their own role
-        && (isAdmin() || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
-      allow delete: if isAdmin();
+        // Prevent self-assigning privileged roles on signup
+        && !(request.resource.data.role in ['admin', 'president', 'vice_president', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach', 'tryout_assessor']);
+      allow update: if isSignedIn() && (isOwner(userId) || isLeadership())
+        // Non-leadership cannot change their own role
+        && (isLeadership() || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
+      allow delete: if isLeadership();
     }
 
     // ───────────────────────────────────────
@@ -72,9 +77,9 @@ service cloud.firestore {
     // ───────────────────────────────────────
     match /teams/{teamId} {
       allow read: if isSignedIn();
-      allow create: if isAdmin();
-      allow update: if isAdmin() || (isCoach() && resource.data.coachId == request.auth.uid);
-      allow delete: if isAdmin();
+      allow create: if isLeadership();
+      allow update: if isLeadership() || (isCoach() && resource.data.coachId == request.auth.uid);
+      allow delete: if isLeadership();
     }
 
     // ───────────────────────────────────────
@@ -82,9 +87,9 @@ service cloud.firestore {
     // ───────────────────────────────────────
     match /players/{playerId} {
       allow read: if isSignedIn();
-      allow create: if isCoach() || isAdmin();
-      allow update: if isCoach() || isAdmin();
-      allow delete: if isAdmin();
+      allow create: if isCoach() || isLeadership();
+      allow update: if isCoach() || isLeadership();
+      allow delete: if isLeadership();
     }
 
     // ───────────────────────────────────────
@@ -141,14 +146,14 @@ service cloud.firestore {
     // Notifications collection
     // ───────────────────────────────────────
     match /notifications/{notificationId} {
-      // Recipients can read their own; admins can read all
+      // Recipients can read their own; leadership can read all
       allow read: if isSignedIn()
-        && (resource.data.recipientId == request.auth.uid || isAdmin());
-      allow create: if isCoach() || isAdmin();
-      // Recipients can mark as read; admins can manage
+        && (resource.data.recipientId == request.auth.uid || isLeadership());
+      allow create: if isCoach() || isLeadership();
+      // Recipients can mark as read; leadership can manage
       allow update: if isSignedIn()
-        && (resource.data.recipientId == request.auth.uid || isAdmin());
-      allow delete: if isAdmin();
+        && (resource.data.recipientId == request.auth.uid || isLeadership());
+      allow delete: if isLeadership();
     }
 
     // ───────────────────────────────────────
@@ -156,10 +161,10 @@ service cloud.firestore {
     // ───────────────────────────────────────
     match /scoring_assignments/{assignmentId} {
       allow read: if isSignedIn();
-      allow create: if isAdmin();
-      allow update: if isAdmin()
+      allow create: if isLeadership();
+      allow update: if isLeadership()
         || (isSignedIn() && resource.data.userId == request.auth.uid);
-      allow delete: if isAdmin();
+      allow delete: if isLeadership();
     }
 
     // ───────────────────────────────────────
@@ -169,30 +174,30 @@ service cloud.firestore {
       allow read: if isSignedIn()
         && (resource.data.requesterId == request.auth.uid
             || resource.data.targetUserId == request.auth.uid
-            || isAdmin());
+            || isLeadership());
       allow create: if isSignedIn();
       allow update: if isSignedIn()
         && (resource.data.requesterId == request.auth.uid
             || resource.data.targetUserId == request.auth.uid
-            || isAdmin());
-      allow delete: if isAdmin();
+            || isLeadership());
+      allow delete: if isLeadership();
     }
 
     // ───────────────────────────────────────
     // Tryout sessions collection
     // ───────────────────────────────────────
     match /tryout_sessions/{sessionId} {
-      allow read: if isSignedIn() && canAssessTryouts();
-      allow create: if isAdmin();
+      allow read: if isSignedIn() && (canAssessTryouts() || canViewTryoutResults());
+      allow create: if isLeadership();
       allow update: if canAssessTryouts();
-      allow delete: if isAdmin();
+      allow delete: if isLeadership();
 
       // Tryout evaluations sub-collection
       match /evaluations/{evalId} {
-        allow read: if isSignedIn() && canAssessTryouts();
+        allow read: if isSignedIn() && (canAssessTryouts() || canViewTryoutResults());
         allow create: if canAssessTryouts();
         allow update: if canAssessTryouts();
-        allow delete: if isAdmin();
+        allow delete: if isLeadership();
       }
     }
 
@@ -201,9 +206,9 @@ service cloud.firestore {
     // ───────────────────────────────────────
     match /youth_programs/{programId} {
       allow read: if isSignedIn();
-      allow create: if isAdmin();
-      allow update: if isCoach() || isAdmin();
-      allow delete: if isAdmin();
+      allow create: if isLeadership();
+      allow update: if isCoach() || isLeadership();
+      allow delete: if isLeadership();
     }
 
     // ───────────────────────────────────────
@@ -220,7 +225,7 @@ service cloud.firestore {
     // Audit logs collection — immutable
     // ───────────────────────────────────────
     match /audit_logs/{logId} {
-      allow read: if isAdmin();
+      allow read: if isLeadership();
       allow create: if isSignedIn();
       allow update, delete: if false; // Logs are immutable
     }
@@ -231,13 +236,13 @@ service cloud.firestore {
     match /parent_invitations/{invitationId} {
       // Public read so unauthenticated parents can validate their invitation code
       allow read: if true;
-      // Admins and coaches can create invitations
+      // Leadership and coaches can create invitations
       allow create: if isCoach();
       allow update: if isCoach()
         || (isSignedIn() && resource.data.status == 'pending'
             && request.resource.data.status == 'accepted'
             && request.resource.data.acceptedBy == request.auth.uid);
-      allow delete: if isAdmin();
+      allow delete: if isLeadership();
     }
 
     // ───────────────────────────────────────

@@ -22,6 +22,43 @@ const roleNavItems = {
     { icon: Activity, label: 'Analytics', path: '/admin/analytics' },
     { icon: Bell, label: 'Alerts', path: '/notifications' },
   ],
+  president: [
+    { icon: Home, label: 'Home', path: '/welcome' },
+    { icon: BarChart3, label: 'Dashboard', path: '/dashboard' },
+    { icon: Users, label: 'Rosters', path: '/admin/rosters' },
+    { icon: Activity, label: 'Analytics', path: '/admin/analytics' },
+    { icon: Bell, label: 'Alerts', path: '/notifications' },
+  ],
+  vice_president: [
+    { icon: Home, label: 'Home', path: '/welcome' },
+    { icon: BarChart3, label: 'Dashboard', path: '/dashboard' },
+    { icon: Users, label: 'Rosters', path: '/admin/rosters' },
+    { icon: Activity, label: 'Analytics', path: '/admin/analytics' },
+    { icon: Bell, label: 'Alerts', path: '/notifications' },
+  ],
+  girls_coordinator: [
+    { icon: Home, label: 'Home', path: '/welcome' },
+    { icon: BarChart3, label: 'Dashboard', path: '/dashboard' },
+    { icon: ClipboardList, label: 'Tryouts', path: '/admin/tryouts' },
+    { icon: Bell, label: 'Alerts', path: '/notifications' },
+  ],
+  boys_coordinator: [
+    { icon: Home, label: 'Home', path: '/welcome' },
+    { icon: BarChart3, label: 'Dashboard', path: '/dashboard' },
+    { icon: ClipboardList, label: 'Tryouts', path: '/admin/tryouts' },
+    { icon: Bell, label: 'Alerts', path: '/notifications' },
+  ],
+  youth_head_coach: [
+    { icon: Home, label: 'Home', path: '/welcome' },
+    { icon: BarChart3, label: 'Dashboard', path: '/dashboard' },
+    { icon: ClipboardList, label: 'Tryouts', path: '/admin/tryouts' },
+    { icon: Bell, label: 'Alerts', path: '/notifications' },
+  ],
+  youth_coach: [
+    { icon: Home, label: 'Home', path: '/welcome' },
+    { icon: BarChart3, label: 'Dashboard', path: '/dashboard' },
+    { icon: Bell, label: 'Alerts', path: '/notifications' },
+  ],
   coach: [
     { icon: Home, label: 'Home', path: '/welcome' },
     { icon: BarChart3, label: 'Dashboard', path: '/dashboard' },
@@ -55,9 +92,15 @@ const MobileBottomNav = () => {
   // Don't render on login or tryout assessor pages (has custom bottom bar)
   if (
     location.pathname === '/login' ||
+    location.pathname === '/assessor' ||
     location.pathname.startsWith('/tryout/') ||
     location.pathname.startsWith('/signup/')
   ) {
+    return null;
+  }
+
+  // Hide nav for assessors (they have their own restricted interface)
+  if (userProfile?.role === 'tryout_assessor') {
     return null;
   }
 

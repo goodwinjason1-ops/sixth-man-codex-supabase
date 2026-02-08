@@ -123,18 +123,20 @@ export const subscribeTryoutSessions = (callback) => {
 /**
  * Get sessions assigned to a specific assessor
  */
-export const getAssessorSessions = async (assessorId) => {
+export const getAssessorSessions = async (assessorUserId, assessorEmail) => {
   try {
     const q = query(
       collection(db, SESSIONS_COLLECTION),
-      where('status', '==', 'active')
+      where('status', 'in', ['active', 'completed'])
     );
     const snapshot = await getDocs(q);
-    // Filter sessions where assessor is assigned
+    // Filter sessions where assessor is assigned (match by userId or email)
     const sessions = snapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() }))
       .filter(session =>
-        session.assessors?.some(a => a.id === assessorId || a.email === assessorId)
+        session.assessors?.some(a =>
+          a.userId === assessorUserId || a.email === assessorEmail
+        )
       );
     return { success: true, data: sessions };
   } catch (error) {

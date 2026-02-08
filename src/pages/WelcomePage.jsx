@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { useGameDayDetection, formatGameForDisplay } from '../hooks/useGameDayDetection';
 import ConnectionStatus from '../components/ConnectionStatus';
+import { ADMIN_ROLES, ROLE_LABELS, ROLE_BADGE_STYLES } from '../constants/roles';
 import {
   User,
   Users,
@@ -65,6 +66,13 @@ const WelcomePage = () => {
     }
   }, [dataReady, gameDayLoading, isGameDay, todaysGames, primaryGame, isCoach, navigate, hasAutoRedirected]);
 
+  // Redirect tryout assessors to their restricted dashboard
+  useEffect(() => {
+    if (userProfile?.role === 'tryout_assessor') {
+      navigate('/assessor', { replace: true });
+    }
+  }, [userProfile?.role, navigate]);
+
   // Handle Game Day banner click
   const handleGameDayClick = () => {
     const gameData = formatGameForDisplay(primaryGame);
@@ -91,7 +99,7 @@ const WelcomePage = () => {
     const role = userProfile?.role;
 
     // Admin-specific tiles (no coach features like Match Day)
-    if (role === 'admin') {
+    if (ADMIN_ROLES.includes(role)) {
       return [
         {
           id: 'tryouts',
@@ -253,9 +261,85 @@ const WelcomePage = () => {
       ];
     }
 
-    // Committee Member tiles
-    if (role === 'committee_member') {
+    // Tryout Assessor - redirect handled by useEffect
+    if (role === 'tryout_assessor') {
+      return [];
+    }
+
+    // Girls/Boys Coordinator tiles
+    if (role === 'girls_coordinator' || role === 'boys_coordinator') {
       return [
+        {
+          id: 'tryouts',
+          title: 'Tryout Evaluations',
+          icon: ClipboardCheck,
+          path: '/admin/tryouts',
+          description: 'Manage tryout sessions',
+          highlight: true
+        },
+        {
+          id: 'dashboard',
+          title: 'Dashboard',
+          icon: LayoutDashboard,
+          path: '/dashboard',
+          description: 'Admin dashboard'
+        },
+        {
+          id: 'notifications',
+          title: 'Notifications',
+          icon: Bell,
+          path: '/notifications',
+          description: 'Club notifications',
+          badge: unreadCount
+        }
+      ];
+    }
+
+    // Youth Head Coach tiles
+    if (role === 'youth_head_coach') {
+      return [
+        {
+          id: 'tryout-results',
+          title: 'Tryout Results',
+          icon: ClipboardCheck,
+          path: '/admin/tryouts',
+          description: 'View tryout evaluations'
+        },
+        {
+          id: 'youth-programs',
+          title: 'Youth Programs',
+          icon: Award,
+          path: '/admin/youth-programs',
+          description: 'Little Lakers & Lakers Ready'
+        },
+        {
+          id: 'dashboard',
+          title: 'Dashboard',
+          icon: LayoutDashboard,
+          path: '/dashboard',
+          description: 'Admin dashboard'
+        },
+        {
+          id: 'notifications',
+          title: 'Notifications',
+          icon: Bell,
+          path: '/notifications',
+          description: 'Club notifications',
+          badge: unreadCount
+        }
+      ];
+    }
+
+    // Youth Coach tiles
+    if (role === 'youth_coach') {
+      return [
+        {
+          id: 'youth-programs',
+          title: 'Youth Programs',
+          icon: Award,
+          path: '/admin/youth-programs',
+          description: 'Little Lakers & Lakers Ready'
+        },
         {
           id: 'dashboard',
           title: 'Dashboard',
@@ -425,21 +509,9 @@ const WelcomePage = () => {
               </p>
               {userProfile.role && (
                 <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${
-                  userProfile.role === 'admin'
-                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500'
-                    : userProfile.role === 'coach'
-                    ? 'bg-[#22c55e]/20 text-[#4ade80] border border-[#22c55e]'
-                    : userProfile.role === 'team_manager'
-                    ? 'bg-blue-500/20 text-blue-300 border border-blue-500'
-                    : userProfile.role === 'committee_member'
-                    ? 'bg-orange-500/20 text-orange-300 border border-orange-500'
-                    : userProfile.role === 'parent'
-                    ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500'
-                    : 'bg-blue-500/20 text-blue-300 border border-blue-500'
+                  ROLE_BADGE_STYLES[userProfile.role] || 'bg-blue-500/20 text-blue-300 border border-blue-500'
                 }`}>
-                  {{ admin: 'Administrator', coach: 'Coach', player: 'Player',
-                     parent: 'Parent', team_manager: 'Team Manager',
-                     committee_member: 'Committee Member' }[userProfile.role] || 'Member'}
+                  {ROLE_LABELS[userProfile.role] || 'Member'}
                 </span>
               )}
             </div>

@@ -49,6 +49,9 @@ import ParentDashboard from './pages/ParentDashboard';
 // User Pages
 import NotificationsInboxPage from './pages/NotificationsInboxPage';
 import NotificationPreferencesPage from './pages/NotificationPreferencesPage';
+import AssessorDashboard from './pages/AssessorDashboard';
+import UserCreationPage from './pages/admin/UserCreationPage';
+import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES } from './constants/roles';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import MobileBottomNav from './components/MobileBottomNav';
@@ -107,12 +110,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Layout>
-              {userProfile?.role === 'admin' ? <AdminDashboard /> :
+              {ADMIN_ROLES.includes(userProfile?.role) ? <AdminDashboard /> :
+               ['girls_coordinator', 'boys_coordinator', 'youth_head_coach'].includes(userProfile?.role) ? <AdminDashboard /> :
                userProfile?.role === 'coach' ? <CoachDashboard /> :
+               userProfile?.role === 'youth_coach' ? <CoachDashboard /> :
                userProfile?.role === 'player' ? <PlayerPortal /> :
                userProfile?.role === 'parent' ? <ParentDashboard /> :
                userProfile?.role === 'team_manager' ? <PlayerPortal /> :
-               userProfile?.role === 'committee_member' ? <PlayerPortal /> :
+               userProfile?.role === 'tryout_assessor' ? <Navigate to="/assessor" replace /> :
                <Navigate to="/welcome" replace />}
             </Layout>
           </ProtectedRoute>
@@ -133,7 +138,7 @@ const AppRoutes = () => {
       <Route
         path="/coach/profile"
         element={
-          <ProtectedRoute allowedRoles={['coach', 'admin']}>
+          <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load coach profile. Please try again.">
               <CoachProfilePage />
             </ErrorBoundary>
@@ -144,7 +149,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/profile"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load admin profile. Please try again.">
               <AdminProfilePage />
             </ErrorBoundary>
@@ -155,7 +160,7 @@ const AppRoutes = () => {
       <Route
         path="/coach/players"
         element={
-          <ProtectedRoute allowedRoles={['coach', 'admin']}>
+          <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load player overview. Please try again.">
               <CoachPlayerOverviewPage />
             </ErrorBoundary>
@@ -166,7 +171,7 @@ const AppRoutes = () => {
       <Route
         path="/coach/training-plans"
         element={
-          <ProtectedRoute allowedRoles={['coach', 'admin']}>
+          <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load training plans. Please try again.">
               <TrainingPlansListPage />
             </ErrorBoundary>
@@ -177,7 +182,7 @@ const AppRoutes = () => {
       <Route
         path="/coach/training-plans/new"
         element={
-          <ProtectedRoute allowedRoles={['coach', 'admin']}>
+          <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load plan builder. Please try again.">
               <TrainingPlanBuilderPage />
             </ErrorBoundary>
@@ -188,7 +193,7 @@ const AppRoutes = () => {
       <Route
         path="/coach/training-plans/:id"
         element={
-          <ProtectedRoute allowedRoles={['coach', 'admin']}>
+          <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load plan. Please try again.">
               <TrainingPlanBuilderPage />
             </ErrorBoundary>
@@ -199,7 +204,7 @@ const AppRoutes = () => {
       <Route
         path="/admin"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <Layout>
               <AdminDashboard />
             </Layout>
@@ -288,7 +293,7 @@ const AppRoutes = () => {
       <Route
         path="/coach-assessment"
         element={
-          <ProtectedRoute allowedRoles={['coach', 'admin']}>
+          <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
             <CoachAssessmentPage />
           </ProtectedRoute>
         }
@@ -306,7 +311,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/benchmarks"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <BenchmarkAdminPage />
           </ProtectedRoute>
         }
@@ -315,7 +320,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/rosters"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load roster management.">
               <RosterManagementPage />
             </ErrorBoundary>
@@ -326,7 +331,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/schedule"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load schedule management.">
               <ScheduleManagementPage />
             </ErrorBoundary>
@@ -337,7 +342,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/playerhq"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load PlayerHQ integration.">
               <PlayerHQIntegrationPage />
             </ErrorBoundary>
@@ -348,7 +353,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/analytics"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load club analytics.">
               <ClubAnalyticsPage />
             </ErrorBoundary>
@@ -359,7 +364,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/age-groups"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load age group reports.">
               <AgeGroupReportsPage />
             </ErrorBoundary>
@@ -370,7 +375,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/age-groups/:ageGroupId"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load age group report.">
               <AgeGroupDetailReportPage />
             </ErrorBoundary>
@@ -381,7 +386,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/coaching"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load coaching effectiveness.">
               <CoachingEffectivenessPage />
             </ErrorBoundary>
@@ -392,7 +397,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/curriculum"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load curriculum analysis.">
               <CurriculumAnalysisPage />
             </ErrorBoundary>
@@ -403,7 +408,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/rep-prospects"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load rep team prospects.">
               <RepTeamProspectsPage />
             </ErrorBoundary>
@@ -414,7 +419,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/data-explorer"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load data explorer.">
               <DataExplorerPage />
             </ErrorBoundary>
@@ -425,7 +430,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/reports"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load reports.">
               <ReportsExportPage />
             </ErrorBoundary>
@@ -436,7 +441,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/system"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load system management.">
               <SystemManagementPage />
             </ErrorBoundary>
@@ -447,7 +452,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/training-plans"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load training plans library.">
               <TrainingPlansLibraryPage />
             </ErrorBoundary>
@@ -458,7 +463,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/game-results"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load game results.">
               <GameResultsPage />
             </ErrorBoundary>
@@ -469,7 +474,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/notifications"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load notifications management.">
               <NotificationsAdminPage />
             </ErrorBoundary>
@@ -480,7 +485,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/scoring-roster"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'coach']}>
+          <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load scoring roster.">
               <NotificationsAdminPage />
             </ErrorBoundary>
@@ -491,7 +496,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/sample-data"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load sample data tools.">
               <SampleDataPage />
             </ErrorBoundary>
@@ -502,7 +507,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/parent-invitations"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load parent invitations.">
               <ParentInvitationsPage />
             </ErrorBoundary>
@@ -513,7 +518,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/data-cleanup"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load data cleanup.">
               <DataCleanupPage />
             </ErrorBoundary>
@@ -525,7 +530,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/youth-programs"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES, 'youth_head_coach', 'youth_coach']}>
             <ErrorBoundary fallbackMessage="Unable to load youth programs.">
               <YouthProgramsPage />
             </ErrorBoundary>
@@ -536,7 +541,7 @@ const AppRoutes = () => {
       <Route
         path="/youth-programs/:programId"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'coach']}>
+          <ProtectedRoute allowedRoles={[...STAFF_ROLES, 'youth_coach', 'youth_head_coach']}>
             <ErrorBoundary fallbackMessage="Unable to load youth session.">
               <YouthCoachPage />
             </ErrorBoundary>
@@ -548,7 +553,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/tryouts"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES, 'girls_coordinator', 'boys_coordinator']}>
             <ErrorBoundary fallbackMessage="Unable to load tryout sessions.">
               <TryoutSessionsPage />
             </ErrorBoundary>
@@ -559,7 +564,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/tryouts/:sessionId/results"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={[...TRYOUT_RESULTS_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load tryout results.">
               <TryoutResultsPage />
             </ErrorBoundary>
@@ -570,7 +575,7 @@ const AppRoutes = () => {
       <Route
         path="/tryout/:sessionId"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'coach', 'team_manager', 'committee_member']}>
+          <ProtectedRoute allowedRoles={[...TRYOUT_ASSESSOR_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load assessor view.">
               <TryoutAssessorPage />
             </ErrorBoundary>
@@ -584,6 +589,26 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <ErrorBoundary fallbackMessage="Unable to load swap request.">
               <NotificationsInboxPage />
+            </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/assessor"
+        element={
+          <ProtectedRoute allowedRoles={['tryout_assessor']}>
+            <AssessorDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/users/create"
+        element={
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
+            <ErrorBoundary fallbackMessage="Unable to load user creation.">
+              <UserCreationPage />
             </ErrorBoundary>
           </ProtectedRoute>
         }

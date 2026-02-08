@@ -9,6 +9,7 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, googleProvider, appleProvider, db } from '../services/firebase';
+import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES, ASSESSOR_ASSIGNER_ROLES } from '../constants/roles';
 
 const AuthContext = createContext();
 
@@ -116,7 +117,7 @@ export const AuthProvider = ({ children }) => {
       const result = await createUserWithEmailAndPassword(auth, email, password);
 
       // Sanitize the requested role — only allow safe self-assignable roles.
-      // Admin, team_manager, committee_member must be set by an admin.
+      // Privileged roles must be set by an admin.
       const requestedRole = additionalData.role;
       const safeRole = SELF_ASSIGNABLE_ROLES.includes(requestedRole) ? requestedRole : 'player';
 
@@ -288,8 +289,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Valid roles in the system
-  // Primary: admin, coach, player, parent
-  // Extended: team_manager, committee_member (used in tryout system)
+  // Leadership: admin, president, vice_president
+  // Coordinators: girls_coordinator, boys_coordinator
+  // Coaching: youth_head_coach, coach, youth_coach
+  // Other: tryout_assessor, team_manager, player, parent
   const role = userProfile?.role;
 
   const value = {
@@ -313,11 +316,20 @@ export const AuthProvider = ({ children }) => {
     isPlayer: role === 'player',
     isParent: role === 'parent',
     isTeamManager: role === 'team_manager',
-    isCommitteeMember: role === 'committee_member',
+    isPresident: role === 'president',
+    isVicePresident: role === 'vice_president',
+    isTryoutAssessor: role === 'tryout_assessor',
+    isGirlsCoordinator: role === 'girls_coordinator',
+    isBoysCoordinator: role === 'boys_coordinator',
+    isYouthHeadCoach: role === 'youth_head_coach',
+    isYouthCoach: role === 'youth_coach',
     // Composite role checks
-    isStaff: role === 'coach' || role === 'admin',           // Can access coach-level features
-    isCoachOrAdmin: role === 'coach' || role === 'admin',     // Alias for route guards
-    canAssessTryouts: role === 'coach' || role === 'admin' || role === 'team_manager' || role === 'committee_member',
+    isLeadership: ADMIN_ROLES.includes(role),
+    isStaff: STAFF_ROLES.includes(role),
+    isCoachOrAdmin: STAFF_ROLES.includes(role),
+    canAssessTryouts: TRYOUT_ASSESSOR_ROLES.includes(role),
+    canViewTryoutResults: TRYOUT_RESULTS_ROLES.includes(role),
+    canAssignAssessors: ASSESSOR_ASSIGNER_ROLES.includes(role),
     hasRole: (checkRole) => role === checkRole
   };
 

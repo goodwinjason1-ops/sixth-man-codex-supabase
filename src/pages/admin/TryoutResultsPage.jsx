@@ -783,7 +783,7 @@ const OverviewTab = ({
                   <span className="text-white font-medium text-sm print:text-black">{a.name}</span>
                   {a.role && <span className={`px-1.5 py-0.5 text-xs rounded ${
                     a.role === 'coach' ? 'bg-green-500/20 text-green-300' :
-                    a.role === 'committee' ? 'bg-purple-500/20 text-purple-300' :
+                    a.role === 'tryout_assessor' ? 'bg-violet-500/20 text-violet-300' :
                     a.role === 'team_manager' ? 'bg-blue-500/20 text-blue-300' :
                     'bg-[#1a8a68]/50 text-white/70'
                   }`}>{a.role === 'team_manager' ? 'Team Mgr' : a.role}</span>}
@@ -1244,7 +1244,7 @@ const CalibrationTab = ({ evaluations, session, assessors }) => {
                     {sessionAssessor?.role && (
                       <span className={`px-1.5 py-0.5 text-xs rounded ${
                         sessionAssessor.role === 'coach' ? 'bg-green-500/20 text-green-300' :
-                        sessionAssessor.role === 'committee' ? 'bg-purple-500/20 text-purple-300' :
+                        sessionAssessor.role === 'tryout_assessor' ? 'bg-violet-500/20 text-violet-300' :
                         'bg-[#1a8a68]/50 text-white/70'
                       }`}>{sessionAssessor.role}</span>
                     )}

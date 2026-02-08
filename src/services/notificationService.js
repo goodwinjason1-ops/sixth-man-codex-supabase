@@ -17,7 +17,8 @@ export const NOTIFICATION_TYPES = {
   TRAINING_CHANGE: 'training_change',
   EVENT: 'event',
   PARENT_INVITATION: 'parent_invitation',
-  PARENT_WELCOME: 'parent_welcome'
+  PARENT_WELCOME: 'parent_welcome',
+  TRYOUT_ASSESSOR_ASSIGNMENT: 'tryout_assessor_assignment'
 };
 
 export const NOTIFICATION_TYPE_CONFIG = {
@@ -68,6 +69,12 @@ export const NOTIFICATION_TYPE_CONFIG = {
     icon: 'Heart',
     color: 'green',
     description: 'Welcome message for new parent accounts'
+  },
+  tryout_assessor_assignment: {
+    label: 'Tryout Assessor Assignment',
+    icon: 'ClipboardCheck',
+    color: 'violet',
+    description: 'Notification when assigned as a tryout assessor'
   }
 };
 
@@ -210,6 +217,22 @@ You now have access to:
 Log in anytime at {loginUrl}
 
 Thank you for being part of the Lakers family!
+
+Emerald Lakers Basketball Club`
+  },
+  tryout_assessor_assignment: {
+    subject: 'Tryout Assessment Assignment - {sessionName}',
+    message: `Hi {assessorName},
+
+You have been assigned as an assessor for an upcoming tryout session:
+
+Session: {sessionName}
+Age Group: {ageGroup}
+Date: {sessionDate}
+Time: {sessionTime}
+Venue: {venue}
+
+Please log in to the Emerald Lakers app to view your assigned session and begin evaluations when the session is active.
 
 Emerald Lakers Basketball Club`
   }

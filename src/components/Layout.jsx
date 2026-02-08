@@ -31,10 +31,10 @@ const Layout = ({ children }) => {
   const unreadNotifications = notifications?.filter(n => !n.read).length || 0;
 
   const navigationItems = [
-    { icon: Home, label: 'Home', path: '/welcome', roles: ['player', 'coach', 'admin', 'parent', 'team_manager', 'committee_member'] },
-    { icon: BarChart3, label: 'Dashboard', path: '/dashboard', roles: ['player', 'coach', 'admin', 'team_manager', 'committee_member'] },
+    { icon: Home, label: 'Home', path: '/welcome', roles: ['player', 'coach', 'admin', 'president', 'vice_president', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach', 'youth_coach', 'parent', 'team_manager'] },
+    { icon: BarChart3, label: 'Dashboard', path: '/dashboard', roles: ['player', 'coach', 'admin', 'president', 'vice_president', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach', 'youth_coach', 'team_manager'] },
     { icon: Users, label: 'Coach Portal', path: '/coach', roles: ['coach'] },
-    { icon: Settings, label: 'Admin Portal', path: '/admin', roles: ['admin'] },
+    { icon: Settings, label: 'Admin Portal', path: '/admin', roles: ['admin', 'president', 'vice_president'] },
     { icon: User, label: 'My Profile', path: '/player', roles: ['player'] },
   ];
 

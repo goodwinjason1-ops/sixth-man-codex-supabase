@@ -329,7 +329,7 @@ const TryoutAssessorPage = () => {
           <h2 className="text-white font-bold text-lg mb-2">Session Not Found</h2>
           <p className="text-red-300 mb-4">{error || 'Unable to load tryout session'}</p>
           <button
-            onClick={() => navigate('/admin/tryouts')}
+            onClick={() => navigate(userProfile?.role === 'tryout_assessor' ? '/assessor' : '/admin/tryouts')}
             className="px-4 py-2 bg-[#1a8a68] hover:bg-[#22c55e] text-white rounded-lg"
           >
             Go Back
@@ -348,7 +348,7 @@ const TryoutAssessorPage = () => {
           <h2 className="text-white font-bold text-lg mb-2">No Players</h2>
           <p className="text-[#4ade80] mb-4">No players have been added to this session yet.</p>
           <button
-            onClick={() => navigate('/admin/tryouts')}
+            onClick={() => navigate(userProfile?.role === 'tryout_assessor' ? '/assessor' : '/admin/tryouts')}
             className="px-4 py-2 bg-[#1a8a68] hover:bg-[#22c55e] text-white rounded-lg"
           >
             Go Back
@@ -379,7 +379,7 @@ const TryoutAssessorPage = () => {
         <div className="px-4 py-3">
           <div className="flex items-center justify-between mb-2">
             <button
-              onClick={() => navigate('/admin/tryouts')}
+              onClick={() => navigate(userProfile?.role === 'tryout_assessor' ? '/assessor' : '/admin/tryouts')}
               className="p-2 hover:bg-white/10 rounded-lg transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-white" />
@@ -725,7 +725,7 @@ const TryoutAssessorPage = () => {
                 </button>
               ) : (
                 <button
-                  onClick={() => navigate('/admin/tryouts')}
+                  onClick={() => navigate(userProfile?.role === 'tryout_assessor' ? '/assessor' : '/admin/tryouts')}
                   className="px-5 py-2 bg-[#1a8a68] text-white font-medium rounded-lg flex items-center gap-1 text-sm"
                 >
                   <Check className="w-4 h-4" /> Done
@@ -767,7 +767,7 @@ const TryoutAssessorPage = () => {
                   </button>
                 ) : (
                   <button
-                    onClick={() => navigate('/admin/tryouts')}
+                    onClick={() => navigate(userProfile?.role === 'tryout_assessor' ? '/assessor' : '/admin/tryouts')}
                     className="px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg flex items-center gap-1 text-sm"
                   >
                     <Check className="w-4 h-4" /> Done
