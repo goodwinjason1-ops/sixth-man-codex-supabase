@@ -41,6 +41,7 @@ const DataCleanupPage = () => {
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [detailDoc, setDetailDoc] = useState(null);
   const [dryRun, setDryRun] = useState(true);
+  const [deleteProgress, setDeleteProgress] = useState(null); // { current, total, categoryId }
 
   // Run the full scan
   const scanForIssues = async () => {
@@ -296,6 +297,53 @@ const DataCleanupPage = () => {
     setCleaning(false);
   };
 
+  // Delete all documents in a category
+  const deleteAllInCategory = async (cat) => {
+    setCleaning(true);
+    let deleted = 0;
+    let failed = 0;
+
+    // Collect all doc IDs to delete
+    const docIds = [];
+    if (cat.id === 'duplicates') {
+      // For duplicates, delete all except the best in each group
+      for (const group of scanResults.issues.duplicates) {
+        for (const d of group.docs) {
+          if (d.id !== group.bestId) docIds.push(d.id);
+        }
+      }
+    } else {
+      // For other categories, get the doc IDs from the issue arrays
+      const issueKey = cat.id;
+      const items = scanResults.issues[issueKey] || [];
+      for (const d of items) {
+        docIds.push(d.id);
+      }
+    }
+
+    const total = docIds.length;
+    setDeleteProgress({ current: 0, total, categoryId: cat.id });
+
+    for (let i = 0; i < docIds.length; i++) {
+      setDeleteProgress({ current: i + 1, total, categoryId: cat.id });
+      const ok = await deleteDocument(docIds[i]);
+      if (ok) deleted++;
+      else failed++;
+    }
+
+    setDeleteProgress(null);
+    setCleanupLog(prev => [...prev, {
+      type: failed > 0 ? 'error' : 'success',
+      message: `${dryRun ? '[DRY RUN] ' : ''}Delete all "${cat.label}": ${deleted} deleted${failed > 0 ? `, ${failed} failed` : ''}. ${!dryRun ? 'Re-scan to verify.' : ''}`
+    }]);
+    setCleaning(false);
+
+    // Auto re-scan after live deletion
+    if (!dryRun && deleted > 0) {
+      await scanForIssues();
+    }
+  };
+
   // Clean ALL issues
   const cleanAll = async () => {
     setCleaning(true);
@@ -326,6 +374,19 @@ const DataCleanupPage = () => {
     URL.revokeObjectURL(url);
   };
 
+  // Count deletable docs in a category
+  const getDeletableCount = (catId) => {
+    if (!scanResults) return 0;
+    if (catId === 'duplicates') {
+      let count = 0;
+      for (const group of scanResults.issues.duplicates) {
+        count += group.docs.length - 1; // all except best
+      }
+      return count;
+    }
+    return (scanResults.issues[catId] || []).length;
+  };
+
   const categories = scanResults ? [
     {
       id: 'duplicates',
@@ -337,6 +398,7 @@ const DataCleanupPage = () => {
       description: 'Multiple documents with the same email address',
       action: cleanDuplicates,
       actionLabel: 'Remove Duplicates',
+      deleteLabel: `Delete All Duplicates (${getDeletableCount('duplicates')})`,
       items: scanResults.issues.duplicates.map(g => ({
         id: g.email,
         label: g.email,
@@ -355,6 +417,7 @@ const DataCleanupPage = () => {
       description: 'Documents missing the uid field',
       action: fixMissingUids,
       actionLabel: 'Fix UIDs',
+      deleteLabel: `Delete All (${getDeletableCount('missingUid')})`,
       items: scanResults.issues.missingUid.map(d => ({
         id: d.id,
         label: d.email || d.id,
@@ -372,6 +435,7 @@ const DataCleanupPage = () => {
       description: 'uid field does not match the document ID',
       action: fixUidMismatches,
       actionLabel: 'Fix Mismatches',
+      deleteLabel: `Delete All (${getDeletableCount('uidMismatch')})`,
       items: scanResults.issues.uidMismatch.map(d => ({
         id: d.id,
         label: d.email || d.id,
@@ -389,6 +453,7 @@ const DataCleanupPage = () => {
       description: 'Documents missing email, role, or uid',
       action: null,
       actionLabel: null,
+      deleteLabel: `Delete All (${getDeletableCount('missingFields')})`,
       items: scanResults.issues.missingFields.map(d => ({
         id: d.id,
         label: d.email || d.id,
@@ -406,6 +471,7 @@ const DataCleanupPage = () => {
       description: 'Parent accounts with no linked players',
       action: fixParentsNoChildren,
       actionLabel: 'Add Empty Array',
+      deleteLabel: `Delete All Orphaned Parents (${getDeletableCount('parentsNoChildren')})`,
       items: scanResults.issues.parentsNoChildren.map(d => ({
         id: d.id,
         label: d.email || d.displayName || d.id,
@@ -423,6 +489,7 @@ const DataCleanupPage = () => {
       description: 'Documents with no email address',
       action: cleanOrphaned,
       actionLabel: 'Delete Orphans',
+      deleteLabel: `Delete All Orphaned Docs (${getDeletableCount('orphanedDocs')})`,
       items: scanResults.issues.orphanedDocs.map(d => ({
         id: d.id,
         label: d.displayName || d.id,
@@ -606,27 +673,60 @@ const DataCleanupPage = () => {
                   {/* Expanded Items */}
                   {expandedCategory === cat.id && (
                     <div className="border-t border-[#1a8a68]/50">
-                      {/* Category Action Button */}
-                      {cat.action && (
-                        <div className="px-4 py-3 bg-white/5 flex items-center justify-between">
-                          <span className="text-white/60 text-xs">
-                            {cat.count} item{cat.count !== 1 ? 's' : ''} in this category
-                          </span>
+                      {/* Category Action Bar */}
+                      <div className="px-4 py-3 bg-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <span className="text-white/60 text-xs">
+                          {cat.count} item{cat.count !== 1 ? 's' : ''} in this category
+                          {deleteProgress?.categoryId === cat.id && (
+                            <span className="text-[#4ade80] ml-2">
+                              — deleting {deleteProgress.current} of {deleteProgress.total}...
+                            </span>
+                          )}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          {cat.action && (
+                            <button
+                              onClick={() => setConfirmAction({
+                                type: cat.id,
+                                fn: cat.action,
+                                label: `${dryRun ? '[DRY RUN] ' : ''}${cat.actionLabel} (${cat.count} items)`
+                              })}
+                              disabled={cleaning}
+                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                                dryRun
+                                  ? 'bg-[#22c55e]/20 text-[#4ade80] hover:bg-[#22c55e]/30'
+                                  : 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30'
+                              } disabled:opacity-50`}
+                            >
+                              <RefreshCw size={12} />
+                              {cat.actionLabel}
+                            </button>
+                          )}
                           <button
                             onClick={() => setConfirmAction({
-                              type: cat.id,
-                              fn: cat.action,
-                              label: `${dryRun ? '[DRY RUN] ' : ''}${cat.actionLabel} (${cat.count} items)`
+                              type: 'deleteCategory',
+                              fn: () => deleteAllInCategory(cat),
+                              label: cat.deleteLabel,
+                              description: `This will permanently delete ${getDeletableCount(cat.id)} documents from the Firestore users collection. This cannot be undone.`
                             })}
                             disabled={cleaning}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                              dryRun
-                                ? 'bg-[#22c55e]/20 text-[#4ade80] hover:bg-[#22c55e]/30'
-                                : 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-                            } disabled:opacity-50`}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
                           >
-                            {cat.actionLabel}
+                            <Trash2 size={12} />
+                            {cat.deleteLabel}
                           </button>
+                        </div>
+                      </div>
+
+                      {/* Progress Bar */}
+                      {deleteProgress?.categoryId === cat.id && (
+                        <div className="px-4 pb-2">
+                          <div className="w-full bg-[#0a3d2e] rounded-full h-1.5">
+                            <div
+                              className="bg-[#22c55e] h-1.5 rounded-full transition-all duration-200"
+                              style={{ width: `${(deleteProgress.current / deleteProgress.total) * 100}%` }}
+                            />
+                          </div>
                         </div>
                       )}
 
@@ -737,7 +837,10 @@ const DataCleanupPage = () => {
               <h3 className="text-white font-bold">Confirm Action</h3>
             </div>
             <p className="text-white/80 text-sm mb-2">{confirmAction.label}</p>
-            {!dryRun && (
+            {confirmAction.description && !dryRun && (
+              <p className="text-red-300 text-xs mb-4">{confirmAction.description}</p>
+            )}
+            {!confirmAction.description && !dryRun && (
               <p className="text-red-300 text-xs mb-4">
                 This action will permanently modify Firestore data. This cannot be undone.
               </p>
