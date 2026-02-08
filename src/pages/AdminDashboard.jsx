@@ -224,6 +224,14 @@ const AdminDashboard = () => {
       color: 'from-red-500 to-red-600'
     },
     {
+      id: 'data-cleanup',
+      title: 'Data Cleanup',
+      description: 'Fix duplicates and broken user documents',
+      icon: AlertCircle,
+      path: '/admin/data-cleanup',
+      color: 'from-rose-500 to-rose-600'
+    },
+    {
       id: 'sample-data',
       title: 'Sample Data Tools',
       description: 'Create and manage test data',

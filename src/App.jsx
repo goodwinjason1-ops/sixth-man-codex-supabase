@@ -38,6 +38,7 @@ import GameResultsPage from './pages/admin/GameResultsPage';
 import NotificationsAdminPage from './pages/admin/NotificationsPage';
 import SampleDataPage from './pages/admin/SampleDataPage';
 import ParentInvitationsPage from './pages/admin/ParentInvitationsPage';
+import DataCleanupPage from './pages/admin/DataCleanupPage';
 import TryoutSessionsPage from './pages/admin/TryoutSessionsPage';
 import TryoutResultsPage from './pages/admin/TryoutResultsPage';
 import TryoutAssessorPage from './pages/TryoutAssessorPage';
@@ -504,6 +505,17 @@ const AppRoutes = () => {
           <ProtectedRoute allowedRoles={['admin']}>
             <ErrorBoundary fallbackMessage="Unable to load parent invitations.">
               <ParentInvitationsPage />
+            </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/data-cleanup"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <ErrorBoundary fallbackMessage="Unable to load data cleanup.">
+              <DataCleanupPage />
             </ErrorBoundary>
           </ProtectedRoute>
         }
