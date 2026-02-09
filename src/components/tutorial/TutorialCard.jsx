@@ -4,6 +4,10 @@ import ContentBlockRenderer from '../help/ContentBlockRenderer';
 import MetricScale from './MetricScale';
 import ProTip from './ProTip';
 import AnnotatedScreenshot from './AnnotatedScreenshot';
+import AnimatedWalkthrough from './AnimatedWalkthrough';
+import FlowChart from './FlowChart';
+import ProcessFlow from './ProcessFlow';
+import VideoPlayer from './VideoPlayer';
 
 const IconHero = ({ icon, label }) => {
   const IconComponent = Icons[icon] || Icons.HelpCircle;
@@ -47,6 +51,36 @@ const TutorialCard = ({ step, stepIndex, totalSteps }) => {
         <AnnotatedScreenshot
           placeholderLabel={step.visual.placeholderLabel}
           annotations={step.visual.annotations}
+        />
+      )}
+      {step.visual && step.visual.type === 'animated-walkthrough' && (
+        <AnimatedWalkthrough
+          steps={step.visual.steps}
+          autoPlay={step.visual.autoPlay}
+          loop={step.visual.loop}
+          stepDelay={step.visual.stepDelay}
+          title={step.visual.title}
+        />
+      )}
+      {step.visual && step.visual.type === 'infographic' && step.visual.infographicType === 'flowchart' && (
+        <FlowChart
+          title={step.visual.title}
+          description={step.visual.description}
+          nodes={step.visual.nodes}
+          edges={step.visual.edges}
+        />
+      )}
+      {step.visual && step.visual.type === 'infographic' && step.visual.infographicType === 'process-flow' && (
+        <ProcessFlow
+          title={step.visual.title}
+          description={step.visual.description}
+          steps={step.visual.steps}
+        />
+      )}
+      {step.visual && step.visual.type === 'video' && (
+        <VideoPlayer
+          url={step.visual.url}
+          title={step.visual.title}
         />
       )}
 

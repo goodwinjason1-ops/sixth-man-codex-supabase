@@ -907,6 +907,9 @@ function buildSearchIndex() {
           if (block.type === 'tip') return `${block.title} ${block.text}`;
           if (block.type === 'info-card') return block.items.map((i) => `${i.label} ${i.text}`).join(' ');
           if (block.type === 'checklist') return block.items.join(' ');
+          if (block.type === 'callout') return `${block.title || ''} ${block.text || ''}`;
+          if (block.type === 'annotated-screenshot') return (block.annotations || []).map((a) => a.label + ' ' + (a.description || '')).join(' ');
+          if (block.type === 'animated-walkthrough') return (block.steps || []).map((s) => s.description || s.label || '').join(' ');
           return '';
         })
         .join(' ');

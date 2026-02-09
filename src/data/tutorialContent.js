@@ -523,17 +523,537 @@ export const TUTORIALS = {
       },
     ],
   },
+
+  // ── COORDINATOR (6 steps) ────────────────────────────────────────────────
+  coordinator: {
+    id: 'coordinator',
+    title: 'Coordinator Quick Start',
+    subtitle: 'Manage tryouts, assessors, and team placement',
+    icon: 'Network',
+    applicableRoles: ['girls_coordinator', 'boys_coordinator'],
+    estimatedMinutes: 3,
+    steps: [
+      {
+        id: 'welcome',
+        title: 'Welcome, Coordinator!',
+        icon: 'Sparkles',
+        visual: { type: 'icon-hero', icon: 'Network', label: 'Program Coordinator' },
+        content: [
+          { type: 'paragraph', text: 'This tutorial covers your key responsibilities: creating tryout sessions, assigning assessors, reviewing results, and managing team placement.' },
+          { type: 'paragraph', text: 'As a coordinator, you oversee the entire tryout-to-team pipeline for your program.' },
+        ],
+        proTip: null,
+      },
+      {
+        id: 'tryout-creation',
+        title: 'Creating Tryout Sessions',
+        icon: 'CalendarPlus',
+        visual: {
+          type: 'annotated-screenshot',
+          placeholderLabel: 'Tryout Session Creator',
+          annotations: [
+            { label: 'Age group', position: 'top-left', description: 'Select the age group for this session' },
+            { label: 'Date & time', position: 'center', description: 'Set when the session runs' },
+            { label: 'Player list', position: 'bottom', description: 'Add registered players to evaluate' },
+          ],
+        },
+        content: [
+          { type: 'steps', items: [
+            'Go to Tryouts > Create Session.',
+            'Select the age group and set the date and time.',
+            'Add players from the registered list or import from PlayerHQ.',
+            'Save the session — it will appear on assessor dashboards.',
+          ]},
+        ],
+        proTip: { text: 'Create sessions at least a week in advance so assessors can plan ahead.' },
+      },
+      {
+        id: 'assessor-assignment',
+        title: 'Assigning Assessors',
+        icon: 'UserCheck',
+        visual: {
+          type: 'annotated-screenshot',
+          placeholderLabel: 'Assessor Assignment Panel',
+          annotations: [
+            { label: 'Available assessors', position: 'left', description: 'People with the assessor role' },
+            { label: 'Assign button', position: 'right', description: 'Tap to assign to this session' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'Each tryout session needs assessors to evaluate players. Assign them from the available pool.' },
+          { type: 'steps', items: [
+            'Open the tryout session you created.',
+            'Tap "Assign Assessors" to see available assessors.',
+            'Select 3-5 assessors for reliable averaged scores.',
+            'Assessors will see the session on their dashboard immediately.',
+          ]},
+        ],
+        proTip: { text: 'Assign assessors who do not coach in the age group to avoid bias.' },
+      },
+      {
+        id: 'results-review',
+        title: 'Reviewing Results',
+        icon: 'BarChart3',
+        visual: {
+          type: 'infographic',
+          infographicType: 'flowchart',
+          title: 'Tryout to Team Pipeline',
+          description: 'End-to-end flow from creating a tryout session to final team placement.',
+          nodes: [
+            { id: 'create-session', icon: 'CalendarPlus', label: 'Create Session', x: 15, y: 20 },
+            { id: 'assign-assessors', icon: 'UserCheck', label: 'Assign Assessors', x: 50, y: 20 },
+            { id: 'collect-scores', icon: 'ClipboardCheck', label: 'Collect Scores', x: 85, y: 20 },
+            { id: 'team-placement', icon: 'Users', label: 'Team Placement', x: 50, y: 75 },
+          ],
+          edges: [
+            { from: 'create-session', to: 'assign-assessors' },
+            { from: 'assign-assessors', to: 'collect-scores' },
+            { from: 'collect-scores', to: 'team-placement' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'Once assessors complete their evaluations, you can view aggregated results.' },
+          { type: 'steps', items: [
+            'Go to Tryouts > Results for the session.',
+            'Review averaged scores across all assessors.',
+            'Sort and filter by metric to identify standouts.',
+            'Use the data to inform team placement decisions.',
+          ]},
+        ],
+        proTip: { text: 'Look at score spreads — high variance between assessors may need a second look.' },
+      },
+      {
+        id: 'two-stage',
+        title: 'Two-Stage Management',
+        icon: 'Layers',
+        visual: null,
+        content: [
+          { type: 'paragraph', text: 'Some age groups use two-stage tryouts for better evaluation:' },
+          { type: 'info-card', items: [
+            { label: 'Hour 1 — Development', text: 'Newer players and Team 3 candidates. Focuses on fundamentals and effort.' },
+            { label: 'Hour 2 — Advanced', text: 'Team 1 & 2 candidates plus promoted players. Game-based evaluation.' },
+          ]},
+          { type: 'paragraph', text: 'Create separate sessions for each hour. Players can be promoted from Hour 1 to Hour 2 based on their scores.' },
+        ],
+        proTip: { text: 'Review Hour 1 scores quickly after the first session to decide promotions before Hour 2.' },
+      },
+      {
+        id: 'complete',
+        title: 'You\'re Ready!',
+        icon: 'CheckCircle',
+        visual: { type: 'icon-hero', icon: 'Trophy', label: 'Tutorial Complete' },
+        content: [
+          { type: 'paragraph', text: 'You now know how to manage the full tryout lifecycle. Head to Tryouts to create your first session or review existing results.' },
+          { type: 'paragraph', text: 'Revisit this tutorial anytime from the Help Center.' },
+        ],
+        proTip: null,
+      },
+    ],
+  },
+
+  // ── YOUTH HEAD COACH (6 steps) ──────────────────────────────────────────
+  'youth-head-coach': {
+    id: 'youth-head-coach',
+    title: 'Youth Head Coach Quick Start',
+    subtitle: 'Oversee youth programs, coaches, and player development',
+    icon: 'GraduationCap',
+    applicableRoles: ['youth_head_coach'],
+    estimatedMinutes: 3,
+    steps: [
+      {
+        id: 'welcome',
+        title: 'Welcome, Head Coach!',
+        icon: 'Sparkles',
+        visual: { type: 'icon-hero', icon: 'GraduationCap', label: 'Youth Head Coach' },
+        content: [
+          { type: 'paragraph', text: 'This tutorial covers your oversight role: managing youth programs, supporting coaches, ensuring session quality, and tracking player milestones.' },
+          { type: 'paragraph', text: 'You have visibility across all youth coaching activity in the club.' },
+        ],
+        proTip: null,
+      },
+      {
+        id: 'program-oversight',
+        title: 'Program Oversight',
+        icon: 'LayoutDashboard',
+        visual: {
+          type: 'infographic',
+          infographicType: 'process-flow',
+          title: 'Youth Session Structure',
+          description: 'The standard 45-minute youth session format your coaches follow.',
+          steps: [
+            { icon: 'HeartPulse', label: 'Warm-Up (10 min)', description: 'Fun movement games — tag, animal walks, relays to get everyone active.' },
+            { icon: 'Target', label: 'Skill Focus (15 min)', description: 'One age-appropriate basketball skill with short demonstrations.' },
+            { icon: 'Gamepad2', label: 'Game Time (15 min)', description: 'Modified small-sided games that reinforce the session skill.' },
+            { icon: 'Wind', label: 'Cool Down (5 min)', description: 'Stretching, high-fives, and a positive summary of the session.' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'Your dashboard gives you a bird\'s-eye view of all youth programs — Little Lakers and Lakers Ready.' },
+          { type: 'info-card', items: [
+            { label: 'Little Lakers (Ages 4-5)', text: 'Fun, movement, coordination, and introducing basketball concepts.' },
+            { label: 'Lakers Ready (Ages 6-7)', text: 'Basic basketball skills, teamwork, and simple plays with more structure.' },
+          ]},
+        ],
+        proTip: { text: 'Check the dashboard weekly to spot attendance trends and coach engagement.' },
+      },
+      {
+        id: 'coach-management',
+        title: 'Coach Management',
+        icon: 'Users',
+        visual: {
+          type: 'annotated-screenshot',
+          placeholderLabel: 'Coach Management Panel',
+          annotations: [
+            { label: 'Coach list', position: 'center', description: 'All youth coaches and their assigned sessions' },
+            { label: 'Performance', position: 'top-right', description: 'Attendance and milestone tracking rates' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'Support and monitor your coaching team to ensure consistent quality.' },
+          { type: 'checklist', items: [
+            'Review each coach\'s session attendance rates.',
+            'Check that milestone tracking is being completed regularly.',
+            'Offer feedback based on session quality observations.',
+            'Reassign coaches between groups if needed.',
+          ]},
+        ],
+        proTip: { text: 'Schedule a quick check-in with each coach at least once per term.' },
+      },
+      {
+        id: 'session-quality',
+        title: 'Session Quality',
+        icon: 'ClipboardCheck',
+        visual: null,
+        content: [
+          { type: 'paragraph', text: 'Ensure every session follows the club\'s youth development philosophy.' },
+          { type: 'steps', items: [
+            'Review session plans before they run.',
+            'Drop in to observe sessions periodically.',
+            'Check post-session reports for attendance and notes.',
+            'Identify coaches who may need additional training or support.',
+          ]},
+          { type: 'paragraph', text: 'The app tracks key quality indicators automatically — session completeness, attendance rates, and milestone progress.' },
+        ],
+        proTip: { text: 'Focus on positive reinforcement first when providing coach feedback.' },
+      },
+      {
+        id: 'milestone-tracking',
+        title: 'Milestone Tracking',
+        icon: 'Award',
+        visual: null,
+        content: [
+          { type: 'paragraph', text: 'Monitor developmental milestones across all youth players to ensure the program is effective.' },
+          { type: 'info-card', items: [
+            { label: 'Program Dashboard', text: 'See milestone completion percentages by age group and by individual child.' },
+            { label: 'Coach Comparison', text: 'Compare milestone tracking rates between coaches to identify who may need help.' },
+            { label: 'Term Reports', text: 'End-of-term reports are auto-generated from milestone data for parents.' },
+          ]},
+        ],
+        proTip: { text: 'If a child is behind on milestones, coordinate with their coach on targeted activities.' },
+      },
+      {
+        id: 'complete',
+        title: 'You\'re All Set!',
+        icon: 'CheckCircle',
+        visual: { type: 'icon-hero', icon: 'Trophy', label: 'Tutorial Complete' },
+        content: [
+          { type: 'paragraph', text: 'You\'re ready to lead the youth program. Head to your dashboard to see program status, coach activity, and milestone progress.' },
+          { type: 'paragraph', text: 'Revisit this tutorial anytime from the Help Center.' },
+        ],
+        proTip: null,
+      },
+    ],
+  },
+
+  // ── PARENT (5 steps) ────────────────────────────────────────────────────
+  parent: {
+    id: 'parent',
+    title: 'Parent Quick Start',
+    subtitle: 'Stay connected to your child\'s basketball journey',
+    icon: 'Heart',
+    applicableRoles: ['parent'],
+    estimatedMinutes: 2,
+    steps: [
+      {
+        id: 'welcome',
+        title: 'Welcome, Parent!',
+        icon: 'Sparkles',
+        visual: { type: 'icon-hero', icon: 'Heart', label: 'Parent Portal' },
+        content: [
+          { type: 'paragraph', text: 'This quick guide shows you how to follow your child\'s progress, view schedules, and stay connected with the club.' },
+          { type: 'paragraph', text: 'Everything you need is right in the app — no emails or paper forms needed.' },
+        ],
+        proTip: null,
+      },
+      {
+        id: 'dashboard-tour',
+        title: 'Your Dashboard',
+        icon: 'LayoutDashboard',
+        visual: {
+          type: 'annotated-screenshot',
+          placeholderLabel: 'Parent Dashboard',
+          annotations: [
+            { label: 'Child profile', position: 'top-left', description: 'Your child\'s name, team, and photo' },
+            { label: 'Upcoming sessions', position: 'center', description: 'Next training or game date' },
+            { label: 'Notifications', position: 'top-right', description: 'Milestone achievements and reminders' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'Your dashboard shows everything at a glance — your child\'s team, upcoming sessions, and recent notifications.' },
+        ],
+        proTip: { text: 'Enable push notifications so you never miss a schedule change or milestone.' },
+      },
+      {
+        id: 'progress-tracking',
+        title: 'Progress Tracking',
+        icon: 'TrendingUp',
+        visual: {
+          type: 'annotated-screenshot',
+          placeholderLabel: 'Skills Passport View',
+          annotations: [
+            { label: 'Skill areas', position: 'left', description: 'Each basketball skill tracked' },
+            { label: 'Progress bar', position: 'center', description: 'Current level vs benchmark' },
+            { label: 'Milestones', position: 'bottom', description: 'Achievements unlocked' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'The Skills Passport shows your child\'s development across key basketball skills, compared to age-group benchmarks.' },
+          { type: 'checklist', items: [
+            'View current skill levels and progress over time.',
+            'See milestones as they are achieved during sessions.',
+            'Access end-of-term progress reports.',
+          ]},
+        ],
+        proTip: { text: 'Celebrate milestones with your child — they work hard to earn them!' },
+      },
+      {
+        id: 'schedule',
+        title: 'Schedule & Reminders',
+        icon: 'Calendar',
+        visual: null,
+        content: [
+          { type: 'paragraph', text: 'Stay on top of your child\'s basketball schedule.' },
+          { type: 'info-card', items: [
+            { label: 'Training Sessions', text: 'Regular training times with location and coach information.' },
+            { label: 'Game Days', text: 'Match schedule with venue details and team info.' },
+            { label: 'Reminders', text: 'Automatic reminders sent 24 hours before each session.' },
+          ]},
+        ],
+        proTip: { text: 'Add the schedule to your phone calendar using the export button for easy tracking.' },
+      },
+      {
+        id: 'complete',
+        title: 'You\'re All Set!',
+        icon: 'CheckCircle',
+        visual: { type: 'icon-hero', icon: 'Trophy', label: 'Tutorial Complete' },
+        content: [
+          { type: 'paragraph', text: 'You\'re ready to follow your child\'s basketball journey. Head to your dashboard to see their latest progress.' },
+          { type: 'paragraph', text: 'Revisit this tutorial anytime from the Help Center.' },
+        ],
+        proTip: null,
+      },
+    ],
+  },
+
+  // ── PLAYER (5 steps) ────────────────────────────────────────────────────
+  player: {
+    id: 'player',
+    title: 'Player Quick Start',
+    subtitle: 'Track your skills and team info',
+    icon: 'Dribbble',
+    applicableRoles: ['player'],
+    estimatedMinutes: 2,
+    steps: [
+      {
+        id: 'welcome',
+        title: 'Welcome, Player!',
+        icon: 'Sparkles',
+        visual: { type: 'icon-hero', icon: 'Dribbble', label: 'Player Portal' },
+        content: [
+          { type: 'paragraph', text: 'This quick guide shows you how to use the app to view your profile, track your skills, and stay connected with your team.' },
+        ],
+        proTip: null,
+      },
+      {
+        id: 'profile',
+        title: 'Your Profile',
+        icon: 'User',
+        visual: {
+          type: 'annotated-screenshot',
+          placeholderLabel: 'Player Profile Screen',
+          annotations: [
+            { label: 'Photo & name', position: 'top-left', description: 'Your profile picture and details' },
+            { label: 'Team badge', position: 'top-right', description: 'Your current team assignment' },
+            { label: 'Quick stats', position: 'bottom', description: 'Key stats at a glance' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'Your profile is your home base in the app. It shows your team, position, and key stats.' },
+        ],
+        proTip: { text: 'Keep your profile photo up to date so coaches and teammates can recognise you.' },
+      },
+      {
+        id: 'skills-passport',
+        title: 'Skills Passport',
+        icon: 'TrendingUp',
+        visual: {
+          type: 'annotated-screenshot',
+          placeholderLabel: 'Skills Passport',
+          annotations: [
+            { label: 'Skill chart', position: 'center', description: 'Your current skill levels' },
+            { label: 'Benchmarks', position: 'right', description: 'Age-group targets to aim for' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'Your Skills Passport tracks your development across key basketball skills.' },
+          { type: 'checklist', items: [
+            'See your current level in each skill area.',
+            'Compare your progress against age-group benchmarks.',
+            'Track how your skills improve over the season.',
+          ]},
+        ],
+        proTip: { text: 'Focus on one skill area at a time to see the biggest improvement.' },
+      },
+      {
+        id: 'team-info',
+        title: 'Team Info',
+        icon: 'Users',
+        visual: null,
+        content: [
+          { type: 'paragraph', text: 'Stay connected with your team and schedule.' },
+          { type: 'info-card', items: [
+            { label: 'Training Schedule', text: 'View upcoming training sessions, times, and locations.' },
+            { label: 'Game Day', text: 'Match schedule with opponent info and venue details.' },
+            { label: 'Teammates', text: 'See who is on your team and their positions.' },
+          ]},
+        ],
+        proTip: { text: 'Check the schedule before each week so you never miss a session.' },
+      },
+      {
+        id: 'complete',
+        title: 'You\'re Ready!',
+        icon: 'CheckCircle',
+        visual: { type: 'icon-hero', icon: 'Trophy', label: 'Tutorial Complete' },
+        content: [
+          { type: 'paragraph', text: 'You\'re all set to use the app. Head to your profile to see your Skills Passport and team info.' },
+          { type: 'paragraph', text: 'Revisit this tutorial anytime from the Help Center.' },
+        ],
+        proTip: null,
+      },
+    ],
+  },
+
+  // ── TEAM MANAGER (5 steps) ──────────────────────────────────────────────
+  'team-manager': {
+    id: 'team-manager',
+    title: 'Team Manager Quick Start',
+    subtitle: 'Manage logistics, rosters, and tryout support',
+    icon: 'ClipboardList',
+    applicableRoles: ['team_manager'],
+    estimatedMinutes: 2,
+    steps: [
+      {
+        id: 'welcome',
+        title: 'Welcome, Team Manager!',
+        icon: 'Sparkles',
+        visual: { type: 'icon-hero', icon: 'ClipboardList', label: 'Team Manager' },
+        content: [
+          { type: 'paragraph', text: 'This tutorial covers your key tools: team logistics, tryout access, and player management.' },
+          { type: 'paragraph', text: 'As a team manager, you keep the team running smoothly behind the scenes.' },
+        ],
+        proTip: null,
+      },
+      {
+        id: 'team-logistics',
+        title: 'Team Logistics',
+        icon: 'Settings',
+        visual: {
+          type: 'annotated-screenshot',
+          placeholderLabel: 'Team Management Dashboard',
+          annotations: [
+            { label: 'Roster', position: 'top-left', description: 'Current team roster and player details' },
+            { label: 'Schedule', position: 'center', description: 'Training and game schedule' },
+            { label: 'Communications', position: 'bottom', description: 'Messages and notifications to the team' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'Your dashboard gives you everything you need to manage team operations.' },
+          { type: 'checklist', items: [
+            'View and manage the team roster.',
+            'Check upcoming training sessions and games.',
+            'Coordinate with coaches on logistics.',
+            'Track attendance and availability.',
+          ]},
+        ],
+        proTip: { text: 'Review the roster before each game to confirm player availability.' },
+      },
+      {
+        id: 'tryout-access',
+        title: 'Tryout Access',
+        icon: 'ClipboardCheck',
+        visual: {
+          type: 'annotated-screenshot',
+          placeholderLabel: 'Tryout Assessment Screen',
+          annotations: [
+            { label: 'Session list', position: 'top-left', description: 'Sessions you are assigned to' },
+            { label: 'Score entry', position: 'center', description: 'Rate players on each metric' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'When assigned to tryout sessions, you can assess players just like a dedicated assessor.' },
+          { type: 'steps', items: [
+            'Check your dashboard for assigned tryout sessions.',
+            'Tap into a session to see the player list.',
+            'Rate each player on 5 metrics (1-5 scale).',
+            'Scores save automatically as you go.',
+          ]},
+        ],
+        proTip: { text: 'Your tryout assessments help coordinators make fair team placement decisions.' },
+      },
+      {
+        id: 'player-management',
+        title: 'Player Management',
+        icon: 'UserCog',
+        visual: null,
+        content: [
+          { type: 'paragraph', text: 'Keep player information current and support the coaching staff.' },
+          { type: 'info-card', items: [
+            { label: 'Player Details', text: 'View and update player contact info, medical notes, and emergency contacts.' },
+            { label: 'Attendance', text: 'Track training and game attendance for the team.' },
+            { label: 'Communication', text: 'Send updates to players and parents about schedule changes.' },
+          ]},
+        ],
+        proTip: { text: 'Keep emergency contact details up to date — check with parents at the start of each term.' },
+      },
+      {
+        id: 'complete',
+        title: 'You\'re Ready!',
+        icon: 'CheckCircle',
+        visual: { type: 'icon-hero', icon: 'Trophy', label: 'Tutorial Complete' },
+        content: [
+          { type: 'paragraph', text: 'You\'re all set to manage your team. Head to your dashboard to see the roster and upcoming schedule.' },
+          { type: 'paragraph', text: 'Revisit this tutorial anytime from the Help Center.' },
+        ],
+        proTip: null,
+      },
+    ],
+  },
 };
 
-export const TUTORIAL_ORDER = ['assessor', 'youth-coach', 'coach', 'admin'];
+export const TUTORIAL_ORDER = ['assessor', 'youth-coach', 'coach', 'admin', 'coordinator', 'youth-head-coach', 'parent', 'player', 'team-manager'];
 
 export const ROLE_TO_TUTORIAL = {
   tryout_assessor: 'assessor',
   youth_coach: 'youth-coach',
-  youth_head_coach: 'youth-coach',
+  youth_head_coach: 'youth-head-coach',
   coach: 'coach',
   admin: 'admin',
   president: 'admin',
   vice_president: 'admin',
   coach_coordinator: 'admin',
+  girls_coordinator: 'coordinator',
+  boys_coordinator: 'coordinator',
+  parent: 'parent',
+  player: 'player',
+  team_manager: 'team-manager',
 };

@@ -5,8 +5,10 @@ import PageShell from '../../components/PageShell';
 import HelpSearchBar from '../../components/help/HelpSearchBar';
 import HelpRoleCard from '../../components/help/HelpRoleCard';
 import FAQAccordion from '../../components/help/FAQAccordion';
+import QuickStartCarousel from '../../components/help/QuickStartCarousel';
+import ProgressRing from '../../components/help/ProgressRing';
 import { HELP_PAGES, GLOBAL_FAQS } from '../../data/helpContent';
-import { TUTORIALS, TUTORIAL_ORDER } from '../../data/tutorialContent';
+import { INFOGRAPHICS } from '../../data/infographicContent';
 import * as Icons from 'lucide-react';
 import {
   HelpCircle,
@@ -14,71 +16,49 @@ import {
   Star,
   Mail,
   Calendar,
-  GraduationCap,
-  Play,
-  RotateCcw,
-  CheckCircle2,
-  Clock,
+  BarChart3,
+  Dumbbell,
+  Layers,
 } from 'lucide-react';
 
 const PAGE_ORDER = ['admin', 'leadership', 'coordinators', 'coaches', 'youth-coaches', 'assessors', 'parents', 'players'];
 
-const TutorialCard = ({ tutorial, completed, onStart }) => {
-  const IconComponent = Icons[tutorial.icon] || Icons.BookOpen;
+// Practice area definitions
+const PRACTICE_AREAS = [
+  { id: 'assessor', title: 'Assessor Scoring', icon: 'ClipboardCheck', description: 'Practice rating players', roles: ['tryout_assessor', 'admin', 'president', 'vice_president', 'coach_coordinator', 'girls_coordinator', 'boys_coordinator'] },
+  { id: 'attendance', title: 'Attendance', icon: 'Users', description: 'Mark players present/absent', roles: ['youth_coach', 'youth_head_coach', 'coach', 'admin'] },
+  { id: 'match-assessment', title: 'Match Assessment', icon: 'Trophy', description: 'Rate game performance', roles: ['coach', 'admin', 'president', 'vice_president', 'coach_coordinator'] },
+  { id: 'admin-tryout', title: 'Create Tryout', icon: 'Settings', description: 'Set up a tryout session', roles: ['admin', 'president', 'vice_president', 'coach_coordinator', 'girls_coordinator', 'boys_coordinator'] },
+];
 
+const PracticeAreaCard = ({ area, onStart }) => {
+  const IconComponent = Icons[area.icon] || Icons.HelpCircle;
+  return (
+    <button
+      onClick={() => onStart(area.id)}
+      className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4 text-left hover:border-[#22c55e] transition-all active:scale-[0.98] group"
+    >
+      <div className="w-9 h-9 rounded-lg bg-[#1a8a68]/40 flex items-center justify-center mb-2">
+        <IconComponent className="w-4.5 h-4.5 text-[#4ade80]" />
+      </div>
+      <h4 className="text-white font-semibold text-xs">{area.title}</h4>
+      <p className="text-white/50 text-[10px] mt-0.5">{area.description}</p>
+      <span className="inline-block mt-2 text-[10px] text-[#4ade80] font-medium">
+        Try it &rarr;
+      </span>
+    </button>
+  );
+};
+
+const InfographicCard = ({ infographic }) => {
+  const IconComponent = Icons[infographic.icon] || Icons.BarChart3;
   return (
     <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-      <div className="flex items-start gap-3">
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-          completed ? 'bg-[#22c55e]/20' : 'bg-[#1a8a68]/40'
-        }`}>
-          {completed ? (
-            <CheckCircle2 className="w-5 h-5 text-[#22c55e]" />
-          ) : (
-            <IconComponent className="w-5 h-5 text-[#4ade80]" />
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-white font-semibold text-sm">{tutorial.title}</h3>
-            {completed && (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#22c55e]/20 text-[#22c55e] border border-[#22c55e]/30">
-                Completed
-              </span>
-            )}
-          </div>
-          <p className="text-white/50 text-xs mt-0.5">{tutorial.subtitle}</p>
-          <div className="flex items-center gap-3 mt-2">
-            <span className="text-white/30 text-xs flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {tutorial.estimatedMinutes} min
-            </span>
-            <span className="text-white/30 text-xs">
-              {tutorial.steps.length} steps
-            </span>
-          </div>
-          <button
-            onClick={() => onStart(tutorial.id)}
-            className={`mt-3 flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-colors min-h-[36px] ${
-              completed
-                ? 'bg-[#1a8a68]/30 text-white/70 hover:bg-[#1a8a68]/50'
-                : 'bg-[#22c55e] text-white hover:bg-[#16a34a]'
-            }`}
-          >
-            {completed ? (
-              <>
-                <RotateCcw className="w-3.5 h-3.5" />
-                Replay
-              </>
-            ) : (
-              <>
-                <Play className="w-3.5 h-3.5" />
-                Start Tutorial
-              </>
-            )}
-          </button>
-        </div>
+      <div className="flex items-center gap-2 mb-2">
+        <IconComponent className="w-4 h-4 text-[#4ade80]" />
+        <h4 className="text-white font-semibold text-xs">{infographic.title}</h4>
       </div>
+      <p className="text-white/50 text-[10px]">{infographic.description}</p>
     </div>
   );
 };
@@ -86,13 +66,28 @@ const TutorialCard = ({ tutorial, completed, onStart }) => {
 const HelpHome = () => {
   const { userProfile } = useAuth();
   const role = userProfile?.role;
-  const { startTutorial, hasCompletedTutorial, completedCount, totalCount } = useTutorial();
+  const { completedCount, totalCount } = useTutorial();
 
   // Find the recommended guide for the current user
   const recommended = PAGE_ORDER.find(
     (slug) => HELP_PAGES[slug]?.applicableRoles?.includes(role)
   );
   const recommendedPage = recommended ? HELP_PAGES[recommended] : null;
+
+  // Filter practice areas by role
+  const availablePractice = role
+    ? PRACTICE_AREAS.filter((a) => a.roles.includes(role))
+    : PRACTICE_AREAS;
+
+  // Get infographics as array
+  const infographicList = Object.values(INFOGRAPHICS || {});
+
+  const handleStartPractice = (practiceId) => {
+    // Open practice in a modal/overlay — for now scroll to embedded practice area
+    // This is a placeholder; actual navigation handled by content blocks
+    const el = document.getElementById(`practice-${practiceId}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <PageShell
@@ -102,74 +97,77 @@ const HelpHome = () => {
       maxWidth="lg"
     >
       <div className="space-y-6">
-        {/* Search */}
-        <HelpSearchBar />
+        {/* 1. Quick Start Carousel with ProgressRing */}
+        <QuickStartCarousel userRole={role} />
 
-        {/* Interactive Tutorials */}
-        <div>
-          <h2 className="text-white font-bold text-base mb-1 flex items-center gap-2">
-            <GraduationCap className="w-4 h-4 text-[#4ade80]" />
-            Interactive Tutorials
-          </h2>
-          <p className="text-white/40 text-xs mb-3">
-            Step-by-step walkthroughs to get you started ({completedCount}/{totalCount} completed)
-          </p>
-
-          {/* Overall progress bar */}
-          {totalCount > 0 && (
-            <div className="mb-3">
-              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#22c55e] rounded-full transition-all duration-500"
-                  style={{ width: `${(completedCount / totalCount) * 100}%` }}
-                />
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-2">
-            {TUTORIAL_ORDER.map((id) => {
-              const tutorial = TUTORIALS[id];
-              if (!tutorial) return null;
-              return (
-                <TutorialCard
-                  key={id}
-                  tutorial={tutorial}
-                  completed={hasCompletedTutorial(id)}
-                  onStart={startTutorial}
-                />
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Recommended for You */}
-        {recommendedPage && (
+        {/* 2. Practice Areas grid */}
+        {availablePractice.length > 0 && (
           <div>
             <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
-              <Star className="w-4 h-4 text-[#4ade80]" />
-              Recommended for You
+              <Dumbbell className="w-4 h-4 text-[#4ade80]" />
+              Practice Areas
             </h2>
-            <HelpRoleCard {...recommendedPage} />
+            <p className="text-white/40 text-xs mb-3">
+              Try features without affecting real data
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {availablePractice.map((area) => (
+                <PracticeAreaCard
+                  key={area.id}
+                  area={area}
+                  onStart={handleStartPractice}
+                />
+              ))}
+            </div>
           </div>
         )}
 
-        {/* All Guides */}
+        {/* 3. Infographics section */}
+        {infographicList.length > 0 && (
+          <div>
+            <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
+              <Layers className="w-4 h-4 text-[#4ade80]" />
+              Visual Guides
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {infographicList.map((info) => (
+                <InfographicCard key={info.id} infographic={info} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 4. Search bar */}
+        <HelpSearchBar />
+
+        {/* 5. All Guides — 2-col icon grid */}
         <div>
           <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-[#4ade80]" />
             All Guides
           </h2>
-          <div className="space-y-2">
+
+          {/* Recommended highlight */}
+          {recommendedPage && (
+            <div className="mb-3">
+              <span className="text-[10px] font-bold uppercase tracking-wide text-[#4ade80] mb-1 block">
+                Recommended for your role
+              </span>
+              <HelpRoleCard {...recommendedPage} />
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-2">
             {PAGE_ORDER.map((slug) => {
               const page = HELP_PAGES[slug];
               if (!page) return null;
+              if (slug === recommended) return null; // Already shown above
               return <HelpRoleCard key={slug} {...page} />;
             })}
           </div>
         </div>
 
-        {/* Global FAQs */}
+        {/* 6. Global FAQs */}
         <div>
           <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
             <HelpCircle className="w-4 h-4 text-[#4ade80]" />
@@ -178,7 +176,7 @@ const HelpHome = () => {
           <FAQAccordion faqs={GLOBAL_FAQS} />
         </div>
 
-        {/* Contact Support */}
+        {/* 7. Contact Support */}
         <div>
           <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
             <Mail className="w-4 h-4 text-[#4ade80]" />

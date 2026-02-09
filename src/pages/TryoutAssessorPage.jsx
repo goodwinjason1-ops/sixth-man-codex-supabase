@@ -37,6 +37,7 @@ import {
   TEAM_OPTIONS,
   EVAL_STATUSES
 } from '../services/tryoutService';
+import HelpTooltip from '../components/tutorial/HelpTooltip';
 
 const TryoutAssessorPage = () => {
   const { sessionId } = useParams();
@@ -416,11 +417,13 @@ const TryoutAssessorPage = () => {
             </div>
 
             {/* Online/Offline indicator */}
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
-              isOnline ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-            }`}>
-              {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-            </div>
+            <HelpTooltip text={isOnline ? 'Connected — scores sync in real time.' : 'Offline — scores save locally and sync when you reconnect.'}>
+              <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
+                isOnline ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+              }`}>
+                {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
+              </div>
+            </HelpTooltip>
           </div>
 
           {/* Progress Bar */}
@@ -512,14 +515,20 @@ const TryoutAssessorPage = () => {
 
         {/* Rating Metrics with Collapsible Notes */}
         <div className="space-y-3 mb-4">
-          {EVAL_METRICS.map((metric) => (
+          {EVAL_METRICS.map((metric, metricIdx) => (
             <div
               key={metric.id}
               className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4"
             >
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h3 className="text-white font-medium text-sm">{metric.name}</h3>
+                  {metricIdx === 0 ? (
+                    <HelpTooltip text="Rate each metric from 1 (lowest) to 5 (highest). Use the full range for best results.">
+                      <h3 className="text-white font-medium text-sm">{metric.name}</h3>
+                    </HelpTooltip>
+                  ) : (
+                    <h3 className="text-white font-medium text-sm">{metric.name}</h3>
+                  )}
                   <p className="text-[#1a8a68] text-xs">{metric.description}</p>
                 </div>
                 <span className="text-2xl font-bold text-[#4ade80] w-8 text-right">
@@ -622,7 +631,9 @@ const TryoutAssessorPage = () => {
 
         {/* Team Recommendation */}
         <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4 mb-4">
-          <h3 className="text-white font-medium mb-3">Team Recommendation</h3>
+          <HelpTooltip text="Suggest which team level this player belongs in. Coaches use these as one input for team placement.">
+            <h3 className="text-white font-medium mb-3">Team Recommendation</h3>
+          </HelpTooltip>
           <div className="grid grid-cols-3 gap-2">
             {TEAM_OPTIONS.map((option) => (
               <button

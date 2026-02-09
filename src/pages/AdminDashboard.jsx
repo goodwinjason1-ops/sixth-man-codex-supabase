@@ -31,6 +31,8 @@ import {
   UserPlus
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
+import HelpTooltip from '../components/tutorial/HelpTooltip';
+import TutorialPromptCard from '../components/tutorial/TutorialPromptCard';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -267,11 +269,16 @@ const AdminDashboard = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Tutorial prompt for first-time admins */}
+        <TutorialPromptCard tutorialId="admin" />
+
         {/* Club Analytics Overview Card */}
         <div className="bg-gradient-to-br from-[#0d5943] to-[#1a8a68] rounded-2xl p-6 mb-6 border border-[#22c55e]/20">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl font-bold text-white">Club Overview</h2>
+              <HelpTooltip text="Live statistics pulled from all club data. Updates automatically as new data comes in.">
+                <h2 className="text-xl font-bold text-white">Club Overview</h2>
+              </HelpTooltip>
               <p className="text-white/60 text-sm">Real-time club statistics</p>
             </div>
             <button
@@ -309,12 +316,14 @@ const AdminDashboard = () => {
               subtext="last 30 days"
               color="text-yellow-400"
             />
-            <OverviewStat
-              icon={Percent}
-              label="Assessment Rate"
-              value={`${clubStats.assessmentRate}%`}
-              color="text-pink-400"
-            />
+            <HelpTooltip text="Percentage of players who have been assessed in the last 30 days. Aim for 80%+ coverage.">
+              <OverviewStat
+                icon={Percent}
+                label="Assessment Rate"
+                value={`${clubStats.assessmentRate}%`}
+                color="text-pink-400"
+              />
+            </HelpTooltip>
             <OverviewStat
               icon={Award}
               label="Avg Skill Level"

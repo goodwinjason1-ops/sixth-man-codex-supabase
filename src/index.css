@@ -185,6 +185,76 @@
   animation: swipe-hint 3s ease-in-out infinite;
 }
 
+/* Phase 1 help system animations */
+@keyframes ripple {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes cursor-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes typing-dot {
+  0%, 60%, 100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes highlight-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.3), inset 0 0 4px rgba(74, 222, 128, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(74, 222, 128, 0.5), inset 0 0 10px rgba(74, 222, 128, 0.15);
+  }
+}
+
+@keyframes progress-fill {
+  from {
+    stroke-dashoffset: inherit;
+  }
+  to {
+    stroke-dashoffset: var(--target-offset, 0);
+  }
+}
+
+.animate-ripple {
+  animation: ripple 0.6s ease-out forwards;
+}
+
+.animate-cursor-blink {
+  animation: cursor-blink 1.2s ease-in-out infinite;
+}
+
+.animate-typing-dot {
+  animation: typing-dot 1.4s ease-in-out infinite;
+}
+
+.animate-highlight-glow {
+  animation: highlight-glow 2s ease-in-out infinite;
+}
+
+.animate-progress-fill {
+  animation: progress-fill 1s ease-out forwards;
+}
+
 /* Safe area padding for mobile bottom nav */
 .safe-area-pb { padding-bottom: env(safe-area-inset-bottom, 0px); }
 

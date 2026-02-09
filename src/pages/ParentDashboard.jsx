@@ -18,6 +18,8 @@ import {
   Loader2
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
+import FirstTimeHint from '../components/tutorial/FirstTimeHint';
+import TutorialPromptCard from '../components/tutorial/TutorialPromptCard';
 
 const ParentDashboard = () => {
   const navigate = useNavigate();
@@ -138,6 +140,9 @@ const ParentDashboard = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        {/* Tutorial prompt for parents */}
+        <TutorialPromptCard tutorialId="parent" />
+
         {/* Child Selector (if multiple) */}
         {linkedPlayers.length > 1 && (
           <div className="relative">
@@ -264,6 +269,7 @@ const ParentDashboard = () => {
         </div>
 
         {/* Skills Progress Summary */}
+        <FirstTimeHint hintKey="parent_skills_progress">
         <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -303,6 +309,7 @@ const ParentDashboard = () => {
             <p className="text-[#1a8a68] text-sm text-center py-4">No assessments yet</p>
           )}
         </div>
+        </FirstTimeHint>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-4">

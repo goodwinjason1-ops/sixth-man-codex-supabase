@@ -14,6 +14,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import TutorialPromptCard from '../components/tutorial/TutorialPromptCard';
+import FirstTimeHint from '../components/tutorial/FirstTimeHint';
 
 const AssessorDashboard = () => {
   const navigate = useNavigate();
@@ -148,7 +149,8 @@ const AssessorDashboard = () => {
             </div>
           ) : (
             <div className="space-y-3">
-              {sessions.map((session) => (
+              {sessions.map((session, sessionIdx) => {
+                const sessionCard = (
                 <button
                   key={session.id}
                   onClick={() => navigate(`/tryout/${session.id}`)}
@@ -204,7 +206,13 @@ const AssessorDashboard = () => {
                     <ChevronRight className="w-5 h-5 text-[#1a8a68] group-hover:text-[#4ade80] flex-shrink-0 mt-1 transition-colors" />
                   </div>
                 </button>
-              ))}
+                );
+                return sessionIdx === 0 ? (
+                  <FirstTimeHint key={session.id} hintKey="assessor_first_session">{sessionCard}</FirstTimeHint>
+                ) : (
+                  <React.Fragment key={session.id}>{sessionCard}</React.Fragment>
+                );
+              })}
             </div>
           )}
         </div>

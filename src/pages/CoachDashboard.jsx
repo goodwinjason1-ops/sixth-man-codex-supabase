@@ -24,6 +24,9 @@ import {
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
 import EmptyState from '../components/EmptyState';
+import HelpTooltip from '../components/tutorial/HelpTooltip';
+import FirstTimeHint from '../components/tutorial/FirstTimeHint';
+import TutorialPromptCard from '../components/tutorial/TutorialPromptCard';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -388,40 +391,49 @@ const CoachDashboard = () => {
               </button>
 
               {/* Assess Skills Button */}
-              <button
-                onClick={() => navigate('/coach-assessment')}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-white rounded-lg transition-colors"
-              >
-                <ClipboardCheck className="w-5 h-5" />
-                <span className="hidden sm:inline">Skills</span>
-              </button>
+              <FirstTimeHint hintKey="coach_assess_skills">
+                <button
+                  onClick={() => navigate('/coach-assessment')}
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-white rounded-lg transition-colors"
+                >
+                  <ClipboardCheck className="w-5 h-5" />
+                  <span className="hidden sm:inline">Skills</span>
+                </button>
+              </FirstTimeHint>
 
               {/* Match Day Assessment Button */}
-              <button
-                onClick={() => navigate('/coach/match-assessment')}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-white rounded-lg transition-colors"
-              >
-                <Trophy className="w-5 h-5" />
-                <span className="hidden sm:inline">Match Day</span>
-              </button>
+              <HelpTooltip text="Record live game performance observations for your players during match day.">
+                <button
+                  onClick={() => navigate('/coach/match-assessment')}
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-white rounded-lg transition-colors"
+                >
+                  <Trophy className="w-5 h-5" />
+                  <span className="hidden sm:inline">Match Day</span>
+                </button>
+              </HelpTooltip>
 
               {/* Team Selector */}
-              <select
-                value={selectedTeam}
-                onChange={(e) => setSelectedTeam(e.target.value)}
-                className="px-4 py-2 bg-lakers-700 border border-lakers-600 text-white rounded-lg focus:ring-2 focus:ring-lakers-500 focus:border-transparent"
-              >
-                <option value="all">All Teams</option>
-                {coachTeams.map(team => (
-                  <option key={team} value={team}>{team}</option>
-                ))}
-              </select>
+              <HelpTooltip text="Filter dashboard data by a specific team or view all teams at once.">
+                <select
+                  value={selectedTeam}
+                  onChange={(e) => setSelectedTeam(e.target.value)}
+                  className="px-4 py-2 bg-lakers-700 border border-lakers-600 text-white rounded-lg focus:ring-2 focus:ring-lakers-500 focus:border-transparent"
+                >
+                  <option value="all">All Teams</option>
+                  {coachTeams.map(team => (
+                    <option key={team} value={team}>{team}</option>
+                  ))}
+                </select>
+              </HelpTooltip>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Tutorial prompt for first-time coaches */}
+        <TutorialPromptCard tutorialId="coach" />
+
         {/* Game Day Banner - Shows when there's a game today but user stayed on dashboard */}
         {isGameDay && gameDayDismissed && primaryGame && (
           <div className="bg-gradient-to-r from-[#22c55e]/20 to-[#4ade80]/10 border-2 border-[#22c55e] rounded-xl p-4 mb-6">
@@ -472,7 +484,9 @@ const CoachDashboard = () => {
                   <FileText className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-white">Pending Assessments</h2>
+                  <HelpTooltip text="Draft assessments saved on this device. Resume them anytime before submission.">
+                    <h2 className="text-lg font-bold text-white">Pending Assessments</h2>
+                  </HelpTooltip>
                   <p className="text-yellow-400 text-sm">
                     {pendingDrafts.length} draft{pendingDrafts.length !== 1 ? 's' : ''} awaiting completion
                   </p>

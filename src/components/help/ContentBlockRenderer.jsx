@@ -1,6 +1,14 @@
 import React from 'react';
 import { Lightbulb, Info, CheckCircle2 } from 'lucide-react';
 import StepList from './StepList';
+import AnnotatedScreenshot from '../tutorial/AnnotatedScreenshot';
+import AnimatedWalkthrough from '../tutorial/AnimatedWalkthrough';
+import FlowChart from '../tutorial/FlowChart';
+import ProcessFlow from '../tutorial/ProcessFlow';
+import VideoPlayer from '../tutorial/VideoPlayer';
+import PracticeArea from '../practice/PracticeArea';
+import Callout from './Callout';
+import { getInfographic } from '../../data/infographicContent';
 
 const Paragraph = ({ text }) => <p>{text}</p>;
 
@@ -39,12 +47,82 @@ const Checklist = ({ items }) => (
   </div>
 );
 
+/** Renders an AnnotatedScreenshot from block data */
+const AnnotatedScreenshotBlock = ({ placeholderLabel, annotations, arrows }) => (
+  <AnnotatedScreenshot
+    placeholderLabel={placeholderLabel}
+    annotations={annotations}
+    arrows={arrows}
+  />
+);
+
+/** Renders an AnimatedWalkthrough from block data */
+const AnimatedWalkthroughBlock = ({ steps, autoPlay, loop, stepDelay, title }) => (
+  <AnimatedWalkthrough
+    steps={steps}
+    autoPlay={autoPlay}
+    loop={loop}
+    stepDelay={stepDelay}
+    title={title}
+  />
+);
+
+/** Renders the right infographic component based on infographicId */
+const InfographicBlock = ({ infographicId }) => {
+  const data = getInfographic(infographicId);
+  if (!data) return null;
+
+  if (data.type === 'flowchart') {
+    return (
+      <FlowChart
+        title={data.title}
+        description={data.description}
+        nodes={data.nodes}
+        edges={data.edges}
+      />
+    );
+  }
+
+  if (data.type === 'process-flow') {
+    return (
+      <ProcessFlow
+        title={data.title}
+        description={data.description}
+        steps={data.steps}
+      />
+    );
+  }
+
+  return null;
+};
+
+/** Renders a VideoPlayer from block data */
+const VideoBlock = ({ url, title }) => (
+  <VideoPlayer url={url} title={title} />
+);
+
+/** Renders a PracticeArea from block data */
+const PracticeAreaBlock = ({ practiceId }) => (
+  <PracticeArea practiceId={practiceId} />
+);
+
+/** Renders a Callout from block data */
+const CalloutBlock = ({ variant, title, text }) => (
+  <Callout variant={variant} title={title} text={text} />
+);
+
 const RENDERERS = {
   paragraph: Paragraph,
   steps: Steps,
   tip: Tip,
   'info-card': InfoCard,
   checklist: Checklist,
+  'annotated-screenshot': AnnotatedScreenshotBlock,
+  'animated-walkthrough': AnimatedWalkthroughBlock,
+  infographic: InfographicBlock,
+  video: VideoBlock,
+  'practice-area': PracticeAreaBlock,
+  callout: CalloutBlock,
 };
 
 const ContentBlockRenderer = ({ blocks }) => (
