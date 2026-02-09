@@ -289,7 +289,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Valid roles in the system
-  // Leadership: admin, president, vice_president
+  // Leadership: admin, president, vice_president, coach_coordinator
   // Coordinators: girls_coordinator, boys_coordinator
   // Coaching: youth_head_coach, coach, youth_coach
   // Other: tryout_assessor, team_manager, player, parent
@@ -323,6 +323,7 @@ export const AuthProvider = ({ children }) => {
     isBoysCoordinator: role === 'boys_coordinator',
     isYouthHeadCoach: role === 'youth_head_coach',
     isYouthCoach: role === 'youth_coach',
+    isCoachCoordinator: role === 'coach_coordinator',
     // Composite role checks
     isLeadership: ADMIN_ROLES.includes(role),
     isStaff: STAFF_ROLES.includes(role),

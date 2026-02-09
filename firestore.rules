@@ -26,11 +26,11 @@ service cloud.firestore {
     }
 
     function isLeadership() {
-      return isSignedIn() && getUserData().role in ['admin', 'president', 'vice_president'];
+      return isSignedIn() && getUserData().role in ['admin', 'president', 'vice_president', 'coach_coordinator'];
     }
 
     function isCoach() {
-      return isSignedIn() && getUserData().role in ['coach', 'admin', 'president', 'vice_president'];
+      return isSignedIn() && getUserData().role in ['coach', 'admin', 'president', 'vice_president', 'coach_coordinator'];
     }
 
     function isParent() {
@@ -43,17 +43,17 @@ service cloud.firestore {
 
     // Can view tryout results: leadership + coordinators + youth head coach
     function canViewTryoutResults() {
-      return isSignedIn() && getUserData().role in ['admin', 'president', 'vice_president', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach'];
+      return isSignedIn() && getUserData().role in ['admin', 'president', 'vice_president', 'coach_coordinator', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach'];
     }
 
     // Can assess tryouts: leadership, coaches, team managers, tryout assessors
     function canAssessTryouts() {
-      return isSignedIn() && getUserData().role in ['admin', 'president', 'vice_president', 'coach', 'team_manager', 'tryout_assessor'];
+      return isSignedIn() && getUserData().role in ['admin', 'president', 'vice_president', 'coach_coordinator', 'coach', 'team_manager', 'tryout_assessor'];
     }
 
     // Validate that a role field is one of the allowed values
     function isValidRole(role) {
-      return role in ['admin', 'president', 'vice_president', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach', 'coach', 'youth_coach', 'tryout_assessor', 'team_manager', 'player', 'parent'];
+      return role in ['admin', 'president', 'vice_president', 'coach_coordinator', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach', 'coach', 'youth_coach', 'tryout_assessor', 'team_manager', 'player', 'parent'];
     }
 
     // ───────────────────────────────────────
@@ -61,11 +61,14 @@ service cloud.firestore {
     // ───────────────────────────────────────
     match /users/{userId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn() && isOwner(userId)
-        && request.resource.data.keys().hasAll(['email', 'role', 'createdAt'])
-        && isValidRole(request.resource.data.role)
-        // Prevent self-assigning privileged roles on signup
-        && !(request.resource.data.role in ['admin', 'president', 'vice_president', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach', 'tryout_assessor']);
+      // Leadership can create any user; self-creation blocks privileged roles
+      allow create: if isSignedIn() && (
+        isLeadership()
+        || (isOwner(userId)
+            && request.resource.data.keys().hasAll(['email', 'role', 'createdAt'])
+            && isValidRole(request.resource.data.role)
+            && !(request.resource.data.role in ['admin', 'president', 'vice_president', 'coach_coordinator', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach', 'tryout_assessor']))
+      );
       allow update: if isSignedIn() && (isOwner(userId) || isLeadership())
         // Non-leadership cannot change their own role
         && (isLeadership() || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
