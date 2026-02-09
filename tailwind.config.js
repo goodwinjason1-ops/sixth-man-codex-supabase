@@ -23,6 +23,9 @@ export default {
       animation: {
         'slide-in': 'slideIn 0.3s ease-out',
         'fade-in': 'fadeIn 0.2s ease-in',
+        'pulse-dot': 'pulseDot 2s ease-in-out infinite',
+        'bounce-arrow': 'bounceArrow 1.5s ease-in-out infinite',
+        'swipe-hint': 'swipeHint 3s ease-in-out infinite',
       },
       keyframes: {
         slideIn: {
@@ -32,7 +35,19 @@ export default {
         fadeIn: {
           '0%': { opacity: 0 },
           '100%': { opacity: 1 },
-        }
+        },
+        pulseDot: {
+          '0%, 100%': { transform: 'scale(1)', opacity: 1 },
+          '50%': { transform: 'scale(1.5)', opacity: 0.6 },
+        },
+        bounceArrow: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-4px)' },
+        },
+        swipeHint: {
+          '0%, 100%': { opacity: 0.2 },
+          '50%': { opacity: 0.5 },
+        },
       }
     },
   },

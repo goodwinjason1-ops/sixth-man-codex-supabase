@@ -51,13 +51,21 @@ import NotificationsInboxPage from './pages/NotificationsInboxPage';
 import NotificationPreferencesPage from './pages/NotificationPreferencesPage';
 import AssessorDashboard from './pages/AssessorDashboard';
 import UserCreationPage from './pages/admin/UserCreationPage';
-import HelpCenter from './pages/help/HelpCenter';
-import AssessorGuide from './pages/help/AssessorGuide';
-import LittleLakersGuide from './pages/help/LittleLakersGuide';
+import HelpHome from './pages/help/HelpHome';
+import AdminHelp from './pages/help/AdminHelp';
+import LeadershipHelp from './pages/help/LeadershipHelp';
+import CoordinatorHelp from './pages/help/CoordinatorHelp';
+import CoachHelp from './pages/help/CoachHelp';
+import YouthCoachHelp from './pages/help/YouthCoachHelp';
+import AssessorHelp from './pages/help/AssessorHelp';
+import ParentHelp from './pages/help/ParentHelp';
+import PlayerHelp from './pages/help/PlayerHelp';
 import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES } from './constants/roles';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import MobileBottomNav from './components/MobileBottomNav';
+import { TutorialProvider } from './contexts/TutorialContext';
+import TutorialOverlay from './components/tutorial/TutorialOverlay';
 import './index.css';
 
 // Protected Route Component
@@ -617,30 +625,19 @@ const AppRoutes = () => {
         }
       />
 
-      <Route
-        path="/help"
-        element={
-          <ProtectedRoute>
-            <HelpCenter />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/help/assessor-guide"
-        element={
-          <ProtectedRoute>
-            <AssessorGuide />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/help/little-lakers-guide"
-        element={
-          <ProtectedRoute>
-            <LittleLakersGuide />
-          </ProtectedRoute>
-        }
-      />
+      {/* Help System */}
+      <Route path="/help" element={<ProtectedRoute><HelpHome /></ProtectedRoute>} />
+      <Route path="/help/admin" element={<ProtectedRoute><AdminHelp /></ProtectedRoute>} />
+      <Route path="/help/leadership" element={<ProtectedRoute><LeadershipHelp /></ProtectedRoute>} />
+      <Route path="/help/coordinators" element={<ProtectedRoute><CoordinatorHelp /></ProtectedRoute>} />
+      <Route path="/help/coaches" element={<ProtectedRoute><CoachHelp /></ProtectedRoute>} />
+      <Route path="/help/youth-coaches" element={<ProtectedRoute><YouthCoachHelp /></ProtectedRoute>} />
+      <Route path="/help/assessors" element={<ProtectedRoute><AssessorHelp /></ProtectedRoute>} />
+      <Route path="/help/parents" element={<ProtectedRoute><ParentHelp /></ProtectedRoute>} />
+      <Route path="/help/players" element={<ProtectedRoute><PlayerHelp /></ProtectedRoute>} />
+      {/* Backward-compat redirects */}
+      <Route path="/help/assessor-guide" element={<Navigate to="/help/assessors" replace />} />
+      <Route path="/help/little-lakers-guide" element={<Navigate to="/help/youth-coaches" replace />} />
 
       <Route path="/" element={<Navigate to="/welcome" replace />} />
       <Route path="*" element={<Navigate to="/welcome" replace />} />
@@ -653,8 +650,11 @@ function App() {
     <Router>
       <AuthProvider>
         <DataProvider>
-          <AppRoutes />
-          <MobileBottomNav />
+          <TutorialProvider>
+            <AppRoutes />
+            <MobileBottomNav />
+            <TutorialOverlay />
+          </TutorialProvider>
         </DataProvider>
       </AuthProvider>
     </Router>

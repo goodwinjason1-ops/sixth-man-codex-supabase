@@ -13,6 +13,7 @@ import {
   MapPin,
   HelpCircle
 } from 'lucide-react';
+import TutorialPromptCard from '../components/tutorial/TutorialPromptCard';
 
 const AssessorDashboard = () => {
   const navigate = useNavigate();
@@ -127,6 +128,9 @@ const AssessorDashboard = () => {
       {/* Sessions List */}
       <main className="px-4 pb-8">
         <div className="max-w-lg mx-auto">
+          {/* Tutorial prompt for first-time assessors */}
+          <TutorialPromptCard tutorialId="assessor" />
+
           <h2 className="text-white font-bold text-lg mb-4">Your Assigned Sessions</h2>
 
           {loading ? (
