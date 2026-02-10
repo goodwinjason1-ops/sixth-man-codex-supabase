@@ -3,253 +3,244 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ───────────────────────────────────────
-    // Helper functions
+    // HELPER FUNCTIONS
     // ───────────────────────────────────────
     function isSignedIn() {
       return request.auth != null;
     }
 
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-
-    function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-    }
-
-    function hasRole(role) {
-      return isSignedIn() && getUserData().role == role;
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
     }
 
     function isAdmin() {
-      return hasRole('admin');
+      return isSignedIn() && getUserRole() in ['admin', 'president', 'vice_president'];
     }
 
-    function isLeadership() {
-      return isSignedIn() && getUserData().role in ['admin', 'president', 'vice_president', 'coach_coordinator'];
+    function isCoordinator() {
+      return isSignedIn() && getUserRole() in [
+        'admin', 'president', 'vice_president',
+        'girls_coordinator', 'boys_coordinator',
+        'coach_coordinator', 'youth_head_coach'
+      ];
     }
 
     function isCoach() {
-      return isSignedIn() && getUserData().role in ['coach', 'admin', 'president', 'vice_president', 'coach_coordinator'];
+      return isSignedIn() && getUserRole() in [
+        'admin', 'president', 'vice_president',
+        'girls_coordinator', 'boys_coordinator',
+        'coach_coordinator', 'youth_head_coach',
+        'coach', 'youth_coach'
+      ];
     }
 
-    function isParent() {
-      return hasRole('parent');
-    }
-
-    function isTeamManager() {
-      return hasRole('team_manager');
-    }
-
-    // Can view tryout results: leadership + coordinators + youth head coach
-    function canViewTryoutResults() {
-      return isSignedIn() && getUserData().role in ['admin', 'president', 'vice_president', 'coach_coordinator', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach'];
-    }
-
-    // Can assess tryouts: leadership, coaches, team managers, tryout assessors
-    function canAssessTryouts() {
-      return isSignedIn() && getUserData().role in ['admin', 'president', 'vice_president', 'coach_coordinator', 'coach', 'team_manager', 'tryout_assessor'];
-    }
-
-    // Validate that a role field is one of the allowed values
-    function isValidRole(role) {
-      return role in ['admin', 'president', 'vice_president', 'coach_coordinator', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach', 'coach', 'youth_coach', 'tryout_assessor', 'team_manager', 'player', 'parent'];
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
     }
 
     // ───────────────────────────────────────
-    // Users collection
+    // USERS
     // ───────────────────────────────────────
     match /users/{userId} {
       allow read: if isSignedIn();
-      // Leadership can create any user; self-creation blocks privileged roles
-      allow create: if isSignedIn() && (
-        isLeadership()
-        || (isOwner(userId)
-            && request.resource.data.keys().hasAll(['email', 'role', 'createdAt'])
-            && isValidRole(request.resource.data.role)
-            && !(request.resource.data.role in ['admin', 'president', 'vice_president', 'coach_coordinator', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach', 'tryout_assessor']))
-      );
-      allow update: if isSignedIn() && (isOwner(userId) || isLeadership())
-        // Non-leadership cannot change their own role
-        && (isLeadership() || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
-      allow delete: if isLeadership();
+      allow update: if isOwner(userId)
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
+      allow create: if isAdmin();
+      allow delete: if isAdmin();
+      allow update: if isAdmin();
     }
 
     // ───────────────────────────────────────
-    // Teams collection
-    // ───────────────────────────────────────
-    match /teams/{teamId} {
-      allow read: if isSignedIn();
-      allow create: if isLeadership();
-      allow update: if isLeadership() || (isCoach() && resource.data.coachId == request.auth.uid);
-      allow delete: if isLeadership();
-    }
-
-    // ───────────────────────────────────────
-    // Players collection
+    // PLAYERS
     // ───────────────────────────────────────
     match /players/{playerId} {
       allow read: if isSignedIn();
-      allow create: if isCoach() || isLeadership();
-      allow update: if isCoach() || isLeadership();
-      allow delete: if isLeadership();
+      allow create, update: if isCoach();
+      allow delete: if isAdmin();
     }
 
     // ───────────────────────────────────────
-    // Curriculum/Skills collection
+    // TEAMS
     // ───────────────────────────────────────
-    match /curriculum/{skillId} {
+    match /teams/{teamId} {
       allow read: if isSignedIn();
-      allow write: if isCoach();
+      allow create, update: if isCoordinator();
+      allow delete: if isAdmin();
     }
 
     // ───────────────────────────────────────
-    // Evaluations collection
+    // EVALUATIONS
     // ───────────────────────────────────────
-    match /evaluations/{evaluationId} {
+    match /evaluations/{evalId} {
       allow read: if isSignedIn();
       allow create: if isCoach();
-      allow update: if isCoach();
-      allow delete: if isCoach();
+      allow update: if isCoach() && resource.data.coachId == request.auth.uid;
+      allow update, delete: if isAdmin();
     }
 
     // ───────────────────────────────────────
-    // Games collection
+    // MATCH ASSESSMENTS
     // ───────────────────────────────────────
-    match /games/{gameId} {
+    match /match_assessments/{assessmentId} {
       allow read: if isSignedIn();
-      allow write: if isCoach();
+      allow create: if isCoach();
+      allow update: if isCoach() && resource.data.coachId == request.auth.uid;
+      allow delete: if isAdmin();
     }
 
     // ───────────────────────────────────────
-    // Attendance collection
+    // TRYOUT SESSIONS
+    // ───────────────────────────────────────
+    match /tryout_sessions/{sessionId} {
+      allow read: if isCoordinator();
+      allow read: if isSignedIn()
+        && getUserRole() == 'tryout_assessor'
+        && request.auth.uid in resource.data.assessors;
+      allow create, update: if isCoordinator();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // TRYOUT ASSESSMENTS
+    // ───────────────────────────────────────
+    match /tryout_assessments/{assessmentId} {
+      allow read: if isCoordinator();
+      allow read: if isSignedIn() && resource.data.assessorId == request.auth.uid;
+      allow create: if isSignedIn()
+        && getUserRole() in ['tryout_assessor', 'coach', 'admin',
+          'president', 'vice_president', 'girls_coordinator',
+          'boys_coordinator', 'coach_coordinator'];
+      allow update: if isSignedIn() && resource.data.assessorId == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // TRAINING PLANS
+    // ───────────────────────────────────────
+    match /training_plans/{planId} {
+      allow read: if isCoach();
+      allow create: if isCoach();
+      allow update: if isCoach() && resource.data.coachId == request.auth.uid;
+      allow update: if isCoordinator();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // DRILLS LIBRARY
+    // ───────────────────────────────────────
+    match /drills/{drillId} {
+      allow read: if isCoach();
+      allow create: if isCoach();
+      allow update: if isCoach()
+        && (resource.data.createdBy == request.auth.uid || isCoordinator());
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // INDIVIDUAL DEVELOPMENT PLANS
+    // ───────────────────────────────────────
+    match /development_plans/{planId} {
+      allow read: if isCoach();
+      allow read: if isSignedIn()
+        && getUserRole() == 'parent'
+        && request.auth.uid in resource.data.parentIds;
+      allow create, update: if isCoach();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // ATTENDANCE
     // ───────────────────────────────────────
     match /attendance/{attendanceId} {
       allow read: if isSignedIn();
-      allow write: if isCoach();
+      allow create, update: if isCoach();
+      allow delete: if isAdmin();
     }
 
     // ───────────────────────────────────────
-    // Training notes collection
-    // ───────────────────────────────────────
-    match /training_notes/{noteId} {
-      allow read: if isSignedIn();
-      allow write: if isCoach();
-    }
-
-    // ───────────────────────────────────────
-    // Schedule collection
+    // SCHEDULE / FIXTURES
     // ───────────────────────────────────────
     match /schedule/{scheduleId} {
       allow read: if isSignedIn();
-      allow write: if isCoach();
+      allow create, update: if isCoach();
+      allow delete: if isAdmin();
     }
 
     // ───────────────────────────────────────
-    // Notifications collection
+    // GAME RESULTS
+    // ───────────────────────────────────────
+    match /game_results/{gameId} {
+      allow read: if isSignedIn();
+      allow create, update: if isCoach();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // PLAYING TIME / ROTATIONS
+    // ───────────────────────────────────────
+    match /playing_time/{recordId} {
+      allow read: if isSignedIn();
+      allow create, update: if isCoach();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // NOTIFICATIONS
     // ───────────────────────────────────────
     match /notifications/{notificationId} {
-      // Recipients can read their own; leadership can read all
-      allow read: if isSignedIn()
-        && (resource.data.recipientId == request.auth.uid || isLeadership());
-      allow create: if isCoach() || isLeadership();
-      // Recipients can mark as read; leadership can manage
-      allow update: if isSignedIn()
-        && (resource.data.recipientId == request.auth.uid || isLeadership());
-      allow delete: if isLeadership();
+      allow read: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+      allow create: if isCoach();
+      allow update: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+      allow delete: if isAdmin();
     }
 
     // ───────────────────────────────────────
-    // Scoring assignments collection
+    // PARENT INVITATIONS
     // ───────────────────────────────────────
-    match /scoring_assignments/{assignmentId} {
+    match /parent_invitations/{invitationId} {
       allow read: if isSignedIn();
-      allow create: if isLeadership();
-      allow update: if isLeadership()
-        || (isSignedIn() && resource.data.userId == request.auth.uid);
-      allow delete: if isLeadership();
+      allow create, update, delete: if isAdmin();
     }
 
     // ───────────────────────────────────────
-    // Swap requests collection
-    // ───────────────────────────────────────
-    match /swap_requests/{requestId} {
-      allow read: if isSignedIn()
-        && (resource.data.requesterId == request.auth.uid
-            || resource.data.targetUserId == request.auth.uid
-            || isLeadership());
-      allow create: if isSignedIn();
-      allow update: if isSignedIn()
-        && (resource.data.requesterId == request.auth.uid
-            || resource.data.targetUserId == request.auth.uid
-            || isLeadership());
-      allow delete: if isLeadership();
-    }
-
-    // ───────────────────────────────────────
-    // Tryout sessions collection
-    // ───────────────────────────────────────
-    match /tryout_sessions/{sessionId} {
-      allow read: if isSignedIn() && (canAssessTryouts() || canViewTryoutResults());
-      allow create: if isLeadership();
-      allow update: if canAssessTryouts();
-      allow delete: if isLeadership();
-
-      // Tryout evaluations sub-collection
-      match /evaluations/{evalId} {
-        allow read: if isSignedIn() && (canAssessTryouts() || canViewTryoutResults());
-        allow create: if canAssessTryouts();
-        allow update: if canAssessTryouts();
-        allow delete: if isLeadership();
-      }
-    }
-
-    // ───────────────────────────────────────
-    // Youth programs collection
+    // YOUTH PROGRAMS
     // ───────────────────────────────────────
     match /youth_programs/{programId} {
       allow read: if isSignedIn();
-      allow create: if isLeadership();
-      allow update: if isCoach() || isLeadership();
-      allow delete: if isLeadership();
+      allow create, update: if isCoordinator();
+      allow delete: if isAdmin();
     }
 
     // ───────────────────────────────────────
-    // Training plans collection
+    // YOUTH ACHIEVEMENTS
     // ───────────────────────────────────────
-    match /training_plans/{planId} {
+    match /youth_achievements/{achievementId} {
       allow read: if isSignedIn();
-      allow create: if isCoach();
-      allow update: if isCoach();
-      allow delete: if isCoach();
+      allow create, update: if isCoach();
+      allow delete: if isAdmin();
     }
 
     // ───────────────────────────────────────
-    // Audit logs collection — immutable
+    // COACH ACCREDITATIONS
+    // ───────────────────────────────────────
+    match /coach_accreditations/{accredId} {
+      allow read: if isSignedIn();
+      allow create: if isCoach() || isAdmin();
+      allow update: if isCoach() && resource.data.coachId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // AUDIT LOGS — IMMUTABLE
     // ───────────────────────────────────────
     match /audit_logs/{logId} {
-      allow read: if isLeadership();
+      allow read: if isAdmin();
       allow create: if isSignedIn();
-      allow update, delete: if false; // Logs are immutable
+      allow update, delete: if false;
     }
 
     // ───────────────────────────────────────
-    // Parent invitations collection
-    // ───────────────────────────────────────
-    match /parent_invitations/{invitationId} {
-      // Public read so unauthenticated parents can validate their invitation code
-      allow read: if true;
-      // Leadership and coaches can create invitations
-      allow create: if isCoach();
-      allow update: if isCoach()
-        || (isSignedIn() && resource.data.status == 'pending'
-            && request.resource.data.status == 'accepted'
-            && request.resource.data.acceptedBy == request.auth.uid);
-      allow delete: if isLeadership();
-    }
-
-    // ───────────────────────────────────────
-    // Deny-all fallback for unknown collections
+    // CATCH-ALL: DENY EVERYTHING ELSE
     // ───────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
