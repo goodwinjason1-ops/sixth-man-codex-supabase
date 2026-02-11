@@ -24,6 +24,7 @@ import {
   Timer,
   Zap,
   Lock,
+  Unlock,
   Search,
   Clipboard
 } from 'lucide-react';
@@ -47,7 +48,7 @@ import { useData } from '../../contexts/DataContext';
 
 const TryoutSessionsPage = () => {
   const navigate = useNavigate();
-  const { userProfile } = useAuth();
+  const { userProfile, isAdmin, isLeadership } = useAuth();
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -97,6 +98,15 @@ const TryoutSessionsPage = () => {
   const handleCloseSession = async (sessionId) => {
     if (!window.confirm('Close this session? All evaluations will be locked as finalized. This cannot be undone.')) return;
     const result = await closeSession(sessionId);
+    if (!result.success) {
+      setError(result.error);
+    }
+  };
+
+  // Handle unlock session (admin only)
+  const handleUnlockSession = async (sessionId) => {
+    if (!window.confirm('Unlock this session? Evaluations will become editable again.')) return;
+    const result = await updateTryoutSession(sessionId, { status: 'completed' });
     if (!result.success) {
       setError(result.error);
     }
@@ -266,6 +276,8 @@ const TryoutSessionsPage = () => {
                 onDelete={() => handleDelete(session.id)}
                 onStatusChange={handleStatusChange}
                 onCloseSession={() => handleCloseSession(session.id)}
+                onUnlockSession={() => handleUnlockSession(session.id)}
+                canUnlock={isAdmin || isLeadership}
                 onPromote={() => setShowPromoteModal(session)}
                 navigate={navigate}
               />
@@ -333,6 +345,8 @@ const SessionCard = ({
   onDelete,
   onStatusChange,
   onCloseSession,
+  onUnlockSession,
+  canUnlock,
   onPromote,
   navigate
 }) => {
@@ -450,14 +464,30 @@ const SessionCard = ({
             <Eye className="w-5 h-5" />
           </button>
 
-          {/* Edit */}
+          {/* Edit (disabled when closed) */}
           <button
             onClick={onEdit}
-            className="p-2 bg-[#1a8a68] hover:bg-[#22c55e] text-white rounded-lg transition-colors"
-            title="Edit Session"
+            disabled={session.status === 'closed'}
+            className={`p-2 rounded-lg transition-colors ${
+              session.status === 'closed'
+                ? 'bg-[#1a8a68]/30 text-white/20 cursor-not-allowed'
+                : 'bg-[#1a8a68] hover:bg-[#22c55e] text-white'
+            }`}
+            title={session.status === 'closed' ? 'Session is locked' : 'Edit Session'}
           >
             <Edit2 className="w-5 h-5" />
           </button>
+
+          {/* Unlock (admin only, closed sessions only) */}
+          {session.status === 'closed' && canUnlock && (
+            <button
+              onClick={onUnlockSession}
+              className="p-2 bg-amber-600/50 hover:bg-amber-500 text-amber-300 hover:text-white rounded-lg transition-colors"
+              title="Unlock Session (Admin)"
+            >
+              <Unlock className="w-5 h-5" />
+            </button>
+          )}
 
           {/* Status Toggle */}
           {session.status === 'draft' && (
@@ -488,11 +518,16 @@ const SessionCard = ({
             </button>
           )}
 
-          {/* Delete */}
+          {/* Delete (disabled when closed) */}
           <button
             onClick={onDelete}
-            className="p-2 bg-red-900/50 hover:bg-red-600 text-red-400 hover:text-white rounded-lg transition-colors"
-            title="Delete Session"
+            disabled={session.status === 'closed'}
+            className={`p-2 rounded-lg transition-colors ${
+              session.status === 'closed'
+                ? 'bg-red-900/20 text-red-400/20 cursor-not-allowed'
+                : 'bg-red-900/50 hover:bg-red-600 text-red-400 hover:text-white'
+            }`}
+            title={session.status === 'closed' ? 'Unlock session first' : 'Delete Session'}
           >
             <Trash2 className="w-5 h-5" />
           </button>

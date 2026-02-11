@@ -74,11 +74,32 @@ const TIER_CONFIG = [
   { name: 'Dev (<2.5)', min: 0, max: 2.5, color: '#ef4444' }
 ];
 
-const TEAM_ASSIGN_OPTIONS = [
-  { value: 'team-1', label: 'Team 1', color: 'bg-green-500 text-white', borderColor: 'border-green-500' },
-  { value: 'team-2', label: 'Team 2', color: 'bg-blue-500 text-white', borderColor: 'border-blue-500' },
-  { value: 'development', label: 'Development', color: 'bg-yellow-500 text-black', borderColor: 'border-yellow-500' }
+// Hour 1 (Development): assign to development squads 3-8
+const HOUR1_ASSIGN_OPTIONS = [
+  { value: 'squad-3', label: 'Squad 3', shortLabel: 'S3', color: 'bg-violet-500 text-white', borderColor: 'border-violet-500', columnColor: 'violet' },
+  { value: 'squad-4', label: 'Squad 4', shortLabel: 'S4', color: 'bg-indigo-500 text-white', borderColor: 'border-indigo-500', columnColor: 'indigo' },
+  { value: 'squad-5', label: 'Squad 5', shortLabel: 'S5', color: 'bg-cyan-500 text-white', borderColor: 'border-cyan-500', columnColor: 'cyan' },
+  { value: 'squad-6', label: 'Squad 6', shortLabel: 'S6', color: 'bg-teal-500 text-white', borderColor: 'border-teal-500', columnColor: 'teal' },
+  { value: 'squad-7', label: 'Squad 7', shortLabel: 'S7', color: 'bg-amber-500 text-white', borderColor: 'border-amber-500', columnColor: 'amber' },
+  { value: 'squad-8', label: 'Squad 8', shortLabel: 'S8', color: 'bg-rose-500 text-white', borderColor: 'border-rose-500', columnColor: 'rose' },
 ];
+
+// Hour 2 (Advanced): assign to competitive teams T1, T2, T3
+const HOUR2_ASSIGN_OPTIONS = [
+  { value: 'team-1', label: 'Team 1', shortLabel: 'T1', color: 'bg-green-500 text-white', borderColor: 'border-green-500', columnColor: 'green' },
+  { value: 'team-2', label: 'Team 2', shortLabel: 'T2', color: 'bg-blue-500 text-white', borderColor: 'border-blue-500', columnColor: 'blue' },
+  { value: 'team-3', label: 'Team 3', shortLabel: 'T3', color: 'bg-yellow-500 text-black', borderColor: 'border-yellow-500', columnColor: 'yellow' },
+];
+
+const ALL_ASSIGN_OPTIONS = [...HOUR1_ASSIGN_OPTIONS, ...HOUR2_ASSIGN_OPTIONS];
+
+const getTeamAssignOptions = (sessionType) =>
+  sessionType === 'hour-1' ? HOUR1_ASSIGN_OPTIONS : HOUR2_ASSIGN_OPTIONS;
+
+const getAssignmentBadgeColor = (value) => {
+  const opt = ALL_ASSIGN_OPTIONS.find(o => o.value === value);
+  return opt ? opt.color.split(' ')[0] : 'bg-[#1a8a68]';
+};
 
 // ============================================
 // MAIN COMPONENT
@@ -241,17 +262,20 @@ const TryoutResultsPage = () => {
     const evaluated = playerSummaries.filter(s => s.evaluationCount > 0).length;
     const notAssessed = total - evaluated;
     const promotedCount = session?.players?.filter(p => p.promotedFromHour1).length || 0;
-    const team1 = playerSummaries.filter(s => s.teamAssignment === 'team-1').length;
-    const team2 = playerSummaries.filter(s => s.teamAssignment === 'team-2').length;
-    const dev = playerSummaries.filter(s => s.teamAssignment === 'development').length;
-    const unassigned = total - team1 - team2 - dev;
+    const assignOptions = getTeamAssignOptions(session?.sessionType);
+    const assignmentCounts = {};
+    assignOptions.forEach(opt => {
+      assignmentCounts[opt.value] = playerSummaries.filter(s => s.teamAssignment === opt.value).length;
+    });
+    const assigned = Object.values(assignmentCounts).reduce((a, b) => a + b, 0);
+    const unassigned = total - assigned;
     const avgScore = playerSummaries.filter(s => s.compositeAvg).length > 0
       ? (playerSummaries.reduce((sum, s) => sum + (parseFloat(s.compositeAvg) || 0), 0) /
         playerSummaries.filter(s => s.compositeAvg).length).toFixed(1)
       : '-';
     const inconsistent = playerSummaries.filter(s => s.flags?.includes('inconsistent')).length;
     const needsMoreEvals = playerSummaries.filter(s => s.flags?.includes('needs-more-evals')).length;
-    return { total, evaluated, notAssessed, promotedCount, team1, team2, dev, unassigned, avgScore, inconsistent, needsMoreEvals };
+    return { total, evaluated, notAssessed, promotedCount, assignmentCounts, unassigned, avgScore, inconsistent, needsMoreEvals };
   }, [session, playerSummaries]);
 
   // Completion stats
@@ -316,15 +340,14 @@ const TryoutResultsPage = () => {
   const handlePrint = () => window.print();
 
   const handleCopySummary = () => {
-    const team1Players = playerSummaries.filter(s => s.teamAssignment === 'team-1');
-    const team2Players = playerSummaries.filter(s => s.teamAssignment === 'team-2');
-    const devPlayers = playerSummaries.filter(s => s.teamAssignment === 'development');
+    const assignOptions = getTeamAssignOptions(session?.sessionType);
     const formatList = (list) => list.map(s => `  - ${s.playerName} (#${s.playerNumber || '?'}) - Avg: ${s.compositeAvg || s.avgOverall || 'N/A'}`).join('\n');
-    const text = `TRYOUT RESULTS: ${session?.name || ''}\nAge Group: ${session?.ageGroup || ''}\nDate: ${new Date().toLocaleDateString()}\n\n` +
-      `TEAM 1 (${team1Players.length} players):\n${formatList(team1Players) || '  (none assigned)'}\n\n` +
-      `TEAM 2 (${team2Players.length} players):\n${formatList(team2Players) || '  (none assigned)'}\n\n` +
-      `DEVELOPMENT (${devPlayers.length} players):\n${formatList(devPlayers) || '  (none assigned)'}`;
-    navigator.clipboard.writeText(text).then(() => {
+    let text = `TRYOUT RESULTS: ${session?.name || ''}\nAge Group: ${session?.ageGroup || ''}\nDate: ${new Date().toLocaleDateString()}\n\n`;
+    assignOptions.forEach(opt => {
+      const players = playerSummaries.filter(s => s.teamAssignment === opt.value);
+      text += `${opt.label.toUpperCase()} (${players.length} players):\n${formatList(players) || '  (none assigned)'}\n\n`;
+    });
+    navigator.clipboard.writeText(text.trim()).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -511,14 +534,23 @@ const OverviewTab = ({
 }) => (
   <>
     {/* Stats Cards */}
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6 print:grid-cols-6">
-      <StatCard label="Total Players" value={stats.total} icon={Users} />
-      <StatCard label="Evaluated" value={`${stats.evaluated}/${stats.total}`} icon={CheckCircle} color="text-green-400" />
-      <StatCard label="Avg Score" value={stats.avgScore} icon={Star} color="text-yellow-400" />
-      <StatCard label="Team 1" value={stats.team1} color="text-green-400" />
-      <StatCard label="Team 2" value={stats.team2} color="text-blue-400" />
-      <StatCard label="Development" value={stats.dev} color="text-yellow-400" />
-    </div>
+    {(() => {
+      const assignOptions = getTeamAssignOptions(session.sessionType);
+      const statColorMap = { green: 'text-green-400', blue: 'text-blue-400', yellow: 'text-yellow-400', violet: 'text-violet-400', indigo: 'text-indigo-400', cyan: 'text-cyan-400', teal: 'text-teal-400', amber: 'text-amber-400', rose: 'text-rose-400' };
+      return (
+        <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6 print:grid-cols-6 ${assignOptions.length <= 3 ? 'lg:grid-cols-6' : 'lg:grid-cols-5'}`}>
+          <StatCard label="Total Players" value={stats.total} icon={Users} />
+          <StatCard label="Evaluated" value={`${stats.evaluated}/${stats.total}`} icon={CheckCircle} color="text-green-400" />
+          <StatCard label="Avg Score" value={stats.avgScore} icon={Star} color="text-yellow-400" />
+          {assignOptions.length <= 3 ? assignOptions.map(opt => (
+            <StatCard key={opt.value} label={opt.label} value={stats.assignmentCounts[opt.value] || 0} color={statColorMap[opt.columnColor] || 'text-white'} />
+          )) : (
+            <StatCard label="Assigned" value={stats.total - stats.unassigned} color="text-violet-400" />
+          )}
+          <StatCard label="Unassigned" value={stats.unassigned} color="text-white/40" />
+        </div>
+      );
+    })()}
 
     {/* Flags Banner */}
     {(stats.notAssessed > 0 || stats.inconsistent > 0 || stats.needsMoreEvals > 0) && (
@@ -558,7 +590,7 @@ const OverviewTab = ({
           className="px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none">
           <option value="all">All Assignments</option>
           <option value="unassigned">Unassigned</option>
-          {TEAM_ASSIGN_OPTIONS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+          {getTeamAssignOptions(session.sessionType).map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
         {assessors.length > 1 && (
           <select value={filterAssessor} onChange={e => setFilterAssessor(e.target.value)}
@@ -619,9 +651,7 @@ const OverviewTab = ({
                 {/* Player name */}
                 <div className="flex items-center gap-2 min-w-0 mb-1 lg:mb-0">
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 ${
-                    summary.teamAssignment === 'team-1' ? 'bg-green-500' :
-                    summary.teamAssignment === 'team-2' ? 'bg-blue-500' :
-                    summary.teamAssignment === 'development' ? 'bg-yellow-500' :
+                    summary.teamAssignment ? getAssignmentBadgeColor(summary.teamAssignment) :
                     summary.promotedFromHour1 ? 'bg-orange-500' : 'bg-[#1a8a68]'
                   }`}>
                     {summary.playerNumber || '?'}
@@ -685,8 +715,8 @@ const OverviewTab = ({
                   )}
                 </div>
                 {/* Quick Assign */}
-                <div className="hidden lg:flex gap-1 justify-center no-print" onClick={e => e.stopPropagation()}>
-                  {TEAM_ASSIGN_OPTIONS.map(opt => (
+                <div className="hidden lg:flex gap-0.5 justify-center no-print" onClick={e => e.stopPropagation()}>
+                  {getTeamAssignOptions(session.sessionType).map(opt => (
                     <button key={opt.value} onClick={() => assignTeam(summary.playerId, summary.teamAssignment === opt.value ? '' : opt.value)}
                       className={`w-6 h-6 rounded text-[10px] font-bold border transition-all ${
                         summary.teamAssignment === opt.value
@@ -694,7 +724,7 @@ const OverviewTab = ({
                           : 'bg-transparent border-[#1a8a68] text-[#1a8a68] hover:border-white/50 hover:text-white/50'
                       }`}
                       title={opt.label}>
-                      {opt.label.charAt(0) === 'T' ? opt.label.replace('Team ', 'T') : 'D'}
+                      {opt.shortLabel}
                     </button>
                   ))}
                   <button onClick={e => { e.stopPropagation(); onPlayerDetail(summary.playerId); }}
@@ -709,13 +739,13 @@ const OverviewTab = ({
                   </span>
                   <span className="text-xs text-white/40">{summary.evaluationCount} eval{summary.evaluationCount !== 1 ? 's' : ''}</span>
                   {getTeamBadge(summary.topRecommendation)}
-                  <div className="flex gap-1 ml-auto no-print">
-                    {TEAM_ASSIGN_OPTIONS.map(opt => (
+                  <div className="flex gap-0.5 ml-auto no-print flex-wrap">
+                    {getTeamAssignOptions(session.sessionType).map(opt => (
                       <button key={opt.value} onClick={e => { e.stopPropagation(); assignTeam(summary.playerId, summary.teamAssignment === opt.value ? '' : opt.value); }}
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${
                           summary.teamAssignment === opt.value ? `${opt.color} ${opt.borderColor}` : 'border-[#1a8a68] text-[#1a8a68]'
                         }`}>
-                        {opt.label.charAt(0) === 'T' ? opt.label.replace('Team ', 'T') : 'Dev'}
+                        {opt.shortLabel}
                       </button>
                     ))}
                   </div>
@@ -768,15 +798,36 @@ const OverviewTab = ({
 
     {/* Assessor Completion */}
     {session.assessors?.length > 0 && (
-      <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl overflow-hidden print:border-gray-300">
-        <div className="px-4 py-3 border-b border-[#1a8a68]">
-          <h3 className="text-white font-bold flex items-center gap-2 print:text-black">
-            <Users className="w-5 h-5 text-[#4ade80] print:text-gray-500" /> Assessor Completion
-          </h3>
-          <p className="text-white/40 text-xs mt-1">{completionStats.totalCompleted} of {completionStats.totalExpected} evaluations</p>
-        </div>
-        <div className="divide-y divide-[#1a8a68]">
-          {completionStats.assessors.map(a => (
+      <AssessorCompletionSection completionStats={completionStats} session={session} evaluations={evaluations} />
+    )}
+  </>
+);
+
+const AssessorCompletionSection = ({ completionStats, session, evaluations }) => {
+  const [expandedAssessorId, setExpandedAssessorId] = useState(null);
+
+  const getPendingPlayers = (assessor) => {
+    if (!session?.players) return [];
+    const assessorEvals = evaluations.filter(
+      e => e.assessorId === assessor.id || e.assessorName === assessor.name
+    );
+    const evaluatedPlayerIds = new Set(assessorEvals.map(e => e.playerId));
+    return session.players.filter(p => !evaluatedPlayerIds.has(p.id));
+  };
+
+  return (
+    <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl overflow-hidden print:border-gray-300">
+      <div className="px-4 py-3 border-b border-[#1a8a68]">
+        <h3 className="text-white font-bold flex items-center gap-2 print:text-black">
+          <Users className="w-5 h-5 text-[#4ade80] print:text-gray-500" /> Assessor Completion
+        </h3>
+        <p className="text-white/40 text-xs mt-1">{completionStats.totalCompleted} of {completionStats.totalExpected} evaluations</p>
+      </div>
+      <div className="divide-y divide-[#1a8a68]">
+        {completionStats.assessors.map(a => {
+          const isExpanded = expandedAssessorId === a.id;
+          const pendingPlayers = isExpanded ? getPendingPlayers(a) : [];
+          return (
             <div key={a.id} className="px-4 py-3">
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-2">
@@ -791,20 +842,43 @@ const OverviewTab = ({
                 <div className="flex items-center gap-3 text-xs">
                   {a.submitted > 0 && <span className="text-blue-400">{a.submitted} submitted</span>}
                   {a.drafts > 0 && <span className="text-amber-400">{a.drafts} drafts</span>}
-                  {a.notStarted > 0 && <span className="text-white/30">{a.notStarted} pending</span>}
+                  {a.notStarted > 0 && (
+                    <button
+                      onClick={() => setExpandedAssessorId(isExpanded ? null : a.id)}
+                      className="text-red-400 hover:text-red-300 underline underline-offset-2 cursor-pointer font-medium"
+                      title="Click to see pending players"
+                    >
+                      {a.notStarted} pending {isExpanded ? '▲' : '▼'}
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="h-2 bg-[#0a3d2e] rounded-full overflow-hidden flex">
                 {a.submitted > 0 && <div className="h-full bg-blue-500" style={{ width: `${(a.submitted / a.total) * 100}%` }} />}
                 {a.drafts > 0 && <div className="h-full bg-amber-500" style={{ width: `${(a.drafts / a.total) * 100}%` }} />}
               </div>
+              {isExpanded && pendingPlayers.length > 0 && (
+                <div className="mt-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg p-2">
+                  <p className="text-white/40 text-xs mb-1.5 font-medium">Pending evaluations for {a.name}:</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
+                    {pendingPlayers.map(p => (
+                      <div key={p.id} className="flex items-center gap-1.5 text-xs">
+                        <span className="w-5 h-5 bg-[#1a8a68] rounded-full flex items-center justify-center text-white text-[9px] font-bold flex-shrink-0">
+                          {p.number || '?'}
+                        </span>
+                        <span className="text-white/70 truncate">{p.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
-    )}
-  </>
-);
+    </div>
+  );
+};
 
 // ============================================
 // INSIGHTS TAB
@@ -969,6 +1043,7 @@ const InsightsTab = ({ playerSummaries, evaluations }) => {
 
 const TeamBuilderTab = ({ playerSummaries, assignTeam, teamAssignments, session, onSave, saving, dirty }) => {
   const [builderSort, setBuilderSort] = useState('overall');
+  const assignOptions = getTeamAssignOptions(session.sessionType);
 
   const getTeamPlayers = (teamKey) =>
     playerSummaries.filter(s => s.teamAssignment === teamKey)
@@ -981,19 +1056,22 @@ const TeamBuilderTab = ({ playerSummaries, assignTeam, teamAssignments, session,
       return (parseFloat(b.averages?.[builderSort]) || 0) - (parseFloat(a.averages?.[builderSort]) || 0);
     });
 
-  const team1 = getTeamPlayers('team-1');
-  const team2 = getTeamPlayers('team-2');
-  const dev = getTeamPlayers('development');
+  const teamGroups = assignOptions.map(opt => ({
+    ...opt,
+    players: getTeamPlayers(opt.value)
+  }));
 
   const teamAvg = (players) => {
     const vals = players.map(s => parseFloat(s.compositeAvg || s.avgOverall) || 0).filter(v => v > 0);
     return vals.length > 0 ? (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2) : '-';
   };
 
-  const team1Avg = teamAvg(team1);
-  const team2Avg = teamAvg(team2);
-  const gap = (team1Avg !== '-' && team2Avg !== '-') ? Math.abs(parseFloat(team1Avg) - parseFloat(team2Avg)) : null;
-  const balanceScore = gap != null ? Math.max(0, Math.round(100 - gap * 33.3)) : null;
+  // Balance: compare first two teams (only meaningful for hour-2 with 3 teams)
+  const showRadar = assignOptions.length <= 3 && teamGroups[0]?.players.length > 0 && teamGroups[1]?.players.length > 0;
+  const t1Avg = teamAvg(teamGroups[0]?.players || []);
+  const t2Avg = teamAvg(teamGroups[1]?.players || []);
+  const gap = (t1Avg !== '-' && t2Avg !== '-') ? Math.abs(parseFloat(t1Avg) - parseFloat(t2Avg)) : null;
+  const balanceScore = (assignOptions.length <= 3 && gap != null) ? Math.max(0, Math.round(100 - gap * 33.3)) : null;
 
   // Per-metric averages for radar
   const metricAvgs = (players) => {
@@ -1003,49 +1081,52 @@ const TeamBuilderTab = ({ playerSummaries, assignTeam, teamAssignments, session,
     });
   };
 
-  const radarData = EVAL_METRICS.map((m, i) => ({
+  const radarData = showRadar ? EVAL_METRICS.map((m, i) => ({
     metric: m.name.slice(0, 6),
-    'Team 1': metricAvgs(team1)[i],
-    'Team 2': metricAvgs(team2)[i]
-  }));
+    [assignOptions[0].label]: metricAvgs(teamGroups[0].players)[i],
+    [assignOptions[1].label]: metricAvgs(teamGroups[1].players)[i]
+  })) : [];
 
   return (
     <div className="space-y-6">
       {/* Balance Header */}
       <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 items-center">
-          <div className="text-center">
-            <p className="text-green-400 text-sm font-medium">Team 1</p>
-            <p className="text-white text-2xl font-bold">{team1.length} <span className="text-sm font-normal text-white/40">players</span></p>
-            <p className="text-green-400 text-lg font-bold">{team1Avg}★</p>
-          </div>
-          <div className="text-center">
-            <p className="text-blue-400 text-sm font-medium">Team 2</p>
-            <p className="text-white text-2xl font-bold">{team2.length} <span className="text-sm font-normal text-white/40">players</span></p>
-            <p className="text-blue-400 text-lg font-bold">{team2Avg}★</p>
-          </div>
-          <div className="text-center">
-            <p className="text-white/40 text-sm">Balance Score</p>
-            {balanceScore != null ? (
-              <>
-                <p className={`text-3xl font-bold ${balanceScore >= 90 ? 'text-green-400' : balanceScore >= 70 ? 'text-yellow-400' : 'text-red-400'}`}>
-                  {balanceScore}%
-                </p>
-                <p className="text-white/30 text-xs">Gap: {gap?.toFixed(2)}★ {gap <= 0.3 ? '(within target)' : '(target: ≤0.3)'}</p>
-              </>
-            ) : (
-              <p className="text-white/30 text-lg">-</p>
-            )}
-          </div>
-          <div className="text-center">
-            <p className="text-yellow-400 text-sm font-medium">Development</p>
-            <p className="text-white text-2xl font-bold">{dev.length}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-white/40 text-sm">Unassigned</p>
-            <p className="text-white text-2xl font-bold">{unassigned.length}</p>
-          </div>
-        </div>
+        {(() => {
+          const statColorMap = { green: 'text-green-400', blue: 'text-blue-400', yellow: 'text-yellow-400', violet: 'text-violet-400', indigo: 'text-indigo-400', cyan: 'text-cyan-400', teal: 'text-teal-400', amber: 'text-amber-400', rose: 'text-rose-400' };
+          return (
+            <div className={`grid gap-4 items-center ${assignOptions.length <= 3 ? `grid-cols-2 lg:grid-cols-${assignOptions.length + 2}` : 'grid-cols-3 lg:grid-cols-4'}`}>
+              {assignOptions.length <= 3 ? teamGroups.map(g => (
+                <div key={g.value} className="text-center">
+                  <p className={`${statColorMap[g.columnColor] || 'text-white'} text-sm font-medium`}>{g.label}</p>
+                  <p className="text-white text-2xl font-bold">{g.players.length} <span className="text-sm font-normal text-white/40">players</span></p>
+                  <p className={`${statColorMap[g.columnColor] || 'text-white'} text-lg font-bold`}>{teamAvg(g.players)}★</p>
+                </div>
+              )) : (
+                <>
+                  {teamGroups.map(g => (
+                    <div key={g.value} className="text-center">
+                      <p className={`${statColorMap[g.columnColor] || 'text-white'} text-xs font-medium`}>{g.shortLabel}</p>
+                      <p className="text-white text-lg font-bold">{g.players.length}</p>
+                    </div>
+                  ))}
+                </>
+              )}
+              {balanceScore != null && (
+                <div className="text-center">
+                  <p className="text-white/40 text-sm">Balance</p>
+                  <p className={`text-3xl font-bold ${balanceScore >= 90 ? 'text-green-400' : balanceScore >= 70 ? 'text-yellow-400' : 'text-red-400'}`}>
+                    {balanceScore}%
+                  </p>
+                  <p className="text-white/30 text-xs">Gap: {gap?.toFixed(2)}★</p>
+                </div>
+              )}
+              <div className="text-center">
+                <p className="text-white/40 text-sm">Unassigned</p>
+                <p className="text-white text-2xl font-bold">{unassigned.length}</p>
+              </div>
+            </div>
+          );
+        })()}
         {dirty && (
           <div className="flex justify-center mt-4">
             <button onClick={onSave} disabled={saving}
@@ -1057,8 +1138,8 @@ const TeamBuilderTab = ({ playerSummaries, assignTeam, teamAssignments, session,
         )}
       </div>
 
-      {/* Radar Chart: Team Comparison */}
-      {team1.length > 0 && team2.length > 0 && (
+      {/* Radar Chart: Team Comparison (hour-2 with ≤3 teams) */}
+      {showRadar && (
         <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
           <h3 className="text-white font-bold mb-3 flex items-center gap-2">
             <Target className="w-5 h-5 text-[#4ade80]" /> Skill Profile Comparison
@@ -1068,8 +1149,8 @@ const TeamBuilderTab = ({ playerSummaries, assignTeam, teamAssignments, session,
               <PolarGrid stroke="#1a8a68" />
               <PolarAngleAxis dataKey="metric" tick={{ fill: '#4ade80', fontSize: 11 }} />
               <PolarRadiusAxis domain={[0, 5]} tick={{ fill: '#4ade80', fontSize: 10 }} />
-              <Radar name="Team 1" dataKey="Team 1" stroke="#22c55e" fill="#22c55e" fillOpacity={0.2} strokeWidth={2} />
-              <Radar name="Team 2" dataKey="Team 2" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} strokeWidth={2} />
+              <Radar name={assignOptions[0].label} dataKey={assignOptions[0].label} stroke="#22c55e" fill="#22c55e" fillOpacity={0.2} strokeWidth={2} />
+              <Radar name={assignOptions[1].label} dataKey={assignOptions[1].label} stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} strokeWidth={2} />
               <Legend wrapperStyle={{ color: '#fff', fontSize: 12 }} />
             </RadarChart>
           </ResponsiveContainer>
@@ -1077,45 +1158,52 @@ const TeamBuilderTab = ({ playerSummaries, assignTeam, teamAssignments, session,
       )}
 
       {/* Unassigned Pool + Team Columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className={`grid grid-cols-1 gap-4 ${assignOptions.length <= 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-3'}`}>
         {/* Unassigned */}
-        <div className="lg:col-span-3 bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-white font-bold">Unassigned ({unassigned.length})</h3>
-            <select value={builderSort} onChange={e => setBuilderSort(e.target.value)}
-              className="px-2 py-1 bg-[#0a3d2e] border border-[#1a8a68] rounded text-white text-xs focus:outline-none">
-              <option value="overall">By Overall</option>
-              <option value="name">By Name</option>
-              {EVAL_METRICS.map(m => <option key={m.id} value={m.id}>By {m.name}</option>)}
-            </select>
-          </div>
-          {unassigned.length === 0 ? (
-            <p className="text-[#1a8a68] text-sm text-center py-4">All players assigned</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-96 overflow-y-auto">
-              {unassigned.map(s => (
-                <TeamBuilderCard key={s.playerId} summary={s} assignTeam={assignTeam} />
-              ))}
+        <div className={assignOptions.length <= 3 ? 'lg:col-span-3' : 'lg:col-span-3'}>
+          <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-white font-bold">Unassigned ({unassigned.length})</h3>
+              <select value={builderSort} onChange={e => setBuilderSort(e.target.value)}
+                className="px-2 py-1 bg-[#0a3d2e] border border-[#1a8a68] rounded text-white text-xs focus:outline-none">
+                <option value="overall">By Overall</option>
+                <option value="name">By Name</option>
+                {EVAL_METRICS.map(m => <option key={m.id} value={m.id}>By {m.name}</option>)}
+              </select>
             </div>
-          )}
+            {unassigned.length === 0 ? (
+              <p className="text-[#1a8a68] text-sm text-center py-4">All players assigned</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-96 overflow-y-auto">
+                {unassigned.map(s => (
+                  <TeamBuilderCard key={s.playerId} summary={s} assignTeam={assignTeam} assignOptions={assignOptions} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Team 1 */}
-        <TeamColumn title="Team 1" players={team1} color="green" assignTeam={assignTeam} teamKey="team-1" avg={team1Avg} />
-        {/* Team 2 */}
-        <TeamColumn title="Team 2" players={team2} color="blue" assignTeam={assignTeam} teamKey="team-2" avg={team2Avg} />
-        {/* Development */}
-        <TeamColumn title="Development" players={dev} color="yellow" assignTeam={assignTeam} teamKey="development" avg={teamAvg(dev)} />
+        {/* Dynamic Team Columns */}
+        {teamGroups.map(g => (
+          <TeamColumn key={g.value} title={g.label} players={g.players} color={g.columnColor}
+            assignTeam={assignTeam} teamKey={g.value} avg={teamAvg(g.players)} assignOptions={assignOptions} />
+        ))}
       </div>
     </div>
   );
 };
 
-const TeamColumn = ({ title, players, color, assignTeam, teamKey, avg }) => {
+const TeamColumn = ({ title, players, color, assignTeam, teamKey, avg, assignOptions }) => {
   const colorMap = {
-    green: { border: 'border-green-500/50', header: 'bg-green-500/20 text-green-400', badge: 'text-green-400' },
-    blue: { border: 'border-blue-500/50', header: 'bg-blue-500/20 text-blue-400', badge: 'text-blue-400' },
-    yellow: { border: 'border-yellow-500/50', header: 'bg-yellow-500/20 text-yellow-400', badge: 'text-yellow-400' }
+    green: { border: 'border-green-500/50', header: 'bg-green-500/20 text-green-400' },
+    blue: { border: 'border-blue-500/50', header: 'bg-blue-500/20 text-blue-400' },
+    yellow: { border: 'border-yellow-500/50', header: 'bg-yellow-500/20 text-yellow-400' },
+    violet: { border: 'border-violet-500/50', header: 'bg-violet-500/20 text-violet-400' },
+    indigo: { border: 'border-indigo-500/50', header: 'bg-indigo-500/20 text-indigo-400' },
+    cyan: { border: 'border-cyan-500/50', header: 'bg-cyan-500/20 text-cyan-400' },
+    teal: { border: 'border-teal-500/50', header: 'bg-teal-500/20 text-teal-400' },
+    amber: { border: 'border-amber-500/50', header: 'bg-amber-500/20 text-amber-400' },
+    rose: { border: 'border-rose-500/50', header: 'bg-rose-500/20 text-rose-400' },
   };
   const c = colorMap[color] || colorMap.green;
 
@@ -1130,7 +1218,7 @@ const TeamColumn = ({ title, players, color, assignTeam, teamKey, avg }) => {
           <p className="text-[#1a8a68] text-sm text-center py-4">No players assigned</p>
         ) : (
           players.map(s => (
-            <TeamBuilderCard key={s.playerId} summary={s} assignTeam={assignTeam} compact />
+            <TeamBuilderCard key={s.playerId} summary={s} assignTeam={assignTeam} assignOptions={assignOptions} compact />
           ))
         )}
       </div>
@@ -1138,15 +1226,14 @@ const TeamColumn = ({ title, players, color, assignTeam, teamKey, avg }) => {
   );
 };
 
-const TeamBuilderCard = ({ summary, assignTeam, compact }) => {
+const TeamBuilderCard = ({ summary, assignTeam, assignOptions, compact }) => {
   const score = parseFloat(summary.compositeAvg || summary.avgOverall) || 0;
+  const opts = assignOptions || HOUR2_ASSIGN_OPTIONS;
   return (
     <div className={`bg-[#0a3d2e] border border-[#1a8a68] rounded-lg p-2.5 ${compact ? '' : ''}`}>
       <div className="flex items-center gap-2 mb-1">
         <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 ${
-          summary.teamAssignment === 'team-1' ? 'bg-green-500' :
-          summary.teamAssignment === 'team-2' ? 'bg-blue-500' :
-          summary.teamAssignment === 'development' ? 'bg-yellow-500' : 'bg-[#1a8a68]'
+          summary.teamAssignment ? getAssignmentBadgeColor(summary.teamAssignment) : 'bg-[#1a8a68]'
         }`}>
           {summary.playerNumber || '?'}
         </div>
@@ -1160,16 +1247,16 @@ const TeamBuilderCard = ({ summary, assignTeam, compact }) => {
           ))}
         </div>
       )}
-      <div className="flex gap-1">
-        {TEAM_ASSIGN_OPTIONS.map(opt => (
+      <div className={`grid gap-0.5 ${opts.length <= 3 ? 'grid-cols-3' : 'grid-cols-3'}`}>
+        {opts.map(opt => (
           <button key={opt.value}
             onClick={() => assignTeam(summary.playerId, summary.teamAssignment === opt.value ? '' : opt.value)}
-            className={`flex-1 py-1 text-[10px] font-bold rounded border transition-all ${
+            className={`py-1 text-[10px] font-bold rounded border transition-all ${
               summary.teamAssignment === opt.value
                 ? `${opt.color} ${opt.borderColor}`
                 : 'bg-transparent border-[#1a8a68] text-[#1a8a68] hover:border-white/50 hover:text-white/50'
             }`}>
-            {opt.label === 'Development' ? 'Dev' : opt.label}
+            {opt.shortLabel}
           </button>
         ))}
       </div>
@@ -1370,9 +1457,7 @@ const PlayerDetailModal = ({ summary, evaluations, session, getTeamBadge, onClos
           <div>
             <div className="flex items-center gap-2">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${
-                summary.teamAssignment === 'team-1' ? 'bg-green-500' :
-                summary.teamAssignment === 'team-2' ? 'bg-blue-500' :
-                summary.teamAssignment === 'development' ? 'bg-yellow-500' : 'bg-[#1a8a68]'
+                summary.teamAssignment ? getAssignmentBadgeColor(summary.teamAssignment) : 'bg-[#1a8a68]'
               }`}>{summary.playerNumber || '?'}</div>
               <div>
                 <h2 className="text-xl font-bold text-white">{summary.playerName}</h2>
@@ -1409,9 +1494,9 @@ const PlayerDetailModal = ({ summary, evaluations, session, getTeamBadge, onClos
           </div>
 
           {/* Team Assignment */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-white/40 text-sm">Assign to:</span>
-            {TEAM_ASSIGN_OPTIONS.map(opt => (
+            {getTeamAssignOptions(session.sessionType).map(opt => (
               <button key={opt.value}
                 onClick={() => assignTeam(summary.playerId, summary.teamAssignment === opt.value ? '' : opt.value)}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
