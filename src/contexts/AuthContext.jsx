@@ -9,6 +9,7 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, googleProvider, appleProvider, db } from '../services/firebase';
+import { logActivity } from '../services/auditService';
 import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES, ASSESSOR_ASSIGNER_ROLES } from '../constants/roles';
 
 const AuthContext = createContext();
@@ -90,6 +91,11 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const result = await signInWithPopup(auth, googleProvider);
+      logActivity(
+        { uid: result.user.uid, displayName: result.user.displayName, email: result.user.email },
+        'user.login',
+        `${result.user.displayName || result.user.email} signed in with Google`
+      );
       return result.user;
     } catch (err) {
       setError(err.message);
@@ -101,6 +107,11 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const result = await signInWithPopup(auth, appleProvider);
+      logActivity(
+        { uid: result.user.uid, displayName: result.user.displayName, email: result.user.email },
+        'user.login',
+        `${result.user.displayName || result.user.email} signed in with Apple`
+      );
       return result.user;
     } catch (err) {
       setError(err.message);
@@ -112,6 +123,11 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const result = await signInWithEmailAndPassword(auth, email, password);
+      logActivity(
+        { uid: result.user.uid, email: result.user.email },
+        'user.login',
+        `${result.user.email} signed in with email`
+      );
       return result.user;
     } catch (err) {
       setError(err.message);

@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
+import { fetchRecentActivity, ACTION_TYPES } from '../services/auditService';
 import {
   Users,
   Shield,
@@ -37,6 +38,7 @@ import TutorialPromptCard from '../components/tutorial/TutorialPromptCard';
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { players, evaluations, teams } = useData();
+  const [recentActivity, setRecentActivity] = useState([]);
 
   // Calculate club-wide statistics
   const clubStats = useMemo(() => {
@@ -86,6 +88,11 @@ const AdminDashboard = () => {
       clubAvgLevel
     };
   }, [players, evaluations, teams]);
+
+  // Fetch recent activity
+  useEffect(() => {
+    fetchRecentActivity(4).then(setRecentActivity);
+  }, []);
 
   // Navigation tiles configuration
   const navigationTiles = [
@@ -224,6 +231,22 @@ const AdminDashboard = () => {
       icon: Search,
       path: '/admin/data-explorer',
       color: 'from-cyan-500 to-cyan-600'
+    },
+    {
+      id: 'activity-log',
+      title: 'Activity Log',
+      description: 'Audit trail of all user actions',
+      icon: Activity,
+      path: '/admin/activity',
+      color: 'from-slate-500 to-slate-600'
+    },
+    {
+      id: 'assessment-metrics',
+      title: 'Assessment Metrics',
+      description: 'Configure match assessment criteria by age group',
+      icon: Target,
+      path: '/admin/assessment-metrics',
+      color: 'from-cyan-500 to-teal-600'
     },
     {
       id: 'system',
@@ -428,29 +451,30 @@ const AdminDashboard = () => {
           <h2 className="text-lg font-bold text-white mb-4">Recent Activity</h2>
           <div className="bg-[#0d5943] rounded-xl border border-[#1a8a68]/30 p-6">
             <div className="space-y-4">
-              <ActivityItem
-                type="assessment"
-                message="12 new skill assessments completed"
-                time="Today"
-              />
-              <ActivityItem
-                type="player"
-                message="3 new players added to U14 Boys"
-                time="Yesterday"
-              />
-              <ActivityItem
-                type="game"
-                message="U12 Girls vs Hills Hawks scheduled"
-                time="2 days ago"
-              />
-              <ActivityItem
-                type="report"
-                message="Monthly progress report generated"
-                time="1 week ago"
-              />
+              {recentActivity.length > 0 ? (
+                recentActivity.map(log => {
+                  const actionDef = ACTION_TYPES[log.action];
+                  const type = actionDef?.category || 'default';
+                  const timeStr = log.createdAt
+                    ? formatActivityTime(log.createdAt)
+                    : '';
+                  return (
+                    <ActivityItem
+                      key={log.id}
+                      type={type}
+                      message={log.description}
+                      time={timeStr}
+                    />
+                  );
+                })
+              ) : (
+                <>
+                  <ActivityItem type="default" message="No recent activity recorded" time="" />
+                </>
+              )}
             </div>
             <button
-              onClick={() => navigate('/admin/analytics')}
+              onClick={() => navigate('/admin/activity')}
               className="w-full mt-4 py-2 text-center text-white/60 hover:text-white text-sm font-medium transition-colors"
             >
               View All Activity →
@@ -505,6 +529,22 @@ const NavigationTile = ({ title, description, icon: Icon, color, onClick }) => (
     </div>
   </button>
 );
+
+// Format activity time as relative string
+const formatActivityTime = (date) => {
+  if (!date) return '';
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return `${diffDays} days ago`;
+  return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+};
 
 // Activity Item Component
 const ActivityItem = ({ type, message, time }) => {

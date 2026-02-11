@@ -48,6 +48,7 @@ import {
   getMatchAgeGroupFromTeam,
   getLevelCriteria
 } from '../data/matchBenchmarks';
+import { getMetricsWithFallback } from '../services/metricsService';
 
 // Sample teams data - will connect to Firestore later
 const sampleTeamsData = [
@@ -89,8 +90,8 @@ const samplePlayersData = {
   ]
 };
 
-// Icon mapping for metrics
-const metricIcons = {
+// Default icon mapping for metrics
+const DEFAULT_METRIC_ICONS = {
   teamWork: Users,
   defense: Shield,
   ballMovement: Target,
@@ -98,20 +99,6 @@ const metricIcons = {
   shotSelection: Brain,
   sportsmanship: Award
 };
-
-// Team-level game metrics (using benchmark data)
-const teamMetrics = MATCH_METRICS.map(metric => ({
-  id: metric.id,
-  name: metric.name,
-  icon: metricIcons[metric.id] || Target,
-  description: metric.description
-}));
-
-// Individual player metrics
-const playerMetrics = MATCH_METRICS.map(metric => ({
-  id: metric.id,
-  name: metric.name
-}));
 
 // Level labels from benchmarks
 const levelLabels = MATCH_LEVEL_LABELS;
@@ -234,6 +221,37 @@ const MatchDayAssessmentPage = () => {
   const matchAgeGroup = useMemo(() => {
     return getMatchAgeGroupFromTeam(activeTeam?.ageGroup);
   }, [activeTeam]);
+
+  // Dynamic metrics from Firestore
+  const [dynamicMetrics, setDynamicMetrics] = useState(null);
+  const [metricsLoading, setMetricsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!matchAgeGroup?.id) return;
+    setMetricsLoading(true);
+    getMetricsWithFallback(matchAgeGroup.id)
+      .then(m => { setDynamicMetrics(m); setMetricsLoading(false); })
+      .catch(() => { setDynamicMetrics(null); setMetricsLoading(false); });
+  }, [matchAgeGroup?.id]);
+
+  // Compute team and player metrics from dynamic data or defaults
+  const teamMetrics = useMemo(() => {
+    const source = dynamicMetrics || MATCH_METRICS;
+    return source.map(metric => ({
+      id: metric.id,
+      name: metric.name,
+      icon: DEFAULT_METRIC_ICONS[metric.id] || Target,
+      description: metric.description
+    }));
+  }, [dynamicMetrics]);
+
+  const playerMetrics = useMemo(() => {
+    const source = dynamicMetrics || MATCH_METRICS;
+    return source.map(metric => ({
+      id: metric.id,
+      name: metric.name
+    }));
+  }, [dynamicMetrics]);
 
   // State for showing criteria tooltip
   const [showCriteriaTooltip, setShowCriteriaTooltip] = useState(null);
@@ -1114,7 +1132,7 @@ const MatchDayAssessmentPage = () => {
                     <div className="flex-1 text-left">
                       <h4 className="text-white font-medium text-sm">{player.name}</h4>
                       <p className="text-[#1a8a68] text-xs">
-                        {assessedCount > 0 ? `${assessedCount}/6 rated` : 'Not assessed'}
+                        {assessedCount > 0 ? `${assessedCount}/${playerMetrics.length} rated` : 'Not assessed'}
                         {hasNotes && ' + notes'}
                       </p>
                     </div>

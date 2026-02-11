@@ -3,6 +3,7 @@ import {
   query, orderBy, where, getDocs, writeBatch, arrayUnion, arrayRemove
 } from 'firebase/firestore';
 import { db } from './firebase';
+import { logActivity } from './auditService';
 
 /**
  * Subscribe to real-time team list.
@@ -21,7 +22,7 @@ export function subscribeToTeams(callback) {
 /**
  * Create a new team.
  */
-export async function createTeam(teamData) {
+export async function createTeam(teamData, actorInfo) {
   try {
     const docRef = await addDoc(collection(db, 'teams'), {
       ...teamData,
@@ -29,6 +30,9 @@ export async function createTeam(teamData) {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
+    if (actorInfo) {
+      logActivity(actorInfo, 'team.created', `Created team: ${teamData.name || 'Unknown'}`, { teamId: docRef.id, teamName: teamData.name });
+    }
     return { success: true, data: { id: docRef.id } };
   } catch (error) {
     console.error('createTeam error:', error);
@@ -39,12 +43,15 @@ export async function createTeam(teamData) {
 /**
  * Update a team document.
  */
-export async function updateTeam(teamId, updates) {
+export async function updateTeam(teamId, updates, actorInfo) {
   try {
     await updateDoc(doc(db, 'teams', teamId), {
       ...updates,
       updatedAt: new Date().toISOString(),
     });
+    if (actorInfo) {
+      logActivity(actorInfo, 'team.updated', `Updated team ${teamId}`, { teamId, fields: Object.keys(updates) });
+    }
     return { success: true };
   } catch (error) {
     console.error('updateTeam error:', error);
@@ -55,9 +62,12 @@ export async function updateTeam(teamId, updates) {
 /**
  * Delete a team.
  */
-export async function deleteTeam(teamId) {
+export async function deleteTeam(teamId, actorInfo) {
   try {
     await deleteDoc(doc(db, 'teams', teamId));
+    if (actorInfo) {
+      logActivity(actorInfo, 'team.deleted', `Deleted team ${teamId}`, { teamId });
+    }
     return { success: true };
   } catch (error) {
     console.error('deleteTeam error:', error);

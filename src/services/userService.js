@@ -1,6 +1,7 @@
 import { collection, onSnapshot, doc, updateDoc, query, orderBy } from 'firebase/firestore';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth, db } from './firebase';
+import { logActivity } from './auditService';
 
 /**
  * Subscribe to real-time user list.
@@ -21,12 +22,15 @@ export function subscribeToUsers(callback) {
 /**
  * Update any fields on a user document (admin only).
  */
-export async function updateUser(uid, updates) {
+export async function updateUser(uid, updates, actorInfo) {
   try {
     await updateDoc(doc(db, 'users', uid), {
       ...updates,
       updatedAt: new Date().toISOString(),
     });
+    if (actorInfo) {
+      logActivity(actorInfo, 'user.updated', `Updated user ${uid}`, { targetUid: uid, fields: Object.keys(updates) });
+    }
     return { success: true };
   } catch (error) {
     console.error('updateUser error:', error);
@@ -44,12 +48,16 @@ export async function updateUserRole(uid, newRole) {
 /**
  * Disable a user account (soft — enforced at login).
  */
-export async function disableUser(uid, adminUid) {
-  return updateUser(uid, {
+export async function disableUser(uid, adminUid, actorInfo) {
+  const result = await updateUser(uid, {
     disabled: true,
     disabledAt: new Date().toISOString(),
     disabledBy: adminUid,
   });
+  if (result.success && actorInfo) {
+    logActivity(actorInfo, 'user.disabled', `Disabled user ${uid}`, { targetUid: uid });
+  }
+  return result;
 }
 
 /**
@@ -66,12 +74,16 @@ export async function enableUser(uid) {
 /**
  * Soft-delete a user (cannot remove Firebase Auth without Admin SDK).
  */
-export async function softDeleteUser(uid, adminUid) {
-  return updateUser(uid, {
+export async function softDeleteUser(uid, adminUid, actorInfo) {
+  const result = await updateUser(uid, {
     deleted: true,
     deletedAt: new Date().toISOString(),
     deletedBy: adminUid,
   });
+  if (result.success && actorInfo) {
+    logActivity(actorInfo, 'user.deleted', `Deleted user ${uid}`, { targetUid: uid });
+  }
+  return result;
 }
 
 /**

@@ -53,6 +53,8 @@ import AssessorDashboard from './pages/AssessorDashboard';
 import UserCreationPage from './pages/admin/UserCreationPage';
 import UserManagementPage from './pages/admin/UserManagementPage';
 import TeamManagementPage from './pages/admin/TeamManagementPage';
+import ActivityLogPage from './pages/admin/ActivityLogPage';
+import AssessmentMetricsPage from './pages/admin/AssessmentMetricsPage';
 import HelpHome from './pages/help/HelpHome';
 import AdminHelp from './pages/help/AdminHelp';
 import LeadershipHelp from './pages/help/LeadershipHelp';
@@ -634,6 +636,28 @@ const AppRoutes = () => {
           <ProtectedRoute allowedRoles={[...ADMIN_ROLES, 'girls_coordinator', 'boys_coordinator']}>
             <ErrorBoundary fallbackMessage="Unable to load team management.">
               <TeamManagementPage />
+            </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/activity"
+        element={
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
+            <ErrorBoundary fallbackMessage="Unable to load activity log.">
+              <ActivityLogPage />
+            </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/assessment-metrics"
+        element={
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
+            <ErrorBoundary fallbackMessage="Unable to load assessment metrics.">
+              <AssessmentMetricsPage />
             </ErrorBoundary>
           </ProtectedRoute>
         }
