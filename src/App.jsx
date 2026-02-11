@@ -51,6 +51,8 @@ import NotificationsInboxPage from './pages/NotificationsInboxPage';
 import NotificationPreferencesPage from './pages/NotificationPreferencesPage';
 import AssessorDashboard from './pages/AssessorDashboard';
 import UserCreationPage from './pages/admin/UserCreationPage';
+import UserManagementPage from './pages/admin/UserManagementPage';
+import TeamManagementPage from './pages/admin/TeamManagementPage';
 import HelpHome from './pages/help/HelpHome';
 import AdminHelp from './pages/help/AdminHelp';
 import LeadershipHelp from './pages/help/LeadershipHelp';
@@ -615,11 +617,23 @@ const AppRoutes = () => {
       />
 
       <Route
-        path="/admin/users/create"
+        path="/admin/users"
         element={
-          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
-            <ErrorBoundary fallbackMessage="Unable to load user creation.">
-              <UserCreationPage />
+          <ProtectedRoute allowedRoles={['admin', 'president', 'vice_president']}>
+            <ErrorBoundary fallbackMessage="Unable to load user management.">
+              <UserManagementPage />
+            </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/admin/users/create" element={<Navigate to="/admin/users" replace />} />
+
+      <Route
+        path="/admin/teams"
+        element={
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES, 'girls_coordinator', 'boys_coordinator']}>
+            <ErrorBoundary fallbackMessage="Unable to load team management.">
+              <TeamManagementPage />
             </ErrorBoundary>
           </ProtectedRoute>
         }

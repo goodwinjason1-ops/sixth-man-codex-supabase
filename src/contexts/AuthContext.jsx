@@ -45,7 +45,20 @@ export const AuthProvider = ({ children }) => {
         try {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
-            setUserProfile(userDoc.data());
+            const profile = userDoc.data();
+            if (profile.disabled) {
+              await firebaseSignOut(auth);
+              setError('Your account has been disabled. Please contact an administrator.');
+              setLoading(false);
+              return;
+            }
+            if (profile.deleted) {
+              await firebaseSignOut(auth);
+              setError('Your account has been removed. Please contact an administrator.');
+              setLoading(false);
+              return;
+            }
+            setUserProfile(profile);
           } else {
             // Create initial profile for new users (social login without signup flow)
             const initialProfile = {

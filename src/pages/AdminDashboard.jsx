@@ -162,12 +162,20 @@ const AdminDashboard = () => {
       color: 'from-sky-500 to-sky-600'
     },
     {
-      id: 'user-creation',
+      id: 'user-management',
       title: 'User Management',
-      description: 'Create users and assign roles',
+      description: 'Create, edit, and manage user accounts',
       icon: UserPlus,
-      path: '/admin/users/create',
+      path: '/admin/users',
       color: 'from-indigo-500 to-purple-600'
+    },
+    {
+      id: 'team-management',
+      title: 'Team Management',
+      description: 'Create teams, assign coaches and manage rosters',
+      icon: Shield,
+      path: '/admin/teams',
+      color: 'from-teal-500 to-cyan-600'
     },
     {
       id: 'rosters',
