@@ -412,6 +412,17 @@ const CoachDashboard = () => {
                 </button>
               </HelpTooltip>
 
+              {/* Rotation Tracker Button */}
+              <HelpTooltip text="Track player rotations and playing time during live games.">
+                <button
+                  onClick={() => navigate('/coach/rotation-tracker')}
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-white rounded-lg transition-colors"
+                >
+                  <Clock className="w-5 h-5" />
+                  <span className="hidden sm:inline">Rotations</span>
+                </button>
+              </HelpTooltip>
+
               {/* Team Selector */}
               <HelpTooltip text="Filter dashboard data by a specific team or view all teams at once.">
                 <select

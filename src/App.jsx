@@ -14,6 +14,7 @@ import MessagesPage from './pages/MessagesPage';
 import SkillsPassportPage from './pages/SkillsPassportPage';
 import CoachAssessmentPage from './pages/CoachAssessmentPage';
 import MatchDayAssessmentPage from './pages/MatchDayAssessmentPage';
+import RotationTrackerPage from './pages/RotationTrackerPage';
 import BenchmarkAdminPage from './pages/BenchmarkAdminPage';
 import CoachProfilePage from './pages/CoachProfilePage';
 import AdminProfilePage from './pages/AdminProfilePage';
@@ -319,6 +320,17 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={['coach']}>
             <MatchDayAssessmentPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/coach/rotation-tracker"
+        element={
+          <ProtectedRoute allowedRoles={['coach']}>
+            <ErrorBoundary fallbackMessage="Unable to load rotation tracker.">
+              <RotationTrackerPage />
+            </ErrorBoundary>
           </ProtectedRoute>
         }
       />
