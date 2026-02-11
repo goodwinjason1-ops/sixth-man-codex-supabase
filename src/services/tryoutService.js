@@ -430,6 +430,11 @@ export const SESSION_TYPES = [
 // Age groups
 export const AGE_GROUPS = ['U8', 'U10', 'U12', 'U14', 'U16', 'U18', 'Senior'];
 
+// Max age for each age group (player must be under this age)
+export const AGE_GROUP_MAX_AGE = {
+  'U8': 8, 'U10': 10, 'U12': 12, 'U14': 14, 'U16': 16, 'U18': 18, 'Senior': 99
+};
+
 // Evaluation statuses
 export const EVAL_STATUSES = {
   draft: { id: 'draft', label: 'Draft', color: 'bg-amber-500/20 text-amber-300 border-amber-500' },
@@ -997,5 +1002,6 @@ export default {
   TEAM_OPTIONS,
   SESSION_TYPES,
   AGE_GROUPS,
+  AGE_GROUP_MAX_AGE,
   EVAL_STATUSES
 };

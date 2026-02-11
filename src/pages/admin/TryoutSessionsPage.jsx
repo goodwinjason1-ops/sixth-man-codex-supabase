@@ -42,7 +42,8 @@ import {
   durationBetween,
   fetchUsersByRole,
   SESSION_TYPES,
-  AGE_GROUPS
+  AGE_GROUPS,
+  AGE_GROUP_MAX_AGE
 } from '../../services/tryoutService';
 import { useData } from '../../contexts/DataContext';
 
@@ -592,6 +593,15 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
     return String(age);
   };
 
+  // Check if a player is overage for the session's age group
+  const isPlayerOverage = (player) => {
+    if (!formData.ageGroup || formData.ageGroup === 'Senior') return false;
+    const maxAge = AGE_GROUP_MAX_AGE[formData.ageGroup];
+    if (!maxAge) return false;
+    const age = parseInt(calcAge(player.dateOfBirth));
+    return !isNaN(age) && age >= maxAge;
+  };
+
   // Filter existing players for search dropdown
   const filteredPlayers = (allPlayers || []).filter(p => {
     if (!playerSearch.trim()) return true;
@@ -602,6 +612,11 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
       teamName.includes(search) ||
       (p.ageGroup || '').toLowerCase().includes(search)
     );
+  }).sort((a, b) => {
+    // Show eligible players first, overage at bottom
+    const aOver = isPlayerOverage(a) ? 1 : 0;
+    const bOver = isPlayerOverage(b) ? 1 : 0;
+    return aOver - bOver;
   });
 
   // Filter coaches for search dropdown
@@ -974,22 +989,28 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                           const teamName = getTeamName(player.teamId);
                           const age = calcAge(player.dateOfBirth);
                           const alreadyAdded = formData.players.some(p => p.linkedPlayerId === player.id);
+                          const overage = isPlayerOverage(player);
                           return (
                             <button
                               key={player.id}
                               type="button"
-                              onClick={() => !alreadyAdded && addExistingPlayer(player)}
+                              onClick={() => {
+                                if (alreadyAdded) return;
+                                if (overage && !window.confirm(`${player.name} is age ${age}, overage for ${formData.ageGroup}. Add anyway?`)) return;
+                                addExistingPlayer(player);
+                              }}
                               disabled={alreadyAdded}
                               className={`w-full text-left px-3 py-2 text-sm ${
                                 alreadyAdded
                                   ? 'opacity-40 cursor-not-allowed'
-                                  : 'hover:bg-white/10'
+                                  : overage ? 'hover:bg-red-500/10 bg-red-500/5' : 'hover:bg-white/10'
                               }`}
                             >
-                              <span className="text-white font-medium">{player.name}</span>
+                              <span className={`font-medium ${overage ? 'text-red-300' : 'text-white'}`}>{player.name}</span>
                               {teamName && <span className="text-[#4ade80] ml-1">- {teamName}</span>}
                               {player.ageGroup && <span className="text-white/50 ml-1">- {player.ageGroup}</span>}
                               {age && <span className="text-white/50 ml-1">- Age {age}</span>}
+                              {overage && <span className="text-red-400 ml-2 font-medium">(overage)</span>}
                               {alreadyAdded && <span className="text-orange-400 ml-2">(added)</span>}
                             </button>
                           );

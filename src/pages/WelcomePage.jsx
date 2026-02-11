@@ -55,7 +55,7 @@ const WelcomePage = () => {
       setHasAutoRedirected(true);
       sessionStorage.setItem('gameDayRedirectShown', 'true');
 
-      // Auto-navigate to Match Day Assessment with game data
+      // Auto-navigate to Match Day Assessment with game data1
       const gameData = formatGameForDisplay(primaryGame);
       navigate('/coach/match-assessment', {
         state: {

@@ -74,21 +74,19 @@ const TIER_CONFIG = [
   { name: 'Dev (<2.5)', min: 0, max: 2.5, color: '#ef4444' }
 ];
 
-// Hour 1 (Development): assign to development squads 3-8
+// Session 1 (Development): assign to teams 3-7
 const HOUR1_ASSIGN_OPTIONS = [
-  { value: 'squad-3', label: 'Squad 3', shortLabel: 'S3', color: 'bg-violet-500 text-white', borderColor: 'border-violet-500', columnColor: 'violet' },
-  { value: 'squad-4', label: 'Squad 4', shortLabel: 'S4', color: 'bg-indigo-500 text-white', borderColor: 'border-indigo-500', columnColor: 'indigo' },
-  { value: 'squad-5', label: 'Squad 5', shortLabel: 'S5', color: 'bg-cyan-500 text-white', borderColor: 'border-cyan-500', columnColor: 'cyan' },
-  { value: 'squad-6', label: 'Squad 6', shortLabel: 'S6', color: 'bg-teal-500 text-white', borderColor: 'border-teal-500', columnColor: 'teal' },
-  { value: 'squad-7', label: 'Squad 7', shortLabel: 'S7', color: 'bg-amber-500 text-white', borderColor: 'border-amber-500', columnColor: 'amber' },
-  { value: 'squad-8', label: 'Squad 8', shortLabel: 'S8', color: 'bg-rose-500 text-white', borderColor: 'border-rose-500', columnColor: 'rose' },
+  { value: 'team-3', label: 'Team 3', shortLabel: '3', color: 'bg-violet-500 text-white', borderColor: 'border-violet-500', columnColor: 'violet' },
+  { value: 'team-4', label: 'Team 4', shortLabel: '4', color: 'bg-indigo-500 text-white', borderColor: 'border-indigo-500', columnColor: 'indigo' },
+  { value: 'team-5', label: 'Team 5', shortLabel: '5', color: 'bg-cyan-500 text-white', borderColor: 'border-cyan-500', columnColor: 'cyan' },
+  { value: 'team-6', label: 'Team 6', shortLabel: '6', color: 'bg-teal-500 text-white', borderColor: 'border-teal-500', columnColor: 'teal' },
+  { value: 'team-7', label: 'Team 7', shortLabel: '7', color: 'bg-amber-500 text-white', borderColor: 'border-amber-500', columnColor: 'amber' },
 ];
 
-// Hour 2 (Advanced): assign to competitive teams T1, T2, T3
+// Session 2 (Advanced): assign to teams 1-2
 const HOUR2_ASSIGN_OPTIONS = [
-  { value: 'team-1', label: 'Team 1', shortLabel: 'T1', color: 'bg-green-500 text-white', borderColor: 'border-green-500', columnColor: 'green' },
-  { value: 'team-2', label: 'Team 2', shortLabel: 'T2', color: 'bg-blue-500 text-white', borderColor: 'border-blue-500', columnColor: 'blue' },
-  { value: 'team-3', label: 'Team 3', shortLabel: 'T3', color: 'bg-yellow-500 text-black', borderColor: 'border-yellow-500', columnColor: 'yellow' },
+  { value: 'team-1', label: 'Team 1', shortLabel: '1', color: 'bg-green-500 text-white', borderColor: 'border-green-500', columnColor: 'green' },
+  { value: 'team-2', label: 'Team 2', shortLabel: '2', color: 'bg-blue-500 text-white', borderColor: 'border-blue-500', columnColor: 'blue' },
 ];
 
 const ALL_ASSIGN_OPTIONS = [...HOUR1_ASSIGN_OPTIONS, ...HOUR2_ASSIGN_OPTIONS];
@@ -862,12 +860,17 @@ const AssessorCompletionSection = ({ completionStats, session, evaluations }) =>
                   <p className="text-white/40 text-xs mb-1.5 font-medium">Pending evaluations for {a.name}:</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
                     {pendingPlayers.map(p => (
-                      <div key={p.id} className="flex items-center gap-1.5 text-xs">
+                      <button
+                        key={p.id}
+                        onClick={() => navigate(`/tryout/${sessionId}`)}
+                        className="flex items-center gap-1.5 text-xs text-left hover:bg-[#1a8a68]/30 rounded px-1 py-0.5 transition-colors cursor-pointer"
+                        title={`Open assessor page to evaluate ${p.name}`}
+                      >
                         <span className="w-5 h-5 bg-[#1a8a68] rounded-full flex items-center justify-center text-white text-[9px] font-bold flex-shrink-0">
                           {p.number || '?'}
                         </span>
-                        <span className="text-white/70 truncate">{p.name}</span>
-                      </div>
+                        <span className="text-blue-300 hover:text-blue-200 truncate underline underline-offset-2">{p.name}</span>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -1247,7 +1250,7 @@ const TeamBuilderCard = ({ summary, assignTeam, assignOptions, compact }) => {
           ))}
         </div>
       )}
-      <div className={`grid gap-0.5 ${opts.length <= 3 ? 'grid-cols-3' : 'grid-cols-3'}`}>
+      <div className={`grid gap-0.5 ${opts.length <= 3 ? 'grid-cols-3' : opts.length <= 5 ? 'grid-cols-5' : 'grid-cols-3'}`}>
         {opts.map(opt => (
           <button key={opt.value}
             onClick={() => assignTeam(summary.playerId, summary.teamAssignment === opt.value ? '' : opt.value)}

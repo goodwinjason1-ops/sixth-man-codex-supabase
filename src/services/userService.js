@@ -1,4 +1,4 @@
-import { collection, onSnapshot, doc, updateDoc, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth, db } from './firebase';
 import { logActivity } from './auditService';
@@ -9,9 +9,14 @@ import { logActivity } from './auditService';
  * @returns {Function} unsubscribe
  */
 export function subscribeToUsers(callback) {
-  const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
-  return onSnapshot(q, (snapshot) => {
+  return onSnapshot(collection(db, 'users'), (snapshot) => {
     const users = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Sort client-side so docs without createdAt still appear
+    users.sort((a, b) => {
+      const aDate = a.createdAt || '';
+      const bDate = b.createdAt || '';
+      return bDate > aDate ? 1 : bDate < aDate ? -1 : 0;
+    });
     callback(users);
   }, (err) => {
     console.error('subscribeToUsers error:', err);

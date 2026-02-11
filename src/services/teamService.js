@@ -1,6 +1,6 @@
 import {
   collection, onSnapshot, doc, addDoc, updateDoc, deleteDoc,
-  query, orderBy, where, getDocs, writeBatch, arrayUnion, arrayRemove
+  query, where, getDocs, writeBatch, arrayUnion, arrayRemove
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { logActivity } from './auditService';
@@ -9,9 +9,14 @@ import { logActivity } from './auditService';
  * Subscribe to real-time team list.
  */
 export function subscribeToTeams(callback) {
-  const q = query(collection(db, 'teams'), orderBy('createdAt', 'desc'));
-  return onSnapshot(q, (snapshot) => {
+  return onSnapshot(collection(db, 'teams'), (snapshot) => {
     const teams = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Sort client-side so docs without createdAt still appear
+    teams.sort((a, b) => {
+      const aDate = a.createdAt || '';
+      const bDate = b.createdAt || '';
+      return bDate > aDate ? 1 : bDate < aDate ? -1 : 0;
+    });
     callback(teams);
   }, (err) => {
     console.error('subscribeToTeams error:', err);

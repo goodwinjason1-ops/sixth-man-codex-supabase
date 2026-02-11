@@ -49,6 +49,7 @@ import {
   getLevelCriteria
 } from '../data/matchBenchmarks';
 import { getMetricsWithFallback } from '../services/metricsService';
+import { useGameDayDetection, formatGameForDisplay } from '../hooks/useGameDayDetection';
 
 // Sample teams data - will connect to Firestore later
 const sampleTeamsData = [
@@ -135,13 +136,21 @@ const MatchDayAssessmentPage = () => {
   const draftIdFromUrl = searchParams.get('draftId');
   const [draftLoaded, setDraftLoaded] = useState(false);
 
-  // Game Day state from navigation
+  // Game Day state — use hook directly so game list is always fresh
   const gameDayState = location.state;
+  const { isGameDay: hookIsGameDay, todaysGames: hookTodaysGames, primaryGame: hookPrimaryGame, loading: gameDayHookLoading } = useGameDayDetection();
   const [isGameDayMode, setIsGameDayMode] = useState(false);
   const [gameDayData, setGameDayData] = useState(null);
-  const [allTodaysGames, setAllTodaysGames] = useState([]);
   const [showGameSelector, setShowGameSelector] = useState(false);
   const [gameDayLoaded, setGameDayLoaded] = useState(false);
+
+  // All today's games — always sourced from hook, not navigation state
+  const allTodaysGames = useMemo(() => {
+    if (hookTodaysGames && hookTodaysGames.length > 0) {
+      return hookTodaysGames.map(formatGameForDisplay);
+    }
+    return [];
+  }, [hookTodaysGames]);
 
   // Get coach's teams from Firestore, fall back to sample data
   const coachTeams = useMemo(() => {
@@ -205,7 +214,9 @@ const MatchDayAssessmentPage = () => {
   // Individual Player Assessments
   const [expandedPlayers, setExpandedPlayers] = useState({});
   const [expandedPlayerNotes, setExpandedPlayerNotes] = useState({});
+  const [expandedMetricNotes, setExpandedMetricNotes] = useState({}); // { "playerId-metricId": true }
   const [playerAssessments, setPlayerAssessments] = useState({});
+  const [showTeamNotes, setShowTeamNotes] = useState(false);
 
   // Get players for active team
   const teamPlayers = useMemo(() => {
@@ -300,29 +311,35 @@ const MatchDayAssessmentPage = () => {
     setOpponentName('');
     setGameResult('');
     setTeamRatings({});
+    setTeamRatingNotes('');
     setMvpVotes({ vote3: '', vote2: '', vote1: '' });
     setGameNotes('');
     setExpandedPlayers({});
+    setExpandedMetricNotes({});
     setPlayerAssessments({});
     setMatchDate(new Date().toISOString().split('T')[0]);
     setSaveError(null);
     setExistingDraft(null);
     setShowDraftBanner(false);
     setSavedOffline(false);
+    setShowTeamNotes(false);
   };
 
   // Handle team tab click
   const handleTeamChange = (teamId) => {
     setActiveTeamId(teamId);
     setTeamRatings({});
+    setTeamRatingNotes('');
     setMvpVotes({ vote3: '', vote2: '', vote1: '' });
     setGameNotes('');
     setOpponentName('');
     setGameResult('');
     setExpandedPlayers({});
+    setExpandedMetricNotes({});
     setPlayerAssessments({});
     setExistingDraft(null);
     setShowDraftBanner(false);
+    setShowTeamNotes(false);
   };
 
   // Load draft into form
@@ -399,6 +416,26 @@ const MatchDayAssessmentPage = () => {
     }));
   };
 
+  // Handle per-metric note change for a player
+  const handlePlayerMetricNoteChange = (playerId, metricId, note) => {
+    setPlayerAssessments(prev => ({
+      ...prev,
+      [playerId]: {
+        ...prev[playerId],
+        metricNotes: {
+          ...(prev[playerId]?.metricNotes || {}),
+          [metricId]: note
+        }
+      }
+    }));
+  };
+
+  // Toggle metric note expansion
+  const toggleMetricNote = (playerId, metricId) => {
+    const key = `${playerId}-${metricId}`;
+    setExpandedMetricNotes(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
   // Toggle player notes visibility
   const togglePlayerNotesVisibility = (playerId) => {
     if (!playerId) return; // Guard against undefined playerId
@@ -417,7 +454,7 @@ const MatchDayAssessmentPage = () => {
 
   // Get player assessment data
   const getPlayerAssessment = (playerId) => {
-    return playerAssessments[playerId] || { metrics: {}, notes: '', notesPrivate: true };
+    return playerAssessments[playerId] || { metrics: {}, notes: '', notesPrivate: true, metricNotes: {} };
   };
 
   // Count assessed metrics for a player
@@ -502,6 +539,7 @@ const MatchDayAssessmentPage = () => {
             playerName: player?.name || 'Unknown',
             playerNumber: player?.number || 0,
             metrics: data.metrics || {},
+            metricNotes: data.metricNotes || {},
             notes: data.notes || '',
             notesPrivate: data.notesPrivate !== false
           };
@@ -580,19 +618,18 @@ const MatchDayAssessmentPage = () => {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [openMvpDropdown, showGameSelector]);
 
-  // Handle Game Day Mode - auto-populate from navigation state
+  // Handle Game Day Mode - from navigation state OR hook detection
   useEffect(() => {
-    if (gameDayState?.isGameDay && gameDayState?.gameData && !gameDayLoaded) {
+    if (gameDayLoaded) return;
+
+    // Option A: navigated with explicit game data from dashboard
+    if (gameDayState?.isGameDay && gameDayState?.gameData) {
       setIsGameDayMode(true);
       setGameDayData(gameDayState.gameData);
-      setAllTodaysGames(gameDayState.allTodaysGames || []);
 
-      // Auto-populate opponent from game data
       if (gameDayState.gameData.opponent) {
         setOpponentName(gameDayState.gameData.opponent);
       }
-
-      // Match team if we have a teamId
       if (gameDayState.gameData.teamId) {
         const matchingTeam = coachTeams.find(t =>
           t.id === gameDayState.gameData.teamId ||
@@ -603,13 +640,33 @@ const MatchDayAssessmentPage = () => {
           setActiveTeamId(matchingTeam.id);
         }
       }
-
       setGameDayLoaded(true);
-
-      // Clear the navigation state to prevent re-triggering
+      // Clear nav state to prevent re-triggering on re-render
       window.history.replaceState({}, document.title);
+      return;
     }
-  }, [gameDayState, gameDayLoaded, coachTeams]);
+
+    // Option B: navigated directly (e.g. "Match Day" button) — detect via hook
+    if (!gameDayHookLoading && hookIsGameDay && hookPrimaryGame) {
+      const formatted = formatGameForDisplay(hookPrimaryGame);
+      setIsGameDayMode(true);
+      setGameDayData(formatted);
+      if (formatted.opponent) {
+        setOpponentName(formatted.opponent);
+      }
+      if (formatted.teamId) {
+        const matchingTeam = coachTeams.find(t =>
+          t.id === formatted.teamId ||
+          t.name?.toLowerCase().includes(formatted.teamName?.toLowerCase()) ||
+          formatted.teamName?.toLowerCase().includes(t.name?.toLowerCase())
+        );
+        if (matchingTeam) {
+          setActiveTeamId(matchingTeam.id);
+        }
+      }
+      setGameDayLoaded(true);
+    }
+  }, [gameDayState, gameDayLoaded, coachTeams, gameDayHookLoading, hookIsGameDay, hookPrimaryGame]);
 
   // Handle switching to a different game today
   const handleSwitchGame = (game) => {
@@ -1071,6 +1128,30 @@ const MatchDayAssessmentPage = () => {
               );
             })}
           </div>
+
+          {/* Team Performance Notes - Collapsible */}
+          <div className="mt-4">
+            <button
+              onClick={() => setShowTeamNotes(!showTeamNotes)}
+              className="w-full bg-[#0a3d2e] border border-[#1a8a68] rounded-lg p-3 flex items-center justify-between hover:border-[#22c55e] transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-[#4ade80]" />
+                <span className="text-white text-sm font-medium">Team Performance Notes</span>
+                {teamRatingNotes && <span className="text-xs text-[#4ade80] bg-[#22c55e]/20 px-2 py-0.5 rounded">Has notes</span>}
+              </div>
+              <ChevronDown className={`w-4 h-4 text-[#1a8a68] transition-transform duration-200 ${showTeamNotes ? 'rotate-180' : ''}`} />
+            </button>
+            <div className={`overflow-hidden transition-all duration-300 ${showTeamNotes ? 'max-h-[200px] mt-2' : 'max-h-0'}`}>
+              <textarea
+                value={teamRatingNotes}
+                onChange={(e) => setTeamRatingNotes(e.target.value)}
+                placeholder="Notes about overall team performance... (optional)"
+                rows={3}
+                className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none resize-none"
+              />
+            </div>
+          </div>
         </div>
 
         {/* General Match Notes - Collapsible */}
@@ -1134,28 +1215,38 @@ const MatchDayAssessmentPage = () => {
                       <p className="text-[#1a8a68] text-xs">
                         {assessedCount > 0 ? `${assessedCount}/${playerMetrics.length} rated` : 'Not assessed'}
                         {hasNotes && ' + notes'}
+                        {Object.keys(assessment.metricNotes || {}).filter(k => assessment.metricNotes[k]).length > 0 &&
+                          ` + ${Object.keys(assessment.metricNotes).filter(k => assessment.metricNotes[k]).length} metric notes`}
                       </p>
                     </div>
                     <ChevronRight className={`w-5 h-5 text-[#1a8a68] transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
                   </button>
 
                   {/* Expanded Content */}
-                  <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-[800px]' : 'max-h-0'}`}>
+                  <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-[2000px]' : 'max-h-0'}`}>
                     <div className="px-4 pb-4 pt-2 border-t border-[#1a8a68]">
                       {/* Player Metrics */}
                       <div className="space-y-3 mb-4">
                         {playerMetrics.map((metric) => {
                           const currentLevel = assessment.metrics[metric.id] || 0;
+                          const metricNoteKey = `${player.id}-${metric.id}`;
+                          const isMetricNoteOpen = expandedMetricNotes[metricNoteKey] || false;
+                          const metricNote = assessment.metricNotes?.[metric.id] || '';
 
                           return (
                             <div key={metric.id}>
                               <div className="flex items-center justify-between mb-2">
                                 <span className="text-white text-xs font-medium">{metric.name}</span>
-                                {currentLevel > 0 && (
-                                  <span className="text-[#4ade80] text-xs">
-                                    {levelLabels[currentLevel]}
-                                  </span>
-                                )}
+                                <div className="flex items-center gap-2">
+                                  {metricNote && !isMetricNoteOpen && (
+                                    <span className="text-[10px] text-[#4ade80] bg-[#22c55e]/20 px-1.5 py-0.5 rounded">notes</span>
+                                  )}
+                                  {currentLevel > 0 && (
+                                    <span className="text-[#4ade80] text-xs">
+                                      {levelLabels[currentLevel]}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                               <div className="flex gap-1.5">
                                 {[1, 2, 3, 4, 5].map((level) => (
@@ -1171,6 +1262,24 @@ const MatchDayAssessmentPage = () => {
                                     {level}
                                   </button>
                                 ))}
+                              </div>
+                              {/* Per-metric note toggle */}
+                              <button
+                                onClick={() => toggleMetricNote(player.id, metric.id)}
+                                className="mt-1.5 flex items-center gap-1 text-[10px] text-[#1a8a68] hover:text-[#4ade80] transition-colors"
+                              >
+                                <MessageSquare className="w-3 h-3" />
+                                <span>{isMetricNoteOpen ? 'Hide note' : metricNote ? 'Edit note' : 'Add note'}</span>
+                              </button>
+                              {/* Per-metric note textarea */}
+                              <div className={`overflow-hidden transition-all duration-200 ${isMetricNoteOpen ? 'max-h-[120px] mt-1.5' : 'max-h-0'}`}>
+                                <textarea
+                                  value={metricNote}
+                                  onChange={(e) => handlePlayerMetricNoteChange(player.id, metric.id, e.target.value)}
+                                  placeholder={`${metric.name} notes for ${player.name}...`}
+                                  rows={2}
+                                  className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-xs placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none resize-none"
+                                />
                               </div>
                             </div>
                           );
