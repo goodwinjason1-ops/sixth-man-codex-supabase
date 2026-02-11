@@ -43,7 +43,7 @@ const QuickStartCarousel = ({ userRole }) => {
           return (
             <div
               key={id}
-              className={`flex-shrink-0 w-52 rounded-xl p-4 border transition-all ${
+              className={`flex-shrink-0 w-64 rounded-xl p-5 border transition-all ${
                 isRecommended && !completed
                   ? 'bg-[#22c55e]/10 border-[#22c55e]/40'
                   : 'bg-[#0d5943] border-[#1a8a68]'
@@ -55,22 +55,22 @@ const QuickStartCarousel = ({ userRole }) => {
                 </span>
               )}
 
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-3 mb-3">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                     completed ? 'bg-[#22c55e]/20' : 'bg-[#1a8a68]/40'
                   }`}
                 >
                   {completed ? (
-                    <Icons.CheckCircle2 className="w-4 h-4 text-[#22c55e]" />
+                    <Icons.CheckCircle2 className="w-5 h-5 text-[#22c55e]" />
                   ) : (
-                    <IconComponent className="w-4 h-4 text-[#4ade80]" />
+                    <IconComponent className="w-5 h-5 text-[#4ade80]" />
                   )}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-white font-semibold text-xs truncate">{tutorial.title}</h3>
-                  <span className="text-white/30 text-[10px] flex items-center gap-1">
-                    <Clock className="w-2.5 h-2.5" />
+                  <h3 className="text-white font-semibold text-sm truncate">{tutorial.title}</h3>
+                  <span className="text-white/30 text-xs flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
                     {tutorial.estimatedMinutes} min &bull; {tutorial.steps.length} steps
                   </span>
                 </div>
@@ -78,7 +78,7 @@ const QuickStartCarousel = ({ userRole }) => {
 
               <button
                 onClick={() => startTutorial(id)}
-                className={`w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-colors min-h-[36px] ${
+                className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors min-h-[40px] ${
                   completed
                     ? 'bg-[#1a8a68]/30 text-white/70 hover:bg-[#1a8a68]/50'
                     : 'bg-[#22c55e] text-white hover:bg-[#16a34a]'

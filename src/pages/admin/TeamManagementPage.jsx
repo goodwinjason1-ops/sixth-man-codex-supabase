@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { initializeApp, deleteApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../../services/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import PageShell from '../../components/PageShell';
 import {
@@ -10,7 +14,7 @@ import { subscribeToUsers } from '../../services/userService';
 import {
   Shield, Plus, Search, X, Edit3, Trash2, Eye, Users, UserPlus,
   Upload, CheckCircle, AlertCircle, Info, ChevronDown, FileText,
-  UserMinus
+  UserMinus, Loader2
 } from 'lucide-react';
 
 const AGE_GROUPS = ['U8', 'U10', 'U12', 'U14', 'U16', 'U18'];
@@ -403,8 +407,9 @@ const Modal = ({ children, title, onClose, danger }) => (
 );
 
 // ─── Team Form Modal (Create + Edit) ───
-const TeamFormModal = ({ team, coaches, players, allTeams, coordinatorGender, currentUserId, onClose, onSuccess, onError }) => {
+const TeamFormModal = ({ team, coaches: initialCoaches, players, allTeams, coordinatorGender, currentUserId, onClose, onSuccess, onError }) => {
   const isEdit = !!team;
+  const [coaches, setLocalCoaches] = useState(initialCoaches);
   const [form, setForm] = useState({
     name: team?.name || '',
     ageGroup: team?.ageGroup || '',
@@ -415,6 +420,124 @@ const TeamFormModal = ({ team, coaches, players, allTeams, coordinatorGender, cu
   });
   const [saving, setSaving] = useState(false);
   const [playerSearch, setPlayerSearch] = useState('');
+
+  // Add New Coach inline form
+  const [showNewCoach, setShowNewCoach] = useState(false);
+  const [newCoach, setNewCoach] = useState({ name: '', email: '', password: '' });
+  const [creatingCoach, setCreatingCoach] = useState(false);
+  const [coachError, setCoachError] = useState('');
+
+  const handleCreateCoach = async () => {
+    if (!newCoach.name.trim() || !newCoach.email.trim()) {
+      setCoachError('Name and email are required.');
+      return;
+    }
+    const password = newCoach.password.trim() || 'Temp1234!';
+    if (password.length < 6) {
+      setCoachError('Password must be at least 6 characters.');
+      return;
+    }
+    setCreatingCoach(true);
+    setCoachError('');
+    let secondaryApp = null;
+    try {
+      const config = {
+        apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+        authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+        projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+      };
+      secondaryApp = initializeApp(config, 'CoachCreate_' + Date.now());
+      const secondaryAuth = getAuth(secondaryApp);
+      const result = await createUserWithEmailAndPassword(
+        secondaryAuth, newCoach.email.trim().toLowerCase(), password
+      );
+      const profile = {
+        uid: result.user.uid,
+        email: newCoach.email.trim().toLowerCase(),
+        displayName: newCoach.name.trim(),
+        role: 'coach',
+        createdAt: new Date().toISOString(),
+        createdByAdmin: true,
+        photoURL: null,
+      };
+      await setDoc(doc(db, 'users', result.user.uid), profile);
+      await secondaryAuth.signOut();
+      await deleteApp(secondaryApp);
+      secondaryApp = null;
+
+      // Add to local coaches list and auto-select
+      const newCoachEntry = { id: result.user.uid, ...profile };
+      setLocalCoaches(prev => [...prev, newCoachEntry]);
+      setForm(prev => ({ ...prev, coachId: result.user.uid }));
+      setShowNewCoach(false);
+      setNewCoach({ name: '', email: '', password: '' });
+    } catch (err) {
+      if (secondaryApp) { try { await deleteApp(secondaryApp); } catch (_) {} }
+      if (err.code === 'auth/email-already-in-use') setCoachError('An account with this email already exists.');
+      else if (err.code === 'auth/invalid-email') setCoachError('Invalid email address.');
+      else setCoachError(err.message || 'Failed to create coach.');
+    } finally {
+      setCreatingCoach(false);
+    }
+  };
+
+  // Add New Player inline form
+  const [showNewPlayer, setShowNewPlayer] = useState(false);
+  const [newPlayer, setNewPlayer] = useState({ name: '', email: '', password: '' });
+  const [creatingPlayer, setCreatingPlayer] = useState(false);
+  const [playerError, setPlayerError] = useState('');
+
+  const handleCreatePlayer = async () => {
+    if (!newPlayer.name.trim() || !newPlayer.email.trim()) {
+      setPlayerError('Name and email are required.');
+      return;
+    }
+    const password = newPlayer.password.trim() || 'Temp1234!';
+    if (password.length < 6) {
+      setPlayerError('Password must be at least 6 characters.');
+      return;
+    }
+    setCreatingPlayer(true);
+    setPlayerError('');
+    let secondaryApp = null;
+    try {
+      const config = {
+        apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+        authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+        projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+      };
+      secondaryApp = initializeApp(config, 'PlayerCreate_' + Date.now());
+      const secondaryAuth = getAuth(secondaryApp);
+      const result = await createUserWithEmailAndPassword(
+        secondaryAuth, newPlayer.email.trim().toLowerCase(), password
+      );
+      const profile = {
+        uid: result.user.uid,
+        email: newPlayer.email.trim().toLowerCase(),
+        displayName: newPlayer.name.trim(),
+        role: 'player',
+        createdAt: new Date().toISOString(),
+        createdByAdmin: true,
+        photoURL: null,
+      };
+      await setDoc(doc(db, 'users', result.user.uid), profile);
+      await secondaryAuth.signOut();
+      await deleteApp(secondaryApp);
+      secondaryApp = null;
+
+      // Auto-add to team roster
+      setForm(prev => ({ ...prev, playerIds: [...prev.playerIds, result.user.uid] }));
+      setShowNewPlayer(false);
+      setNewPlayer({ name: '', email: '', password: '' });
+    } catch (err) {
+      if (secondaryApp) { try { await deleteApp(secondaryApp); } catch (_) {} }
+      if (err.code === 'auth/email-already-in-use') setPlayerError('An account with this email already exists.');
+      else if (err.code === 'auth/invalid-email') setPlayerError('Invalid email address.');
+      else setPlayerError(err.message || 'Failed to create player.');
+    } finally {
+      setCreatingPlayer(false);
+    }
+  };
 
   const coachName = form.coachId ? (coaches.find(c => c.id === form.coachId)?.displayName || '') : '';
 
@@ -509,8 +632,34 @@ const TeamFormModal = ({ team, coaches, players, allTeams, coordinatorGender, cu
             <select value={form.coachId} onChange={e => setForm(p => ({ ...p, coachId: e.target.value }))}
               className="w-full px-3 py-2.5 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none">
               <option value="">No Coach</option>
-              {coaches.map(c => <option key={c.id} value={c.id}>{c.displayName || c.email}</option>)}
+              {coaches.map(c => <option key={c.id} value={c.id}>{c.displayName ? `${c.displayName} (${c.email})` : c.email}</option>)}
             </select>
+            <button type="button" onClick={() => setShowNewCoach(!showNewCoach)}
+              className="mt-1.5 text-xs text-[#4ade80] hover:text-white flex items-center gap-1">
+              <Plus size={12} /> Add New Coach
+            </button>
+            {showNewCoach && (
+              <div className="mt-2 p-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg space-y-2">
+                <input type="text" placeholder="Full Name" value={newCoach.name}
+                  onChange={e => setNewCoach(p => ({ ...p, name: e.target.value }))}
+                  className="w-full px-2.5 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-xs focus:border-[#22c55e] focus:outline-none" />
+                <input type="email" placeholder="Email" value={newCoach.email}
+                  onChange={e => setNewCoach(p => ({ ...p, email: e.target.value }))}
+                  className="w-full px-2.5 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-xs focus:border-[#22c55e] focus:outline-none" />
+                <input type="text" placeholder="Password (default: Temp1234!)" value={newCoach.password}
+                  onChange={e => setNewCoach(p => ({ ...p, password: e.target.value }))}
+                  className="w-full px-2.5 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-xs focus:border-[#22c55e] focus:outline-none" />
+                {coachError && <p className="text-red-400 text-xs">{coachError}</p>}
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => setShowNewCoach(false)}
+                    className="flex-1 py-1.5 text-xs bg-white/10 text-white rounded-lg hover:bg-white/20">Cancel</button>
+                  <button type="button" onClick={handleCreateCoach} disabled={creatingCoach}
+                    className="flex-1 py-1.5 text-xs bg-[#22c55e] text-[#0a3d2e] rounded-lg font-bold hover:bg-[#4ade80] disabled:opacity-50 flex items-center justify-center gap-1">
+                    {creatingCoach ? <><Loader2 size={12} className="animate-spin" /> Creating...</> : 'Create Coach'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -556,6 +705,32 @@ const TeamFormModal = ({ team, coaches, players, allTeams, coordinatorGender, cu
                   {p.displayName || p.email}
                 </button>
               ))}
+            </div>
+          )}
+          <button type="button" onClick={() => setShowNewPlayer(!showNewPlayer)}
+            className="mt-1.5 text-xs text-[#4ade80] hover:text-white flex items-center gap-1">
+            <Plus size={12} /> Add New Player
+          </button>
+          {showNewPlayer && (
+            <div className="mt-2 p-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg space-y-2">
+              <input type="text" placeholder="Full Name" value={newPlayer.name}
+                onChange={e => setNewPlayer(p => ({ ...p, name: e.target.value }))}
+                className="w-full px-2.5 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-xs focus:border-[#22c55e] focus:outline-none" />
+              <input type="email" placeholder="Email" value={newPlayer.email}
+                onChange={e => setNewPlayer(p => ({ ...p, email: e.target.value }))}
+                className="w-full px-2.5 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-xs focus:border-[#22c55e] focus:outline-none" />
+              <input type="text" placeholder="Password (default: Temp1234!)" value={newPlayer.password}
+                onChange={e => setNewPlayer(p => ({ ...p, password: e.target.value }))}
+                className="w-full px-2.5 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-xs focus:border-[#22c55e] focus:outline-none" />
+              {playerError && <p className="text-red-400 text-xs">{playerError}</p>}
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setShowNewPlayer(false)}
+                  className="flex-1 py-1.5 text-xs bg-white/10 text-white rounded-lg hover:bg-white/20">Cancel</button>
+                <button type="button" onClick={handleCreatePlayer} disabled={creatingPlayer}
+                  className="flex-1 py-1.5 text-xs bg-[#22c55e] text-[#0a3d2e] rounded-lg font-bold hover:bg-[#4ade80] disabled:opacity-50 flex items-center justify-center gap-1">
+                  {creatingPlayer ? <><Loader2 size={12} className="animate-spin" /> Creating...</> : 'Create Player'}
+                </button>
+              </div>
             </div>
           )}
         </div>

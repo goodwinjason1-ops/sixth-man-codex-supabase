@@ -261,18 +261,33 @@ Emerald Lakers Basketball Club`,
   };
 
   // Handle mark as read/unread
-  const handleToggleRead = (notif) => {
+  const [togglingRead, setTogglingRead] = useState(null);
+  const handleToggleRead = async (notif) => {
     const isRead = notif.readBy?.includes(currentUser?.uid);
+    const newReadBy = isRead
+      ? (notif.readBy || []).filter(id => id !== currentUser?.uid)
+      : [...(notif.readBy || []), currentUser?.uid];
+
+    // Optimistic local update
     setNotifications(prev => prev.map(n =>
-      n.id === notif.id
-        ? {
-            ...n,
-            readBy: isRead
-              ? n.readBy.filter(id => id !== currentUser?.uid)
-              : [...(n.readBy || []), currentUser?.uid]
-          }
-        : n
+      n.id === notif.id ? { ...n, readBy: newReadBy } : n
     ));
+    // Update selected notification if open
+    if (selectedNotification?.id === notif.id) {
+      setSelectedNotification(prev => prev ? { ...prev, readBy: newReadBy } : prev);
+    }
+
+    // Write to Firestore if the notification has a real ID (not sample data)
+    setTogglingRead(notif.id);
+    try {
+      if (notif.id && !notif.id.startsWith('n')) {
+        await updateDocument('notifications', notif.id, { readBy: newReadBy });
+      }
+    } catch (error) {
+      console.error('Error updating read status:', error);
+    } finally {
+      setTogglingRead(null);
+    }
   };
 
   // Handle scoring confirmation
@@ -784,18 +799,24 @@ Emerald Lakers Basketball Club`,
                 {selectedNotification.readBy?.includes(currentUser?.uid) ? (
                   <button
                     onClick={() => handleToggleRead(selectedNotification)}
-                    className="flex-1 py-2 bg-[#22c55e]/20 border border-[#22c55e]/30 rounded-lg text-sm flex items-center justify-center gap-2 text-[#4ade80] hover:bg-[#22c55e]/30 transition-colors"
+                    disabled={togglingRead === selectedNotification.id}
+                    className="flex-1 py-2 bg-[#22c55e]/20 border border-[#22c55e]/30 rounded-lg text-sm flex items-center justify-center gap-2 text-[#4ade80] hover:bg-[#22c55e]/30 transition-colors disabled:opacity-50"
                   >
-                    <Check size={16} />
+                    {togglingRead === selectedNotification.id
+                      ? <Loader2 size={16} className="animate-spin" />
+                      : <CheckCheck size={16} />}
                     Read
-                    <span className="text-xs text-white/40 ml-1">(Click to unread)</span>
+                    <span className="text-xs text-white/40 ml-1">(Tap to unread)</span>
                   </button>
                 ) : (
                   <button
                     onClick={() => handleToggleRead(selectedNotification)}
-                    className="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors"
+                    disabled={togglingRead === selectedNotification.id}
+                    className="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                   >
-                    <MailOpen size={16} />
+                    {togglingRead === selectedNotification.id
+                      ? <Loader2 size={16} className="animate-spin" />
+                      : <MailOpen size={16} />}
                     Mark as Read
                   </button>
                 )}

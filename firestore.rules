@@ -214,9 +214,30 @@ service cloud.firestore {
     // NOTIFICATIONS
     // ───────────────────────────────────────
     match /notifications/{notificationId} {
-      allow read: if isSignedIn() && resource.data.recipientId == request.auth.uid;
-      allow create: if isCoach();
-      allow update: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // SWAP REQUESTS
+    // ───────────────────────────────────────
+    match /swap_requests/{requestId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn()
+        && (resource.data.requestingParentId == request.auth.uid
+            || resource.data.requestedParentId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // SCORING ROSTER
+    // ───────────────────────────────────────
+    match /scoring_roster/{entryId} {
+      allow read: if isSignedIn();
+      allow create, update: if isCoach() || isCoordinator();
       allow delete: if isAdmin();
     }
 

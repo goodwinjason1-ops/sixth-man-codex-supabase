@@ -459,7 +459,7 @@ const AdminProfilePage = () => {
 
           {/* View All Link */}
           <button
-            onClick={() => navigate('/admin/analytics')}
+            onClick={() => navigate('/admin/activity')}
             className="w-full mt-2 py-2 text-center text-[#4ade80] text-sm hover:text-white transition-colors"
           >
             View All Activity

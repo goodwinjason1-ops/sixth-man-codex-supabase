@@ -100,8 +100,9 @@ export const useGameDayDetection = () => {
       };
     }
 
-    // Game Day is strictly a coach feature - admins should not trigger it
-    if (userProfile?.role !== 'coach') {
+    // Game Day is a coach feature - admins and non-coaches should not trigger it
+    const coachRoles = ['coach', 'youth_coach', 'youth_head_coach', 'coach_coordinator'];
+    if (!coachRoles.includes(userProfile?.role)) {
       console.log('[GameDay] User is not a coach (role:', userProfile?.role, ') - Game Day disabled');
       return {
         isGameDay: false,
