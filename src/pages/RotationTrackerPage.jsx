@@ -58,12 +58,30 @@ const getOverallFairness = (players) => {
   const avg = times.reduce((s, t) => s + t, 0) / times.length;
   if (avg === 0) return { label: 'N/A', score: 0 };
   const deviations = times.map(t => Math.abs(t - avg) / avg);
+  const maxDev = Math.max(...deviations);
+  const avgDev = deviations.reduce((s, d) => s + d, 0) / deviations.length;
   const hasPoor = deviations.some(d => d >= 0.30);
   const allGood = deviations.every(d => d < 0.15);
-  if (allGood) return { label: 'Excellent', score: 95 };
-  if (!hasPoor) return { label: 'Good', score: 75 };
-  return { label: 'Needs Improvement', score: 40 };
+  // Score: 100 = perfectly even, drops as deviation grows
+  const score = Math.max(0, Math.round(100 - avgDev * 200));
+  if (allGood) return { label: 'Excellent', score: Math.max(score, 90) };
+  if (!hasPoor) return { label: 'Good', score: Math.max(score, 60) };
+  return { label: 'Needs Improvement', score };
 };
+
+// ─── Plan deviation classification for live tracking ─────────────────
+const getPlanDeviation = (actualSeconds, plannedSeconds) => {
+  if (!plannedSeconds || plannedSeconds <= 0) return { pct: 0, label: 'on-track', color: 'green', badge: null };
+  const diff = actualSeconds - plannedSeconds;
+  const pct = diff / plannedSeconds;
+  if (Math.abs(pct) <= 0.05) return { pct, label: 'on-track', color: 'green', badge: null };
+  if (pct > 0.20) return { pct, label: 'over', color: 'red', badge: '+' + Math.round(pct * 100) + '%' };
+  if (pct > 0.05) return { pct, label: 'slightly-over', color: 'green', badge: '+' + Math.round(pct * 100) + '%' };
+  if (pct < -0.20) return { pct, label: 'under', color: 'red', badge: Math.round(pct * 100) + '%' };
+  if (pct < -0.05) return { pct, label: 'slightly-under', color: 'yellow', badge: Math.round(pct * 100) + '%' };
+  return { pct, label: 'on-track', color: 'green', badge: null };
+};
+
 
 // ─── Plan generation algorithm ───────────────────────────────────────
 function generateRotationPlan(rosterIds, firstHalfIds, secondHalfIds, quarterLengthSec, numQuarters, playerInfo) {
@@ -629,6 +647,47 @@ const RotationTrackerPage = () => {
 
   const isBehindSchedule = currentPlanAlert && (quarterSeconds - currentPlanAlert.time) > 30;
 
+  // ── Live plan deviations per player ──
+  const liveDeviations = useMemo(() => {
+    if (!rotationPlan || !rotationPlan.plannedTime) return {};
+    const totalPlannedGameSec = rotationPlan.quarterLengthSec * rotationPlan.numQuarters;
+    if (totalPlannedGameSec <= 0 || totalGameSeconds <= 0) return {};
+    const gameProgress = Math.min(1, totalGameSeconds / totalPlannedGameSec);
+    const devs = {};
+    Object.entries(rotationPlan.plannedTime).forEach(([pid, plannedTotal]) => {
+      const expectedNow = plannedTotal * gameProgress;
+      const actual = playerStats[pid]?.totalSeconds || 0;
+      if (expectedNow <= 10) {
+        devs[pid] = { pct: 0, label: 'on-track', color: 'green', badge: null };
+      } else {
+        devs[pid] = getPlanDeviation(actual, expectedNow);
+      }
+    });
+    return devs;
+  }, [rotationPlan, playerStats, totalGameSeconds]);
+
+  // ── Deviation alerts (players significantly over or under) ──
+  const deviationAlerts = useMemo(() => {
+    if (!rotationPlan || !rotationPlan.plannedTime) return [];
+    const totalPlannedGameSec = rotationPlan.quarterLengthSec * rotationPlan.numQuarters;
+    if (totalPlannedGameSec <= 0 || totalGameSeconds < 60) return []; // wait at least 1 min
+    const gameProgress = Math.min(1, totalGameSeconds / totalPlannedGameSec);
+    const alerts = [];
+    Object.entries(rotationPlan.plannedTime).forEach(([pid, plannedTotal]) => {
+      const expectedNow = plannedTotal * gameProgress;
+      if (expectedNow <= 10) return;
+      const actual = playerStats[pid]?.totalSeconds || 0;
+      const pct = (actual - expectedNow) / expectedNow;
+      const name = playerStats[pid]?.name || '?';
+      if (pct > 0.20 && onCourt.includes(pid)) {
+        alerts.push({ pid, name, type: 'over', pct: Math.round(pct * 100) });
+      } else if (pct < -0.20 && bench.includes(pid)) {
+        alerts.push({ pid, name, type: 'under', pct: Math.round(Math.abs(pct) * 100) });
+      }
+    });
+    return alerts;
+  }, [rotationPlan, playerStats, totalGameSeconds, onCourt, bench]);
+
   const handlePlanSubNow = (alert) => {
     const { outId, inId, index, quarter } = alert;
     if (onCourt.includes(outId) && bench.includes(inId)) {
@@ -689,11 +748,19 @@ const RotationTrackerPage = () => {
         doc.gameId = primaryGame.id;
       }
       if (rotationPlan) {
+        // Calculate planned fairness score
+        const pts = Object.values(rotationPlan.plannedTime);
+        const pAvg = pts.length > 0 ? pts.reduce((s, t) => s + t, 0) / pts.length : 0;
+        const pDevs = pAvg > 0 ? pts.map(t => Math.abs(t - pAvg) / pAvg) : [];
+        const pAvgDev = pDevs.length > 0 ? pDevs.reduce((s, d) => s + d, 0) / pDevs.length : 0;
+        const plannedScore = Math.max(0, Math.round(100 - pAvgDev * 200));
+
         doc.rotationPlan = {
           quarterLengthSec: rotationPlan.quarterLengthSec,
           numQuarters: rotationPlan.numQuarters,
           fairShareSeconds: rotationPlan.fairShareSeconds,
-          plannedTime: rotationPlan.plannedTime
+          plannedTime: rotationPlan.plannedTime,
+          plannedFairnessScore: plannedScore
         };
       }
 
@@ -1039,9 +1106,14 @@ const RotationTrackerPage = () => {
             <ListOrdered className="w-5 h-5 text-blue-400 flex-shrink-0" />
             <div className="flex-1 text-sm">
               <span className={`font-bold ${isBehindSchedule ? 'text-orange-400' : 'text-blue-400'}`}>
-                SUB DUE{isBehindSchedule ? ' (overdue)' : ''}:
+                SUB DUE{isBehindSchedule ? ` (${Math.floor(quarterSeconds - currentPlanAlert.time)}s overdue)` : ''}:
               </span>{' '}
               <span className="text-white">{currentPlanAlert.outName} OFF → {currentPlanAlert.inName} ON</span>
+              {isBehindSchedule && (
+                <span className="text-orange-300 text-xs block mt-0.5">
+                  {currentPlanAlert.outName} has extra time on court
+                </span>
+              )}
             </div>
             <div className="flex gap-1.5 flex-shrink-0">
               <button
@@ -1074,6 +1146,27 @@ const RotationTrackerPage = () => {
           </div>
         )}
 
+        {/* ── Deviation Alerts (over/under planned time) ── */}
+        {deviationAlerts.length > 0 && (
+          <div className="mx-4 mb-3 space-y-1.5">
+            {deviationAlerts.slice(0, 3).map(da => (
+              <div key={da.pid} className={`p-2.5 rounded-lg flex items-center gap-2 text-xs ${
+                da.type === 'over'
+                  ? 'bg-red-900/30 border border-red-500/40'
+                  : 'bg-yellow-900/30 border border-yellow-500/40'
+              }`}>
+                <AlertCircle className={`w-4 h-4 flex-shrink-0 ${
+                  da.type === 'over' ? 'text-red-400' : 'text-yellow-400'
+                }`} />
+                <span className={da.type === 'over' ? 'text-red-300' : 'text-yellow-300'}>
+                  {da.name} is <span className="font-bold">{da.pct}% {da.type === 'over' ? 'over' : 'under'}</span> planned time
+                  {da.type === 'over' ? ' — consider subbing' : ' — needs court time'}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* ── Court Area (2-1-2 formation) ── */}
         <div className="px-4 mb-4">
           <h3 className="text-xs text-white/40 uppercase tracking-wider mb-3 text-center">On Court</h3>
@@ -1089,6 +1182,7 @@ const RotationTrackerPage = () => {
                   isMostPlayed={pid === mostPlayedOnCourt}
                   onTap={() => setSelectedCourtPlayer(prev => prev === pid ? null : pid)}
                   quarterSeconds={quarterSeconds}
+                  deviation={liveDeviations[pid]}
                 />
               ))}
             </div>
@@ -1103,6 +1197,7 @@ const RotationTrackerPage = () => {
                   isMostPlayed={pid === mostPlayedOnCourt}
                   onTap={() => setSelectedCourtPlayer(prev => prev === pid ? null : pid)}
                   quarterSeconds={quarterSeconds}
+                  deviation={liveDeviations[pid]}
                 />
               ))}
             </div>
@@ -1117,6 +1212,7 @@ const RotationTrackerPage = () => {
                   isMostPlayed={pid === mostPlayedOnCourt}
                   onTap={() => setSelectedCourtPlayer(prev => prev === pid ? null : pid)}
                   quarterSeconds={quarterSeconds}
+                  deviation={liveDeviations[pid]}
                 />
               ))}
             </div>
@@ -1135,6 +1231,7 @@ const RotationTrackerPage = () => {
                   playerId={pid}
                   isLeastPlayed={pid === leastPlayedOnBench}
                   onTap={() => handleSubstitution(pid)}
+                  deviation={liveDeviations[pid]}
                 />
               ))}
             </div>
@@ -1309,40 +1406,113 @@ const RotationTrackerPage = () => {
         </div>
 
         {/* Planned vs Actual */}
-        {rotationPlan && (
-          <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-            <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-              <ListOrdered className="w-5 h-5 text-[#4ade80]" />
-              Planned vs Actual
-            </h3>
-            <div className="space-y-2">
-              <div className="grid grid-cols-4 gap-2 text-[10px] text-white/40 uppercase tracking-wider px-1 mb-1">
-                <span>Player</span><span className="text-right">Planned</span><span className="text-right">Actual</span><span className="text-right">Delta</span>
+        {rotationPlan && (() => {
+          const plannedFairness = (() => {
+            const pts = Object.values(rotationPlan.plannedTime);
+            if (pts.length === 0) return { label: 'N/A', score: 0 };
+            const avg = pts.reduce((s, t) => s + t, 0) / pts.length;
+            if (avg === 0) return { label: 'N/A', score: 0 };
+            const devs = pts.map(t => Math.abs(t - avg) / avg);
+            const avgDev = devs.reduce((s, d) => s + d, 0) / devs.length;
+            return { score: Math.max(0, Math.round(100 - avgDev * 200)) };
+          })();
+          const maxBar = Math.max(
+            ...sortedPlayers.map(([pid, ps]) => Math.max(ps.totalSeconds, rotationPlan.plannedTime[pid] || 0)),
+            1
+          );
+
+          return (
+            <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
+              <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                <ListOrdered className="w-5 h-5 text-[#4ade80]" />
+                Planned vs Actual
+              </h3>
+
+              {/* Overall fairness comparison */}
+              <div className="flex items-center gap-3 p-3 bg-[#0a3d2e] border border-[#1a8a68]/50 rounded-lg mb-4">
+                <div className="flex-1 text-center">
+                  <p className="text-white/40 text-[10px] uppercase tracking-wider">Plan</p>
+                  <p className="text-2xl font-bold text-[#4ade80]">{plannedFairness.score}</p>
+                  <p className="text-white/40 text-[10px]">fairness</p>
+                </div>
+                <div className="text-white/20">→</div>
+                <div className="flex-1 text-center">
+                  <p className="text-white/40 text-[10px] uppercase tracking-wider">Actual</p>
+                  <p className={`text-2xl font-bold ${
+                    fairness.score >= plannedFairness.score - 10 ? 'text-[#4ade80]' :
+                    fairness.score >= plannedFairness.score - 25 ? 'text-yellow-400' : 'text-red-400'
+                  }`}>{fairness.score}</p>
+                  <p className="text-white/40 text-[10px]">fairness</p>
+                </div>
+                <div className="flex-1 text-center">
+                  <p className="text-white/40 text-[10px] uppercase tracking-wider">Change</p>
+                  {(() => {
+                    const diff = fairness.score - plannedFairness.score;
+                    return (
+                      <p className={`text-2xl font-bold ${diff >= 0 ? 'text-[#4ade80]' : diff > -15 ? 'text-yellow-400' : 'text-red-400'}`}>
+                        {diff >= 0 ? '+' : ''}{diff}
+                      </p>
+                    );
+                  })()}
+                  <p className="text-white/40 text-[10px]">points</p>
+                </div>
               </div>
-              {sortedPlayers.map(([pid, ps]) => {
-                const planned = rotationPlan.plannedTime[pid] || 0;
-                const actual = Math.floor(ps.totalSeconds);
-                const delta = actual - planned;
-                const absDelta = Math.abs(delta);
-                return (
-                  <div key={pid} className="grid grid-cols-4 gap-2 items-center text-sm bg-[#0a3d2e] rounded-lg px-3 py-2">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-[#4ade80] font-bold text-xs">#{ps.number}</span>
-                      <span className="text-white truncate text-xs">{ps.name}</span>
+
+              {fairness.score < plannedFairness.score - 15 && (
+                <div className="p-3 bg-yellow-900/20 border border-yellow-500/30 rounded-lg mb-4 text-xs text-yellow-300">
+                  <span className="font-bold">Suggestion for next game:</span> Fairness dropped significantly from plan.
+                  Consider following the rotation plan more closely or adjusting the plan to account for game flow.
+                </div>
+              )}
+
+              {/* Side-by-side bar chart */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-[10px] text-white/40 mb-1">
+                  <span className="flex items-center gap-1"><span className="w-3 h-1.5 bg-blue-500/60 rounded-sm inline-block" /> Planned</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-1.5 bg-[#22c55e] rounded-sm inline-block" /> Actual</span>
+                </div>
+                {sortedPlayers.map(([pid, ps]) => {
+                  const planned = rotationPlan.plannedTime[pid] || 0;
+                  const actual = Math.floor(ps.totalSeconds);
+                  const delta = actual - planned;
+                  const pctDev = planned > 0 ? Math.round((delta / planned) * 100) : 0;
+                  const devColor = Math.abs(pctDev) <= 5 ? 'text-green-400'
+                    : Math.abs(pctDev) <= 20 ? 'text-yellow-400' : 'text-red-400';
+                  const barColor = Math.abs(pctDev) <= 5 ? 'bg-green-500'
+                    : Math.abs(pctDev) <= 20 ? 'bg-yellow-500' : 'bg-red-500';
+
+                  return (
+                    <div key={pid} className="bg-[#0a3d2e] rounded-lg px-3 py-2.5">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="text-[#4ade80] font-bold text-xs">#{ps.number}</span>
+                          <span className="text-white font-medium text-xs truncate">{ps.name}</span>
+                        </div>
+                        <span className={`font-mono text-xs font-bold ${devColor}`}>
+                          {pctDev >= 0 ? '+' : ''}{pctDev}%
+                        </span>
+                      </div>
+                      {/* Planned bar */}
+                      <div className="h-2 bg-[#0d5943] rounded-full overflow-hidden mb-1">
+                        <div className="h-full bg-blue-500/60 rounded-full transition-all"
+                          style={{ width: `${(planned / maxBar) * 100}%` }} />
+                      </div>
+                      {/* Actual bar */}
+                      <div className="h-2 bg-[#0d5943] rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full transition-all ${barColor}`}
+                          style={{ width: `${(actual / maxBar) * 100}%` }} />
+                      </div>
+                      <div className="flex justify-between mt-1 text-[10px] text-white/40">
+                        <span>{formatTime(planned)} planned</span>
+                        <span>{formatTime(actual)} actual</span>
+                      </div>
                     </div>
-                    <span className="text-white/50 text-right font-mono text-xs">{formatTime(planned)}</span>
-                    <span className="text-white text-right font-mono text-xs">{formatTime(actual)}</span>
-                    <span className={`text-right font-mono text-xs font-bold ${
-                      absDelta < 60 ? 'text-green-400' : absDelta < 120 ? 'text-yellow-400' : 'text-red-400'
-                    }`}>
-                      {delta >= 0 ? '+' : '-'}{formatTime(absDelta)}
-                    </span>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Substitution Log */}
         {subsLog.length > 0 && (
@@ -1420,44 +1590,72 @@ const RotationTrackerPage = () => {
 // SUB-COMPONENTS
 // ═══════════════════════════════════════════════════════════════════════
 
-const CourtPlayerCard = ({ player, playerId, isSelected, isMostPlayed, onTap }) => {
+const CourtPlayerCard = ({ player, playerId, isSelected, isMostPlayed, onTap, deviation }) => {
   if (!player) return null;
+  const devBorder = deviation?.color === 'red' ? 'border-red-500/60 bg-red-900/15'
+    : deviation?.color === 'yellow' ? 'border-yellow-500/60 bg-yellow-900/15'
+    : null;
   return (
     <button
       onClick={onTap}
-      className={`w-36 p-3 rounded-xl border-2 text-center transition-all active:scale-95 ${
+      className={`w-36 p-3 rounded-xl border-2 text-center transition-all active:scale-95 relative ${
         isSelected
           ? 'border-[#22c55e] bg-[#22c55e]/15 shadow-lg shadow-[#22c55e]/20'
-          : isMostPlayed
-            ? 'border-amber-500/60 bg-amber-900/15'
-            : 'border-[#1a8a68] bg-[#0d5943]'
+          : devBorder
+            ? devBorder
+            : isMostPlayed
+              ? 'border-amber-500/60 bg-amber-900/15'
+              : 'border-[#1a8a68] bg-[#0d5943]'
       }`}
     >
+      {deviation?.badge && (
+        <span className={`absolute -top-2 -right-2 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+          deviation.color === 'red' ? 'bg-red-500 text-white'
+          : deviation.color === 'yellow' ? 'bg-yellow-500 text-[#0a3d2e]'
+          : 'bg-[#22c55e] text-[#0a3d2e]'
+        }`}>
+          {deviation.badge}
+        </span>
+      )}
       <div className="text-[#4ade80] font-bold text-xs">#{player.number}</div>
       <div className="text-white font-semibold text-sm truncate mt-0.5">{player.name}</div>
       <div className="text-white/80 font-mono text-lg mt-1">{formatTime(player.totalSeconds || 0)}</div>
-      {isMostPlayed && !isSelected && (
+      {isMostPlayed && !isSelected && !deviation?.badge && (
         <div className="text-amber-400 text-[10px] mt-1 font-medium">Most time</div>
       )}
     </button>
   );
 };
 
-const BenchPlayerChip = ({ player, playerId, isLeastPlayed, onTap }) => {
+const BenchPlayerChip = ({ player, playerId, isLeastPlayed, onTap, deviation }) => {
   if (!player) return null;
+  const devBorder = deviation?.color === 'red' ? 'border-red-500/60 bg-red-900/10'
+    : deviation?.color === 'yellow' ? 'border-yellow-500/60 bg-yellow-900/10'
+    : null;
   return (
     <button
       onClick={onTap}
-      className={`flex-shrink-0 px-4 py-3 rounded-xl border-2 transition-all active:scale-95 ${
-        isLeastPlayed
-          ? 'border-[#22c55e]/60 bg-[#22c55e]/10 ring-2 ring-[#22c55e]/30'
-          : 'border-[#1a8a68] bg-[#0d5943]'
+      className={`flex-shrink-0 px-4 py-3 rounded-xl border-2 transition-all active:scale-95 relative ${
+        devBorder
+          ? devBorder
+          : isLeastPlayed
+            ? 'border-[#22c55e]/60 bg-[#22c55e]/10 ring-2 ring-[#22c55e]/30'
+            : 'border-[#1a8a68] bg-[#0d5943]'
       }`}
     >
+      {deviation?.badge && (
+        <span className={`absolute -top-2 -right-2 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+          deviation.color === 'red' ? 'bg-red-500 text-white'
+          : deviation.color === 'yellow' ? 'bg-yellow-500 text-[#0a3d2e]'
+          : 'bg-[#22c55e] text-[#0a3d2e]'
+        }`}>
+          {deviation.badge}
+        </span>
+      )}
       <div className="text-[#4ade80] font-bold text-xs">#{player.number}</div>
       <div className="text-white font-medium text-sm whitespace-nowrap">{player.name}</div>
       <div className="text-white/60 font-mono text-xs mt-0.5">{formatTime(player.totalSeconds || 0)}</div>
-      {isLeastPlayed && (
+      {isLeastPlayed && !deviation?.badge && (
         <div className="text-[#4ade80] text-[10px] mt-0.5 font-medium">Sub in</div>
       )}
     </button>
