@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -59,6 +59,35 @@ const TryoutAssessorPage = () => {
   // Metric notes expanded state
   const [expandedNotes, setExpandedNotes] = useState({});
 
+  // Debounce timer refs (replaces window globals)
+  const autoSaveTimerRef = useRef(null);
+  const metricNoteSaveTimerRef = useRef(null);
+  const notesSaveTimerRef = useRef(null);
+
+  // Ref to always have latest currentEval (avoids stale closures)
+  const currentEvalRef = useRef(null);
+
+  // localStorage backup helpers
+  const getLocalStorageKey = (playerId) =>
+    `tryout_eval_${sessionId}_${playerId}_${currentUser?.uid}`;
+
+  const saveToLocalStorage = (playerId, evalData) => {
+    try {
+      localStorage.setItem(getLocalStorageKey(playerId), JSON.stringify(evalData));
+    } catch (e) { /* quota exceeded — non-critical */ }
+  };
+
+  const loadFromLocalStorage = (playerId) => {
+    try {
+      const data = localStorage.getItem(getLocalStorageKey(playerId));
+      return data ? JSON.parse(data) : null;
+    } catch (e) { return null; }
+  };
+
+  const clearLocalStorage = (playerId) => {
+    try { localStorage.removeItem(getLocalStorageKey(playerId)); } catch (e) { /* ignore */ }
+  };
+
   // Current player's evaluation (local state)
   const [currentEval, setCurrentEval] = useState({
     ratings: {
@@ -92,6 +121,15 @@ const TryoutAssessorPage = () => {
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Cleanup debounce timers on unmount
+  useEffect(() => {
+    return () => {
+      clearTimeout(autoSaveTimerRef.current);
+      clearTimeout(metricNoteSaveTimerRef.current);
+      clearTimeout(notesSaveTimerRef.current);
     };
   }, []);
 
@@ -133,64 +171,53 @@ const TryoutAssessorPage = () => {
   useEffect(() => {
     if (!currentPlayer) return;
 
+    const defaultEval = {
+      ratings: { athleticism: 0, ballSkills: 0, gameUnderstanding: 0, coachability: 0, effort: 0 },
+      metricNotes: { athleticism: '', ballSkills: '', gameUnderstanding: '', coachability: '', effort: '' },
+      overallImpression: 0,
+      notes: '',
+      teamRecommendation: null,
+      evalStatus: 'draft'
+    };
+
     const existingEval = evaluations[currentPlayer.id];
     if (existingEval) {
-      setCurrentEval({
-        ratings: existingEval.ratings || {
-          athleticism: 0,
-          ballSkills: 0,
-          gameUnderstanding: 0,
-          coachability: 0,
-          effort: 0
-        },
-        metricNotes: existingEval.metricNotes || {
-          athleticism: '',
-          ballSkills: '',
-          gameUnderstanding: '',
-          coachability: '',
-          effort: ''
-        },
+      // Firestore data exists — use it and clear any localStorage backup
+      const loaded = {
+        ratings: existingEval.ratings || defaultEval.ratings,
+        metricNotes: existingEval.metricNotes || defaultEval.metricNotes,
         overallImpression: existingEval.overallImpression || 0,
         notes: existingEval.notes || '',
         teamRecommendation: existingEval.teamRecommendation || null,
         evalStatus: existingEval.evalStatus || 'draft'
-      });
+      };
+      setCurrentEval(loaded);
+      currentEvalRef.current = loaded;
+      clearLocalStorage(currentPlayer.id);
     } else {
-      setCurrentEval({
-        ratings: {
-          athleticism: 0,
-          ballSkills: 0,
-          gameUnderstanding: 0,
-          coachability: 0,
-          effort: 0
-        },
-        metricNotes: {
-          athleticism: '',
-          ballSkills: '',
-          gameUnderstanding: '',
-          coachability: '',
-          effort: ''
-        },
-        overallImpression: 0,
-        notes: '',
-        teamRecommendation: null,
-        evalStatus: 'draft'
-      });
+      // No Firestore data — try localStorage fallback
+      const cached = loadFromLocalStorage(currentPlayer.id);
+      const loaded = cached || defaultEval;
+      setCurrentEval(loaded);
+      currentEvalRef.current = loaded;
     }
     // Collapse all metric notes when switching players
     setExpandedNotes({});
   }, [currentPlayer, evaluations]);
 
   // Save evaluation with status
-  const handleSave = useCallback(async (evalData = currentEval, status = null) => {
-    if (!currentPlayer || !currentUser || isSessionClosed) return;
+  const handleSave = useCallback(async (evalData = currentEval, status = null, playerId = null) => {
+    const targetPlayer = playerId
+      ? session?.players?.find(p => p.id === playerId)
+      : currentPlayer;
+    if (!targetPlayer || !currentUser || isSessionClosed) return;
 
     setSaving(true);
     const dataToSave = {
       sessionId,
-      playerId: currentPlayer.id,
-      playerName: currentPlayer.name,
-      playerNumber: currentPlayer.number,
+      playerId: targetPlayer.id,
+      playerName: targetPlayer.name,
+      playerNumber: targetPlayer.number,
       assessorId: currentUser.uid,
       assessorName: userProfile?.displayName || 'Unknown',
       ...evalData,
@@ -201,12 +228,17 @@ const TryoutAssessorPage = () => {
 
     if (result.success) {
       setLastSaved(new Date());
-      if (status) {
-        setCurrentEval(prev => ({ ...prev, evalStatus: status }));
+      clearLocalStorage(targetPlayer.id);
+      if (status && targetPlayer.id === currentPlayer?.id) {
+        setCurrentEval(prev => {
+          const updated = { ...prev, evalStatus: status };
+          currentEvalRef.current = updated;
+          return updated;
+        });
       }
     }
     setSaving(false);
-  }, [sessionId, currentPlayer, currentUser, userProfile, currentEval, isSessionClosed]);
+  }, [sessionId, session, currentPlayer, currentUser, userProfile, currentEval, isSessionClosed]);
 
   // Handle rating change with auto-save as draft
   const handleRatingChange = (metricId, value) => {
@@ -221,10 +253,12 @@ const TryoutAssessorPage = () => {
       evalStatus: currentEval.evalStatus === 'submitted' ? 'submitted' : 'draft'
     };
     setCurrentEval(newEval);
+    currentEvalRef.current = newEval;
+    if (currentPlayer) saveToLocalStorage(currentPlayer.id, newEval);
 
     // Debounced auto-save
-    clearTimeout(window.autoSaveTimeout);
-    window.autoSaveTimeout = setTimeout(() => handleSave(newEval), 500);
+    clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(() => handleSave(newEval), 500);
   };
 
   // Handle metric note change
@@ -239,10 +273,12 @@ const TryoutAssessorPage = () => {
       }
     };
     setCurrentEval(newEval);
+    currentEvalRef.current = newEval;
+    if (currentPlayer) saveToLocalStorage(currentPlayer.id, newEval);
 
     // Debounced auto-save
-    clearTimeout(window.metricNoteSaveTimeout);
-    window.metricNoteSaveTimeout = setTimeout(() => handleSave(newEval), 1000);
+    clearTimeout(metricNoteSaveTimerRef.current);
+    metricNoteSaveTimerRef.current = setTimeout(() => handleSave(newEval), 1000);
   };
 
   // Toggle metric note expansion
@@ -255,6 +291,8 @@ const TryoutAssessorPage = () => {
     if (isSessionClosed || currentEval.evalStatus === 'finalized') return;
     const newEval = { ...currentEval, overallImpression: value };
     setCurrentEval(newEval);
+    currentEvalRef.current = newEval;
+    if (currentPlayer) saveToLocalStorage(currentPlayer.id, newEval);
     handleSave(newEval);
   };
 
@@ -263,16 +301,24 @@ const TryoutAssessorPage = () => {
     if (isSessionClosed || currentEval.evalStatus === 'finalized') return;
     const newEval = { ...currentEval, teamRecommendation: teamId };
     setCurrentEval(newEval);
+    currentEvalRef.current = newEval;
+    if (currentPlayer) saveToLocalStorage(currentPlayer.id, newEval);
     handleSave(newEval);
   };
 
-  // Handle notes change (debounced)
+  // Handle notes change (debounced) — uses ref to avoid stale closure
   const handleNotesChange = (value) => {
     if (isSessionClosed || currentEval.evalStatus === 'finalized') return;
-    setCurrentEval(prev => ({ ...prev, notes: value }));
-    clearTimeout(window.notesSaveTimeout);
-    window.notesSaveTimeout = setTimeout(() => {
-      handleSave({ ...currentEval, notes: value });
+    setCurrentEval(prev => {
+      const updated = { ...prev, notes: value };
+      currentEvalRef.current = updated;
+      if (currentPlayer) saveToLocalStorage(currentPlayer.id, updated);
+      return updated;
+    });
+    clearTimeout(notesSaveTimerRef.current);
+    notesSaveTimerRef.current = setTimeout(() => {
+      // Read from ref to get the latest eval (avoids stale closure)
+      handleSave({ ...currentEvalRef.current, notes: value });
     }, 1000);
   };
 
@@ -288,11 +334,22 @@ const TryoutAssessorPage = () => {
     handleSave(currentEval, 'draft');
   };
 
-  // Navigate to next/previous player
+  // Navigate to next/previous player — flush pending saves first
   const goToPlayer = (index) => {
-    if (index >= 0 && index < session.players.length) {
-      setCurrentPlayerIndex(index);
+    if (index < 0 || index >= session.players.length) return;
+
+    // Cancel all pending debounce timers
+    clearTimeout(autoSaveTimerRef.current);
+    clearTimeout(metricNoteSaveTimerRef.current);
+    clearTimeout(notesSaveTimerRef.current);
+
+    // Immediately save current player's latest eval (from ref, not stale state)
+    const latestEval = currentEvalRef.current;
+    if (latestEval && currentPlayer && !isSessionClosed) {
+      handleSave(latestEval, null, currentPlayer.id);
     }
+
+    setCurrentPlayerIndex(index);
   };
 
   // Calculate progress with status breakdown

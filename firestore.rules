@@ -115,6 +115,21 @@ service cloud.firestore {
     }
 
     // ───────────────────────────────────────
+    // TRYOUT EVALUATIONS
+    // ───────────────────────────────────────
+    match /tryout_evaluations/{evalId} {
+      allow read: if isCoordinator();
+      allow read: if isSignedIn() && resource.data.assessorId == request.auth.uid;
+      allow create: if isSignedIn()
+        && getUserRole() in ['tryout_assessor', 'coach', 'admin',
+          'president', 'vice_president', 'girls_coordinator',
+          'boys_coordinator', 'coach_coordinator'];
+      allow update: if isSignedIn() && resource.data.assessorId == request.auth.uid;
+      allow update: if isCoordinator();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
     // TRAINING PLANS
     // ───────────────────────────────────────
     match /training_plans/{planId} {
@@ -161,6 +176,15 @@ service cloud.firestore {
     // SCHEDULE / FIXTURES
     // ───────────────────────────────────────
     match /schedule/{scheduleId} {
+      allow read: if isSignedIn();
+      allow create, update: if isCoach();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // GAMES
+    // ───────────────────────────────────────
+    match /games/{gameId} {
       allow read: if isSignedIn();
       allow create, update: if isCoach();
       allow delete: if isAdmin();
