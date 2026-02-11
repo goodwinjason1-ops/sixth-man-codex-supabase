@@ -8,6 +8,8 @@ import {
   Play,
   Pause,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Check,
   AlertCircle,
   ArrowLeft,
@@ -21,7 +23,9 @@ import {
   X,
   Clock,
   BarChart3,
-  Trophy
+  Trophy,
+  Sparkles,
+  ListOrdered
 } from 'lucide-react';
 import PageShell from '../components/PageShell';
 import LoadingState from '../components/LoadingState';
@@ -32,6 +36,7 @@ const QUARTERS = ['Q1', 'Q2', 'Q3', 'Q4'];
 const COURT_SIZE = 5;
 const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
 const STORAGE_KEY_PREFIX = 'rotation_tracker_';
+const QUARTER_LENGTH_OPTIONS = [6, 8, 10];
 
 // ─── Helper: format seconds to mm:ss ─────────────────────────────────
 const formatTime = (totalSeconds) => {
@@ -60,6 +65,82 @@ const getOverallFairness = (players) => {
   return { label: 'Needs Improvement', score: 40 };
 };
 
+// ─── Plan generation algorithm ───────────────────────────────────────
+function generateRotationPlan(rosterIds, firstHalfIds, secondHalfIds, quarterLengthSec, numQuarters, playerInfo) {
+  const N = rosterIds.length;
+  const totalCourtSec = quarterLengthSec * numQuarters * COURT_SIZE;
+  const fairShareSec = totalCourtSec / N;
+
+  const plannedTime = {};
+  rosterIds.forEach(id => { plannedTime[id] = 0; });
+
+  const quarters = {};
+
+  for (let qi = 0; qi < numQuarters; qi++) {
+    const qLabel = `Q${qi + 1}`;
+    const isFirstHalf = qi < Math.ceil(numQuarters / 2);
+    const halfStarters = isFirstHalf ? [...firstHalfIds] : [...secondHalfIds];
+    const benchIds = rosterIds.filter(id => !halfStarters.includes(id));
+
+    if (benchIds.length === 0) {
+      quarters[qLabel] = { starters: halfStarters, subs: [] };
+      halfStarters.forEach(id => { plannedTime[id] += quarterLengthSec; });
+      continue;
+    }
+
+    const sortedBench = [...benchIds].sort((a, b) => plannedTime[a] - plannedTime[b]);
+    const numSubs = sortedBench.length;
+    const interval = Math.floor(quarterLengthSec / (numSubs + 1));
+
+    const subs = [];
+    let currentCourt = [...halfStarters];
+    let currentBench = [...sortedBench];
+    const entryTime = {};
+    currentCourt.forEach(id => { entryTime[id] = 0; });
+
+    for (let s = 0; s < numSubs; s++) {
+      const subTime = interval * (s + 1);
+
+      // Out: court player with most cumulative + current stint time
+      let outId = currentCourt[0];
+      let outScore = -1;
+      currentCourt.forEach(id => {
+        const score = plannedTime[id] + (subTime - (entryTime[id] || 0));
+        if (score > outScore) { outScore = score; outId = id; }
+      });
+
+      // In: bench player with least cumulative time
+      const inId = currentBench[0];
+
+      subs.push({
+        time: subTime,
+        outId, inId,
+        outName: playerInfo[outId]?.name || '?',
+        inName: playerInfo[inId]?.name || '?',
+        outNumber: playerInfo[outId]?.number || '?',
+        inNumber: playerInfo[inId]?.number || '?'
+      });
+
+      plannedTime[outId] += subTime - (entryTime[outId] || 0);
+      delete entryTime[outId];
+      entryTime[inId] = subTime;
+
+      currentCourt = currentCourt.map(id => id === outId ? inId : id);
+      currentBench = currentBench.filter(id => id !== inId);
+      currentBench.push(outId);
+      currentBench.sort((a, b) => plannedTime[a] - plannedTime[b]);
+    }
+
+    currentCourt.forEach(id => {
+      plannedTime[id] += quarterLengthSec - (entryTime[id] || 0);
+    });
+
+    quarters[qLabel] = { starters: halfStarters, subs };
+  }
+
+  return { quarters, fairShareSeconds: Math.round(fairShareSec), plannedTime: { ...plannedTime }, quarterLengthSec, numQuarters };
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════════
@@ -76,7 +157,15 @@ const RotationTrackerPage = () => {
   const [selectedTeamId, setSelectedTeamId] = useState('');
   const [opponent, setOpponent] = useState('');
   const [roster, setRoster] = useState([]); // full player list for selected team
-  const [starters, setStarters] = useState(new Set()); // player IDs on court
+  const [starters, setStarters] = useState(new Set()); // first-half starting 5
+  const [quarterLengthMins, setQuarterLengthMins] = useState(8);
+  const [secondHalfStarters, setSecondHalfStarters] = useState(new Set());
+  const [secondHalfAutoSuggested, setSecondHalfAutoSuggested] = useState(false);
+  const [rotationPlan, setRotationPlan] = useState(null);
+
+  // ── Live plan tracking ──
+  const [planSubStatus, setPlanSubStatus] = useState({}); // { Q1: { 0: 'done' } }
+  const [showPlanPanel, setShowPlanPanel] = useState(false);
 
   // ── Live state ──
   const [isRunning, setIsRunning] = useState(false);
@@ -147,7 +236,24 @@ const RotationTrackerPage = () => {
     );
     setRoster(teamPlayers);
     setStarters(new Set());
+    setSecondHalfStarters(new Set());
+    setSecondHalfAutoSuggested(false);
+    setRotationPlan(null);
   }, [selectedTeamId, players, coachTeams]);
+
+  // ═══ Auto-suggest second-half starters ═══
+  useEffect(() => {
+    if (starters.size === COURT_SIZE && roster.length > COURT_SIZE && !secondHalfAutoSuggested) {
+      const bench = roster.filter(p => !starters.has(p.id));
+      const auto = new Set();
+      bench.slice(0, COURT_SIZE).forEach(p => auto.add(p.id));
+      if (auto.size < COURT_SIZE) {
+        [...starters].forEach(id => { if (auto.size < COURT_SIZE) auto.add(id); });
+      }
+      setSecondHalfStarters(auto);
+      setSecondHalfAutoSuggested(true);
+    }
+  }, [starters, roster, secondHalfAutoSuggested]);
 
   // ═══ Beforeunload guard (live phase) ═══
   useEffect(() => {
@@ -288,15 +394,49 @@ const RotationTrackerPage = () => {
       }
       return next;
     });
+    setRotationPlan(null);
   };
 
-  const handleStartGame = () => {
+  const toggleSecondHalfStarter = (playerId) => {
+    setSecondHalfStarters(prev => {
+      const next = new Set(prev);
+      if (next.has(playerId)) next.delete(playerId);
+      else if (next.size < COURT_SIZE) next.add(playerId);
+      return next;
+    });
+    setRotationPlan(null);
+  };
+
+  // ── Plan generation ──
+  const handleGeneratePlan = () => {
+    const playerInfo = {};
+    roster.forEach(p => {
+      playerInfo[p.id] = {
+        name: p.name || `${p.firstName || ''} ${p.lastName || ''}`.trim(),
+        number: p.jerseyNumber || p.number || '—'
+      };
+    });
+    const plan = generateRotationPlan(
+      roster.map(p => p.id),
+      [...starters],
+      [...secondHalfStarters],
+      quarterLengthMins * 60,
+      4,
+      playerInfo
+    );
+    setRotationPlan(plan);
+  };
+
+  const canGeneratePlan = roster.length > COURT_SIZE &&
+    starters.size === COURT_SIZE &&
+    secondHalfStarters.size === COURT_SIZE;
+
+  const handleStartGame = (withPlan = false) => {
     if (starters.size !== COURT_SIZE && starters.size < roster.length) return;
 
     const courtIds = [...starters];
     const benchIds = roster.filter(p => !starters.has(p.id)).map(p => p.id);
 
-    // Initialize player stats
     const stats = {};
     roster.forEach(p => {
       stats[p.id] = {
@@ -318,6 +458,21 @@ const RotationTrackerPage = () => {
     setTotalGameSeconds(0);
     setSubsLog([]);
     setCompletedQuarters({});
+
+    if (withPlan && rotationPlan) {
+      const status = {};
+      Object.entries(rotationPlan.quarters).forEach(([q, data]) => {
+        status[q] = {};
+        data.subs.forEach((_, i) => { status[q][i] = 'pending'; });
+      });
+      setPlanSubStatus(status);
+      setShowPlanPanel(true);
+    } else {
+      setRotationPlan(null);
+      setPlanSubStatus({});
+      setShowPlanPanel(false);
+    }
+
     setPhase('live');
   };
 
@@ -338,9 +493,9 @@ const RotationTrackerPage = () => {
     }
   };
 
-  const handleSubstitution = (benchPlayerId) => {
+  const handleSubstitution = (benchPlayerId, explicitCourtPlayerId = null) => {
     const qLabel = allQuarters[currentQuarter];
-    let courtPlayerId = selectedCourtPlayer;
+    let courtPlayerId = explicitCourtPlayerId || selectedCourtPlayer;
 
     // Auto-pick: swap with most-played court player if none selected
     if (!courtPlayerId) {
@@ -444,6 +599,55 @@ const RotationTrackerPage = () => {
     );
   }, [bench, playerStats]);
 
+  // ── Plan alert: find next due sub ──
+  const currentPlanAlert = useMemo(() => {
+    if (!rotationPlan) return null;
+    const qLabel = allQuarters[currentQuarter];
+    const qPlan = rotationPlan.quarters[qLabel];
+    if (!qPlan) return null;
+    const qStatus = planSubStatus[qLabel] || {};
+    for (let i = 0; i < qPlan.subs.length; i++) {
+      if (qStatus[i] !== 'pending') continue;
+      if (quarterSeconds >= qPlan.subs[i].time) {
+        return { ...qPlan.subs[i], index: i, quarter: qLabel };
+      }
+    }
+    return null;
+  }, [rotationPlan, currentQuarter, allQuarters, planSubStatus, quarterSeconds]);
+
+  const nextPlannedSub = useMemo(() => {
+    if (!rotationPlan) return null;
+    const qLabel = allQuarters[currentQuarter];
+    const qPlan = rotationPlan.quarters[qLabel];
+    if (!qPlan) return null;
+    const qStatus = planSubStatus[qLabel] || {};
+    for (let i = 0; i < qPlan.subs.length; i++) {
+      if (qStatus[i] === 'pending') return { ...qPlan.subs[i], index: i, quarter: qLabel };
+    }
+    return null;
+  }, [rotationPlan, currentQuarter, allQuarters, planSubStatus]);
+
+  const isBehindSchedule = currentPlanAlert && (quarterSeconds - currentPlanAlert.time) > 30;
+
+  const handlePlanSubNow = (alert) => {
+    const { outId, inId, index, quarter } = alert;
+    if (onCourt.includes(outId) && bench.includes(inId)) {
+      handleSubstitution(inId, outId);
+    }
+    setPlanSubStatus(prev => ({
+      ...prev,
+      [quarter]: { ...prev[quarter], [index]: 'done' }
+    }));
+  };
+
+  const handlePlanSubDismiss = (alert) => {
+    const { index, quarter } = alert;
+    setPlanSubStatus(prev => ({
+      ...prev,
+      [quarter]: { ...prev[quarter], [index]: 'dismissed' }
+    }));
+  };
+
   // ═══════════════════════════════════════════════════════════════════
   // SUMMARY ACTIONS
   // ═══════════════════════════════════════════════════════════════════
@@ -481,9 +685,16 @@ const RotationTrackerPage = () => {
         savedOffline: !navigator.onLine
       };
 
-      // If there's a matching game today, attach its ID
       if (primaryGame?.id) {
         doc.gameId = primaryGame.id;
+      }
+      if (rotationPlan) {
+        doc.rotationPlan = {
+          quarterLengthSec: rotationPlan.quarterLengthSec,
+          numQuarters: rotationPlan.numQuarters,
+          fairShareSeconds: rotationPlan.fairShareSeconds,
+          plannedTime: rotationPlan.plannedTime
+        };
       }
 
       await addDocument('playing_time', doc);
@@ -502,6 +713,12 @@ const RotationTrackerPage = () => {
     setOpponent('');
     setRoster([]);
     setStarters(new Set());
+    setSecondHalfStarters(new Set());
+    setSecondHalfAutoSuggested(false);
+    setRotationPlan(null);
+    setPlanSubStatus({});
+    setShowPlanPanel(false);
+    setQuarterLengthMins(8);
     setOnCourt([]);
     setBench([]);
     setPlayerStats({});
@@ -527,6 +744,9 @@ const RotationTrackerPage = () => {
   // PHASE: SETUP
   // ═══════════════════════════════════════════════════════════════════
   if (phase === 'setup') {
+    const showSecondHalf = roster.length > COURT_SIZE && starters.size === COURT_SIZE;
+    const showPlanSection = showSecondHalf && secondHalfStarters.size === COURT_SIZE;
+
     return (
       <PageShell backTo="/coach" title="Rotation Tracker" subtitle="Track player rotations during games">
         <div className="space-y-6">
@@ -545,7 +765,7 @@ const RotationTrackerPage = () => {
             </select>
           </div>
 
-          {/* Opponent Input */}
+          {/* Opponent + Game Settings */}
           <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
             <label className="block text-sm font-medium text-white/80 mb-2">Opponent</label>
             {primaryGame && (
@@ -558,100 +778,154 @@ const RotationTrackerPage = () => {
               value={opponent}
               onChange={(e) => setOpponent(e.target.value)}
               placeholder="Enter opponent name..."
-              className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg focus:ring-2 focus:ring-[#22c55e] focus:border-transparent placeholder:text-white/30"
+              className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg focus:ring-2 focus:ring-[#22c55e] focus:border-transparent placeholder:text-white/30 mb-4"
             />
+            <label className="block text-sm font-medium text-white/80 mb-2">Quarter Length</label>
+            <div className="flex gap-2">
+              {QUARTER_LENGTH_OPTIONS.map(mins => (
+                <button
+                  key={mins}
+                  onClick={() => { setQuarterLengthMins(mins); setRotationPlan(null); }}
+                  className={`flex-1 py-2.5 rounded-lg font-bold text-sm transition-all ${
+                    quarterLengthMins === mins
+                      ? 'bg-[#22c55e] text-[#0a3d2e]'
+                      : 'bg-[#0a3d2e] text-white/60 border border-[#1a8a68] hover:border-[#22c55e]/50'
+                  }`}
+                >
+                  {mins} min
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Roster Selection */}
+          {/* First Half Starting 5 */}
           {selectedTeamId && (
             <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-white">Select Starting 5</h3>
+                <h3 className="font-semibold text-white">
+                  {roster.length > COURT_SIZE ? 'First Half Starting 5' : 'Select Starting 5'}
+                </h3>
                 <span className={`text-sm font-medium px-3 py-1 rounded-full ${
                   starters.size === COURT_SIZE
                     ? 'bg-[#22c55e] text-[#0a3d2e]'
                     : 'bg-[#0a3d2e] text-white/60 border border-[#1a8a68]'
                 }`}>
-                  {starters.size}/{Math.min(COURT_SIZE, roster.length)} selected
+                  {starters.size}/{Math.min(COURT_SIZE, roster.length)}
                 </span>
               </div>
-
               {roster.length === 0 ? (
-                <EmptyState
-                  icon={Users}
-                  title="No Players Found"
-                  message="No players are assigned to this team yet."
-                />
+                <EmptyState icon={Users} title="No Players Found" message="No players are assigned to this team yet." />
               ) : (
                 <>
                   {roster.length < COURT_SIZE && (
                     <div className="flex items-center gap-2 p-3 mb-3 bg-yellow-900/30 border border-yellow-600/50 rounded-lg text-sm text-yellow-400">
                       <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                      <span>Only {roster.length} player{roster.length !== 1 ? 's' : ''} on roster — fewer than 5.</span>
+                      <span>Only {roster.length} player{roster.length !== 1 ? 's' : ''} on roster.</span>
                     </div>
                   )}
-                  {starters.size === roster.length && roster.length >= COURT_SIZE && bench.length === 0 && starters.size === COURT_SIZE && (
-                    <div className="flex items-center gap-2 p-3 mb-3 bg-blue-900/30 border border-blue-600/50 rounded-lg text-sm text-blue-400">
-                      <Info className="w-4 h-4 flex-shrink-0" />
-                      <span>All players are starters — no substitutes on the bench.</span>
-                    </div>
-                  )}
-                  <div className="grid grid-cols-2 gap-3">
-                    {roster.map(player => {
-                      const isSelected = starters.has(player.id);
-                      const playerName = player.name || `${player.firstName || ''} ${player.lastName || ''}`.trim();
-                      return (
-                        <button
-                          key={player.id}
-                          onClick={() => toggleStarter(player.id)}
-                          disabled={!isSelected && starters.size >= COURT_SIZE}
-                          className={`p-3 rounded-lg border-2 text-left transition-all ${
-                            isSelected
-                              ? 'border-[#22c55e] bg-[#22c55e]/10'
-                              : starters.size >= COURT_SIZE
-                                ? 'border-[#1a8a68]/30 bg-[#0a3d2e]/50 opacity-50'
-                                : 'border-[#1a8a68] bg-[#0a3d2e] hover:border-[#22c55e]/50'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2">
-                                {(player.jerseyNumber || player.number) && (
-                                  <span className="text-[#4ade80] font-bold text-sm">#{player.jerseyNumber || player.number}</span>
-                                )}
-                                <span className="text-white font-medium text-sm truncate">{playerName}</span>
-                              </div>
-                              {player.position && (
-                                <span className="text-white/40 text-xs">{player.position}</span>
-                              )}
-                            </div>
-                            {isSelected && (
-                              <div className="w-6 h-6 bg-[#22c55e] rounded-full flex items-center justify-center flex-shrink-0">
-                                <Check className="w-4 h-4 text-[#0a3d2e]" />
-                              </div>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <RosterGrid roster={roster} selected={starters} onToggle={toggleStarter} maxSelect={COURT_SIZE} />
                 </>
               )}
             </div>
           )}
 
-          {/* Start Game Button */}
-          <button
-            onClick={handleStartGame}
-            disabled={!canStart || !opponent.trim()}
-            className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-              canStart && opponent.trim()
-                ? 'bg-[#22c55e] text-[#0a3d2e] hover:bg-[#4ade80] active:scale-[0.98]'
-                : 'bg-[#1a8a68]/30 text-white/30 cursor-not-allowed'
-            }`}
-          >
-            Start Game
-          </button>
+          {/* Second Half Starting 5 */}
+          {showSecondHalf && (
+            <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-white">Second Half Starting 5</h3>
+                <span className={`text-sm font-medium px-3 py-1 rounded-full ${
+                  secondHalfStarters.size === COURT_SIZE
+                    ? 'bg-[#22c55e] text-[#0a3d2e]'
+                    : 'bg-[#0a3d2e] text-white/60 border border-[#1a8a68]'
+                }`}>
+                  {secondHalfStarters.size}/{COURT_SIZE}
+                </span>
+              </div>
+              <p className="text-xs text-white/40 mb-3">
+                Auto-suggested: bench players from first half. Tap to adjust.
+              </p>
+              <RosterGrid roster={roster} selected={secondHalfStarters} onToggle={toggleSecondHalfStarter} maxSelect={COURT_SIZE} />
+            </div>
+          )}
+
+          {/* Plan Generation */}
+          {showPlanSection && (
+            <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="w-5 h-5 text-[#4ade80]" />
+                <h3 className="font-semibold text-white">Auto-Rotation Plan</h3>
+              </div>
+              <p className="text-xs text-white/50 mb-4">
+                Generate a fair rotation schedule. This is a suggestion — you can always make manual changes during the game.
+              </p>
+
+              {!rotationPlan ? (
+                <button
+                  onClick={handleGeneratePlan}
+                  disabled={!canGeneratePlan}
+                  className="w-full py-3 bg-[#22c55e]/20 border-2 border-dashed border-[#22c55e] text-[#4ade80] rounded-xl font-bold hover:bg-[#22c55e]/30 transition-all flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  Generate Rotation Plan
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  {/* Fair share info */}
+                  <div className="flex items-center gap-2 p-3 bg-[#0a3d2e] border border-[#1a8a68]/50 rounded-lg text-sm">
+                    <Clock className="w-4 h-4 text-[#4ade80]" />
+                    <span className="text-white/80">
+                      Fair share: <span className="text-[#4ade80] font-bold">{formatTime(rotationPlan.fairShareSeconds)}</span> per player
+                      <span className="text-white/40 ml-1">({roster.length} players, {quarterLengthMins * 4} min game)</span>
+                    </span>
+                  </div>
+
+                  {/* Quarter cards */}
+                  {Object.entries(rotationPlan.quarters).map(([qLabel, qData]) => (
+                    <PlanQuarterCard key={qLabel} qLabel={qLabel} qData={qData} quarterLengthSec={quarterLengthMins * 60} />
+                  ))}
+
+                  <button
+                    onClick={() => setRotationPlan(null)}
+                    className="w-full py-2 text-white/40 hover:text-white/60 text-sm transition-colors"
+                  >
+                    Regenerate Plan
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Start Buttons */}
+          <div className="space-y-3">
+            {rotationPlan && (
+              <button
+                onClick={() => handleStartGame(true)}
+                disabled={!canStart || !opponent.trim()}
+                className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
+                  canStart && opponent.trim()
+                    ? 'bg-[#22c55e] text-[#0a3d2e] hover:bg-[#4ade80] active:scale-[0.98]'
+                    : 'bg-[#1a8a68]/30 text-white/30 cursor-not-allowed'
+                }`}
+              >
+                <ListOrdered className="w-5 h-5" />
+                Start Game with Plan
+              </button>
+            )}
+            <button
+              onClick={() => handleStartGame(false)}
+              disabled={!canStart || !opponent.trim()}
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+                canStart && opponent.trim()
+                  ? rotationPlan
+                    ? 'bg-[#0d5943] border-2 border-[#1a8a68] text-white hover:border-[#22c55e]'
+                    : 'bg-[#22c55e] text-[#0a3d2e] hover:bg-[#4ade80] active:scale-[0.98]'
+                  : 'bg-[#1a8a68]/30 text-white/30 cursor-not-allowed'
+              }`}
+            >
+              {rotationPlan ? 'Start Game (Manual)' : 'Start Game'}
+            </button>
+          </div>
         </div>
       </PageShell>
     );
@@ -755,8 +1029,39 @@ const RotationTrackerPage = () => {
           </div>
         </div>
 
-        {/* ── Sub Suggestion Banner ── */}
-        {subSuggestion && (
+        {/* ── Plan Sub Due Alert ── */}
+        {currentPlanAlert && (
+          <div className={`mx-4 mb-3 p-3 rounded-xl flex items-center gap-3 ${
+            isBehindSchedule
+              ? 'bg-orange-900/40 border-2 border-orange-500 animate-pulse'
+              : 'bg-blue-900/30 border-2 border-blue-500'
+          }`}>
+            <ListOrdered className="w-5 h-5 text-blue-400 flex-shrink-0" />
+            <div className="flex-1 text-sm">
+              <span className={`font-bold ${isBehindSchedule ? 'text-orange-400' : 'text-blue-400'}`}>
+                SUB DUE{isBehindSchedule ? ' (overdue)' : ''}:
+              </span>{' '}
+              <span className="text-white">{currentPlanAlert.outName} OFF → {currentPlanAlert.inName} ON</span>
+            </div>
+            <div className="flex gap-1.5 flex-shrink-0">
+              <button
+                onClick={() => handlePlanSubNow(currentPlanAlert)}
+                className="px-3 py-1.5 bg-[#22c55e] text-[#0a3d2e] rounded-lg text-xs font-bold"
+              >
+                Sub Now
+              </button>
+              <button
+                onClick={() => handlePlanSubDismiss(currentPlanAlert)}
+                className="px-3 py-1.5 bg-white/10 text-white/60 rounded-lg text-xs font-medium"
+              >
+                Skip
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Sub Suggestion Banner (only if no plan alert showing) ── */}
+        {!currentPlanAlert && subSuggestion && (
           <div className="mx-4 mb-3 p-3 bg-yellow-900/30 border border-yellow-600/50 rounded-xl flex items-center gap-3">
             <ArrowRightLeft className="w-5 h-5 text-yellow-400 flex-shrink-0" />
             <div className="flex-1 text-sm">
@@ -833,6 +1138,54 @@ const RotationTrackerPage = () => {
                 />
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ── Collapsible Rotation Plan Panel ── */}
+        {rotationPlan && (
+          <div className="px-4 pb-4">
+            <button
+              onClick={() => setShowPlanPanel(prev => !prev)}
+              className="w-full flex items-center justify-between p-3 bg-[#0d5943] border border-[#1a8a68] rounded-xl text-sm"
+            >
+              <div className="flex items-center gap-2">
+                <ListOrdered className="w-4 h-4 text-[#4ade80]" />
+                <span className="text-white font-medium">Rotation Plan</span>
+                {nextPlannedSub && !currentPlanAlert && (
+                  <span className="text-white/40 text-xs">
+                    Next: {formatTime(nextPlannedSub.time)} — {nextPlannedSub.outName} → {nextPlannedSub.inName}
+                  </span>
+                )}
+              </div>
+              {showPlanPanel ? <ChevronUp className="w-4 h-4 text-white/40" /> : <ChevronDown className="w-4 h-4 text-white/40" />}
+            </button>
+            {showPlanPanel && (
+              <div className="mt-2 bg-[#0d5943] border border-[#1a8a68] rounded-xl p-3 space-y-1.5 max-h-48 overflow-y-auto">
+                <p className="text-[10px] text-white/30 mb-1">Suggested rotation — tap to make manual changes anytime</p>
+                {rotationPlan.quarters[qLabel]?.subs.map((sub, i) => {
+                  const status = planSubStatus[qLabel]?.[i] || 'pending';
+                  const isDue = quarterSeconds >= sub.time && status === 'pending';
+                  return (
+                    <div
+                      key={i}
+                      className={`flex items-center gap-2 text-xs py-1.5 px-2 rounded-lg transition-all ${
+                        status === 'done' ? 'bg-green-900/20 opacity-50' :
+                        status === 'dismissed' ? 'opacity-20 line-through' :
+                        isDue ? 'bg-blue-900/30 border border-blue-500/50' :
+                        'bg-[#0a3d2e]/50'
+                      }`}
+                    >
+                      {status === 'done' && <Check className="w-3 h-3 text-green-400 flex-shrink-0" />}
+                      <span className="text-[#4ade80] font-mono w-10 flex-shrink-0">{formatTime(sub.time)}</span>
+                      <span className="text-white/80">{sub.outName} OFF → {sub.inName} ON</span>
+                    </div>
+                  );
+                })}
+                {(!rotationPlan.quarters[qLabel]?.subs || rotationPlan.quarters[qLabel].subs.length === 0) && (
+                  <p className="text-white/30 text-xs">No subs planned for this quarter</p>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -955,6 +1308,42 @@ const RotationTrackerPage = () => {
           </div>
         </div>
 
+        {/* Planned vs Actual */}
+        {rotationPlan && (
+          <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
+            <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+              <ListOrdered className="w-5 h-5 text-[#4ade80]" />
+              Planned vs Actual
+            </h3>
+            <div className="space-y-2">
+              <div className="grid grid-cols-4 gap-2 text-[10px] text-white/40 uppercase tracking-wider px-1 mb-1">
+                <span>Player</span><span className="text-right">Planned</span><span className="text-right">Actual</span><span className="text-right">Delta</span>
+              </div>
+              {sortedPlayers.map(([pid, ps]) => {
+                const planned = rotationPlan.plannedTime[pid] || 0;
+                const actual = Math.floor(ps.totalSeconds);
+                const delta = actual - planned;
+                const absDelta = Math.abs(delta);
+                return (
+                  <div key={pid} className="grid grid-cols-4 gap-2 items-center text-sm bg-[#0a3d2e] rounded-lg px-3 py-2">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-[#4ade80] font-bold text-xs">#{ps.number}</span>
+                      <span className="text-white truncate text-xs">{ps.name}</span>
+                    </div>
+                    <span className="text-white/50 text-right font-mono text-xs">{formatTime(planned)}</span>
+                    <span className="text-white text-right font-mono text-xs">{formatTime(actual)}</span>
+                    <span className={`text-right font-mono text-xs font-bold ${
+                      absDelta < 60 ? 'text-green-400' : absDelta < 120 ? 'text-yellow-400' : 'text-red-400'
+                    }`}>
+                      {delta >= 0 ? '+' : '-'}{formatTime(absDelta)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Substitution Log */}
         {subsLog.length > 0 && (
           <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
@@ -1072,6 +1461,84 @@ const BenchPlayerChip = ({ player, playerId, isLeastPlayed, onTap }) => {
         <div className="text-[#4ade80] text-[10px] mt-0.5 font-medium">Sub in</div>
       )}
     </button>
+  );
+};
+
+const RosterGrid = ({ roster, selected, onToggle, maxSelect }) => (
+  <div className="grid grid-cols-2 gap-3">
+    {roster.map(player => {
+      const isSelected = selected.has(player.id);
+      const playerName = player.name || `${player.firstName || ''} ${player.lastName || ''}`.trim();
+      return (
+        <button
+          key={player.id}
+          onClick={() => onToggle(player.id)}
+          disabled={!isSelected && selected.size >= maxSelect}
+          className={`p-3 rounded-lg border-2 text-left transition-all ${
+            isSelected
+              ? 'border-[#22c55e] bg-[#22c55e]/10'
+              : selected.size >= maxSelect
+                ? 'border-[#1a8a68]/30 bg-[#0a3d2e]/50 opacity-50'
+                : 'border-[#1a8a68] bg-[#0a3d2e] hover:border-[#22c55e]/50'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                {(player.jerseyNumber || player.number) && (
+                  <span className="text-[#4ade80] font-bold text-sm">#{player.jerseyNumber || player.number}</span>
+                )}
+                <span className="text-white font-medium text-sm truncate">{playerName}</span>
+              </div>
+              {player.position && <span className="text-white/40 text-xs">{player.position}</span>}
+            </div>
+            {isSelected && (
+              <div className="w-6 h-6 bg-[#22c55e] rounded-full flex items-center justify-center flex-shrink-0">
+                <Check className="w-4 h-4 text-[#0a3d2e]" />
+              </div>
+            )}
+          </div>
+        </button>
+      );
+    })}
+  </div>
+);
+
+const PlanQuarterCard = ({ qLabel, qData, quarterLengthSec }) => {
+  // Build starter names from the first sub's outName entries + remaining starters
+  const starterNames = [];
+  const starterIds = qData.starters || [];
+  starterIds.forEach(id => {
+    const asSub = qData.subs.find(s => s.outId === id);
+    if (asSub) starterNames.push(asSub.outName);
+    else {
+      const asIn = qData.subs.find(s => s.inId === id);
+      starterNames.push(asIn ? asIn.inName : id.slice(0, 8));
+    }
+  });
+
+  return (
+    <div className="bg-[#0a3d2e] border border-[#1a8a68]/50 rounded-lg p-3">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[#4ade80] font-bold text-sm">{qLabel}</span>
+        <span className="text-white/40 text-xs">{formatTime(quarterLengthSec)}</span>
+      </div>
+      <div className="text-xs text-white/60 mb-2">
+        Start: <span className="text-white/80">{starterNames.join(', ')}</span>
+      </div>
+      {qData.subs.length > 0 ? (
+        <div className="space-y-1">
+          {qData.subs.map((sub, i) => (
+            <div key={i} className="flex items-center gap-2 text-xs py-1 px-2 bg-[#0d5943]/50 rounded">
+              <span className="text-[#4ade80] font-mono w-10">{formatTime(sub.time)}</span>
+              <span className="text-white/70">{sub.outName} OFF → {sub.inName} ON</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-white/30 text-xs">No subs — all players on court</p>
+      )}
+    </div>
   );
 };
 
