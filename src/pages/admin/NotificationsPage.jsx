@@ -493,13 +493,13 @@ const NotificationsPage = () => {
 
     // Dynamic dates for sample scoring assignments using imported utility
     setScoringAssignments([
-      { id: 'sa1', gameId: 'g1', game: 'Lakers U12 vs Hawks', date: formatDateForStorage(getNextSaturday(0)), time: '9:00 AM', parentId: 'p1', parentName: 'John Smith', status: 'confirmed', teamId: 'lakers-u12', teamName: 'Lakers U12', venue: 'Emerald Indoor Courts' },
-      { id: 'sa2', gameId: 'g2', game: 'Lakers U14 vs Stars', date: formatDateForStorage(getNextSaturday(0)), time: '11:00 AM', parentId: 'p2', parentName: 'Sarah Jones', status: 'pending', teamId: 'lakers-u14', teamName: 'Lakers U14', venue: 'Emerald Indoor Courts' },
-      { id: 'sa3', gameId: 'g3', game: 'Lakers U10 vs Warriors', date: formatDateForStorage(getNextSaturday(1)), time: '10:00 AM', parentId: 'p3', parentName: 'Mike Brown', status: 'pending', teamId: 'lakers-u10', teamName: 'Lakers U10', venue: 'Sports Centre' }
+      { id: 'sample-sa1', gameId: 'g1', game: 'Lakers U12 vs Hawks', date: formatDateForStorage(getNextSaturday(0)), time: '9:00 AM', parentId: 'p1', parentName: 'John Smith', status: 'confirmed', teamId: 'lakers-u12', teamName: 'Lakers U12', venue: 'Emerald Indoor Courts' },
+      { id: 'sample-sa2', gameId: 'g2', game: 'Lakers U14 vs Stars', date: formatDateForStorage(getNextSaturday(0)), time: '11:00 AM', parentId: 'p2', parentName: 'Sarah Jones', status: 'pending', teamId: 'lakers-u14', teamName: 'Lakers U14', venue: 'Emerald Indoor Courts' },
+      { id: 'sample-sa3', gameId: 'g3', game: 'Lakers U10 vs Warriors', date: formatDateForStorage(getNextSaturday(1)), time: '10:00 AM', parentId: 'p3', parentName: 'Mike Brown', status: 'pending', teamId: 'lakers-u10', teamName: 'Lakers U10', venue: 'Sports Centre' }
     ]);
 
     setSwapRequests([
-      { id: 'sr1', gameId: 'g3', gameName: 'Lakers U10 vs Warriors', gameDate: formatDateForStorage(getNextSaturday(1)), assignmentId: 'sa3', requestingParentId: 'p3', requestingParentName: 'Mike Brown', requestedParentId: 'p4', requestedParentName: 'Lisa Wilson', message: 'Can you cover for me? I have a work conflict.', status: 'pending', requestedAt: new Date().toISOString() }
+      { id: 'sample-sr1', gameId: 'g3', gameName: 'Lakers U10 vs Warriors', gameDate: formatDateForStorage(getNextSaturday(1)), assignmentId: 'sample-sa3', requestingParentId: 'p3', requestingParentName: 'Mike Brown', targetParentId: 'p4', targetParentName: 'Lisa Wilson', reason: 'Can you cover for me? I have a work conflict.', status: 'pending', createdAt: new Date().toISOString() }
     ]);
   }, []);
 
@@ -508,31 +508,32 @@ const NotificationsPage = () => {
     // Subscribe to scoring_assignments collection
     const assignmentsQuery = query(collection(db, 'scoring_assignments'));
     const unsubscribeAssignments = onSnapshot(assignmentsQuery, (snapshot) => {
-      if (!snapshot.empty) {
-        const firestoreAssignments = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        console.log('[NotificationsPage] Loaded scoring_assignments from Firestore:', firestoreAssignments.length);
+      // Always replace sample data — use real Firestore data (even if empty)
+      const firestoreAssignments = snapshot.docs.map(doc => ({
+        ...doc.data(),
+        id: doc.id  // Must come AFTER spread to use real Firestore doc ID
+      }));
+      console.log('[ScoringRoster] Loaded scoring_assignments:', firestoreAssignments.length, firestoreAssignments.map(a => ({ id: a.id, game: a.game, status: a.status })));
+      if (firestoreAssignments.length > 0) {
         setScoringAssignments(firestoreAssignments);
       }
     }, (error) => {
-      console.error('[NotificationsPage] Error loading scoring_assignments:', error);
+      console.error('[ScoringRoster] Error loading scoring_assignments:', error?.code, error?.message);
     });
 
     // Subscribe to swap_requests collection
     const swapsQuery = query(collection(db, 'swap_requests'));
     const unsubscribeSwaps = onSnapshot(swapsQuery, (snapshot) => {
-      if (!snapshot.empty) {
-        const firestoreSwaps = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        console.log('[NotificationsPage] Loaded swap_requests from Firestore:', firestoreSwaps.length);
+      const firestoreSwaps = snapshot.docs.map(doc => ({
+        ...doc.data(),
+        id: doc.id  // Must come AFTER spread to use real Firestore doc ID
+      }));
+      console.log('[ScoringRoster] Loaded swap_requests:', firestoreSwaps.length, firestoreSwaps.map(s => ({ id: s.id, status: s.status })));
+      if (firestoreSwaps.length > 0) {
         setSwapRequests(firestoreSwaps);
       }
     }, (error) => {
-      console.error('[NotificationsPage] Error loading swap_requests:', error);
+      console.error('[ScoringRoster] Error loading swap_requests:', error?.code, error?.message);
     });
 
     return () => {
@@ -1033,7 +1034,9 @@ const NotificationsPage = () => {
           venue: selectedGame.venue
         });
 
-        await addDocument('scoring_assignments', assignment);
+        console.log('[ScoringRoster] Creating scoring_assignment:', assignment);
+        const assignmentRef = await addDocument('scoring_assignments', assignment);
+        console.log('[ScoringRoster] scoring_assignment created, docRef:', assignmentRef?.id);
 
         recipients = [{
           id: selectedParent,
@@ -1147,6 +1150,8 @@ const NotificationsPage = () => {
     const swapRequest = createSwapRequest({
       assignmentId: selectedSwapAssignment.id,
       gameId: selectedSwapAssignment.gameId,
+      gameName: selectedSwapAssignment.game,
+      gameDate: selectedSwapAssignment.date,
       requestingParentId: selectedSwapAssignment.parentId,
       requestingParentName: selectedSwapAssignment.parentName,
       targetParentId: swapTargetParent,
@@ -1154,12 +1159,13 @@ const NotificationsPage = () => {
       reason: swapReason
     });
 
-    await addDocument('swap_requests', swapRequest);
+    console.log('[ScoringRoster] Creating swap_request:', swapRequest);
+    const docRef = await addDocument('swap_requests', swapRequest);
+    console.log('[ScoringRoster] swap_request created, docRef:', docRef?.id);
 
     setSwapRequests(prev => [...prev, {
       ...swapRequest,
-      gameName: selectedSwapAssignment.game,
-      gameDate: selectedSwapAssignment.date
+      id: docRef?.id || swapRequest.id
     }]);
 
     setShowSwapModal(false);
@@ -1216,15 +1222,20 @@ const NotificationsPage = () => {
   const handleReassignWithNotification = async () => {
     if (!editingAssignment || !reassignmentTarget) return;
     setIsProcessingSwap(true);
+    console.log('[ScoringRoster] REASSIGN:', { assignmentId: editingAssignment.id, isSample: editingAssignment.id?.startsWith('sample-'), newParent: reassignmentTarget });
 
     try {
       const oldParent = editingAssignment.parentName;
       const newParent = allParentsForTeam.find(p => p.id === reassignmentTarget);
-      if (!newParent) return;
+      if (!newParent) {
+        console.log('[ScoringRoster] newParent not found in allParentsForTeam for:', reassignmentTarget);
+        return;
+      }
 
-      // Update assignment
+      // Update assignment — strip id from spread to avoid overwriting doc ID
+      const { id: _assignmentId, ...assignmentData } = editingAssignment;
       const updatedAssignment = {
-        ...editingAssignment,
+        ...assignmentData,
         parentId: reassignmentTarget,
         parentName: newParent.name,
         previousParentId: editingAssignment.parentId,
@@ -1236,12 +1247,16 @@ const NotificationsPage = () => {
 
       // Update in Firestore if exists
       if (editingAssignment.id && !editingAssignment.id.startsWith('sample-')) {
+        console.log('[ScoringRoster] Updating scoring_assignments doc:', editingAssignment.id);
         await updateDocument('scoring_assignments', editingAssignment.id, updatedAssignment);
+        console.log('[ScoringRoster] scoring_assignments reassign SUCCESS');
+      } else {
+        console.log('[ScoringRoster] Skipping Firestore update for sample assignment:', editingAssignment.id);
       }
 
       // Update local state
       setScoringAssignments(prev => prev.map(a =>
-        a.id === editingAssignment.id ? updatedAssignment : a
+        a.id === editingAssignment.id ? { ...updatedAssignment, id: editingAssignment.id } : a
       ));
 
       // Send notification to new parent
@@ -1297,18 +1312,24 @@ const NotificationsPage = () => {
   // Approve swap request
   const handleApproveSwapRequest = async (swap) => {
     setIsProcessingSwap(true);
+    console.log('[ScoringRoster] APPROVE swap:', { swapId: swap.id, isSample: swap.id?.startsWith('sample-') });
 
     try {
-      // Update swap request status
+      // Update swap request status — strip id from data to avoid overwriting doc ID
+      const { id: _swapId, ...swapData } = swap;
       const updatedSwap = {
-        ...swap,
+        ...swapData,
         status: 'accepted',
         respondedAt: new Date().toISOString(),
         respondedBy: currentUser?.uid
       };
 
       if (swap.id && !swap.id.startsWith('sample-')) {
+        console.log('[ScoringRoster] Updating swap_requests doc:', swap.id);
         await updateDocument('swap_requests', swap.id, updatedSwap);
+        console.log('[ScoringRoster] swap_requests update SUCCESS');
+      } else {
+        console.log('[ScoringRoster] Skipping Firestore update for sample swap:', swap.id);
       }
 
       // Update the assignment
@@ -1316,8 +1337,8 @@ const NotificationsPage = () => {
         if (a.id === swap.assignmentId) {
           return {
             ...a,
-            parentId: swap.requestedParentId,
-            parentName: swap.requestedParentName,
+            parentId: swap.targetParentId,
+            parentName: swap.targetParentName,
             previousParentId: swap.requestingParentId,
             previousParentName: swap.requestingParentName,
             status: 'pending',
@@ -1329,14 +1350,14 @@ const NotificationsPage = () => {
 
       // Update swap requests list
       setSwapRequests(prev => prev.map(s =>
-        s.id === swap.id ? updatedSwap : s
+        s.id === swap.id ? { ...updatedSwap, id: swap.id } : s
       ));
 
       // Send notifications to both parents
       await addDocument('notifications', {
         type: 'scoring',
         subject: 'Swap Request Approved',
-        message: `Your swap request for ${swap.gameName || 'the game'} has been approved. ${swap.requestedParentName} will now handle scoring duty.`,
+        message: `Your swap request for ${swap.gameName || 'the game'} has been approved. ${swap.targetParentName} will now handle scoring duty.`,
         priority: 'normal',
         targetAudience: { type: 'individual', userIds: [swap.requestingParentId] },
         sentAt: new Date().toISOString(),
@@ -1348,7 +1369,7 @@ const NotificationsPage = () => {
         subject: `Scoring Duty Assigned - ${swap.gameName || 'Game'}`,
         message: `You have accepted a swap request. You are now assigned to score for ${swap.gameName || 'the game'} on ${swap.gameDate ? new Date(swap.gameDate).toLocaleDateString('en-AU') : 'the scheduled date'}.`,
         priority: 'normal',
-        targetAudience: { type: 'individual', userIds: [swap.requestedParentId] },
+        targetAudience: { type: 'individual', userIds: [swap.targetParentId] },
         sentAt: new Date().toISOString(),
         status: 'sent'
       });
@@ -1368,21 +1389,27 @@ const NotificationsPage = () => {
   // Decline swap request
   const handleDeclineSwapRequest = async (swap) => {
     setIsProcessingSwap(true);
+    console.log('[ScoringRoster] DECLINE swap:', { swapId: swap.id, isSample: swap.id?.startsWith('sample-') });
 
     try {
+      const { id: _swapId, ...swapData } = swap;
       const updatedSwap = {
-        ...swap,
+        ...swapData,
         status: 'declined',
         respondedAt: new Date().toISOString(),
         respondedBy: currentUser?.uid
       };
 
       if (swap.id && !swap.id.startsWith('sample-')) {
+        console.log('[ScoringRoster] Updating swap_requests doc:', swap.id);
         await updateDocument('swap_requests', swap.id, updatedSwap);
+        console.log('[ScoringRoster] swap_requests decline SUCCESS');
+      } else {
+        console.log('[ScoringRoster] Skipping Firestore update for sample swap:', swap.id);
       }
 
       setSwapRequests(prev => prev.map(s =>
-        s.id === swap.id ? updatedSwap : s
+        s.id === swap.id ? { ...updatedSwap, id: swap.id } : s
       ));
 
       // Notify requesting parent
@@ -1413,21 +1440,27 @@ const NotificationsPage = () => {
 
   const handleMarkConfirmed = async (assignment) => {
     setIsMarkingConfirmed(assignment.id);
+    console.log('[ScoringRoster] CONFIRM:', { assignmentId: assignment.id, isSample: assignment.id?.startsWith('sample-') });
 
     try {
+      const { id: _aId, ...assignmentData } = assignment;
       const updatedAssignment = {
-        ...assignment,
+        ...assignmentData,
         status: 'confirmed',
         confirmedAt: new Date().toISOString(),
         confirmedBy: currentUser?.uid
       };
 
-      if (assignment.id && !assignment.id.startsWith('sa') && !assignment.id.startsWith('sample-')) {
+      if (assignment.id && !assignment.id.startsWith('sample-')) {
+        console.log('[ScoringRoster] Updating scoring_assignments doc:', assignment.id);
         await updateDocument('scoring_assignments', assignment.id, updatedAssignment);
+        console.log('[ScoringRoster] scoring_assignments confirm SUCCESS');
+      } else {
+        console.log('[ScoringRoster] Skipping Firestore update for sample:', assignment.id);
       }
 
       setScoringAssignments(prev => prev.map(a =>
-        a.id === assignment.id ? updatedAssignment : a
+        a.id === assignment.id ? { ...updatedAssignment, id: assignment.id } : a
       ));
 
       // Show success feedback
@@ -3188,6 +3221,7 @@ const NotificationsPage = () => {
                         <button
                           onClick={() => {
                             setSelectedSwapAssignment(assignment);
+                            setSelectedScoringTeam(assignment.teamId || assignment.teamName);
                             setShowSwapModal(true);
                           }}
                           className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors"
@@ -3224,7 +3258,7 @@ const NotificationsPage = () => {
                         <div>
                           <p className="font-medium text-sm">{swap.gameName || swap.gameId}</p>
                           <p className="text-xs text-white/60">
-                            {swap.requestingParentName} → {swap.requestedParentName}
+                            {swap.requestingParentName} → {swap.targetParentName}
                           </p>
                           {swap.reason && (
                             <p className="text-xs text-white/40 mt-1">"{swap.reason}"</p>
@@ -3942,7 +3976,7 @@ const NotificationsPage = () => {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-white/70">To:</span>
-                      <span className="font-medium">{selectedSwapRequest.requestedParentName}</span>
+                      <span className="font-medium">{selectedSwapRequest.targetParentName}</span>
                     </div>
                   </div>
 
@@ -3954,7 +3988,7 @@ const NotificationsPage = () => {
                   )}
 
                   <p className="text-xs text-white/40 mt-4">
-                    Requested: {selectedSwapRequest.requestedAt && new Date(selectedSwapRequest.requestedAt).toLocaleString('en-AU')}
+                    Requested: {selectedSwapRequest.createdAt && new Date(selectedSwapRequest.createdAt).toLocaleString('en-AU')}
                   </p>
                 </div>
 
@@ -3997,7 +4031,7 @@ const NotificationsPage = () => {
                           <div>
                             <p className="font-medium">{swap.gameName || swap.gameId}</p>
                             <p className="text-sm text-white/60">
-                              {swap.requestingParentName} → {swap.requestedParentName}
+                              {swap.requestingParentName} → {swap.targetParentName}
                             </p>
                             {swap.reason && (
                               <p className="text-xs text-white/40 mt-1 line-clamp-1">"{swap.reason}"</p>

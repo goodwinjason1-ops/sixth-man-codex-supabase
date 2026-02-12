@@ -8,7 +8,10 @@ import {
   Trophy,
   Check,
   RotateCcw,
-  User
+  User,
+  MessageSquare,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 const SAMPLE_PLAYER = {
@@ -75,6 +78,8 @@ const MATCH_METRICS = [
 
 const PracticeMatchAssessment = () => {
   const [ratings, setRatings] = useState({});
+  const [metricNotes, setMetricNotes] = useState({});
+  const [expandedNotes, setExpandedNotes] = useState({});
   const [submitted, setSubmitted] = useState(false);
 
   const handleRate = (metricId, value) => {
@@ -85,7 +90,20 @@ const PracticeMatchAssessment = () => {
     }));
   };
 
+  const handleNoteChange = (metricId, note) => {
+    setMetricNotes((prev) => ({
+      ...prev,
+      [metricId]: note,
+    }));
+  };
+
+  const toggleNote = (metricId) => {
+    setExpandedNotes((prev) => ({ ...prev, [metricId]: !prev[metricId] }));
+  };
+
   const allRated = MATCH_METRICS.every((m) => ratings[m.id] > 0);
+
+  const noteCount = Object.values(metricNotes).filter(n => n && n.trim()).length;
 
   const averageRating = useMemo(() => {
     if (!allRated) return 0;
@@ -109,6 +127,8 @@ const PracticeMatchAssessment = () => {
 
   const handleReset = () => {
     setRatings({});
+    setMetricNotes({});
+    setExpandedNotes({});
     setSubmitted(false);
   };
 
@@ -136,7 +156,7 @@ const PracticeMatchAssessment = () => {
           {/* Assessment Form */}
           <div className="mb-4">
             <h3 className="text-white font-semibold">Rate Performance</h3>
-            <p className="text-[#1a8a68] text-sm mt-0.5">Tap 1-5 for each area</p>
+            <p className="text-[#1a8a68] text-sm mt-0.5">Tap 1-5 for each area, add notes for detailed feedback</p>
           </div>
 
           <div className="space-y-3 mb-6">
@@ -144,6 +164,8 @@ const PracticeMatchAssessment = () => {
               const Icon = metric.icon;
               const currentValue = ratings[metric.id] || 0;
               const levelDescription = currentValue > 0 ? metric.levels[currentValue] : null;
+              const isNoteOpen = expandedNotes[metric.id] || false;
+              const currentNote = metricNotes[metric.id] || '';
 
               return (
                 <div
@@ -155,7 +177,12 @@ const PracticeMatchAssessment = () => {
                       <Icon className="w-5 h-5 text-[#4ade80]" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-white font-medium text-sm">{metric.name}</h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-white font-medium text-sm">{metric.name}</h4>
+                        {currentNote && !isNoteOpen && (
+                          <span className="text-[10px] text-[#4ade80] bg-[#22c55e]/20 px-1.5 py-0.5 rounded">notes</span>
+                        )}
+                      </div>
                       <p className="text-[#1a8a68] text-xs">{metric.description}</p>
                     </div>
                     <span className="text-2xl font-bold text-[#4ade80] w-8 text-right">
@@ -188,6 +215,25 @@ const PracticeMatchAssessment = () => {
                       {levelDescription}
                     </p>
                   )}
+
+                  {/* Notes toggle + collapsible textarea */}
+                  <button
+                    onClick={() => toggleNote(metric.id)}
+                    className="mt-2 flex items-center gap-1 text-[10px] text-[#1a8a68] hover:text-[#4ade80] transition-colors"
+                  >
+                    <MessageSquare className="w-3 h-3" />
+                    <span>{isNoteOpen ? 'Hide note' : currentNote ? 'Edit note' : 'Add note'}</span>
+                    {isNoteOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                  </button>
+                  <div className={`overflow-hidden transition-all duration-200 ${isNoteOpen ? 'max-h-[120px] mt-1.5' : 'max-h-0'}`}>
+                    <textarea
+                      value={currentNote}
+                      onChange={(e) => handleNoteChange(metric.id, e.target.value)}
+                      placeholder={`${metric.name} notes for ${SAMPLE_PLAYER.name}...`}
+                      rows={2}
+                      className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-xs placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none resize-none"
+                    />
+                  </div>
                 </div>
               );
             })}
@@ -204,7 +250,7 @@ const PracticeMatchAssessment = () => {
             }`}
           >
             <Check className="w-6 h-6" />
-            {allRated ? 'Submit Assessment' : `Rate all ${MATCH_METRICS.length} areas to submit`}
+            {allRated ? `Submit Assessment${noteCount > 0 ? ` (${noteCount} notes)` : ''}` : `Rate all ${MATCH_METRICS.length} areas to submit`}
           </button>
         </>
       ) : (
@@ -225,26 +271,38 @@ const PracticeMatchAssessment = () => {
               {MATCH_METRICS.map((metric) => {
                 const Icon = metric.icon;
                 const value = ratings[metric.id];
+                const note = metricNotes[metric.id];
 
                 return (
-                  <div key={metric.id} className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-[#0a3d2e] rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon className="w-4 h-4 text-[#4ade80]" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-white text-sm font-medium">{metric.name}</span>
-                        <span className="text-[#4ade80] text-sm font-bold">{value}/5</span>
+                  <div key={metric.id}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-[#0a3d2e] rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-4 h-4 text-[#4ade80]" />
                       </div>
-                      {/* Rating Bar */}
-                      <div className="h-2 bg-[#0a3d2e] rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-[#22c55e] rounded-full transition-all duration-500"
-                          style={{ width: `${(value / 5) * 100}%` }}
-                        />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-white text-sm font-medium">{metric.name}</span>
+                          <span className="text-[#4ade80] text-sm font-bold">{value}/5</span>
+                        </div>
+                        {/* Rating Bar */}
+                        <div className="h-2 bg-[#0a3d2e] rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-[#22c55e] rounded-full transition-all duration-500"
+                            style={{ width: `${(value / 5) * 100}%` }}
+                          />
+                        </div>
+                        <p className="text-white/40 text-xs mt-0.5">{metric.levels[value]}</p>
                       </div>
-                      <p className="text-white/40 text-xs mt-0.5">{metric.levels[value]}</p>
                     </div>
+                    {note && (
+                      <div className="ml-11 mt-1 px-3 py-2 bg-[#0a3d2e]/60 rounded-lg border border-[#1a8a68]/30">
+                        <div className="flex items-center gap-1 mb-0.5">
+                          <MessageSquare className="w-3 h-3 text-[#4ade80]" />
+                          <span className="text-[10px] text-[#4ade80] font-medium">Note</span>
+                        </div>
+                        <p className="text-white/60 text-xs">{note}</p>
+                      </div>
+                    )}
                   </div>
                 );
               })}

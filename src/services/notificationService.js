@@ -523,6 +523,8 @@ export const createSwapRequest = (data) => {
     id: `swap_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     assignmentId: data.assignmentId,
     gameId: data.gameId,
+    gameName: data.gameName || '',
+    gameDate: data.gameDate || '',
     requestingParentId: data.requestingParentId,
     requestingParentName: data.requestingParentName,
     targetParentId: data.targetParentId,

@@ -11,7 +11,10 @@ import {
   Dribbble,
   Brain,
   HeartHandshake,
-  Flame
+  Flame,
+  MessageSquare,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 const FAKE_PLAYERS = [
@@ -34,6 +37,10 @@ const PracticeAssessor = () => {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [ratings, setRatings] = useState({});
   // ratings shape: { [playerId]: { [metricId]: number } }
+  const [metricNotes, setMetricNotes] = useState({});
+  // metricNotes shape: { [playerId]: { [metricId]: string } }
+  const [expandedNotes, setExpandedNotes] = useState({});
+  // expandedNotes shape: { 'playerId-metricId': boolean }
 
   const handleRate = (playerId, metricId, value) => {
     setRatings((prev) => ({
@@ -45,8 +52,24 @@ const PracticeAssessor = () => {
     }));
   };
 
+  const handleNoteChange = (playerId, metricId, note) => {
+    setMetricNotes((prev) => ({
+      ...prev,
+      [playerId]: {
+        ...(prev[playerId] || {}),
+        [metricId]: note,
+      },
+    }));
+  };
+
+  const toggleNote = (playerId, metricId) => {
+    const key = `${playerId}-${metricId}`;
+    setExpandedNotes((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   // Get the current player's ratings
   const currentPlayerRatings = selectedPlayer ? (ratings[selectedPlayer.id] || {}) : {};
+  const currentPlayerNotes = selectedPlayer ? (metricNotes[selectedPlayer.id] || {}) : {};
 
   // Check if all metrics are rated for current player
   const allRated = selectedPlayer
@@ -80,6 +103,12 @@ const PracticeAssessor = () => {
     const pr = ratings[p.id] || {};
     return METRICS.every((m) => pr[m.id] > 0);
   }).length;
+
+  // Count metric notes for a player
+  const noteCount = (playerId) => {
+    const notes = metricNotes[playerId] || {};
+    return Object.values(notes).filter(n => n && n.trim()).length;
+  };
 
   if (!selectedPlayer) {
     // Player selection view
@@ -120,6 +149,7 @@ const PracticeAssessor = () => {
             const pr = ratings[player.id] || {};
             const done = METRICS.every((m) => pr[m.id] > 0);
             const ratedCount = METRICS.filter((m) => pr[m.id] > 0).length;
+            const notes = noteCount(player.id);
 
             return (
               <button
@@ -143,7 +173,7 @@ const PracticeAssessor = () => {
                     <h3 className="text-white font-semibold">{player.name}</h3>
                     <p className="text-[#4ade80] text-xs">
                       {done
-                        ? 'Assessment complete'
+                        ? `Assessment complete${notes > 0 ? ` + ${notes} notes` : ''}`
                         : ratedCount > 0
                           ? `${ratedCount}/${METRICS.length} metrics rated`
                           : 'Tap to assess'
@@ -174,7 +204,7 @@ const PracticeAssessor = () => {
               <h2 className="text-white font-bold text-lg">{selectedPlayer.name}</h2>
               <p className="text-[#4ade80] text-sm">
                 {allRated
-                  ? 'All metrics rated'
+                  ? `All metrics rated${noteCount(selectedPlayer.id) > 0 ? ` + ${noteCount(selectedPlayer.id)} notes` : ''}`
                   : `${METRICS.filter((m) => currentPlayerRatings[m.id] > 0).length}/${METRICS.length} rated`
                 }
               </p>
@@ -195,6 +225,9 @@ const PracticeAssessor = () => {
         {METRICS.map((metric) => {
           const Icon = metric.icon;
           const currentValue = currentPlayerRatings[metric.id] || 0;
+          const noteKey = `${selectedPlayer.id}-${metric.id}`;
+          const isNoteOpen = expandedNotes[noteKey] || false;
+          const currentNote = currentPlayerNotes[metric.id] || '';
 
           return (
             <div
@@ -206,7 +239,12 @@ const PracticeAssessor = () => {
                   <Icon className="w-5 h-5 text-[#4ade80]" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-white font-medium text-sm">{metric.name}</h4>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-white font-medium text-sm">{metric.name}</h4>
+                    {currentNote && !isNoteOpen && (
+                      <span className="text-[10px] text-[#4ade80] bg-[#22c55e]/20 px-1.5 py-0.5 rounded">notes</span>
+                    )}
+                  </div>
                   <p className="text-[#1a8a68] text-xs">{metric.description}</p>
                 </div>
                 <span className="text-2xl font-bold text-[#4ade80] w-8 text-right">
@@ -231,6 +269,25 @@ const PracticeAssessor = () => {
                     {level}
                   </button>
                 ))}
+              </div>
+
+              {/* Notes toggle + collapsible textarea */}
+              <button
+                onClick={() => toggleNote(selectedPlayer.id, metric.id)}
+                className="mt-2 flex items-center gap-1 text-[10px] text-[#1a8a68] hover:text-[#4ade80] transition-colors"
+              >
+                <MessageSquare className="w-3 h-3" />
+                <span>{isNoteOpen ? 'Hide note' : currentNote ? 'Edit note' : 'Add note'}</span>
+                {isNoteOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
+              <div className={`overflow-hidden transition-all duration-200 ${isNoteOpen ? 'max-h-[120px] mt-1.5' : 'max-h-0'}`}>
+                <textarea
+                  value={currentNote}
+                  onChange={(e) => handleNoteChange(selectedPlayer.id, metric.id, e.target.value)}
+                  placeholder={`${metric.name} notes for ${selectedPlayer.name}...`}
+                  rows={2}
+                  className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-xs placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none resize-none"
+                />
               </div>
             </div>
           );
@@ -267,11 +324,13 @@ const PracticeAssessor = () => {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {METRICS.map((metric) => {
               const Icon = metric.icon;
+              const note = currentPlayerNotes[metric.id];
               return (
                 <div key={metric.id} className="bg-[#0a3d2e] rounded-lg p-3 text-center">
                   <Icon className="w-4 h-4 text-[#4ade80] mx-auto mb-1" />
                   <p className="text-white/60 text-xs">{metric.name}</p>
                   <p className="text-[#4ade80] text-xl font-bold">{currentPlayerRatings[metric.id]}</p>
+                  {note && <p className="text-white/40 text-[10px] mt-1 truncate">{note}</p>}
                 </div>
               );
             })}
