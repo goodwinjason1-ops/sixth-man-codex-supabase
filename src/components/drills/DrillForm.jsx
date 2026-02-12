@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, GripVertical, ChevronUp, ChevronDown, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Trash2, GripVertical, ChevronUp, ChevronDown, Eye, ArrowLeft } from 'lucide-react';
 import { DRILL_CATEGORIES, DIFFICULTY_COLORS, AGE_GROUPS, EQUIPMENT_OPTIONS, TAG_OPTIONS } from '../../constants/drills';
 import PageShell from '../PageShell';
 
 const FUN_EMOJIS = ['😐', '🙂', '😊', '😄', '🤩'];
 
 const DrillForm = ({ initialData, onSubmit, title, backPath = '/drills' }) => {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -462,13 +464,22 @@ const DrillForm = ({ initialData, onSubmit, title, backPath = '/drills' }) => {
 
         {/* Actions */}
         <div className="flex items-center justify-between pt-4 border-t border-[#D4E4D4]">
-          <button
-            type="button"
-            onClick={() => setPreview(true)}
-            className="px-6 py-3 border border-[#D4E4D4] rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
-          >
-            <Eye className="w-4 h-4" /> Preview
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate(backPath)}
+              className="px-6 py-3 border border-red-200 rounded-lg text-red-600 font-medium hover:bg-red-50 transition-colors flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" /> Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreview(true)}
+              className="px-6 py-3 border border-[#D4E4D4] rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
+            >
+              <Eye className="w-4 h-4" /> Preview
+            </button>
+          </div>
           <button
             type="submit"
             disabled={saving || !form.name || !form.description || form.ageGroups.length === 0}
