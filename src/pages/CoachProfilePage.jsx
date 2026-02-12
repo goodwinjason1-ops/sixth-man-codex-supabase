@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { db } from '../services/firebase';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import {
   User,
   Award,
@@ -131,13 +131,14 @@ const CoachProfilePage = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   // Load accreditations from Firestore
-  useEffect(() => {
+  const loadAccreditations = async () => {
     if (!currentUser) return;
-    const q = query(
-      collection(db, 'coach_accreditations'),
-      where('coachId', '==', currentUser.uid)
-    );
-    const unsub = onSnapshot(q, (snap) => {
+    try {
+      const q = query(
+        collection(db, 'coach_accreditations'),
+        where('coachId', '==', currentUser.uid)
+      );
+      const snap = await getDocs(q);
       if (!snap.empty) {
         const docSnap = snap.docs[0];
         setAccreditation(docSnap.data());
@@ -146,9 +147,15 @@ const CoachProfilePage = () => {
         setAccreditation(null);
         setAccredDocId(null);
       }
+    } catch (err) {
+      console.error('Failed to load accreditations:', err);
+    } finally {
       setAccredLoading(false);
-    });
-    return () => unsub();
+    }
+  };
+
+  useEffect(() => {
+    loadAccreditations();
   }, [currentUser]);
 
   // Calculate coaching record from real data or use sample
@@ -322,6 +329,8 @@ const CoachProfilePage = () => {
         });
       }
       setEditingSection(null);
+      // Reload to pick up saved data
+      await loadAccreditations();
     } catch (err) {
       console.error('Failed to save accreditation:', err);
     } finally {

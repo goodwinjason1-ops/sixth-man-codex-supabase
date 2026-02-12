@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import PageShell from '../../components/PageShell';
 import {
@@ -66,12 +66,13 @@ const CoachCompliancePage = () => {
 
   // Load all coach accreditation records
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, 'coach_accreditations'), (snap) => {
-      const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      setRecords(data);
-      setLoading(false);
-    });
-    return () => unsub();
+    getDocs(collection(db, 'coach_accreditations'))
+      .then((snap) => {
+        const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setRecords(data);
+      })
+      .catch((err) => console.error('Failed to load accreditations:', err))
+      .finally(() => setLoading(false));
   }, []);
 
   // Enrich records with computed row-level status
