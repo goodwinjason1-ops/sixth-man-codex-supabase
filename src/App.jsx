@@ -46,6 +46,8 @@ import TryoutResultsPage from './pages/admin/TryoutResultsPage';
 import TryoutAssessorPage from './pages/TryoutAssessorPage';
 import YouthProgramsPage from './pages/admin/YouthProgramsPage';
 import YouthCoachPage from './pages/YouthCoachPage';
+import SessionSummaryForm from './pages/youth/SessionSummaryForm';
+import SessionSummaryHistory from './pages/youth/SessionSummaryHistory';
 import ParentSignupPage from './pages/ParentSignupPage';
 import ParentDashboard from './pages/ParentDashboard';
 // User Pages
@@ -651,6 +653,28 @@ const AppRoutes = () => {
           <ProtectedRoute allowedRoles={[...STAFF_ROLES, 'youth_coach', 'youth_head_coach']}>
             <ErrorBoundary fallbackMessage="Unable to load youth session.">
               <YouthCoachPage />
+            </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/youth-programs/:programId/session-summary"
+        element={
+          <ProtectedRoute allowedRoles={[...STAFF_ROLES, 'youth_coach', 'youth_head_coach']}>
+            <ErrorBoundary fallbackMessage="Unable to load session summary form.">
+              <SessionSummaryForm />
+            </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/youth-programs/:programId/session-history"
+        element={
+          <ProtectedRoute allowedRoles={[...STAFF_ROLES, 'youth_coach', 'youth_head_coach']}>
+            <ErrorBoundary fallbackMessage="Unable to load session history.">
+              <SessionSummaryHistory />
             </ErrorBoundary>
           </ProtectedRoute>
         }

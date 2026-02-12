@@ -27,7 +27,8 @@ import {
   Lightbulb,
   Heart,
   Clipboard,
-  Eye
+  Eye,
+  FileText
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
 import {
@@ -41,7 +42,8 @@ import {
   getChildMilestones,
   sendBatchParentMessages,
   getSessionAttendance,
-  getProgramStats
+  getProgramStats,
+  getProgramSummaries
 } from '../services/youthProgramService';
 import {
   PROGRAM_TYPES,
@@ -55,6 +57,7 @@ import {
   LAKERS_READY_CURRICULUM,
   COACH_TIPS
 } from '../data/youthPrograms';
+import SessionSummaryCard from '../components/youth/SessionSummaryCard';
 
 const YouthCoachPage = () => {
   const { programId } = useParams();
@@ -68,6 +71,8 @@ const YouthCoachPage = () => {
   const [activeTab, setActiveTab] = useState('session');
   const [currentWeek, setCurrentWeek] = useState(1);
   const [error, setError] = useState(null);
+  const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
+  const [recentSummaries, setRecentSummaries] = useState([]);
 
   // Load program data
   useEffect(() => {
@@ -99,6 +104,16 @@ const YouthCoachPage = () => {
     return () => { unsub1(); unsub2(); };
   }, [programId]);
 
+  // Load recent summaries
+  useEffect(() => {
+    if (!programId) return;
+    const loadSummaries = async () => {
+      const result = await getProgramSummaries(programId);
+      if (result.success) setRecentSummaries(result.data.slice(0, 5));
+    };
+    loadSummaries();
+  }, [programId]);
+
   const config = program ? (PROGRAM_CONFIG[program.programType] || PROGRAM_CONFIG[PROGRAM_TYPES.LITTLE_LAKERS]) : null;
   const curriculum = program?.programType === PROGRAM_TYPES.LITTLE_LAKERS
     ? LITTLE_LAKERS_CURRICULUM
@@ -114,7 +129,8 @@ const YouthCoachPage = () => {
     { id: 'attendance', label: 'Attendance', icon: Users },
     { id: 'milestones', label: 'Milestones', icon: Target },
     { id: 'activities', label: 'Activities', icon: Play },
-    { id: 'parents', label: 'Parent Notes', icon: MessageCircle }
+    { id: 'parents', label: 'Parent Notes', icon: MessageCircle },
+    { id: 'summaries', label: 'Summaries', icon: FileText }
   ];
 
   if (loading) {
@@ -226,29 +242,50 @@ const YouthCoachPage = () => {
         )}
 
         {activeTab === 'attendance' && (
-          <AttendanceTab
-            enrollments={enrollments}
-            sessions={sessions}
-            programId={programId}
-            currentWeek={currentWeek}
-            onRecordAttendance={async (sessionId, records) => {
-              const result = await batchRecordAttendance(sessionId, programId, records);
-              if (!result.success) setError(result.error);
-              return result;
-            }}
-            onCreateSession={async (weekNumber) => {
-              const result = await createSession({
-                programId,
-                programType: program.programType,
-                weekNumber,
-                status: 'active',
-                coachId: currentUser?.uid,
-                coachName: userProfile?.displayName
-              });
-              if (!result.success) setError(result.error);
-              return result;
-            }}
-          />
+          <>
+            {showSummaryPrompt && (
+              <div className="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3">
+                <span className="text-2xl">{'\u2705'}</span>
+                <div className="flex-1">
+                  <p className="text-emerald-800 font-medium text-sm">Attendance saved!</p>
+                  <p className="text-emerald-600 text-xs">Write a quick session summary for parents?</p>
+                </div>
+                <button
+                  onClick={() => navigate(`/youth-programs/${programId}/session-summary`)}
+                  className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700"
+                >
+                  Write Summary
+                </button>
+                <button onClick={() => setShowSummaryPrompt(false)} className="text-emerald-400 hover:text-emerald-600">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+            <AttendanceTab
+              enrollments={enrollments}
+              sessions={sessions}
+              programId={programId}
+              currentWeek={currentWeek}
+              onRecordAttendance={async (sessionId, records) => {
+                const result = await batchRecordAttendance(sessionId, programId, records);
+                if (!result.success) setError(result.error);
+                else setShowSummaryPrompt(true);
+                return result;
+              }}
+              onCreateSession={async (weekNumber) => {
+                const result = await createSession({
+                  programId,
+                  programType: program.programType,
+                  weekNumber,
+                  status: 'active',
+                  coachId: currentUser?.uid,
+                  coachName: userProfile?.displayName
+                });
+                if (!result.success) setError(result.error);
+                return result;
+              }}
+            />
+          </>
         )}
 
         {activeTab === 'milestones' && (
@@ -278,6 +315,45 @@ const YouthCoachPage = () => {
               return result;
             }}
           />
+        )}
+
+        {activeTab === 'summaries' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate(`/youth-programs/${programId}/session-summary`)}
+                className={`flex-1 py-3 bg-gradient-to-r ${config.color} text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity`}
+              >
+                <FileText className="w-5 h-5" />
+                Write Summary
+              </button>
+              <button
+                onClick={() => navigate(`/youth-programs/${programId}/session-history`)}
+                className="px-4 py-3 bg-gray-800 text-gray-300 rounded-xl font-medium hover:bg-gray-700 text-sm"
+              >
+                View All
+              </button>
+            </div>
+
+            {recentSummaries.length > 0 ? (
+              <div className="space-y-3">
+                <p className="text-gray-500 text-sm">Recent Summaries</p>
+                {recentSummaries.map(summary => (
+                  <SessionSummaryCard
+                    key={summary.id}
+                    summary={summary}
+                    programConfig={config}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <FileText className="w-12 h-12 mx-auto mb-3 text-gray-600" />
+                <p className="text-sm">No session summaries yet</p>
+                <p className="text-xs text-gray-400 mt-1">Write a summary after your next session!</p>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

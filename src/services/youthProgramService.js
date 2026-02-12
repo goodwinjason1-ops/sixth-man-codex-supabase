@@ -27,6 +27,7 @@ const ENROLLMENTS_COLLECTION = 'youth_enrollments';
 const MILESTONES_COLLECTION = 'youth_milestones';
 const ATTENDANCE_COLLECTION = 'youth_attendance';
 const PARENT_MESSAGES_COLLECTION = 'youth_parent_messages';
+const SESSION_SUMMARIES_COLLECTION = 'youth_session_summaries';
 
 // ============================================
 // PROGRAMS (Little Lakers / Lakers Ready terms)
@@ -674,6 +675,80 @@ export const getChildProgressReport = async (enrollmentId, programType) => {
   }
 };
 
+// ============================================
+// SESSION SUMMARIES
+// ============================================
+
+/**
+ * Save a session summary
+ */
+export const saveSessionSummary = async (summaryData) => {
+  try {
+    const docRef = await addDoc(collection(db, SESSION_SUMMARIES_COLLECTION), {
+      ...summaryData,
+      createdAt: serverTimestamp()
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error saving session summary:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Get summaries for a program (ordered by sessionDate desc)
+ */
+export const getProgramSummaries = async (programId) => {
+  try {
+    const q = query(
+      collection(db, SESSION_SUMMARIES_COLLECTION),
+      where('programId', '==', programId),
+      orderBy('sessionDate', 'desc')
+    );
+    const snapshot = await getDocs(q);
+    const summaries = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    return { success: true, data: summaries };
+  } catch (error) {
+    console.error('Error getting program summaries:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Get summaries for parent (by programIds array)
+ */
+export const getParentSummaries = async (programIds) => {
+  try {
+    if (!programIds || programIds.length === 0) {
+      return { success: true, data: [] };
+    }
+    // Firestore 'in' queries support up to 30 items
+    const batches = [];
+    for (let i = 0; i < programIds.length; i += 30) {
+      const chunk = programIds.slice(i, i + 30);
+      const q = query(
+        collection(db, SESSION_SUMMARIES_COLLECTION),
+        where('programId', 'in', chunk),
+        orderBy('sessionDate', 'desc')
+      );
+      batches.push(getDocs(q));
+    }
+    const snapshots = await Promise.all(batches);
+    const summaries = snapshots.flatMap(snap =>
+      snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    );
+    summaries.sort((a, b) => {
+      const dateA = a.sessionDate?.toDate ? a.sessionDate.toDate() : new Date(a.sessionDate);
+      const dateB = b.sessionDate?.toDate ? b.sessionDate.toDate() : new Date(b.sessionDate);
+      return dateB - dateA;
+    });
+    return { success: true, data: summaries };
+  } catch (error) {
+    console.error('Error getting parent summaries:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 export default {
   createProgram,
   updateProgram,
@@ -700,5 +775,8 @@ export default {
   sendBatchParentMessages,
   getProgramParentMessages,
   getProgramStats,
-  getChildProgressReport
+  getChildProgressReport,
+  saveSessionSummary,
+  getProgramSummaries,
+  getParentSummaries
 };

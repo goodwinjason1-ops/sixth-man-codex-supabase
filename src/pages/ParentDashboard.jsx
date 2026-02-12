@@ -24,6 +24,10 @@ import { sampleIDPs } from '../data/sampleIDPs';
 import Breadcrumb from '../components/Breadcrumb';
 import FirstTimeHint from '../components/tutorial/FirstTimeHint';
 import TutorialPromptCard from '../components/tutorial/TutorialPromptCard';
+import { getParentSummaries } from '../services/youthProgramService';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import SessionSummaryCard from '../components/youth/SessionSummaryCard';
 
 const ParentDashboard = () => {
   const navigate = useNavigate();
@@ -72,6 +76,32 @@ const ParentDashboard = () => {
       plan => plan.playerId === selectedChild.id && plan.parentVisible
     ) || null;
   }, [selectedChild]);
+
+  // Session summaries from youth programs
+  const [sessionSummaries, setSessionSummaries] = useState([]);
+  const [showAllSessions, setShowAllSessions] = useState(false);
+
+  useEffect(() => {
+    if (!userProfile?.email) return;
+    const loadSummaries = async () => {
+      try {
+        // Find enrollments by parent email
+        const enrollQ = query(
+          collection(db, 'youth_enrollments'),
+          where('parentEmail', '==', userProfile.email)
+        );
+        const enrollSnap = await getDocs(enrollQ);
+        const programIds = [...new Set(enrollSnap.docs.map(d => d.data().programId).filter(Boolean))];
+        if (programIds.length === 0) return;
+
+        const result = await getParentSummaries(programIds);
+        if (result.success) setSessionSummaries(result.data);
+      } catch (err) {
+        console.error('Error loading session summaries:', err);
+      }
+    };
+    loadSummaries();
+  }, [userProfile?.email]);
 
   // Get upcoming schedule for selected child's team
   const upcomingSchedule = useMemo(() => {
@@ -323,6 +353,35 @@ const ParentDashboard = () => {
           )}
         </div>
         </FirstTimeHint>
+
+        {/* Recent Youth Sessions */}
+        {sessionSummaries.length > 0 && (
+          <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <span className="text-lg">{'\uD83C\uDFC0'}</span>
+                <h3 className="text-gray-800 font-semibold">Recent Sessions</h3>
+              </div>
+              {sessionSummaries.length > 5 && (
+                <button
+                  onClick={() => setShowAllSessions(!showAllSessions)}
+                  className="text-sm text-[#00A651] hover:text-gray-800"
+                >
+                  {showAllSessions ? 'Show Less' : 'View All'} &rarr;
+                </button>
+              )}
+            </div>
+            <div className="space-y-3">
+              {(showAllSessions ? sessionSummaries : sessionSummaries.slice(0, 5)).map(summary => (
+                <SessionSummaryCard
+                  key={summary.id}
+                  summary={summary}
+                  showProgramName={true}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Development Plan (if shared by coach) */}
         {childIDP && (
