@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import * as Icons from 'lucide-react';
 import { ArrowLeft, Printer, HelpCircle, Mail, Calendar } from 'lucide-react';
+import iconMap from '../../utils/iconMap';
 import { HELP_PAGES, HELP_CONTENT } from '../../data/helpContent';
 import CollapsibleSection from './CollapsibleSection';
 import FAQAccordion from './FAQAccordion';
@@ -32,7 +32,7 @@ const HelpPageLayout = ({ roleSlug }) => {
 
   if (!page || !content) return null;
 
-  const PageIcon = Icons[page.icon] || HelpCircle;
+  const PageIcon = iconMap[page.icon] || HelpCircle;
   const colorClass = HIGHLIGHT_COLORS[page.highlightColor] || HIGHLIGHT_COLORS.green;
 
   return (

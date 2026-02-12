@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import * as Icons from 'lucide-react';
+import iconMap from '../../utils/iconMap';
 
 /**
  * FlowChart
@@ -24,8 +24,8 @@ const NODE_SIZE = 56;
 const FlowChart = ({ nodes = [], edges = [], title, description, height = 300 }) => {
   /** Resolve a lucide-react icon by name, fallback to Circle */
   const getIcon = (iconName) => {
-    if (!iconName) return Icons.Circle;
-    return Icons[iconName] || Icons.Circle;
+    if (!iconName) return iconMap.Circle;
+    return iconMap[iconName] || iconMap.Circle;
   };
 
   /** Build lookup for quick node access */

@@ -12,7 +12,6 @@ import ProcessFlow from '../../components/tutorial/ProcessFlow';
 import PracticeArea from '../../components/practice/PracticeArea';
 import { HELP_PAGES, GLOBAL_FAQS } from '../../data/helpContent';
 import { INFOGRAPHICS } from '../../data/infographicContent';
-import * as Icons from 'lucide-react';
 import {
   HelpCircle,
   BookOpen,
@@ -30,6 +29,7 @@ import {
   Target,
   PenTool,
 } from 'lucide-react';
+import iconMap from '../../utils/iconMap';
 import { useNavigate } from 'react-router-dom';
 
 const PAGE_ORDER = ['admin', 'leadership', 'coordinators', 'coaches', 'youth-coaches', 'assessors', 'parents', 'players'];
@@ -43,7 +43,7 @@ const PRACTICE_AREAS = [
 ];
 
 const PracticeAreaCard = ({ area, onStart }) => {
-  const IconComponent = Icons[area.icon] || Icons.HelpCircle;
+  const IconComponent = iconMap[area.icon] || iconMap.HelpCircle;
   return (
     <button
       onClick={() => onStart(area.id)}
@@ -62,7 +62,7 @@ const PracticeAreaCard = ({ area, onStart }) => {
 };
 
 const InfographicCard = ({ infographic, onClick }) => {
-  const IconComponent = Icons[infographic.icon] || Icons.BarChart3;
+  const IconComponent = iconMap[infographic.icon] || iconMap.BarChart3;
   return (
     <button
       onClick={() => onClick(infographic)}

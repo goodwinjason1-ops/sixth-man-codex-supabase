@@ -1,6 +1,6 @@
 import React from 'react';
-import * as Icons from 'lucide-react';
 import { Play, RotateCcw, Clock } from 'lucide-react';
+import iconMap from '../../utils/iconMap';
 import ProgressRing from './ProgressRing';
 import { TUTORIALS, TUTORIAL_ORDER, ROLE_TO_TUTORIAL } from '../../data/tutorialContent';
 import useTutorial from '../../hooks/useTutorial';
@@ -21,7 +21,7 @@ const QuickStartCarousel = ({ userRole }) => {
       <div className="flex items-center justify-between mb-3">
         <div>
           <h2 className="text-gray-800 font-bold text-base flex items-center gap-2">
-            <Icons.GraduationCap className="w-4 h-4 text-[#00A651]" />
+            <iconMap.GraduationCap className="w-4 h-4 text-[#00A651]" />
             Quick Start
           </h2>
           <p className="text-gray-400 text-xs mt-0.5">
@@ -38,7 +38,7 @@ const QuickStartCarousel = ({ userRole }) => {
           if (!tutorial) return null;
           const completed = hasCompletedTutorial(id);
           const isRecommended = id === recommendedId;
-          const IconComponent = Icons[tutorial.icon] || Icons.BookOpen;
+          const IconComponent = iconMap[tutorial.icon] || iconMap.BookOpen;
 
           return (
             <div
@@ -62,7 +62,7 @@ const QuickStartCarousel = ({ userRole }) => {
                   }`}
                 >
                   {completed ? (
-                    <Icons.CheckCircle2 className="w-5 h-5 text-[#00A651]" />
+                    <iconMap.CheckCircle2 className="w-5 h-5 text-[#00A651]" />
                   ) : (
                     <IconComponent className="w-5 h-5 text-[#00A651]" />
                   )}

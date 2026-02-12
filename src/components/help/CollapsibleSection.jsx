@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import * as Icons from 'lucide-react';
+import iconMap from '../../utils/iconMap';
 import ContentBlockRenderer from './ContentBlockRenderer';
 
 const CollapsibleSection = ({ id, title, icon, content, defaultOpen = false, forceOpen = false }) => {
   const [open, setOpen] = useState(defaultOpen || forceOpen);
   const ref = useRef(null);
-  const IconComponent = Icons[icon] || Icons.HelpCircle;
+  const IconComponent = iconMap[icon] || iconMap.HelpCircle;
 
   useEffect(() => {
     if (forceOpen) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import * as Icons from 'lucide-react';
+import iconMap from '../../utils/iconMap';
 
 const LEVEL_COLORS = [
   'bg-red-500',
@@ -15,7 +15,7 @@ const MetricScale = ({ metrics }) => {
   return (
     <div className="space-y-4">
       {metrics.map((metric, mi) => {
-        const IconComponent = Icons[metric.icon] || Icons.Circle;
+        const IconComponent = iconMap[metric.icon] || iconMap.Circle;
         return (
           <div key={mi} className="bg-[#F5F9F5] rounded-lg p-3 border border-[#D4E4D4]/50">
             <div className="flex items-center gap-2 mb-2">

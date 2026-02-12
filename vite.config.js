@@ -33,7 +33,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB to cover all chunks
+        // Exclude unused images from precache to save bandwidth
+        globIgnores: ['**/images/dragon.png', '**/images/logo.png'],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB — reduced after tree-shaking optimization
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [

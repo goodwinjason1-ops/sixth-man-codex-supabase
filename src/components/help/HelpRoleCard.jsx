@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import * as Icons from 'lucide-react';
+import iconMap from '../../utils/iconMap';
 
 const HelpRoleCard = ({ slug, title, subtitle, icon, badgeStyle, path }) => {
   const navigate = useNavigate();
-  const IconComponent = Icons[icon] || Icons.HelpCircle;
+  const IconComponent = iconMap[icon] || iconMap.HelpCircle;
 
   return (
     <button

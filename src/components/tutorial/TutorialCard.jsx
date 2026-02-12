@@ -1,5 +1,5 @@
 import React from 'react';
-import * as Icons from 'lucide-react';
+import iconMap from '../../utils/iconMap';
 import ContentBlockRenderer from '../help/ContentBlockRenderer';
 import MetricScale from './MetricScale';
 import ProTip from './ProTip';
@@ -10,7 +10,7 @@ import ProcessFlow from './ProcessFlow';
 import VideoPlayer from './VideoPlayer';
 
 const IconHero = ({ icon, label }) => {
-  const IconComponent = Icons[icon] || Icons.HelpCircle;
+  const IconComponent = iconMap[icon] || iconMap.HelpCircle;
   return (
     <div className="flex flex-col items-center justify-center py-4">
       <div className="w-20 h-20 bg-[#D4E4D4]/40 border-2 border-[#00A651]/50 rounded-full flex items-center justify-center mb-3">
@@ -22,7 +22,7 @@ const IconHero = ({ icon, label }) => {
 };
 
 const TutorialCard = ({ step, stepIndex, totalSteps }) => {
-  const StepIcon = Icons[step.icon] || Icons.Circle;
+  const StepIcon = iconMap[step.icon] || iconMap.Circle;
 
   // Separate metric-scale blocks from regular blocks for ContentBlockRenderer
   const regularBlocks = step.content.filter((b) => b.type !== 'metric-scale');

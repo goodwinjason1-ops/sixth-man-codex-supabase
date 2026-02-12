@@ -1,5 +1,5 @@
 import React from 'react';
-import * as Icons from 'lucide-react';
+import iconMap from '../../utils/iconMap';
 
 /**
  * ProcessFlow
@@ -19,8 +19,8 @@ const DEFAULT_COLOR = '#00A651';
 const ProcessFlow = ({ steps = [], title, description, vertical = false }) => {
   /** Resolve a lucide-react icon by name, fallback to Circle */
   const getIcon = (iconName) => {
-    if (!iconName) return Icons.Circle;
-    return Icons[iconName] || Icons.Circle;
+    if (!iconName) return iconMap.Circle;
+    return iconMap[iconName] || iconMap.Circle;
   };
 
   if (!steps.length) return null;
@@ -55,7 +55,7 @@ const ProcessFlow = ({ steps = [], title, description, vertical = false }) => {
                       }}
                     >
                       {step.completed ? (
-                        <Icons.Check className="w-5 h-5" style={{ color }} />
+                        <iconMap.Check className="w-5 h-5" style={{ color }} />
                       ) : (
                         <StepIcon className="w-5 h-5" style={{ color: step.completed ? color : `${color}90` }} />
                       )}
@@ -118,7 +118,7 @@ const ProcessFlow = ({ steps = [], title, description, vertical = false }) => {
                     }}
                   >
                     {step.completed ? (
-                      <Icons.Check className="w-5 h-5" style={{ color }} />
+                      <iconMap.Check className="w-5 h-5" style={{ color }} />
                     ) : (
                       <StepIcon className="w-5 h-5" style={{ color: step.completed ? color : `${color}90` }} />
                     )}
