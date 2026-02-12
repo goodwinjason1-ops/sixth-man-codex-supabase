@@ -573,7 +573,7 @@ const CoachProfilePage = () => {
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-6 h-6 text-[#00A651] animate-spin" />
             </div>
-          ) : !accreditation ? (
+          ) : !accreditation && !editingSection ? (
             <div className="bg-white border-2 border-dashed border-[#D4E4D4] rounded-2xl p-8 text-center">
               <ShieldCheck className="w-10 h-10 text-[#6B7C6B] mx-auto mb-3" />
               <p className="text-gray-800 font-medium mb-1">No accreditations on file</p>
@@ -592,10 +592,10 @@ const CoachProfilePage = () => {
                 key: 'coaching',
                 icon: Award,
                 title: 'Coaching',
-                data: accreditation.coaching,
-                levelLabel: accreditation.coaching?.level || 'Not Set',
+                data: accreditation?.coaching,
+                levelLabel: accreditation?.coaching?.level || 'Not Set',
                 certLabel: 'Certificate #',
-                certValue: accreditation.coaching?.certificateNumber,
+                certValue: accreditation?.coaching?.certificateNumber,
               })}
 
               {/* First Aid Card */}
@@ -603,10 +603,10 @@ const CoachProfilePage = () => {
                 key: 'firstAid',
                 icon: Heart,
                 title: 'First Aid',
-                data: accreditation.firstAid,
-                levelLabel: accreditation.firstAid?.level || 'Not Set',
+                data: accreditation?.firstAid,
+                levelLabel: accreditation?.firstAid?.level || 'Not Set',
                 certLabel: 'Certificate #',
-                certValue: accreditation.firstAid?.certificateNumber,
+                certValue: accreditation?.firstAid?.certificateNumber,
               })}
 
               {/* WWCC Card */}
@@ -614,10 +614,10 @@ const CoachProfilePage = () => {
                 key: 'wwcc',
                 icon: ShieldCheck,
                 title: 'Working with Children Check',
-                data: accreditation.wwcc,
-                levelLabel: accreditation.wwcc?.state || 'VIC',
+                data: accreditation?.wwcc,
+                levelLabel: accreditation?.wwcc?.state || 'VIC',
                 certLabel: 'Check #',
-                certValue: accreditation.wwcc?.checkNumber,
+                certValue: accreditation?.wwcc?.checkNumber,
               })}
             </>
           )}

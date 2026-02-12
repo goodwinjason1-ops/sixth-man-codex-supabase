@@ -468,7 +468,7 @@ const ScheduleManagementPage = () => {
               <button
                 onClick={() => setViewMode('list')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  viewMode === 'list' ? 'bg-[#005028] text-white' : 'text-white'
+                  viewMode === 'list' ? 'bg-[#005028] text-white shadow-sm' : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
                 List View
@@ -476,7 +476,7 @@ const ScheduleManagementPage = () => {
               <button
                 onClick={() => setViewMode('calendar')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  viewMode === 'calendar' ? 'bg-[#005028] text-white' : 'text-white'
+                  viewMode === 'calendar' ? 'bg-[#005028] text-white shadow-sm' : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
                 Calendar
