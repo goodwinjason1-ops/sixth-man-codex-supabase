@@ -419,11 +419,11 @@ const AdminDashboard = () => {
               <p className="text-xs text-gray-500">Unassigned</p>
             </div>
             <div className="bg-yellow-500/10 rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold text-yellow-400">0</p>
+              <p className="text-2xl font-bold text-yellow-600">0</p>
               <p className="text-xs text-gray-500">Pending</p>
             </div>
             <div className="bg-blue-500/10 rounded-lg p-3 text-center cursor-pointer hover:bg-blue-500/20" onClick={() => navigate('/admin/notifications')}>
-              <p className="text-2xl font-bold text-blue-400 flex items-center justify-center gap-1">
+              <p className="text-2xl font-bold text-blue-600 flex items-center justify-center gap-1">
                 0
                 <ArrowRightLeft size={14} />
               </p>
