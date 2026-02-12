@@ -1,5 +1,6 @@
 import React from 'react';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Home, WifiOff } from 'lucide-react';
+import { logActivity } from '../services/auditService';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -13,10 +14,22 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-    this.setState({
-      error: error,
-      errorInfo: errorInfo
-    });
+    this.setState({ error, errorInfo });
+
+    // Log to audit_logs (fire-and-forget)
+    try {
+      logActivity(
+        { uid: 'system', displayName: 'System', role: 'system' },
+        'error.boundary',
+        `UI Error: ${error?.message || 'Unknown error'}`,
+        {
+          componentStack: errorInfo?.componentStack?.slice(0, 500),
+          url: window.location.pathname
+        }
+      );
+    } catch (_) {
+      // Never let audit logging break the error boundary
+    }
   }
 
   handleRetry = () => {
@@ -29,22 +42,43 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
+      // Detect if user might be a coach on game day (check localStorage for hints)
+      const isOffline = !navigator.onLine;
+
       return (
         <div className="min-h-screen bg-[#F5F9F5] flex items-center justify-center p-4">
-          <div className="bg-white border-2 border-red-500/50 rounded-2xl p-8 max-w-md w-full text-center">
-            <div className="w-16 h-16 bg-red-500/20 border border-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-8 h-8 text-red-400" />
+          <div className="bg-white border border-[#D4E4D4] rounded-2xl p-8 max-w-md w-full text-center shadow-lg">
+            {/* Logo */}
+            <img
+              src="/images/logo_login.png"
+              alt="Emerald Lakers"
+              className="h-16 mx-auto mb-4"
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+
+            <div className="w-14 h-14 bg-red-50 border border-red-200 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-7 h-7 text-red-500" />
             </div>
 
             <h1 className="text-xl font-bold text-gray-800 mb-2">Something went wrong</h1>
-            <p className="text-[#6B7C6B] text-sm mb-6">
-              {this.props.fallbackMessage || 'An error occurred while loading this page.'}
+            <p className="text-[#6B7C6B] text-sm mb-4">
+              {this.props.fallbackMessage || 'An unexpected error occurred. Please try again.'}
             </p>
 
-            {/* Error details (only in development) */}
+            {/* Offline / data reassurance for coaches */}
+            {isOffline && (
+              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2">
+                <WifiOff className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                <p className="text-amber-700 text-sm text-left">
+                  You're offline — your data has been saved locally and will sync when you reconnect.
+                </p>
+              </div>
+            )}
+
+            {/* Error details (development only) */}
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <div className="mb-6 p-3 bg-[#F5F9F5] border border-red-500/30 rounded-lg text-left">
-                <p className="text-red-400 text-xs font-mono break-all">
+              <div className="mb-4 p-3 bg-gray-50 border border-red-200 rounded-lg text-left">
+                <p className="text-red-600 text-xs font-mono break-all">
                   {this.state.error.toString()}
                 </p>
                 {this.state.errorInfo && (
@@ -58,14 +92,14 @@ class ErrorBoundary extends React.Component {
             <div className="flex gap-3 justify-center">
               <button
                 onClick={this.handleRetry}
-                className="flex items-center gap-2 px-4 py-2 bg-[#005028] hover:bg-[#00A651] text-white rounded-lg font-medium transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 bg-[#005028] hover:bg-[#00A651] text-white rounded-lg font-medium transition-colors"
               >
                 <RefreshCw className="w-4 h-4" />
                 Try Again
               </button>
               <button
                 onClick={this.handleGoHome}
-                className="flex items-center gap-2 px-4 py-2 bg-[#F5F9F5] border border-[#D4E4D4] hover:border-[#00A651] text-gray-800 rounded-lg font-medium transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 bg-[#F5F9F5] border border-[#D4E4D4] hover:border-[#00A651] text-gray-800 rounded-lg font-medium transition-colors"
               >
                 <Home className="w-4 h-4" />
                 Go Home

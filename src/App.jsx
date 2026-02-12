@@ -74,6 +74,7 @@ import DrillDetailPage from './pages/DrillDetailPage';
 import CreateDrillPage from './pages/CreateDrillPage';
 import EditDrillPage from './pages/EditDrillPage';
 import ErrorBoundary from './components/ErrorBoundary';
+import OfflineIndicator from './components/OfflineIndicator';
 import Layout from './components/Layout';
 import MobileBottomNav from './components/MobileBottomNav';
 import { TutorialProvider } from './contexts/TutorialContext';
@@ -752,17 +753,20 @@ const AppRoutes = () => {
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <DataProvider>
-          <TutorialProvider>
-            <AppRoutes />
-            <MobileBottomNav />
-            <TutorialOverlay />
-          </TutorialProvider>
-        </DataProvider>
-      </AuthProvider>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <DataProvider>
+            <TutorialProvider>
+              <OfflineIndicator />
+              <AppRoutes />
+              <MobileBottomNav />
+              <TutorialOverlay />
+            </TutorialProvider>
+          </DataProvider>
+        </AuthProvider>
+      </Router>
+    </ErrorBoundary>
   );
 }
 
