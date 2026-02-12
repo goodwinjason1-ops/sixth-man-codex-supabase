@@ -60,7 +60,7 @@ const DrillDetailPage = () => {
 
   if (loading) {
     return (
-      <PageShell title="Loading..." backPath="/drills">
+      <PageShell title="Loading..." backTo="/drills">
         <div className="flex justify-center py-20">
           <div className="w-10 h-10 border-4 border-[#00A651] border-t-transparent rounded-full animate-spin"></div>
         </div>
@@ -70,7 +70,7 @@ const DrillDetailPage = () => {
 
   if (!drill) {
     return (
-      <PageShell title="Drill Not Found" backPath="/drills">
+      <PageShell title="Drill Not Found" backTo="/drills">
         <div className="text-center py-20">
           <h3 className="text-lg font-bold text-gray-800 mb-2">Drill not found</h3>
           <p className="text-[#6B7C6B]">This drill may have been deleted.</p>

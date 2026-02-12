@@ -7,7 +7,12 @@ import { DRILL_CATEGORIES, CATEGORY_COLORS, DIFFICULTY_LEVELS, AGE_GROUPS, DRILL
 import DrillCard from '../components/drills/DrillCard';
 import PageShell from '../components/PageShell';
 
+const AGE_ORDER = { u8: 1, u10: 2, u12: 3, u14: 4, u16: 5, u18: 6 };
+
 const SORT_OPTIONS = [
+  { value: 'level', label: 'Level' },
+  { value: 'category', label: 'Category' },
+  { value: 'age', label: 'Age Group' },
   { value: 'newest', label: 'Newest' },
   { value: 'most_used', label: 'Most Used' },
   { value: 'highest_rated', label: 'Highest Rated' },
@@ -23,7 +28,7 @@ const DrillLibraryPage = () => {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [ageFilter, setAgeFilter] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('');
-  const [sortBy, setSortBy] = useState('newest');
+  const [sortBy, setSortBy] = useState('level');
   const [showFilters, setShowFilters] = useState(false);
 
   const canCreate = DRILL_EDIT_ROLES.includes(userProfile?.role);
@@ -73,7 +78,21 @@ const DrillLibraryPage = () => {
     }
 
     // Sort
+    const catKeys = Object.keys(DRILL_CATEGORIES);
     switch (sortBy) {
+      case 'level':
+        result.sort((a, b) => (a.difficulty || 1) - (b.difficulty || 1) || a.name.localeCompare(b.name));
+        break;
+      case 'category':
+        result.sort((a, b) => catKeys.indexOf(a.category) - catKeys.indexOf(b.category) || (a.difficulty || 1) - (b.difficulty || 1));
+        break;
+      case 'age':
+        result.sort((a, b) => {
+          const aMin = Math.min(...(a.ageGroups || []).map(g => AGE_ORDER[g] || 99));
+          const bMin = Math.min(...(b.ageGroups || []).map(g => AGE_ORDER[g] || 99));
+          return aMin - bMin || (a.difficulty || 1) - (b.difficulty || 1);
+        });
+        break;
       case 'most_used':
         result.sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0));
         break;
@@ -100,7 +119,14 @@ const DrillLibraryPage = () => {
   };
 
   return (
-    <PageShell title="Drill Library" backPath="/welcome">
+    <PageShell
+      title="Drill Library"
+      backTo="/welcome"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Drill Library' }
+      ]}
+    >
       {/* Search & Actions Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
         <div className="relative flex-1">

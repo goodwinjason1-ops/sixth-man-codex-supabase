@@ -6,7 +6,7 @@ import PageShell from '../PageShell';
 
 const FUN_EMOJIS = ['😐', '🙂', '😊', '😄', '🤩'];
 
-const DrillForm = ({ initialData, onSubmit, title, backPath = '/drills' }) => {
+const DrillForm = ({ initialData, onSubmit, title, backPath = '/drills', breadcrumbs }) => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: '',
@@ -109,7 +109,7 @@ const DrillForm = ({ initialData, onSubmit, title, backPath = '/drills' }) => {
     const previewCat = DRILL_CATEGORIES[form.category];
     const previewColor = CATEGORY_COLORS[previewCat?.color] || CATEGORY_COLORS.blue;
     return (
-      <PageShell title="Preview Drill" backPath={null}>
+      <PageShell title="Preview Drill">
         <div className="max-w-3xl mx-auto">
           <button onClick={() => setPreview(false)} className="mb-4 text-sm text-[#00A651] hover:text-[#005028] font-medium flex items-center gap-1">
             <Eye className="w-4 h-4" /> Back to Editor
@@ -153,7 +153,7 @@ const DrillForm = ({ initialData, onSubmit, title, backPath = '/drills' }) => {
   }
 
   return (
-    <PageShell title={title} backPath={backPath}>
+    <PageShell title={title} backTo={backPath} breadcrumbs={breadcrumbs}>
       <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-6">
         {/* Name & Description */}
         <Section title="Basic Info">

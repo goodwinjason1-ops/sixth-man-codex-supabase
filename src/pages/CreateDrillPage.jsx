@@ -20,6 +20,11 @@ const CreateDrillPage = () => {
     <DrillForm
       title="Create New Drill"
       backPath="/drills"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Drill Library', url: '/drills' },
+        { label: 'Create New Drill' }
+      ]}
       onSubmit={handleSubmit}
     />
   );
