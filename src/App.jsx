@@ -15,6 +15,7 @@ import SkillsPassportPage from './pages/SkillsPassportPage';
 import CoachAssessmentPage from './pages/CoachAssessmentPage';
 import MatchDayAssessmentPage from './pages/MatchDayAssessmentPage';
 import RotationTrackerPage from './pages/RotationTrackerPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import BenchmarkAdminPage from './pages/BenchmarkAdminPage';
 import CoachProfilePage from './pages/CoachProfilePage';
 import AdminProfilePage from './pages/AdminProfilePage';
@@ -106,6 +107,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/signup/:invitationCode" element={<ParentSignupPage />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
 
       <Route
         path="/login"

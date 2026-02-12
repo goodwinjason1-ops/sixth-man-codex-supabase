@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, User, Chrome, Apple as AppleIcon, AlertCircle, Users, ClipboardCheck, KeyRound } from 'lucide-react';
 
 const LoginPage = () => {
@@ -412,9 +412,12 @@ const LoginPage = () => {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-lakers-200 text-sm mt-6">
-          © 2024 Emerald Lakers Basketball Club
-        </p>
+        <div className="text-center text-lakers-200 text-sm mt-6 space-y-1">
+          <p>&copy; 2026 Emerald Lakers Basketball Club</p>
+          <Link to="/privacy-policy" className="text-lakers-300 hover:text-white text-xs underline underline-offset-2">
+            Privacy Policy
+          </Link>
+        </div>
       </div>
     </div>
   );
