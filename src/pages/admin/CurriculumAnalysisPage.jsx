@@ -161,8 +161,8 @@ const CurriculumAnalysisPage = () => {
               onClick={() => setSelectedAgeGroup(group.id)}
               className={`px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-colors ${
                 selectedAgeGroup === group.id
-                  ? 'bg-[#22c55e] text-white'
-                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  ? 'bg-[#005028] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               {group.name}
@@ -174,26 +174,26 @@ const CurriculumAnalysisPage = () => {
       <div className="space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-[#0d5943] rounded-xl p-4">
+          <div className="bg-white rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="text-[#4ade80]" size={18} />
-              <span className="text-white/60 text-sm">Strengths</span>
+              <CheckCircle className="text-[#00A651]" size={18} />
+              <span className="text-gray-500 text-sm">Strengths</span>
             </div>
             <p className="text-2xl font-bold">{analysis.strengths.length}</p>
-            <p className="text-xs text-white/50">skill areas</p>
+            <p className="text-xs text-gray-400">skill areas</p>
           </div>
-          <div className="bg-[#0d5943] rounded-xl p-4">
+          <div className="bg-white rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <AlertTriangle className="text-yellow-400" size={18} />
-              <span className="text-white/60 text-sm">Development Gaps</span>
+              <span className="text-gray-500 text-sm">Development Gaps</span>
             </div>
             <p className="text-2xl font-bold">{analysis.gaps.length}</p>
-            <p className="text-xs text-white/50">areas to improve</p>
+            <p className="text-xs text-gray-400">areas to improve</p>
           </div>
         </div>
 
         {/* Radar Chart */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-bold mb-4 flex items-center gap-2">
             <BookOpen size={18} />
             Skill Category Overview
@@ -201,14 +201,14 @@ const CurriculumAnalysisPage = () => {
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart cx="50%" cy="50%" outerRadius="70%" data={analysis.radarData}>
-                <PolarGrid stroke="#1a8a68" />
+                <PolarGrid stroke="#D4E4D4" />
                 <PolarAngleAxis dataKey="skill" tick={{ fill: '#fff', fontSize: 10 }} />
                 <PolarRadiusAxis angle={30} domain={[0, 5]} tick={{ fill: '#fff', fontSize: 10 }} />
                 <Radar
                   name="Average Level"
                   dataKey="level"
-                  stroke="#22c55e"
-                  fill="#22c55e"
+                  stroke="#00A651"
+                  fill="#00A651"
                   fillOpacity={0.5}
                 />
               </RadarChart>
@@ -222,7 +222,7 @@ const CurriculumAnalysisPage = () => {
           <button
             onClick={() => setShowGapsOnly(!showGapsOnly)}
             className={`text-sm px-3 py-1 rounded-lg transition-colors ${
-              showGapsOnly ? 'bg-yellow-500/20 text-yellow-400' : 'bg-white/10 text-white/70'
+              showGapsOnly ? 'bg-yellow-500/20 text-yellow-400' : 'bg-gray-100 text-gray-600'
             }`}
           >
             {showGapsOnly ? 'Showing Gaps Only' : 'Show All'}
@@ -236,11 +236,11 @@ const CurriculumAnalysisPage = () => {
             .map(category => (
               <div
                 key={category.categoryId}
-                className={`bg-[#0d5943] rounded-xl p-4 border-l-4 ${
+                className={`bg-white rounded-xl p-4 border-l-4 ${
                   category.isGap
                     ? 'border-yellow-500'
                     : category.avgLevel >= 3.5
-                    ? 'border-[#22c55e]'
+                    ? 'border-[#00A651]'
                     : 'border-white/20'
                 }`}
               >
@@ -249,30 +249,30 @@ const CurriculumAnalysisPage = () => {
                     {category.isGap ? (
                       <AlertTriangle className="text-yellow-400" size={20} />
                     ) : category.avgLevel >= 3.5 ? (
-                      <CheckCircle className="text-[#4ade80]" size={20} />
+                      <CheckCircle className="text-[#00A651]" size={20} />
                     ) : (
-                      <Target className="text-white/50" size={20} />
+                      <Target className="text-gray-400" size={20} />
                     )}
                     <h4 className="font-bold">{category.category}</h4>
                   </div>
                   <div className="text-right">
                     <p className={`text-xl font-bold ${
-                      category.isGap ? 'text-yellow-400' : 'text-[#4ade80]'
+                      category.isGap ? 'text-yellow-400' : 'text-[#00A651]'
                     }`}>
                       {category.avgLevel}
                     </p>
-                    <p className="text-xs text-white/50">avg level</p>
+                    <p className="text-xs text-gray-400">avg level</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 mb-3">
                   <div>
-                    <p className="text-xs text-white/50 mb-1">Coverage Rate</p>
+                    <p className="text-xs text-gray-400 mb-1">Coverage Rate</p>
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full ${
-                            category.coverageRate < 50 ? 'bg-yellow-500' : 'bg-[#22c55e]'
+                            category.coverageRate < 50 ? 'bg-yellow-500' : 'bg-[#005028]'
                           }`}
                           style={{ width: `${category.coverageRate}%` }}
                         />
@@ -281,7 +281,7 @@ const CurriculumAnalysisPage = () => {
                     </div>
                   </div>
                   <div>
-                    <p className="text-xs text-white/50 mb-1">Assessments</p>
+                    <p className="text-xs text-gray-400 mb-1">Assessments</p>
                     <p className="text-sm font-medium">{category.assessments}</p>
                   </div>
                 </div>
@@ -301,7 +301,7 @@ const CurriculumAnalysisPage = () => {
         </div>
 
         {/* Recommendations */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-bold mb-4">Curriculum Recommendations</h3>
           <div className="space-y-3">
             {analysis.gaps.length > 0 ? (
@@ -313,7 +313,7 @@ const CurriculumAnalysisPage = () => {
                   <p className="text-sm text-yellow-400 font-medium mb-1">
                     Focus Area: {gap.category}
                   </p>
-                  <p className="text-xs text-white/60">
+                  <p className="text-xs text-gray-500">
                     {gap.avgLevel < 2.5
                       ? `Increase training time for ${gap.category.toLowerCase()} skills. Consider additional drills and exercises.`
                       : `Expand assessment coverage for ${gap.category.toLowerCase()}. Only ${gap.coverageRate}% of players assessed.`}
@@ -321,19 +321,19 @@ const CurriculumAnalysisPage = () => {
                 </div>
               ))
             ) : (
-              <div className="p-3 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-lg">
-                <p className="text-sm text-[#4ade80]">
+              <div className="p-3 bg-[#005028]/10 border border-[#00A651]/30 rounded-lg">
+                <p className="text-sm text-[#00A651]">
                   All skill areas are well covered with good progress!
                 </p>
               </div>
             )}
 
             {analysis.strengths.length > 0 && (
-              <div className="p-3 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-lg">
-                <p className="text-sm text-[#4ade80] font-medium mb-1">
+              <div className="p-3 bg-[#005028]/10 border border-[#00A651]/30 rounded-lg">
+                <p className="text-sm text-[#00A651] font-medium mb-1">
                   Club Strengths
                 </p>
-                <p className="text-xs text-white/60">
+                <p className="text-xs text-gray-500">
                   Strong performance in: {analysis.strengths.map(s => s.category).join(', ')}
                 </p>
               </div>

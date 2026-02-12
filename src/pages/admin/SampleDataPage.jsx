@@ -826,16 +826,16 @@ const SampleDataPage = () => {
         )}
 
         {/* Data Statistics */}
-        <div className="bg-[#0d5943] rounded-xl p-6 border border-[#1a8a68]/30">
+        <div className="bg-white rounded-xl p-6 border border-[#D4E4D4]/30">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold flex items-center gap-2">
-              <Shield className="text-[#4ade80]" size={20} />
+              <Shield className="text-[#00A651]" size={20} />
               Current Data Status
             </h2>
             <button
               onClick={fetchDataStats}
               disabled={isLoading}
-              className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+              className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
             >
               <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
             </button>
@@ -855,7 +855,7 @@ const SampleDataPage = () => {
           <button
             onClick={handlePopulateData}
             disabled={isLoading}
-            className="flex items-center justify-center gap-3 p-5 bg-gradient-to-br from-[#22c55e] to-[#1a8a68] hover:from-[#1a8a68] hover:to-[#0d5943] disabled:from-gray-600 disabled:to-gray-700 rounded-xl font-bold transition-all shadow-lg"
+            className="flex items-center justify-center gap-3 p-5 bg-gradient-to-br from-[#00A651] to-[#00A651] hover:from-[#005028] hover:to-[#003018] disabled:from-gray-600 disabled:to-gray-700 rounded-xl font-bold transition-all shadow-lg"
           >
             {isLoading ? (
               <Loader2 className="animate-spin" size={22} />
@@ -908,16 +908,16 @@ const SampleDataPage = () => {
         )}
 
         {/* What Gets Created */}
-        <div className="bg-[#0d5943] rounded-xl p-6 border border-[#1a8a68]/30">
+        <div className="bg-white rounded-xl p-6 border border-[#D4E4D4]/30">
           <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <Info className="text-[#4ade80]" size={20} />
+            <Info className="text-[#00A651]" size={20} />
             What Gets Created
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="bg-white/5 rounded-lg p-4">
-              <h3 className="font-bold text-[#4ade80] mb-2">Teams (5)</h3>
-              <ul className="text-white/70 space-y-1">
+            <div className="bg-gray-100 rounded-lg p-4">
+              <h3 className="font-bold text-[#00A651] mb-2">Teams (5)</h3>
+              <ul className="text-gray-600 space-y-1">
                 <li>• Lakers U8 (u8-u10 age group)</li>
                 <li>• Lakers U10 (u8-u10 age group)</li>
                 <li>• Lakers U12 (u12-u14 age group)</li>
@@ -926,9 +926,9 @@ const SampleDataPage = () => {
               </ul>
             </div>
 
-            <div className="bg-white/5 rounded-lg p-4">
-              <h3 className="font-bold text-[#4ade80] mb-2">Players (26)</h3>
-              <ul className="text-white/70 space-y-1">
+            <div className="bg-gray-100 rounded-lg p-4">
+              <h3 className="font-bold text-[#00A651] mb-2">Players (26)</h3>
+              <ul className="text-gray-600 space-y-1">
                 <li>• 5 players per team (6 for U12)</li>
                 <li>• Australian names</li>
                 <li>• Proper positions and numbers</li>
@@ -936,9 +936,9 @@ const SampleDataPage = () => {
               </ul>
             </div>
 
-            <div className="bg-white/5 rounded-lg p-4">
-              <h3 className="font-bold text-[#4ade80] mb-2">Games (15)</h3>
-              <ul className="text-white/70 space-y-1">
+            <div className="bg-gray-100 rounded-lg p-4">
+              <h3 className="font-bold text-[#00A651] mb-2">Games (15)</h3>
+              <ul className="text-gray-600 space-y-1">
                 <li>• 3 games per team</li>
                 <li>• Future dates (next 4 weeks)</li>
                 <li>• Realistic opponents</li>
@@ -946,9 +946,9 @@ const SampleDataPage = () => {
               </ul>
             </div>
 
-            <div className="bg-white/5 rounded-lg p-4">
-              <h3 className="font-bold text-[#4ade80] mb-2">Scoring Assignments (8)</h3>
-              <ul className="text-white/70 space-y-1">
+            <div className="bg-gray-100 rounded-lg p-4">
+              <h3 className="font-bold text-[#00A651] mb-2">Scoring Assignments (8)</h3>
+              <ul className="text-gray-600 space-y-1">
                 <li>• 2 confirmed assignments</li>
                 <li>• 3 pending assignments</li>
                 <li>• 3 unassigned slots</li>
@@ -959,33 +959,33 @@ const SampleDataPage = () => {
         </div>
 
         {/* Test Credentials */}
-        <div className="bg-[#0d5943] rounded-xl p-6 border border-[#1a8a68]/30">
+        <div className="bg-white rounded-xl p-6 border border-[#D4E4D4]/30">
           <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <UserCheck className="text-[#4ade80]" size={20} />
+            <UserCheck className="text-[#00A651]" size={20} />
             Test Parent Credentials
           </h2>
-          <p className="text-white/60 text-sm mb-4">
+          <p className="text-gray-500 text-sm mb-4">
             Use these credentials to log in as a parent and test notifications, scoring duties, and swap requests.
             <br />
-            <strong className="text-white">Default password for all: Parent123!</strong>
+            <strong className="text-gray-800">Default password for all: Parent123!</strong>
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {testCredentials.map((cred, idx) => (
               <div
                 key={idx}
-                className="bg-white/5 rounded-lg p-3 flex items-center justify-between"
+                className="bg-gray-100 rounded-lg p-3 flex items-center justify-between"
               >
                 <div>
                   <p className="font-medium text-sm">{cred.name}</p>
-                  <p className="text-xs text-white/60">{cred.email}</p>
+                  <p className="text-xs text-gray-500">{cred.email}</p>
                 </div>
                 <button
                   onClick={() => handleCopyCredentials(cred.email)}
                   className={`p-2 rounded-lg transition-colors ${
                     copiedCredential === cred.email
-                      ? 'bg-[#22c55e] text-white'
-                      : 'bg-white/10 hover:bg-white/20'
+                      ? 'bg-[#005028] text-white'
+                      : 'bg-gray-100 hover:bg-gray-200'
                   }`}
                 >
                   {copiedCredential === cred.email ? (
@@ -1006,30 +1006,30 @@ const SampleDataPage = () => {
         </div>
 
         {/* Quick Links */}
-        <div className="bg-[#0d5943] rounded-xl p-6 border border-[#1a8a68]/30">
+        <div className="bg-white rounded-xl p-6 border border-[#D4E4D4]/30">
           <h2 className="text-lg font-bold mb-4">Quick Links</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <button
               onClick={() => navigate('/admin/notifications')}
-              className="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-sm font-medium transition-colors"
+              className="p-3 bg-gray-100 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
             >
               Notifications
             </button>
             <button
               onClick={() => navigate('/admin/schedule')}
-              className="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-sm font-medium transition-colors"
+              className="p-3 bg-gray-100 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
             >
               Schedule
             </button>
             <button
               onClick={() => navigate('/admin/rosters')}
-              className="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-sm font-medium transition-colors"
+              className="p-3 bg-gray-100 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
             >
               Rosters
             </button>
             <button
               onClick={() => navigate('/admin/game-results')}
-              className="p-3 bg-white/5 hover:bg-white/10 rounded-lg text-sm font-medium transition-colors"
+              className="p-3 bg-gray-100 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
             >
               Game Results
             </button>
@@ -1042,10 +1042,10 @@ const SampleDataPage = () => {
 
 // Stat Card Component
 const StatCard = ({ icon: Icon, label, value, color }) => (
-  <div className="bg-white/5 rounded-lg p-3 text-center">
+  <div className="bg-gray-100 rounded-lg p-3 text-center">
     <Icon className={`${color} mx-auto mb-1`} size={20} />
     <p className="text-2xl font-bold">{value}</p>
-    <p className="text-xs text-white/60">{label}</p>
+    <p className="text-xs text-gray-500">{label}</p>
   </div>
 );
 

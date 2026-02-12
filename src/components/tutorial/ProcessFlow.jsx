@@ -14,7 +14,7 @@ import * as Icons from 'lucide-react';
  *   vertical    - Force vertical on all screens (default: false; auto-vertical on mobile)
  */
 
-const DEFAULT_COLOR = '#4ade80';
+const DEFAULT_COLOR = '#00A651';
 
 const ProcessFlow = ({ steps = [], title, description, vertical = false }) => {
   /** Resolve a lucide-react icon by name, fallback to Circle */
@@ -27,12 +27,12 @@ const ProcessFlow = ({ steps = [], title, description, vertical = false }) => {
 
   return (
     <div className="space-y-2">
-      {title && <p className="text-xs text-[#4ade80] font-semibold">{title}</p>}
-      {description && <p className="text-white/70 text-xs">{description}</p>}
+      {title && <p className="text-xs text-[#00A651] font-semibold">{title}</p>}
+      {description && <p className="text-gray-600 text-xs">{description}</p>}
 
       {/* Horizontal layout for larger screens (unless forced vertical) */}
       {!vertical && (
-        <div className="hidden sm:block bg-[#0a3d2e] border-2 border-dashed border-[#1a8a68] rounded-xl p-4 overflow-x-auto">
+        <div className="hidden sm:block bg-[#F5F9F5] border-2 border-dashed border-[#D4E4D4] rounded-xl p-4 overflow-x-auto">
           <div className="flex items-start justify-center gap-0 min-w-fit">
             {steps.map((step, i) => {
               const StepIcon = getIcon(step.icon);
@@ -60,11 +60,11 @@ const ProcessFlow = ({ steps = [], title, description, vertical = false }) => {
                         <StepIcon className="w-5 h-5" style={{ color: step.completed ? color : `${color}90` }} />
                       )}
                     </div>
-                    <span className="text-[10px] text-white font-medium text-center leading-tight max-w-[80px]">
+                    <span className="text-[10px] text-gray-800 font-medium text-center leading-tight max-w-[80px]">
                       {step.label}
                     </span>
                     {step.description && (
-                      <span className="text-[9px] text-white/50 text-center leading-tight max-w-[80px]">
+                      <span className="text-[9px] text-gray-400 text-center leading-tight max-w-[80px]">
                         {step.description}
                       </span>
                     )}
@@ -73,7 +73,7 @@ const ProcessFlow = ({ steps = [], title, description, vertical = false }) => {
                   {/* Connector line */}
                   {!isLast && (
                     <div className="flex items-center flex-shrink-0 mt-[20px]">
-                      <div className="w-8 h-0.5 bg-[#4ade80]/30 relative">
+                      <div className="w-8 h-0.5 bg-[#00A651]/30 relative">
                         <div
                           className="absolute right-0 top-1/2 -translate-y-1/2"
                           style={{
@@ -95,7 +95,7 @@ const ProcessFlow = ({ steps = [], title, description, vertical = false }) => {
       )}
 
       {/* Vertical layout (always on mobile, or when forced) */}
-      <div className={`${vertical ? 'block' : 'sm:hidden'} bg-[#0a3d2e] border-2 border-dashed border-[#1a8a68] rounded-xl p-4`}>
+      <div className={`${vertical ? 'block' : 'sm:hidden'} bg-[#F5F9F5] border-2 border-dashed border-[#D4E4D4] rounded-xl p-4`}>
         <div className="flex flex-col items-start gap-0">
           {steps.map((step, i) => {
             const StepIcon = getIcon(step.icon);
@@ -124,13 +124,13 @@ const ProcessFlow = ({ steps = [], title, description, vertical = false }) => {
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs text-white font-medium">{step.label}</p>
+                    <p className="text-xs text-gray-800 font-medium">{step.label}</p>
                     {step.description && (
-                      <p className="text-[10px] text-white/50 leading-tight mt-0.5">{step.description}</p>
+                      <p className="text-[10px] text-gray-400 leading-tight mt-0.5">{step.description}</p>
                     )}
                   </div>
                   {/* Step number */}
-                  <span className="text-[10px] text-white/30 font-mono flex-shrink-0">
+                  <span className="text-[10px] text-gray-800/30 font-mono flex-shrink-0">
                     {i + 1}/{steps.length}
                   </span>
                 </div>

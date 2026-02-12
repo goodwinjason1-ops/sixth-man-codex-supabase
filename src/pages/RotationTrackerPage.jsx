@@ -818,12 +818,12 @@ const RotationTrackerPage = () => {
       <PageShell backTo="/coach" title="Rotation Tracker" subtitle="Track player rotations during games">
         <div className="space-y-6">
           {/* Team Selector */}
-          <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-            <label className="block text-sm font-medium text-white/80 mb-2">Select Team</label>
+          <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Select Team</label>
             <select
               value={selectedTeamId}
               onChange={(e) => setSelectedTeamId(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg focus:ring-2 focus:ring-[#22c55e] focus:border-transparent"
+              className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg focus:ring-2 focus:ring-[#00A651] focus:border-transparent"
             >
               <option value="">Choose a team...</option>
               {coachTeams.map(t => (
@@ -833,10 +833,10 @@ const RotationTrackerPage = () => {
           </div>
 
           {/* Opponent + Game Settings */}
-          <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-            <label className="block text-sm font-medium text-white/80 mb-2">Opponent</label>
+          <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Opponent</label>
             {primaryGame && (
-              <p className="text-xs text-[#4ade80] mb-2 flex items-center gap-1">
+              <p className="text-xs text-[#00A651] mb-2 flex items-center gap-1">
                 <Info className="w-3 h-3" /> Auto-detected from today's schedule
               </p>
             )}
@@ -845,9 +845,9 @@ const RotationTrackerPage = () => {
               value={opponent}
               onChange={(e) => setOpponent(e.target.value)}
               placeholder="Enter opponent name..."
-              className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg focus:ring-2 focus:ring-[#22c55e] focus:border-transparent placeholder:text-white/30 mb-4"
+              className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg focus:ring-2 focus:ring-[#00A651] focus:border-transparent placeholder:text-gray-800/30 mb-4"
             />
-            <label className="block text-sm font-medium text-white/80 mb-2">Quarter Length</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Quarter Length</label>
             <div className="flex gap-2">
               {QUARTER_LENGTH_OPTIONS.map(mins => (
                 <button
@@ -855,8 +855,8 @@ const RotationTrackerPage = () => {
                   onClick={() => { setQuarterLengthMins(mins); setRotationPlan(null); }}
                   className={`flex-1 py-2.5 rounded-lg font-bold text-sm transition-all ${
                     quarterLengthMins === mins
-                      ? 'bg-[#22c55e] text-[#0a3d2e]'
-                      : 'bg-[#0a3d2e] text-white/60 border border-[#1a8a68] hover:border-[#22c55e]/50'
+                      ? 'bg-[#005028] text-white'
+                      : 'bg-[#F5F9F5] text-gray-500 border border-[#D4E4D4] hover:border-[#00A651]/50'
                   }`}
                 >
                   {mins} min
@@ -867,15 +867,15 @@ const RotationTrackerPage = () => {
 
           {/* First Half Starting 5 */}
           {selectedTeamId && (
-            <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
+            <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-white">
+                <h3 className="font-semibold text-gray-800">
                   {roster.length > COURT_SIZE ? 'First Half Starting 5' : 'Select Starting 5'}
                 </h3>
                 <span className={`text-sm font-medium px-3 py-1 rounded-full ${
                   starters.size === COURT_SIZE
-                    ? 'bg-[#22c55e] text-[#0a3d2e]'
-                    : 'bg-[#0a3d2e] text-white/60 border border-[#1a8a68]'
+                    ? 'bg-[#005028] text-white'
+                    : 'bg-[#F5F9F5] text-gray-500 border border-[#D4E4D4]'
                 }`}>
                   {starters.size}/{Math.min(COURT_SIZE, roster.length)}
                 </span>
@@ -898,18 +898,18 @@ const RotationTrackerPage = () => {
 
           {/* Second Half Starting 5 */}
           {showSecondHalf && (
-            <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
+            <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-white">Second Half Starting 5</h3>
+                <h3 className="font-semibold text-gray-800">Second Half Starting 5</h3>
                 <span className={`text-sm font-medium px-3 py-1 rounded-full ${
                   secondHalfStarters.size === COURT_SIZE
-                    ? 'bg-[#22c55e] text-[#0a3d2e]'
-                    : 'bg-[#0a3d2e] text-white/60 border border-[#1a8a68]'
+                    ? 'bg-[#005028] text-white'
+                    : 'bg-[#F5F9F5] text-gray-500 border border-[#D4E4D4]'
                 }`}>
                   {secondHalfStarters.size}/{COURT_SIZE}
                 </span>
               </div>
-              <p className="text-xs text-white/40 mb-3">
+              <p className="text-xs text-gray-400 mb-3">
                 Auto-suggested: bench players from first half. Tap to adjust.
               </p>
               <RosterGrid roster={roster} selected={secondHalfStarters} onToggle={toggleSecondHalfStarter} maxSelect={COURT_SIZE} />
@@ -918,12 +918,12 @@ const RotationTrackerPage = () => {
 
           {/* Plan Generation */}
           {showPlanSection && (
-            <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
+            <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
               <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="w-5 h-5 text-[#4ade80]" />
-                <h3 className="font-semibold text-white">Auto-Rotation Plan</h3>
+                <Sparkles className="w-5 h-5 text-[#00A651]" />
+                <h3 className="font-semibold text-gray-800">Auto-Rotation Plan</h3>
               </div>
-              <p className="text-xs text-white/50 mb-4">
+              <p className="text-xs text-gray-400 mb-4">
                 Generate a fair rotation schedule. This is a suggestion — you can always make manual changes during the game.
               </p>
 
@@ -931,7 +931,7 @@ const RotationTrackerPage = () => {
                 <button
                   onClick={handleGeneratePlan}
                   disabled={!canGeneratePlan}
-                  className="w-full py-3 bg-[#22c55e]/20 border-2 border-dashed border-[#22c55e] text-[#4ade80] rounded-xl font-bold hover:bg-[#22c55e]/30 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-[#005028]/20 border-2 border-dashed border-[#00A651] text-[#00A651] rounded-xl font-bold hover:bg-[#00A651]/30 transition-all flex items-center justify-center gap-2"
                 >
                   <Sparkles className="w-5 h-5" />
                   Generate Rotation Plan
@@ -939,11 +939,11 @@ const RotationTrackerPage = () => {
               ) : (
                 <div className="space-y-3">
                   {/* Fair share info */}
-                  <div className="flex items-center gap-2 p-3 bg-[#0a3d2e] border border-[#1a8a68]/50 rounded-lg text-sm">
-                    <Clock className="w-4 h-4 text-[#4ade80]" />
-                    <span className="text-white/80">
-                      Fair share: <span className="text-[#4ade80] font-bold">{formatTime(rotationPlan.fairShareSeconds)}</span> per player
-                      <span className="text-white/40 ml-1">({roster.length} players, {quarterLengthMins * 4} min game)</span>
+                  <div className="flex items-center gap-2 p-3 bg-[#F5F9F5] border border-[#D4E4D4]/50 rounded-lg text-sm">
+                    <Clock className="w-4 h-4 text-[#00A651]" />
+                    <span className="text-gray-700">
+                      Fair share: <span className="text-[#00A651] font-bold">{formatTime(rotationPlan.fairShareSeconds)}</span> per player
+                      <span className="text-gray-400 ml-1">({roster.length} players, {quarterLengthMins * 4} min game)</span>
                     </span>
                   </div>
 
@@ -954,7 +954,7 @@ const RotationTrackerPage = () => {
 
                   <button
                     onClick={() => setRotationPlan(null)}
-                    className="w-full py-2 text-white/40 hover:text-white/60 text-sm transition-colors"
+                    className="w-full py-2 text-gray-400 hover:text-gray-500 text-sm transition-colors"
                   >
                     Regenerate Plan
                   </button>
@@ -971,8 +971,8 @@ const RotationTrackerPage = () => {
                 disabled={!canStart || !opponent.trim()}
                 className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
                   canStart && opponent.trim()
-                    ? 'bg-[#22c55e] text-[#0a3d2e] hover:bg-[#4ade80] active:scale-[0.98]'
-                    : 'bg-[#1a8a68]/30 text-white/30 cursor-not-allowed'
+                    ? 'bg-[#005028] text-white hover:bg-[#00A651] active:scale-[0.98]'
+                    : 'bg-[#D4E4D4]/30 text-gray-800/30 cursor-not-allowed'
                 }`}
               >
                 <ListOrdered className="w-5 h-5" />
@@ -985,9 +985,9 @@ const RotationTrackerPage = () => {
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
                 canStart && opponent.trim()
                   ? rotationPlan
-                    ? 'bg-[#0d5943] border-2 border-[#1a8a68] text-white hover:border-[#22c55e]'
-                    : 'bg-[#22c55e] text-[#0a3d2e] hover:bg-[#4ade80] active:scale-[0.98]'
-                  : 'bg-[#1a8a68]/30 text-white/30 cursor-not-allowed'
+                    ? 'bg-white border-2 border-[#D4E4D4] text-gray-800 hover:border-[#00A651]'
+                    : 'bg-[#005028] text-white hover:bg-[#00A651] active:scale-[0.98]'
+                  : 'bg-[#D4E4D4]/30 text-gray-800/30 cursor-not-allowed'
               }`}
             >
               {rotationPlan ? 'Start Game (Manual)' : 'Start Game'}
@@ -1008,18 +1008,18 @@ const RotationTrackerPage = () => {
     const isQ4Done = currentQuarter >= 3; // after Q4
 
     return (
-      <div className="min-h-screen bg-[#0a3d2e] text-white flex flex-col">
+      <div className="min-h-screen bg-[#F5F9F5] text-gray-800 flex flex-col">
         {/* ── Header Bar ── */}
-        <div className="bg-[#0d5943] border-b border-[#1a8a68] px-4 py-3 flex items-center justify-between">
+        <div className="bg-white border-b border-[#D4E4D4] px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="bg-[#22c55e] text-[#0a3d2e] font-bold text-sm px-3 py-1 rounded-full">
+            <span className="bg-[#005028] text-white font-bold text-sm px-3 py-1 rounded-full">
               {qLabel}
             </span>
-            <span className="text-white/80 text-sm truncate">vs {opponent}</span>
+            <span className="text-gray-700 text-sm truncate">vs {opponent}</span>
           </div>
           <div className="flex items-center gap-1 text-xs">
             {isOnline ? (
-              <><Wifi className="w-3 h-3 text-[#4ade80]" /><span className="text-[#4ade80]">Online</span></>
+              <><Wifi className="w-3 h-3 text-[#00A651]" /><span className="text-[#00A651]">Online</span></>
             ) : (
               <><WifiOff className="w-3 h-3 text-yellow-400" /><span className="text-yellow-400">Offline</span></>
             )}
@@ -1028,10 +1028,10 @@ const RotationTrackerPage = () => {
 
         {/* ── Game Clock ── */}
         <div className="text-center py-6 px-4">
-          <div className="text-6xl font-mono font-bold text-white tracking-wider mb-4">
+          <div className="text-6xl font-mono font-bold text-gray-800 tracking-wider mb-4">
             {formatTime(quarterSeconds)}
           </div>
-          <div className="text-sm text-white/50 mb-4">
+          <div className="text-sm text-gray-400 mb-4">
             Game Total: {formatTime(totalGameSeconds)}
           </div>
           <button
@@ -1039,13 +1039,13 @@ const RotationTrackerPage = () => {
             className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto transition-all active:scale-95 ${
               isRunning
                 ? 'bg-yellow-500 hover:bg-yellow-400'
-                : 'bg-[#22c55e] hover:bg-[#4ade80]'
+                : 'bg-[#005028] hover:bg-[#00A651]'
             }`}
           >
             {isRunning ? (
-              <Pause className="w-10 h-10 text-white" />
+              <Pause className="w-10 h-10 text-gray-800" />
             ) : (
-              <Play className="w-10 h-10 text-white ml-1" />
+              <Play className="w-10 h-10 text-gray-800 ml-1" />
             )}
           </button>
         </div>
@@ -1058,10 +1058,10 @@ const RotationTrackerPage = () => {
                 key={q}
                 className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${
                   i === currentQuarter
-                    ? 'bg-[#22c55e] text-[#0a3d2e]'
+                    ? 'bg-[#005028] text-white'
                     : i < currentQuarter
-                      ? 'bg-[#1a8a68]/40 text-white/40'
-                      : 'bg-[#0a3d2e] text-white/20 border border-[#1a8a68]/30'
+                      ? 'bg-[#D4E4D4]/40 text-gray-400'
+                      : 'bg-[#F5F9F5] text-gray-800/20 border border-[#D4E4D4]/30'
                 }`}
               >
                 {q}
@@ -1073,7 +1073,7 @@ const RotationTrackerPage = () => {
               {!isLastQuarter && (
                 <button
                   onClick={() => setShowNextQConfirm(true)}
-                  className="px-3 py-1.5 bg-[#1a8a68] hover:bg-[#22c55e] text-white text-sm rounded-lg font-medium transition-colors flex items-center gap-1"
+                  className="px-3 py-1.5 bg-[#D4E4D4] hover:bg-[#00A651] text-white text-sm rounded-lg font-medium transition-colors flex items-center gap-1"
                 >
                   Next <ChevronRight className="w-4 h-4" />
                 </button>
@@ -1108,7 +1108,7 @@ const RotationTrackerPage = () => {
               <span className={`font-bold ${isBehindSchedule ? 'text-orange-400' : 'text-blue-400'}`}>
                 SUB DUE{isBehindSchedule ? ` (${Math.floor(quarterSeconds - currentPlanAlert.time)}s overdue)` : ''}:
               </span>{' '}
-              <span className="text-white">{currentPlanAlert.outName} OFF → {currentPlanAlert.inName} ON</span>
+              <span className="text-gray-800">{currentPlanAlert.outName} OFF → {currentPlanAlert.inName} ON</span>
               {isBehindSchedule && (
                 <span className="text-orange-300 text-xs block mt-0.5">
                   {currentPlanAlert.outName} has extra time on court
@@ -1118,13 +1118,13 @@ const RotationTrackerPage = () => {
             <div className="flex gap-1.5 flex-shrink-0">
               <button
                 onClick={() => handlePlanSubNow(currentPlanAlert)}
-                className="px-3 py-1.5 bg-[#22c55e] text-[#0a3d2e] rounded-lg text-xs font-bold"
+                className="px-3 py-1.5 bg-[#005028] text-white rounded-lg text-xs font-bold"
               >
                 Sub Now
               </button>
               <button
                 onClick={() => handlePlanSubDismiss(currentPlanAlert)}
-                className="px-3 py-1.5 bg-white/10 text-white/60 rounded-lg text-xs font-medium"
+                className="px-3 py-1.5 bg-gray-100 text-gray-500 rounded-lg text-xs font-medium"
               >
                 Skip
               </button>
@@ -1138,10 +1138,10 @@ const RotationTrackerPage = () => {
             <ArrowRightLeft className="w-5 h-5 text-yellow-400 flex-shrink-0" />
             <div className="flex-1 text-sm">
               <span className="text-yellow-400 font-medium">Sub suggestion: </span>
-              <span className="text-white/80">
+              <span className="text-gray-700">
                 {playerStats[subSuggestion.outId]?.name} OUT → {playerStats[subSuggestion.inId]?.name} IN
               </span>
-              <span className="text-white/40 ml-1">({formatTime(subSuggestion.diff)} gap)</span>
+              <span className="text-gray-400 ml-1">({formatTime(subSuggestion.diff)} gap)</span>
             </div>
           </div>
         )}
@@ -1169,7 +1169,7 @@ const RotationTrackerPage = () => {
 
         {/* ── Court Area (2-1-2 formation) ── */}
         <div className="px-4 mb-4">
-          <h3 className="text-xs text-white/40 uppercase tracking-wider mb-3 text-center">On Court</h3>
+          <h3 className="text-xs text-gray-400 uppercase tracking-wider mb-3 text-center">On Court</h3>
           <div className="flex flex-col items-center gap-3">
             {/* Row 1: 2 players */}
             <div className="flex gap-3 justify-center">
@@ -1222,7 +1222,7 @@ const RotationTrackerPage = () => {
         {/* ── Bench Area ── */}
         {bench.length > 0 && (
           <div className="px-4 pb-6 flex-1">
-            <h3 className="text-xs text-white/40 uppercase tracking-wider mb-3">Bench</h3>
+            <h3 className="text-xs text-gray-400 uppercase tracking-wider mb-3">Bench</h3>
             <div className="flex gap-2 overflow-x-auto pb-2">
               {bench.map(pid => (
                 <BenchPlayerChip
@@ -1243,22 +1243,22 @@ const RotationTrackerPage = () => {
           <div className="px-4 pb-4">
             <button
               onClick={() => setShowPlanPanel(prev => !prev)}
-              className="w-full flex items-center justify-between p-3 bg-[#0d5943] border border-[#1a8a68] rounded-xl text-sm"
+              className="w-full flex items-center justify-between p-3 bg-white border border-[#D4E4D4] rounded-xl text-sm"
             >
               <div className="flex items-center gap-2">
-                <ListOrdered className="w-4 h-4 text-[#4ade80]" />
-                <span className="text-white font-medium">Rotation Plan</span>
+                <ListOrdered className="w-4 h-4 text-[#00A651]" />
+                <span className="text-gray-800 font-medium">Rotation Plan</span>
                 {nextPlannedSub && !currentPlanAlert && (
-                  <span className="text-white/40 text-xs">
+                  <span className="text-gray-400 text-xs">
                     Next: {formatTime(nextPlannedSub.time)} — {nextPlannedSub.outName} → {nextPlannedSub.inName}
                   </span>
                 )}
               </div>
-              {showPlanPanel ? <ChevronUp className="w-4 h-4 text-white/40" /> : <ChevronDown className="w-4 h-4 text-white/40" />}
+              {showPlanPanel ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
             </button>
             {showPlanPanel && (
-              <div className="mt-2 bg-[#0d5943] border border-[#1a8a68] rounded-xl p-3 space-y-1.5 max-h-48 overflow-y-auto">
-                <p className="text-[10px] text-white/30 mb-1">Suggested rotation — tap to make manual changes anytime</p>
+              <div className="mt-2 bg-white border border-[#D4E4D4] rounded-xl p-3 space-y-1.5 max-h-48 overflow-y-auto">
+                <p className="text-[10px] text-gray-800/30 mb-1">Suggested rotation — tap to make manual changes anytime</p>
                 {rotationPlan.quarters[qLabel]?.subs.map((sub, i) => {
                   const status = planSubStatus[qLabel]?.[i] || 'pending';
                   const isDue = quarterSeconds >= sub.time && status === 'pending';
@@ -1269,17 +1269,17 @@ const RotationTrackerPage = () => {
                         status === 'done' ? 'bg-green-900/20 opacity-50' :
                         status === 'dismissed' ? 'opacity-20 line-through' :
                         isDue ? 'bg-blue-900/30 border border-blue-500/50' :
-                        'bg-[#0a3d2e]/50'
+                        'bg-[#F5F9F5]/50'
                       }`}
                     >
                       {status === 'done' && <Check className="w-3 h-3 text-green-400 flex-shrink-0" />}
-                      <span className="text-[#4ade80] font-mono w-10 flex-shrink-0">{formatTime(sub.time)}</span>
-                      <span className="text-white/80">{sub.outName} OFF → {sub.inName} ON</span>
+                      <span className="text-[#00A651] font-mono w-10 flex-shrink-0">{formatTime(sub.time)}</span>
+                      <span className="text-gray-700">{sub.outName} OFF → {sub.inName} ON</span>
                     </div>
                   );
                 })}
                 {(!rotationPlan.quarters[qLabel]?.subs || rotationPlan.quarters[qLabel].subs.length === 0) && (
-                  <p className="text-white/30 text-xs">No subs planned for this quarter</p>
+                  <p className="text-gray-800/30 text-xs">No subs planned for this quarter</p>
                 )}
               </div>
             )}
@@ -1323,30 +1323,30 @@ const RotationTrackerPage = () => {
     <PageShell backTo="/coach" title="Game Summary" subtitle={`vs ${opponent}`}>
       <div className="space-y-6">
         {/* Game Info Card */}
-        <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
+        <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-white/50">Team</span>
-              <p className="text-white font-medium">{selectedTeam?.name || selectedTeam?.teamName || '—'}</p>
+              <span className="text-gray-400">Team</span>
+              <p className="text-gray-800 font-medium">{selectedTeam?.name || selectedTeam?.teamName || '—'}</p>
             </div>
             <div>
-              <span className="text-white/50">Opponent</span>
-              <p className="text-white font-medium">{opponent}</p>
+              <span className="text-gray-400">Opponent</span>
+              <p className="text-gray-800 font-medium">{opponent}</p>
             </div>
             <div>
-              <span className="text-white/50">Date</span>
-              <p className="text-white font-medium">{new Date().toLocaleDateString('en-AU')}</p>
+              <span className="text-gray-400">Date</span>
+              <p className="text-gray-800 font-medium">{new Date().toLocaleDateString('en-AU')}</p>
             </div>
             <div>
-              <span className="text-white/50">Total Time</span>
-              <p className="text-white font-medium">{formatTime(totalGameSeconds)}</p>
+              <span className="text-gray-400">Total Time</span>
+              <p className="text-gray-800 font-medium">{formatTime(totalGameSeconds)}</p>
             </div>
             <div>
-              <span className="text-white/50">Quarters</span>
-              <p className="text-white font-medium">{Object.keys(completedQuarters).length}</p>
+              <span className="text-gray-400">Quarters</span>
+              <p className="text-gray-800 font-medium">{Object.keys(completedQuarters).length}</p>
             </div>
             <div>
-              <span className="text-white/50">Fairness</span>
+              <span className="text-gray-400">Fairness</span>
               <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${
                 fairness.label === 'Excellent' ? 'bg-green-600 text-white' :
                 fairness.label === 'Good' ? 'bg-yellow-600 text-white' :
@@ -1359,9 +1359,9 @@ const RotationTrackerPage = () => {
         </div>
 
         {/* Player Breakdown */}
-        <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-[#4ade80]" />
+        <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
+          <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-[#00A651]" />
             Player Playing Time
           </h3>
           <div className="space-y-3">
@@ -1370,19 +1370,19 @@ const RotationTrackerPage = () => {
               const deviation = avgTime > 0 ? Math.abs(ps.totalSeconds - avgTime) / avgTime : 0;
               const status = getFairnessStatus(deviation);
               return (
-                <div key={pid} className="bg-[#0a3d2e] border border-[#1a8a68]/50 rounded-lg p-3">
+                <div key={pid} className="bg-[#F5F9F5] border border-[#D4E4D4]/50 rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-[#4ade80] font-bold text-xs">#{ps.number}</span>
-                      <span className="text-white font-medium text-sm">{ps.name}</span>
+                      <span className="text-[#00A651] font-bold text-xs">#{ps.number}</span>
+                      <span className="text-gray-800 font-medium text-sm">{ps.name}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-white text-sm font-mono">{formatTime(ps.totalSeconds)}</span>
-                      <span className="text-white/40 text-xs">({pct.toFixed(0)}%)</span>
+                      <span className="text-gray-800 text-sm font-mono">{formatTime(ps.totalSeconds)}</span>
+                      <span className="text-gray-400 text-xs">({pct.toFixed(0)}%)</span>
                     </div>
                   </div>
                   {/* Fairness bar */}
-                  <div className="h-3 bg-[#0d5943] rounded-full overflow-hidden">
+                  <div className="h-3 bg-white rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${
                         deviation < 0.15 ? 'bg-green-500' :
@@ -1394,7 +1394,7 @@ const RotationTrackerPage = () => {
                   {/* Quarter breakdown */}
                   <div className="flex gap-2 mt-2 flex-wrap">
                     {allQuarters.map(q => (
-                      <span key={q} className="text-xs text-white/40">
+                      <span key={q} className="text-xs text-gray-400">
                         {q}: {formatTime(ps.quarterSeconds?.[q] || 0)}
                       </span>
                     ))}
@@ -1422,39 +1422,39 @@ const RotationTrackerPage = () => {
           );
 
           return (
-            <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-              <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-                <ListOrdered className="w-5 h-5 text-[#4ade80]" />
+            <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
+              <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <ListOrdered className="w-5 h-5 text-[#00A651]" />
                 Planned vs Actual
               </h3>
 
               {/* Overall fairness comparison */}
-              <div className="flex items-center gap-3 p-3 bg-[#0a3d2e] border border-[#1a8a68]/50 rounded-lg mb-4">
+              <div className="flex items-center gap-3 p-3 bg-[#F5F9F5] border border-[#D4E4D4]/50 rounded-lg mb-4">
                 <div className="flex-1 text-center">
-                  <p className="text-white/40 text-[10px] uppercase tracking-wider">Plan</p>
-                  <p className="text-2xl font-bold text-[#4ade80]">{plannedFairness.score}</p>
-                  <p className="text-white/40 text-[10px]">fairness</p>
+                  <p className="text-gray-400 text-[10px] uppercase tracking-wider">Plan</p>
+                  <p className="text-2xl font-bold text-[#00A651]">{plannedFairness.score}</p>
+                  <p className="text-gray-400 text-[10px]">fairness</p>
                 </div>
-                <div className="text-white/20">→</div>
+                <div className="text-gray-800/20">→</div>
                 <div className="flex-1 text-center">
-                  <p className="text-white/40 text-[10px] uppercase tracking-wider">Actual</p>
+                  <p className="text-gray-400 text-[10px] uppercase tracking-wider">Actual</p>
                   <p className={`text-2xl font-bold ${
-                    fairness.score >= plannedFairness.score - 10 ? 'text-[#4ade80]' :
+                    fairness.score >= plannedFairness.score - 10 ? 'text-[#00A651]' :
                     fairness.score >= plannedFairness.score - 25 ? 'text-yellow-400' : 'text-red-400'
                   }`}>{fairness.score}</p>
-                  <p className="text-white/40 text-[10px]">fairness</p>
+                  <p className="text-gray-400 text-[10px]">fairness</p>
                 </div>
                 <div className="flex-1 text-center">
-                  <p className="text-white/40 text-[10px] uppercase tracking-wider">Change</p>
+                  <p className="text-gray-400 text-[10px] uppercase tracking-wider">Change</p>
                   {(() => {
                     const diff = fairness.score - plannedFairness.score;
                     return (
-                      <p className={`text-2xl font-bold ${diff >= 0 ? 'text-[#4ade80]' : diff > -15 ? 'text-yellow-400' : 'text-red-400'}`}>
+                      <p className={`text-2xl font-bold ${diff >= 0 ? 'text-[#00A651]' : diff > -15 ? 'text-yellow-400' : 'text-red-400'}`}>
                         {diff >= 0 ? '+' : ''}{diff}
                       </p>
                     );
                   })()}
-                  <p className="text-white/40 text-[10px]">points</p>
+                  <p className="text-gray-400 text-[10px]">points</p>
                 </div>
               </div>
 
@@ -1467,9 +1467,9 @@ const RotationTrackerPage = () => {
 
               {/* Side-by-side bar chart */}
               <div className="space-y-3">
-                <div className="flex items-center gap-3 text-[10px] text-white/40 mb-1">
+                <div className="flex items-center gap-3 text-[10px] text-gray-400 mb-1">
                   <span className="flex items-center gap-1"><span className="w-3 h-1.5 bg-blue-500/60 rounded-sm inline-block" /> Planned</span>
-                  <span className="flex items-center gap-1"><span className="w-3 h-1.5 bg-[#22c55e] rounded-sm inline-block" /> Actual</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-1.5 bg-[#005028] rounded-sm inline-block" /> Actual</span>
                 </div>
                 {sortedPlayers.map(([pid, ps]) => {
                   const planned = rotationPlan.plannedTime[pid] || 0;
@@ -1482,27 +1482,27 @@ const RotationTrackerPage = () => {
                     : Math.abs(pctDev) <= 20 ? 'bg-yellow-500' : 'bg-red-500';
 
                   return (
-                    <div key={pid} className="bg-[#0a3d2e] rounded-lg px-3 py-2.5">
+                    <div key={pid} className="bg-[#F5F9F5] rounded-lg px-3 py-2.5">
                       <div className="flex items-center justify-between mb-1.5">
                         <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="text-[#4ade80] font-bold text-xs">#{ps.number}</span>
-                          <span className="text-white font-medium text-xs truncate">{ps.name}</span>
+                          <span className="text-[#00A651] font-bold text-xs">#{ps.number}</span>
+                          <span className="text-gray-800 font-medium text-xs truncate">{ps.name}</span>
                         </div>
                         <span className={`font-mono text-xs font-bold ${devColor}`}>
                           {pctDev >= 0 ? '+' : ''}{pctDev}%
                         </span>
                       </div>
                       {/* Planned bar */}
-                      <div className="h-2 bg-[#0d5943] rounded-full overflow-hidden mb-1">
+                      <div className="h-2 bg-white rounded-full overflow-hidden mb-1">
                         <div className="h-full bg-blue-500/60 rounded-full transition-all"
                           style={{ width: `${(planned / maxBar) * 100}%` }} />
                       </div>
                       {/* Actual bar */}
-                      <div className="h-2 bg-[#0d5943] rounded-full overflow-hidden">
+                      <div className="h-2 bg-white rounded-full overflow-hidden">
                         <div className={`h-full rounded-full transition-all ${barColor}`}
                           style={{ width: `${(actual / maxBar) * 100}%` }} />
                       </div>
-                      <div className="flex justify-between mt-1 text-[10px] text-white/40">
+                      <div className="flex justify-between mt-1 text-[10px] text-gray-400">
                         <span>{formatTime(planned)} planned</span>
                         <span>{formatTime(actual)} actual</span>
                       </div>
@@ -1516,15 +1516,15 @@ const RotationTrackerPage = () => {
 
         {/* Substitution Log */}
         {subsLog.length > 0 && (
-          <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-            <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-              <ArrowRightLeft className="w-5 h-5 text-[#4ade80]" />
+          <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
+            <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <ArrowRightLeft className="w-5 h-5 text-[#00A651]" />
               Substitution Log
             </h3>
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {subsLog.map((sub, i) => (
-                <div key={i} className="flex items-center gap-3 text-sm py-1.5 border-b border-[#1a8a68]/30 last:border-0">
-                  <span className="text-[#4ade80] font-mono text-xs w-16 flex-shrink-0">
+                <div key={i} className="flex items-center gap-3 text-sm py-1.5 border-b border-[#D4E4D4]/30 last:border-0">
+                  <span className="text-[#00A651] font-mono text-xs w-16 flex-shrink-0">
                     {sub.quarter} {formatTime(sub.gameTime)}
                   </span>
                   <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${
@@ -1532,7 +1532,7 @@ const RotationTrackerPage = () => {
                   }`}>
                     {sub.type === 'on' ? 'IN' : 'OUT'}
                   </span>
-                  <span className="text-white/80">{sub.playerName}</span>
+                  <span className="text-gray-700">{sub.playerName}</span>
                 </div>
               ))}
             </div>
@@ -1545,11 +1545,11 @@ const RotationTrackerPage = () => {
             <button
               onClick={handleSaveToFirestore}
               disabled={saving}
-              className="w-full py-4 bg-[#22c55e] text-[#0a3d2e] rounded-xl font-bold text-lg hover:bg-[#4ade80] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-4 bg-[#005028] text-white rounded-xl font-bold text-lg hover:bg-[#00A651] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {saving ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-[#0a3d2e] border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-[#D4E4D4] border-t-transparent rounded-full animate-spin" />
                   Saving...
                 </>
               ) : (
@@ -1560,7 +1560,7 @@ const RotationTrackerPage = () => {
               )}
             </button>
           ) : (
-            <div className="w-full py-4 bg-green-800 border-2 border-[#22c55e] rounded-xl font-bold text-lg text-[#4ade80] text-center flex items-center justify-center gap-2">
+            <div className="w-full py-4 bg-green-800 border-2 border-[#00A651] rounded-xl font-bold text-lg text-[#00A651] text-center flex items-center justify-center gap-2">
               <Check className="w-5 h-5" />
               Saved Successfully
             </div>
@@ -1568,13 +1568,13 @@ const RotationTrackerPage = () => {
           <div className="flex gap-3">
             <button
               onClick={() => navigate('/coach')}
-              className="flex-1 py-3 bg-[#0d5943] border border-[#1a8a68] text-white rounded-xl font-medium hover:bg-[#1a8a68] transition-colors"
+              className="flex-1 py-3 bg-white border border-[#D4E4D4] text-gray-800 rounded-xl font-medium hover:bg-gray-100 transition-colors"
             >
               Back to Dashboard
             </button>
             <button
               onClick={handleNewGame}
-              className="flex-1 py-3 bg-[#0d5943] border border-[#1a8a68] text-white rounded-xl font-medium hover:bg-[#1a8a68] transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-white border border-[#D4E4D4] text-gray-800 rounded-xl font-medium hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
             >
               <RotateCcw className="w-4 h-4" />
               New Game
@@ -1600,26 +1600,26 @@ const CourtPlayerCard = ({ player, playerId, isSelected, isMostPlayed, onTap, de
       onClick={onTap}
       className={`w-36 p-3 rounded-xl border-2 text-center transition-all active:scale-95 relative ${
         isSelected
-          ? 'border-[#22c55e] bg-[#22c55e]/15 shadow-lg shadow-[#22c55e]/20'
+          ? 'border-[#00A651] bg-[#005028]/15 shadow-lg shadow-[#00A651]/20'
           : devBorder
             ? devBorder
             : isMostPlayed
               ? 'border-amber-500/60 bg-amber-900/15'
-              : 'border-[#1a8a68] bg-[#0d5943]'
+              : 'border-[#D4E4D4] bg-white'
       }`}
     >
       {deviation?.badge && (
         <span className={`absolute -top-2 -right-2 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
           deviation.color === 'red' ? 'bg-red-500 text-white'
-          : deviation.color === 'yellow' ? 'bg-yellow-500 text-[#0a3d2e]'
-          : 'bg-[#22c55e] text-[#0a3d2e]'
+          : deviation.color === 'yellow' ? 'bg-yellow-500 text-white'
+          : 'bg-[#005028] text-white'
         }`}>
           {deviation.badge}
         </span>
       )}
-      <div className="text-[#4ade80] font-bold text-xs">#{player.number}</div>
-      <div className="text-white font-semibold text-sm truncate mt-0.5">{player.name}</div>
-      <div className="text-white/80 font-mono text-lg mt-1">{formatTime(player.totalSeconds || 0)}</div>
+      <div className="text-[#00A651] font-bold text-xs">#{player.number}</div>
+      <div className="text-gray-800 font-semibold text-sm truncate mt-0.5">{player.name}</div>
+      <div className="text-gray-700 font-mono text-lg mt-1">{formatTime(player.totalSeconds || 0)}</div>
       {isMostPlayed && !isSelected && !deviation?.badge && (
         <div className="text-amber-400 text-[10px] mt-1 font-medium">Most time</div>
       )}
@@ -1639,24 +1639,24 @@ const BenchPlayerChip = ({ player, playerId, isLeastPlayed, onTap, deviation }) 
         devBorder
           ? devBorder
           : isLeastPlayed
-            ? 'border-[#22c55e]/60 bg-[#22c55e]/10 ring-2 ring-[#22c55e]/30'
-            : 'border-[#1a8a68] bg-[#0d5943]'
+            ? 'border-[#00A651]/60 bg-[#005028]/10 ring-2 ring-[#00A651]/30'
+            : 'border-[#D4E4D4] bg-white'
       }`}
     >
       {deviation?.badge && (
         <span className={`absolute -top-2 -right-2 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
           deviation.color === 'red' ? 'bg-red-500 text-white'
-          : deviation.color === 'yellow' ? 'bg-yellow-500 text-[#0a3d2e]'
-          : 'bg-[#22c55e] text-[#0a3d2e]'
+          : deviation.color === 'yellow' ? 'bg-yellow-500 text-white'
+          : 'bg-[#005028] text-white'
         }`}>
           {deviation.badge}
         </span>
       )}
-      <div className="text-[#4ade80] font-bold text-xs">#{player.number}</div>
-      <div className="text-white font-medium text-sm whitespace-nowrap">{player.name}</div>
-      <div className="text-white/60 font-mono text-xs mt-0.5">{formatTime(player.totalSeconds || 0)}</div>
+      <div className="text-[#00A651] font-bold text-xs">#{player.number}</div>
+      <div className="text-gray-800 font-medium text-sm whitespace-nowrap">{player.name}</div>
+      <div className="text-gray-500 font-mono text-xs mt-0.5">{formatTime(player.totalSeconds || 0)}</div>
       {isLeastPlayed && !deviation?.badge && (
-        <div className="text-[#4ade80] text-[10px] mt-0.5 font-medium">Sub in</div>
+        <div className="text-[#00A651] text-[10px] mt-0.5 font-medium">Sub in</div>
       )}
     </button>
   );
@@ -1674,25 +1674,25 @@ const RosterGrid = ({ roster, selected, onToggle, maxSelect }) => (
           disabled={!isSelected && selected.size >= maxSelect}
           className={`p-3 rounded-lg border-2 text-left transition-all ${
             isSelected
-              ? 'border-[#22c55e] bg-[#22c55e]/10'
+              ? 'border-[#00A651] bg-[#005028]/10'
               : selected.size >= maxSelect
-                ? 'border-[#1a8a68]/30 bg-[#0a3d2e]/50 opacity-50'
-                : 'border-[#1a8a68] bg-[#0a3d2e] hover:border-[#22c55e]/50'
+                ? 'border-[#D4E4D4]/30 bg-[#F5F9F5]/50 opacity-50'
+                : 'border-[#D4E4D4] bg-[#F5F9F5] hover:border-[#00A651]/50'
           }`}
         >
           <div className="flex items-center justify-between">
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 {(player.jerseyNumber || player.number) && (
-                  <span className="text-[#4ade80] font-bold text-sm">#{player.jerseyNumber || player.number}</span>
+                  <span className="text-[#00A651] font-bold text-sm">#{player.jerseyNumber || player.number}</span>
                 )}
-                <span className="text-white font-medium text-sm truncate">{playerName}</span>
+                <span className="text-gray-800 font-medium text-sm truncate">{playerName}</span>
               </div>
-              {player.position && <span className="text-white/40 text-xs">{player.position}</span>}
+              {player.position && <span className="text-gray-400 text-xs">{player.position}</span>}
             </div>
             {isSelected && (
-              <div className="w-6 h-6 bg-[#22c55e] rounded-full flex items-center justify-center flex-shrink-0">
-                <Check className="w-4 h-4 text-[#0a3d2e]" />
+              <div className="w-6 h-6 bg-[#005028] rounded-full flex items-center justify-center flex-shrink-0">
+                <Check className="w-4 h-4 text-white" />
               </div>
             )}
           </div>
@@ -1716,45 +1716,45 @@ const PlanQuarterCard = ({ qLabel, qData, quarterLengthSec }) => {
   });
 
   return (
-    <div className="bg-[#0a3d2e] border border-[#1a8a68]/50 rounded-lg p-3">
+    <div className="bg-[#F5F9F5] border border-[#D4E4D4]/50 rounded-lg p-3">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[#4ade80] font-bold text-sm">{qLabel}</span>
-        <span className="text-white/40 text-xs">{formatTime(quarterLengthSec)}</span>
+        <span className="text-[#00A651] font-bold text-sm">{qLabel}</span>
+        <span className="text-gray-400 text-xs">{formatTime(quarterLengthSec)}</span>
       </div>
-      <div className="text-xs text-white/60 mb-2">
-        Start: <span className="text-white/80">{starterNames.join(', ')}</span>
+      <div className="text-xs text-gray-500 mb-2">
+        Start: <span className="text-gray-700">{starterNames.join(', ')}</span>
       </div>
       {qData.subs.length > 0 ? (
         <div className="space-y-1">
           {qData.subs.map((sub, i) => (
-            <div key={i} className="flex items-center gap-2 text-xs py-1 px-2 bg-[#0d5943]/50 rounded">
-              <span className="text-[#4ade80] font-mono w-10">{formatTime(sub.time)}</span>
-              <span className="text-white/70">{sub.outName} OFF → {sub.inName} ON</span>
+            <div key={i} className="flex items-center gap-2 text-xs py-1 px-2 bg-gray-1000 rounded">
+              <span className="text-[#00A651] font-mono w-10">{formatTime(sub.time)}</span>
+              <span className="text-gray-600">{sub.outName} OFF → {sub.inName} ON</span>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-white/30 text-xs">No subs — all players on court</p>
+        <p className="text-gray-800/30 text-xs">No subs — all players on court</p>
       )}
     </div>
   );
 };
 
-const ConfirmDialog = ({ title, message, confirmLabel = 'Confirm', confirmColor = 'bg-[#22c55e] hover:bg-[#4ade80]', onConfirm, onCancel }) => (
+const ConfirmDialog = ({ title, message, confirmLabel = 'Confirm', confirmColor = 'bg-[#005028] hover:bg-[#00A651]', onConfirm, onCancel }) => (
   <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-    <div className="bg-[#0d5943] border border-[#1a8a68] rounded-2xl p-6 max-w-sm w-full">
-      <h3 className="text-white font-bold text-lg mb-2">{title}</h3>
-      <p className="text-white/60 text-sm mb-6">{message}</p>
+    <div className="bg-white border border-[#D4E4D4] rounded-2xl p-6 max-w-sm w-full">
+      <h3 className="text-gray-800 font-bold text-lg mb-2">{title}</h3>
+      <p className="text-gray-500 text-sm mb-6">{message}</p>
       <div className="flex gap-3">
         <button
           onClick={onCancel}
-          className="flex-1 py-3 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-xl font-medium hover:bg-[#1a8a68] transition-colors"
+          className="flex-1 py-3 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-xl font-medium hover:bg-gray-100 transition-colors"
         >
           Cancel
         </button>
         <button
           onClick={onConfirm}
-          className={`flex-1 py-3 ${confirmColor} text-white rounded-xl font-bold transition-colors`}
+          className={`flex-1 py-3 ${confirmColor} text-gray-800 rounded-xl font-bold transition-colors`}
         >
           {confirmLabel}
         </button>

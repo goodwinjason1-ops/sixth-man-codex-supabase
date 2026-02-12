@@ -95,7 +95,7 @@ const SystemManagementPage = () => {
     >
       <div className="space-y-4">
         {/* Quick Settings */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-bold mb-4">Quick Settings</h3>
           <div className="space-y-4">
             <ToggleSetting
@@ -127,23 +127,23 @@ const SystemManagementPage = () => {
 
         {/* Main Settings Sections */}
         {sections.map(section => (
-          <div key={section.id} className="bg-[#0d5943] rounded-xl overflow-hidden">
+          <div key={section.id} className="bg-white rounded-xl overflow-hidden">
             <button
               onClick={() => setExpandedSection(expandedSection === section.id ? null : section.id)}
               className="w-full p-4 flex items-center justify-between"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#22c55e]/20 rounded-lg flex items-center justify-center">
-                  <section.icon className="text-[#4ade80]" size={20} />
+                <div className="w-10 h-10 bg-[#005028]/20 rounded-lg flex items-center justify-center">
+                  <section.icon className="text-[#00A651]" size={20} />
                 </div>
                 <div className="text-left">
                   <h3 className="font-bold">{section.title}</h3>
-                  <p className="text-sm text-white/60">{section.description}</p>
+                  <p className="text-sm text-gray-500">{section.description}</p>
                 </div>
               </div>
               <ChevronDown
                 size={20}
-                className={`text-white/50 transition-transform ${expandedSection === section.id ? 'rotate-180' : ''}`}
+                className={`text-gray-400 transition-transform ${expandedSection === section.id ? 'rotate-180' : ''}`}
               />
             </button>
 
@@ -153,16 +153,16 @@ const SystemManagementPage = () => {
                   <div className="space-y-3">
                     <button
                       onClick={() => navigate('/admin/benchmarks')}
-                      className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                      className="w-full flex items-center gap-3 p-3 bg-gray-100 hover:bg-gray-100 rounded-lg transition-colors"
                     >
-                      <Settings size={18} className="text-[#4ade80]" />
+                      <Settings size={18} className="text-[#00A651]" />
                       <span>Edit Skill Benchmarks</span>
                     </button>
                     <button
                       onClick={() => navigate('/admin/match-benchmarks')}
-                      className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                      className="w-full flex items-center gap-3 p-3 bg-gray-100 hover:bg-gray-100 rounded-lg transition-colors"
                     >
-                      <Settings size={18} className="text-[#4ade80]" />
+                      <Settings size={18} className="text-[#00A651]" />
                       <span>Edit Match Day Benchmarks</span>
                     </button>
                     <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
@@ -177,28 +177,28 @@ const SystemManagementPage = () => {
                 {section.id === 'users' && (
                   <div className="space-y-3">
                     <div className="grid grid-cols-3 gap-3 text-center mb-3">
-                      <div className="bg-white/5 rounded-lg p-3">
+                      <div className="bg-gray-100 rounded-lg p-3">
                         <p className="text-xl font-bold">3</p>
-                        <p className="text-xs text-white/50">Admins</p>
+                        <p className="text-xs text-gray-400">Admins</p>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3">
+                      <div className="bg-gray-100 rounded-lg p-3">
                         <p className="text-xl font-bold">8</p>
-                        <p className="text-xs text-white/50">Coaches</p>
+                        <p className="text-xs text-gray-400">Coaches</p>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3">
+                      <div className="bg-gray-100 rounded-lg p-3">
                         <p className="text-xl font-bold">45</p>
-                        <p className="text-xs text-white/50">Players</p>
+                        <p className="text-xs text-gray-400">Players</p>
                       </div>
                     </div>
                     <button
                       onClick={() => navigate('/admin/rosters')}
-                      className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                      className="w-full flex items-center gap-3 p-3 bg-gray-100 hover:bg-gray-100 rounded-lg transition-colors"
                     >
-                      <Users size={18} className="text-[#4ade80]" />
+                      <Users size={18} className="text-[#00A651]" />
                       <span>Manage Users</span>
                     </button>
-                    <button className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
-                      <Shield size={18} className="text-[#4ade80]" />
+                    <button className="w-full flex items-center gap-3 p-3 bg-gray-100 hover:bg-gray-100 rounded-lg transition-colors">
+                      <Shield size={18} className="text-[#00A651]" />
                       <span>Role Permissions</span>
                     </button>
                   </div>
@@ -206,16 +206,16 @@ const SystemManagementPage = () => {
 
                 {section.id === 'data' && (
                   <div className="space-y-3">
-                    <button className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
-                      <Download size={18} className="text-[#4ade80]" />
+                    <button className="w-full flex items-center gap-3 p-3 bg-gray-100 hover:bg-gray-100 rounded-lg transition-colors">
+                      <Download size={18} className="text-[#00A651]" />
                       <span>Backup All Data</span>
                     </button>
-                    <button className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
-                      <Upload size={18} className="text-[#4ade80]" />
+                    <button className="w-full flex items-center gap-3 p-3 bg-gray-100 hover:bg-gray-100 rounded-lg transition-colors">
+                      <Upload size={18} className="text-[#00A651]" />
                       <span>Restore from Backup</span>
                     </button>
-                    <button className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
-                      <RefreshCw size={18} className="text-[#4ade80]" />
+                    <button className="w-full flex items-center gap-3 p-3 bg-gray-100 hover:bg-gray-100 rounded-lg transition-colors">
+                      <RefreshCw size={18} className="text-[#00A651]" />
                       <span>Sync with Cloud</span>
                     </button>
 
@@ -235,14 +235,14 @@ const SystemManagementPage = () => {
                 {section.id === 'notifications' && (
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm text-white/70 mb-2">Reminder frequency (days)</label>
+                      <label className="block text-sm text-gray-600 mb-2">Reminder frequency (days)</label>
                       <input
                         type="number"
                         min="1"
                         max="30"
                         value={settings.reminderDays}
                         onChange={(e) => updateSetting('reminderDays', parseInt(e.target.value))}
-                        className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#22c55e]"
+                        className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:border-[#00A651]"
                       />
                     </div>
                     <ToggleSetting
@@ -269,14 +269,14 @@ const SystemManagementPage = () => {
                       onChange={(val) => updateSetting('darkMode', val)}
                     />
                     <div>
-                      <label className="block text-sm text-white/70 mb-2">Club branding</label>
+                      <label className="block text-sm text-gray-600 mb-2">Club branding</label>
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-gradient-to-br from-[#22c55e] to-[#0d5943] rounded-xl flex items-center justify-center">
+                        <div className="w-16 h-16 bg-gradient-to-br from-[#00A651] to-[#005028] rounded-xl flex items-center justify-center">
                           <span className="text-2xl font-bold">EL</span>
                         </div>
                         <div>
                           <p className="font-medium">Emerald Lakers</p>
-                          <p className="text-sm text-white/50">Green color scheme</p>
+                          <p className="text-sm text-gray-400">Green color scheme</p>
                         </div>
                       </div>
                     </div>
@@ -288,30 +288,30 @@ const SystemManagementPage = () => {
         ))}
 
         {/* System Info */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-bold mb-4">System Information</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-white/60">App Version</span>
+              <span className="text-gray-500">App Version</span>
               <span>1.0.0</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/60">Last Sync</span>
+              <span className="text-gray-500">Last Sync</span>
               <span>{new Date().toLocaleString()}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/60">Storage Used</span>
+              <span className="text-gray-500">Storage Used</span>
               <span>12.4 MB</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/60">Data Retention</span>
+              <span className="text-gray-500">Data Retention</span>
               <span>{settings.dataRetentionMonths} months</span>
             </div>
           </div>
         </div>
 
         {/* Status */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-bold mb-4">System Status</h3>
           <div className="space-y-3">
             <StatusItem label="Database" status="healthy" />
@@ -325,18 +325,18 @@ const SystemManagementPage = () => {
       {/* Confirmation Modal */}
       {showConfirmation && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0d5943] rounded-xl p-6 max-w-sm w-full">
+          <div className="bg-white rounded-xl p-6 max-w-sm w-full">
             <div className="flex items-center gap-3 mb-4">
               <AlertTriangle className="text-yellow-400" size={24} />
               <h3 className="text-lg font-bold">Confirm Action</h3>
             </div>
-            <p className="text-white/70 mb-6">
+            <p className="text-gray-600 mb-6">
               Are you sure you want to {showConfirmation.replace(/_/g, ' ')}? This action cannot be undone.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConfirmation(null)}
-                className="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-medium transition-colors"
+                className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
               >
                 Cancel
               </button>
@@ -359,12 +359,12 @@ const ToggleSetting = ({ label, description, enabled, onChange }) => (
   <div className="flex items-center justify-between">
     <div>
       <p className="font-medium">{label}</p>
-      <p className="text-sm text-white/50">{description}</p>
+      <p className="text-sm text-gray-400">{description}</p>
     </div>
     <button
       onClick={() => onChange(!enabled)}
       className={`w-12 h-6 rounded-full transition-colors relative ${
-        enabled ? 'bg-[#22c55e]' : 'bg-white/20'
+        enabled ? 'bg-[#005028]' : 'bg-gray-200'
       }`}
     >
       <div
@@ -379,7 +379,7 @@ const ToggleSetting = ({ label, description, enabled, onChange }) => (
 // Status Item Component
 const StatusItem = ({ label, status, message }) => {
   const statusConfig = {
-    healthy: { color: 'text-[#4ade80]', bg: 'bg-[#22c55e]/20', icon: CheckCircle },
+    healthy: { color: 'text-[#00A651]', bg: 'bg-[#005028]/20', icon: CheckCircle },
     warning: { color: 'text-yellow-400', bg: 'bg-yellow-500/20', icon: AlertTriangle },
     error: { color: 'text-red-400', bg: 'bg-red-500/20', icon: AlertTriangle }
   };
@@ -389,7 +389,7 @@ const StatusItem = ({ label, status, message }) => {
 
   return (
     <div className="flex items-center justify-between">
-      <span className="text-white/60">{label}</span>
+      <span className="text-gray-500">{label}</span>
       <div className={`flex items-center gap-2 ${config.color}`}>
         <Icon size={14} />
         <span className="text-sm capitalize">{message || status}</span>

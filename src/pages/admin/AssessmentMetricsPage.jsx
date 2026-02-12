@@ -172,7 +172,7 @@ const AssessmentMetricsPage = () => {
     >
       <div className="space-y-6">
         {/* Age Group Tabs */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-2">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-2">
           <div className="flex overflow-x-auto gap-1" style={{ scrollbarWidth: 'none' }}>
             {MATCH_AGE_GROUPS.map(ag => (
               <button
@@ -180,8 +180,8 @@ const AssessmentMetricsPage = () => {
                 onClick={() => { setSelectedAgeGroup(ag.id); setEditingMetricId(null); }}
                 className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   selectedAgeGroup === ag.id
-                    ? 'bg-[#22c55e] text-[#0a3d2e]'
-                    : 'text-white hover:bg-[#0a3d2e]'
+                    ? 'bg-[#005028] text-white'
+                    : 'text-gray-800 hover:bg-[#F5F9F5]'
                 }`}
               >
                 {ag.id.toUpperCase()}
@@ -192,16 +192,16 @@ const AssessmentMetricsPage = () => {
 
         {/* Success Banner */}
         {saveSuccess && (
-          <div className="bg-[#22c55e]/20 border border-[#22c55e] rounded-xl p-4 flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-[#4ade80]" />
-            <p className="text-[#4ade80] text-sm">Metrics saved successfully</p>
+          <div className="bg-[#005028]/20 border border-[#00A651] rounded-xl p-4 flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-[#00A651]" />
+            <p className="text-[#00A651] text-sm">Metrics saved successfully</p>
           </div>
         )}
 
         {/* Loading */}
         {isLoading && (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-[#4ade80] animate-spin" />
+            <Loader2 className="w-8 h-8 text-[#00A651] animate-spin" />
           </div>
         )}
 
@@ -213,29 +213,29 @@ const AssessmentMetricsPage = () => {
               const isEditing = editingMetricId === metric.id;
 
               return (
-                <div key={metric.id} className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4">
+                <div key={metric.id} className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4">
                   <div className="flex items-start gap-3">
                     {/* Reorder Buttons */}
                     <div className="flex flex-col gap-1">
                       <button
                         onClick={() => moveUp(index)}
                         disabled={index === 0}
-                        className={`p-1 rounded transition-colors ${index === 0 ? 'text-[#1a8a68]/30' : 'text-[#1a8a68] hover:text-[#4ade80] hover:bg-[#0a3d2e]'}`}
+                        className={`p-1 rounded transition-colors ${index === 0 ? 'text-[#6B7C6B]/30' : 'text-[#6B7C6B] hover:text-[#00A651] hover:bg-[#F5F9F5]'}`}
                       >
                         <ChevronUp className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => moveDown(index)}
                         disabled={index === metrics.length - 1}
-                        className={`p-1 rounded transition-colors ${index === metrics.length - 1 ? 'text-[#1a8a68]/30' : 'text-[#1a8a68] hover:text-[#4ade80] hover:bg-[#0a3d2e]'}`}
+                        className={`p-1 rounded transition-colors ${index === metrics.length - 1 ? 'text-[#6B7C6B]/30' : 'text-[#6B7C6B] hover:text-[#00A651] hover:bg-[#F5F9F5]'}`}
                       >
                         <ChevronDown className="w-4 h-4" />
                       </button>
                     </div>
 
                     {/* Icon */}
-                    <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center flex-shrink-0">
-                      <IconComponent className="w-5 h-5 text-[#4ade80]" />
+                    <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center flex-shrink-0">
+                      <IconComponent className="w-5 h-5 text-[#00A651]" />
                     </div>
 
                     {/* Content */}
@@ -246,18 +246,18 @@ const AssessmentMetricsPage = () => {
                             type="text"
                             value={metric.name}
                             onChange={(e) => updateMetric(index, 'name', e.target.value)}
-                            className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none text-sm"
+                            className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none text-sm"
                             placeholder="Metric name"
                           />
                           <input
                             type="text"
                             value={metric.description}
                             onChange={(e) => updateMetric(index, 'description', e.target.value)}
-                            className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none text-sm"
+                            className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none text-sm"
                             placeholder="Description"
                           />
                           <div>
-                            <label className="block text-[#1a8a68] text-xs mb-1">Icon</label>
+                            <label className="block text-[#6B7C6B] text-xs mb-1">Icon</label>
                             <div className="flex gap-2">
                               {AVAILABLE_ICONS.map(icon => {
                                 const Ico = icon.component;
@@ -268,8 +268,8 @@ const AssessmentMetricsPage = () => {
                                     onClick={() => updateMetric(index, 'icon', icon.id)}
                                     className={`p-2 rounded-lg transition-all ${
                                       metric.icon === icon.id
-                                        ? 'bg-[#22c55e] text-[#0a3d2e]'
-                                        : 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68] hover:border-[#22c55e]'
+                                        ? 'bg-[#005028] text-white'
+                                        : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] hover:border-[#00A651]'
                                     }`}
                                     title={icon.label}
                                   >
@@ -281,15 +281,15 @@ const AssessmentMetricsPage = () => {
                           </div>
                           <button
                             onClick={() => setEditingMetricId(null)}
-                            className="text-[#4ade80] text-xs font-medium hover:text-white"
+                            className="text-[#00A651] text-xs font-medium hover:text-gray-800"
                           >
                             Done Editing
                           </button>
                         </div>
                       ) : (
                         <div>
-                          <h4 className="text-white font-medium text-sm">{metric.name}</h4>
-                          <p className="text-[#1a8a68] text-xs mt-0.5">{metric.description}</p>
+                          <h4 className="text-gray-800 font-medium text-sm">{metric.name}</h4>
+                          <p className="text-[#6B7C6B] text-xs mt-0.5">{metric.description}</p>
                         </div>
                       )}
                     </div>
@@ -299,7 +299,7 @@ const AssessmentMetricsPage = () => {
                       {!isEditing && (
                         <button
                           onClick={() => setEditingMetricId(metric.id)}
-                          className="p-2 text-[#4ade80] hover:bg-[#22c55e]/20 rounded-lg transition-colors"
+                          className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors"
                         >
                           <Edit3 className="w-4 h-4" />
                         </button>
@@ -319,7 +319,7 @@ const AssessmentMetricsPage = () => {
             {/* Add Metric Button */}
             <button
               onClick={addMetric}
-              className="w-full py-3 border-2 border-dashed border-[#1a8a68] rounded-xl text-[#1a8a68] hover:border-[#22c55e] hover:text-[#4ade80] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+              className="w-full py-3 border-2 border-dashed border-[#D4E4D4] rounded-xl text-[#6B7C6B] hover:border-[#00A651] hover:text-[#00A651] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
             >
               <Plus className="w-4 h-4" />
               Add Metric
@@ -329,23 +329,23 @@ const AssessmentMetricsPage = () => {
 
         {/* Preview Panel */}
         {!isLoading && metrics.length > 0 && (
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4">
-            <h3 className="text-white font-medium text-sm mb-3 flex items-center gap-2">
-              <Eye className="w-4 h-4 text-[#4ade80]" />
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4">
+            <h3 className="text-gray-800 font-medium text-sm mb-3 flex items-center gap-2">
+              <Eye className="w-4 h-4 text-[#00A651]" />
               Preview - How metrics appear during assessment
             </h3>
             <div className="space-y-2">
               {metrics.slice(0, 3).map(metric => {
                 const Ico = ICON_MAP[metric.icon] || Target;
                 return (
-                  <div key={metric.id} className="bg-[#0a3d2e] border border-[#1a8a68] rounded-lg p-3">
+                  <div key={metric.id} className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-2">
-                      <Ico className="w-4 h-4 text-[#4ade80]" />
-                      <span className="text-white text-xs font-medium">{metric.name}</span>
+                      <Ico className="w-4 h-4 text-[#00A651]" />
+                      <span className="text-gray-800 text-xs font-medium">{metric.name}</span>
                     </div>
                     <div className="flex gap-1.5">
                       {[1, 2, 3, 4, 5].map(level => (
-                        <div key={level} className="flex-1 py-1.5 rounded text-xs font-medium text-center bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68]">
+                        <div key={level} className="flex-1 py-1.5 rounded text-xs font-medium text-center bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B]">
                           {level}
                         </div>
                       ))}
@@ -354,7 +354,7 @@ const AssessmentMetricsPage = () => {
                 );
               })}
               {metrics.length > 3 && (
-                <p className="text-[#1a8a68] text-xs text-center">+ {metrics.length - 3} more metrics</p>
+                <p className="text-[#6B7C6B] text-xs text-center">+ {metrics.length - 3} more metrics</p>
               )}
             </div>
           </div>
@@ -365,7 +365,7 @@ const AssessmentMetricsPage = () => {
           <div className="flex gap-3">
             <button
               onClick={resetToDefaults}
-              className="flex-1 py-3 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-xl font-medium hover:border-[#22c55e] transition-colors flex items-center justify-center gap-2 text-sm"
+              className="flex-1 py-3 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-xl font-medium hover:border-[#00A651] transition-colors flex items-center justify-center gap-2 text-sm"
             >
               <RotateCcw className="w-4 h-4" />
               Reset to Defaults
@@ -375,8 +375,8 @@ const AssessmentMetricsPage = () => {
               disabled={!hasChanges || isSaving}
               className={`flex-1 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 text-sm ${
                 hasChanges && !isSaving
-                  ? 'bg-[#22c55e] text-[#0a3d2e] hover:bg-[#4ade80]'
-                  : 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68] cursor-not-allowed'
+                  ? 'bg-[#005028] text-white hover:bg-[#00A651]'
+                  : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] cursor-not-allowed'
               }`}
             >
               {isSaving ? (
@@ -395,8 +395,8 @@ const AssessmentMetricsPage = () => {
         )}
       </div>
 
-      <footer className="py-4 text-center border-t border-[#1a8a68]">
-        <p className="text-[#1a8a68] text-xs">Emerald Lakers Assessment Configuration</p>
+      <footer className="py-4 text-center border-t border-[#D4E4D4]">
+        <p className="text-[#6B7C6B] text-xs">Emerald Lakers Assessment Configuration</p>
       </footer>
     </PageShell>
   );

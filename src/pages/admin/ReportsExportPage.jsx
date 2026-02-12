@@ -218,13 +218,13 @@ const ReportsExportPage = () => {
         <title>Emerald Lakers Report</title>
         <style>
           body { font-family: Arial, sans-serif; padding: 20px; }
-          h1 { color: #0a3d2e; }
-          h2 { color: #0d5943; margin-top: 20px; }
+          h1 { color: #005028; }
+          h2 { color: #005028; margin-top: 20px; }
           table { width: 100%; border-collapse: collapse; margin-top: 10px; }
           th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #0d5943; color: white; }
+          th { background-color: #005028; color: white; }
           tr:nth-child(even) { background-color: #f2f2f2; }
-          .header { border-bottom: 2px solid #0a3d2e; padding-bottom: 10px; margin-bottom: 20px; }
+          .header { border-bottom: 2px solid #005028; padding-bottom: 10px; margin-bottom: 20px; }
           .meta { color: #666; font-size: 12px; }
         </style>
       </head>
@@ -476,12 +476,12 @@ const ReportsExportPage = () => {
 
       {/* Success Message */}
       {downloadSuccess && (
-        <div className="mx-4 mt-2 bg-[#22c55e]/20 border border-[#22c55e]/50 rounded-xl p-4 flex items-center justify-between">
+        <div className="mx-4 mt-2 bg-[#005028]/20 border border-[#00A651]/50 rounded-xl p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <CheckCircle className="text-[#4ade80] flex-shrink-0" size={20} />
-            <p className="text-[#4ade80] text-sm">{downloadSuccess}</p>
+            <CheckCircle className="text-[#00A651] flex-shrink-0" size={20} />
+            <p className="text-[#00A651] text-sm">{downloadSuccess}</p>
           </div>
-          <button onClick={() => setDownloadSuccess(null)} className="text-[#4ade80] hover:text-[#86efac]">
+          <button onClick={() => setDownloadSuccess(null)} className="text-[#00A651] hover:text-[#86efac]">
             <X size={18} />
           </button>
         </div>
@@ -498,21 +498,21 @@ const ReportsExportPage = () => {
                 onClick={() => setSelectedReport(report.id)}
                 className={`flex items-start gap-4 p-4 rounded-xl text-left transition-all ${
                   selectedReport === report.id
-                    ? 'bg-[#22c55e]/20 border-2 border-[#22c55e]'
-                    : 'bg-[#0d5943] border border-transparent hover:border-white/20'
+                    ? 'bg-[#005028]/20 border-2 border-[#00A651]'
+                    : 'bg-white border border-transparent hover:border-white/20'
                 }`}
               >
-                <div className="w-12 h-12 bg-[#22c55e]/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <report.icon className="text-[#4ade80]" size={24} />
+                <div className="w-12 h-12 bg-[#005028]/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <report.icon className="text-[#00A651]" size={24} />
                 </div>
                 <div className="flex-1">
                   <h4 className="font-bold">{report.name}</h4>
-                  <p className="text-sm text-white/60">{report.description}</p>
+                  <p className="text-sm text-gray-500">{report.description}</p>
                   <div className="flex gap-2 mt-2">
                     {report.format.map(fmt => (
                       <span
                         key={fmt}
-                        className="px-2 py-0.5 bg-white/10 rounded text-xs uppercase"
+                        className="px-2 py-0.5 bg-gray-100 rounded text-xs uppercase"
                       >
                         {fmt}
                       </span>
@@ -526,30 +526,30 @@ const ReportsExportPage = () => {
 
         {/* Report Configuration */}
         {selectedReport && (
-          <div className="bg-[#0d5943] rounded-xl p-4">
+          <div className="bg-white rounded-xl p-4">
             <h3 className="font-bold mb-4">Configure Report</h3>
 
             {/* Date Range */}
             {reportTemplates.find(r => r.id === selectedReport)?.filters.includes('dateRange') && (
               <div className="mb-4">
-                <label className="block text-sm text-white/70 mb-2">Date Range</label>
+                <label className="block text-sm text-gray-600 mb-2">Date Range</label>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-white/50 mb-1">From</label>
+                    <label className="block text-xs text-gray-400 mb-1">From</label>
                     <input
                       type="date"
                       value={dateRange.start}
                       onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                      className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#22c55e]"
+                      className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:border-[#00A651]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-white/50 mb-1">To</label>
+                    <label className="block text-xs text-gray-400 mb-1">To</label>
                     <input
                       type="date"
                       value={dateRange.end}
                       onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                      className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#22c55e]"
+                      className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:border-[#00A651]"
                     />
                   </div>
                 </div>
@@ -559,11 +559,11 @@ const ReportsExportPage = () => {
             {/* Team Filter */}
             {reportTemplates.find(r => r.id === selectedReport)?.filters.includes('team') && (
               <div className="mb-4">
-                <label className="block text-sm text-white/70 mb-2">Team</label>
+                <label className="block text-sm text-gray-600 mb-2">Team</label>
                 <select
                   value={selectedTeam}
                   onChange={(e) => setSelectedTeam(e.target.value)}
-                  className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#22c55e]"
+                  className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:border-[#00A651]"
                 >
                   <option value="all">All Teams</option>
                   {teamList.map(team => (
@@ -580,7 +580,7 @@ const ReportsExportPage = () => {
                   key={fmt}
                   onClick={() => generateReport(selectedReport, fmt)}
                   disabled={generating}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#005028] hover:bg-gray-100 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
                 >
                   {generating ? (
                     <Loader2 className="animate-spin" size={18} />
@@ -604,19 +604,19 @@ const ReportsExportPage = () => {
               {generatedReports.map(report => (
                 <div
                   key={report.id}
-                  className="bg-[#0d5943] rounded-xl p-4 flex items-center justify-between"
+                  className="bg-white rounded-xl p-4 flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#22c55e]/20 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-[#005028]/20 rounded-lg flex items-center justify-center">
                       {report.format === 'CSV' ? (
-                        <FileSpreadsheet className="text-[#4ade80]" size={20} />
+                        <FileSpreadsheet className="text-[#00A651]" size={20} />
                       ) : (
-                        <File className="text-[#4ade80]" size={20} />
+                        <File className="text-[#00A651]" size={20} />
                       )}
                     </div>
                     <div>
                       <p className="font-medium">{report.name}</p>
-                      <div className="flex items-center gap-2 text-xs text-white/50">
+                      <div className="flex items-center gap-2 text-xs text-gray-400">
                         <span>{report.format}</span>
                         <span>•</span>
                         <span>{report.team}</span>
@@ -626,13 +626,13 @@ const ReportsExportPage = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center gap-1 text-xs text-[#4ade80]">
+                    <span className="flex items-center gap-1 text-xs text-[#00A651]">
                       <CheckCircle size={14} />
                       Ready
                     </span>
                     <button
                       onClick={() => downloadReport(report)}
-                      className="p-2 bg-[#22c55e] hover:bg-[#1a8a68] rounded-lg transition-colors"
+                      className="p-2 bg-[#005028] hover:bg-gray-100 rounded-lg transition-colors"
                     >
                       <Download size={18} />
                     </button>
@@ -644,7 +644,7 @@ const ReportsExportPage = () => {
         )}
 
         {/* Quick Export Options */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-bold mb-4">Quick Export</h3>
           <div className="grid grid-cols-2 gap-3">
             <button
@@ -653,7 +653,7 @@ const ReportsExportPage = () => {
                 generateReport('roster_export', 'csv');
               }}
               disabled={generating}
-              className="flex items-center justify-center gap-2 py-3 bg-white/10 hover:bg-white/20 rounded-lg font-medium transition-colors"
+              className="flex items-center justify-center gap-2 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
             >
               <Users size={18} />
               Export All Players
@@ -664,7 +664,7 @@ const ReportsExportPage = () => {
                 generateReport('assessment_log', 'csv');
               }}
               disabled={generating}
-              className="flex items-center justify-center gap-2 py-3 bg-white/10 hover:bg-white/20 rounded-lg font-medium transition-colors"
+              className="flex items-center justify-center gap-2 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
             >
               <Target size={18} />
               Export Assessments

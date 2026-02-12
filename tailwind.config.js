@@ -8,16 +8,16 @@ export default {
     extend: {
       colors: {
         lakers: {
-          50: '#f0fdf4',
-          100: '#dcfce7',
-          200: '#bbf7d0',
-          300: '#86efac',
-          400: '#4ade80',
-          500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
-          800: '#065f46',
-          900: '#064e3b',
+          50: '#F5F9F5',
+          100: '#E8F0E8',
+          200: '#D4E4D4',
+          300: '#6B7C6B',
+          400: '#6B7C6B',
+          500: '#00A651',
+          600: '#00A651',
+          700: '#005028',
+          800: '#005028',
+          900: '#003018',
         }
       },
       animation: {
@@ -66,8 +66,8 @@ export default {
           '30%': { opacity: 1, transform: 'translateY(-3px)' },
         },
         highlightGlow: {
-          '0%, 100%': { boxShadow: '0 0 8px rgba(74, 222, 128, 0.3), inset 0 0 4px rgba(74, 222, 128, 0.05)' },
-          '50%': { boxShadow: '0 0 16px rgba(74, 222, 128, 0.5), inset 0 0 10px rgba(74, 222, 128, 0.15)' },
+          '0%, 100%': { boxShadow: '0 0 8px rgba(0, 166, 81, 0.3), inset 0 0 4px rgba(0, 166, 81, 0.05)' },
+          '50%': { boxShadow: '0 0 16px rgba(0, 166, 81, 0.5), inset 0 0 10px rgba(0, 166, 81, 0.15)' },
         },
         progressFill: {
           from: { strokeDashoffset: 'inherit' },

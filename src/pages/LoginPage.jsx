@@ -123,11 +123,15 @@ const LoginPage = () => {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-yellow-400 rounded-full mb-4 shadow-lg">
-            <span className="text-4xl font-bold text-lakers-900">L</span>
+          <div className="inline-flex items-center justify-center w-28 h-28 rounded-full bg-[#FFD700]/20 ring-2 ring-[#FFD700]/40 mb-4">
+            <img
+              src="/images/logo_login.png"
+              alt="Emerald Lakers"
+              className="w-24 h-24 drop-shadow-lg"
+            />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Emerald Lakers</h1>
-          <p className="text-lakers-200">Basketball Club Portal</p>
+          <p className="text-green-200">Basketball Club Portal</p>
         </div>
 
         {/* Main Card */}
@@ -412,9 +416,9 @@ const LoginPage = () => {
         </div>
 
         {/* Footer */}
-        <div className="text-center text-lakers-200 text-sm mt-6 space-y-1">
+        <div className="text-center text-green-200 text-sm mt-6 space-y-1">
           <p>&copy; 2026 Emerald Lakers Basketball Club</p>
-          <Link to="/privacy-policy" className="text-lakers-300 hover:text-white text-xs underline underline-offset-2">
+          <Link to="/privacy-policy" className="text-green-300 hover:text-white text-xs underline underline-offset-2">
             Privacy Policy
           </Link>
         </div>

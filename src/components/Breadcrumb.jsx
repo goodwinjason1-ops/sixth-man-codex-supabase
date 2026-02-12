@@ -45,14 +45,14 @@ const Breadcrumb = ({ path = [], showHomeIcon = true, className = '' }) => {
             <li key={index} className="flex items-center">
               {/* Separator (not for first item) */}
               {!isFirst && (
-                <ChevronRight className="w-3.5 h-3.5 text-[#1a8a68] mx-1 flex-shrink-0" />
+                <ChevronRight className="w-3.5 h-3.5 text-[#6B7C6B] mx-1 flex-shrink-0" />
               )}
 
               {/* Breadcrumb Item */}
               {isClickable ? (
                 <button
                   onClick={() => handleClick(item.url)}
-                  className="flex items-center gap-1.5 text-[#4ade80] hover:text-white hover:underline transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#22c55e] focus:ring-offset-2 focus:ring-offset-[#0a3d2e] rounded px-1 -mx-1"
+                  className="flex items-center gap-1.5 text-[#00A651] hover:text-gray-800 hover:underline transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#00A651] focus:ring-offset-2 focus:ring-offset-[#F5F9F5] rounded px-1 -mx-1"
                 >
                   {/* Home icon for first item if it's "Home" */}
                   {isFirst && showHomeIcon && item.label.toLowerCase() === 'home' && (
@@ -70,8 +70,8 @@ const Breadcrumb = ({ path = [], showHomeIcon = true, className = '' }) => {
                 <span
                   className={`flex items-center gap-1.5 ${
                     isLast
-                      ? 'text-white font-medium'
-                      : 'text-[#1a8a68]'
+                      ? 'text-gray-800 font-medium'
+                      : 'text-[#6B7C6B]'
                   }`}
                   aria-current={isLast ? 'page' : undefined}
                 >

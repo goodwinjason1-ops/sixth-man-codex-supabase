@@ -517,25 +517,25 @@ Emerald Lakers Basketball Club`,
   };
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e] text-white pb-20">
+    <div className="min-h-screen bg-[#F5F9F5] text-gray-800 pb-20">
       {/* Header */}
-      <div className="bg-[#0d5943] px-4 py-4 sticky top-0 z-10">
+      <div className="bg-white px-4 py-4 sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/welcome')}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
             <ArrowLeft size={24} />
           </button>
           <div className="flex-1">
             <h1 className="text-xl font-bold">Notifications</h1>
-            <p className="text-white/60 text-sm">
+            <p className="text-gray-500 text-sm">
               {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
             </p>
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`p-2 rounded-lg transition-colors ${showFilters ? 'bg-[#22c55e]' : 'hover:bg-white/10'}`}
+            className={`p-2 rounded-lg transition-colors ${showFilters ? 'bg-[#005028]' : 'hover:bg-gray-100'}`}
           >
             <Filter size={20} />
           </button>
@@ -543,25 +543,25 @@ Emerald Lakers Basketball Club`,
       </div>
 
       {/* Breadcrumbs */}
-      <div className="px-4 py-2 text-sm text-white/60 flex items-center gap-2">
-        <span className="hover:text-white cursor-pointer" onClick={() => navigate('/welcome')}>Home</span>
+      <div className="px-4 py-2 text-sm text-gray-500 flex items-center gap-2">
+        <span className="hover:text-gray-800 cursor-pointer" onClick={() => navigate('/welcome')}>Home</span>
         <ChevronRight size={14} />
-        <span className="text-white">Notifications</span>
+        <span className="text-gray-800">Notifications</span>
       </div>
 
       {/* Filters */}
       {showFilters && (
         <div className="px-4 mb-4">
-          <div className="bg-[#0d5943] rounded-xl p-4 space-y-3">
+          <div className="bg-white rounded-xl p-4 space-y-3">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={18} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               <input
                 type="text"
                 placeholder="Search notifications..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-white/5 border border-white/20 rounded-lg pl-10 pr-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-[#22c55e]"
+                className="w-full bg-gray-100 border border-white/20 rounded-lg pl-10 pr-4 py-2 text-gray-800 placeholder-white/40 focus:outline-none focus:border-[#00A651]"
               />
             </div>
 
@@ -580,8 +580,8 @@ Emerald Lakers Basketball Club`,
                   onClick={() => setFilter(f.id)}
                   className={`px-3 py-1 rounded-lg text-sm transition-colors ${
                     filter === f.id
-                      ? 'bg-[#22c55e] text-white'
-                      : 'bg-white/10 text-white/70'
+                      ? 'bg-[#005028] text-white'
+                      : 'bg-gray-100 text-gray-600'
                   }`}
                 >
                   {f.label}
@@ -608,45 +608,45 @@ Emerald Lakers Basketball Club`,
                   onClick={() => handleNotificationClick(notif)}
                   className={`w-full text-left p-4 rounded-xl transition-all ${
                     isRead
-                      ? 'bg-[#0d5943]/60 opacity-75'
-                      : 'bg-[#0d5943] border-l-4 border-[#22c55e]'
+                      ? 'bg-white/60 opacity-75'
+                      : 'bg-white border-l-4 border-[#00A651]'
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                      notif.priority === 'urgent' ? 'bg-red-500/20' : isRead ? 'bg-white/10' : 'bg-[#22c55e]/20'
+                      notif.priority === 'urgent' ? 'bg-red-500/20' : isRead ? 'bg-gray-100' : 'bg-[#005028]/20'
                     }`}>
                       {isRead ? (
-                        <MailOpen className="text-white/50" size={20} />
+                        <MailOpen className="text-gray-400" size={20} />
                       ) : (
-                        <Icon className={notif.priority === 'urgent' ? 'text-red-400' : 'text-[#4ade80]'} size={20} />
+                        <Icon className={notif.priority === 'urgent' ? 'text-red-400' : 'text-[#00A651]'} size={20} />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h4 className={`font-medium truncate ${isRead ? 'text-white/60' : 'text-white'}`}>
+                        <h4 className={`font-medium truncate ${isRead ? 'text-gray-500' : 'text-gray-800'}`}>
                           {notif.subject}
                         </h4>
                         {notif.priority === 'urgent' && (
                           <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-[10px] rounded">URGENT</span>
                         )}
                         {isRead && (
-                          <span className="text-xs text-[#4ade80]/60 flex items-center gap-0.5">
+                          <span className="text-xs text-[#00A651]/60 flex items-center gap-0.5">
                             <Check size={10} />
                             Read
                           </span>
                         )}
                       </div>
-                      <p className={`text-sm line-clamp-1 mt-0.5 ${isRead ? 'text-white/40' : 'text-white/50'}`}>
+                      <p className={`text-sm line-clamp-1 mt-0.5 ${isRead ? 'text-gray-400' : 'text-gray-400'}`}>
                         {notif.message.split('\n')[0]}
                       </p>
                       <div className="flex items-center gap-3 mt-2">
-                        <span className="text-xs text-white/40">{formatDate(notif.sentAt)}</span>
-                        <span className="text-xs text-white/40 capitalize">{config?.label || notif.type}</span>
+                        <span className="text-xs text-gray-400">{formatDate(notif.sentAt)}</span>
+                        <span className="text-xs text-gray-400 capitalize">{config?.label || notif.type}</span>
                         {assignment && (
                           <span className={`text-xs px-2 py-0.5 rounded ${
                             assignment.status === 'confirmed'
-                              ? 'bg-[#22c55e]/20 text-[#4ade80]'
+                              ? 'bg-[#005028]/20 text-[#00A651]'
                               : 'bg-yellow-500/20 text-yellow-400'
                           }`}>
                             {assignment.status}
@@ -655,7 +655,7 @@ Emerald Lakers Basketball Club`,
                       </div>
                     </div>
                     {!isRead && (
-                      <div className="w-2 h-2 bg-[#22c55e] rounded-full flex-shrink-0 mt-2" />
+                      <div className="w-2 h-2 bg-[#005028] rounded-full flex-shrink-0 mt-2" />
                     )}
                   </div>
                 </button>
@@ -663,10 +663,10 @@ Emerald Lakers Basketball Club`,
             })}
           </div>
         ) : (
-          <div className="bg-[#0d5943] rounded-xl p-8 text-center">
-            <Bell className="mx-auto mb-3 text-white/30" size={40} />
-            <p className="text-white/50 mb-2">No notifications</p>
-            <p className="text-white/30 text-sm">
+          <div className="bg-white rounded-xl p-8 text-center">
+            <Bell className="mx-auto mb-3 text-gray-800/30" size={40} />
+            <p className="text-gray-400 mb-2">No notifications</p>
+            <p className="text-gray-800/30 text-sm">
               {filter !== 'all' ? 'Try changing your filter' : 'You\'re all caught up!'}
             </p>
           </div>
@@ -676,25 +676,25 @@ Emerald Lakers Basketball Club`,
       {/* Notification Detail Modal */}
       {selectedNotification && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center">
-          <div className="bg-[#0d5943] rounded-t-2xl sm:rounded-xl w-full sm:max-w-lg max-h-[85vh] overflow-hidden">
+          <div className="bg-white rounded-t-2xl sm:rounded-xl w-full sm:max-w-lg max-h-[85vh] overflow-hidden">
             {/* Modal Header */}
-            <div className="sticky top-0 bg-[#0d5943] border-b border-white/10 px-4 py-3 flex items-center justify-between">
+            <div className="sticky top-0 bg-white border-b border-white/10 px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {(() => {
                   const Icon = getTypeIcon(selectedNotification.type);
                   return (
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      selectedNotification.priority === 'urgent' ? 'bg-red-500/20' : 'bg-[#22c55e]/20'
+                      selectedNotification.priority === 'urgent' ? 'bg-red-500/20' : 'bg-[#005028]/20'
                     }`}>
-                      <Icon className={selectedNotification.priority === 'urgent' ? 'text-red-400' : 'text-[#4ade80]'} size={20} />
+                      <Icon className={selectedNotification.priority === 'urgent' ? 'text-red-400' : 'text-[#00A651]'} size={20} />
                     </div>
                   );
                 })()}
                 <div>
-                  <span className="text-xs text-white/50 capitalize">
+                  <span className="text-xs text-gray-400 capitalize">
                     {NOTIFICATION_TYPE_CONFIG[selectedNotification.type]?.label}
                   </span>
-                  <p className="text-xs text-white/40">
+                  <p className="text-xs text-gray-400">
                     {new Date(selectedNotification.sentAt).toLocaleDateString('en-AU', {
                       weekday: 'long',
                       day: 'numeric',
@@ -707,7 +707,7 @@ Emerald Lakers Basketball Club`,
               </div>
               <button
                 onClick={() => setSelectedNotification(null)}
-                className="p-2 hover:bg-white/10 rounded-lg"
+                className="p-2 hover:bg-gray-100 rounded-lg"
               >
                 <X size={20} />
               </button>
@@ -719,12 +719,12 @@ Emerald Lakers Basketball Club`,
 
               {/* Game Info for Scoring */}
               {selectedNotification.gameData && (
-                <div className="bg-white/5 rounded-lg p-3 mb-4">
+                <div className="bg-gray-100 rounded-lg p-3 mb-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Trophy className="text-[#4ade80]" size={16} />
+                    <Trophy className="text-[#00A651]" size={16} />
                     <span className="font-medium">{selectedNotification.gameData.team} vs {selectedNotification.gameData.opponent}</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 text-sm text-white/70">
+                  <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
                       <Calendar size={14} />
                       {new Date(selectedNotification.gameData.date).toLocaleDateString('en-AU', {
@@ -746,24 +746,24 @@ Emerald Lakers Basketball Club`,
               )}
 
               {/* Message */}
-              <div className="text-white/80 whitespace-pre-line text-sm leading-relaxed">
+              <div className="text-gray-700 whitespace-pre-line text-sm leading-relaxed">
                 {selectedNotification.message}
               </div>
 
               {/* Attachments */}
               {selectedNotification.attachments?.length > 0 && (
                 <div className="mt-4 space-y-2">
-                  <p className="text-sm text-white/50">Links:</p>
+                  <p className="text-sm text-gray-400">Links:</p>
                   {selectedNotification.attachments.map((att, i) => (
                     <a
                       key={i}
                       href={att.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 p-3 bg-[#22c55e]/20 rounded-lg hover:bg-[#22c55e]/30 transition-colors"
+                      className="flex items-center gap-2 p-3 bg-[#005028]/20 rounded-lg hover:bg-[#00A651]/30 transition-colors"
                     >
-                      <ExternalLink size={16} className="text-[#4ade80]" />
-                      <span className="text-[#4ade80] font-medium">{att.name}</span>
+                      <ExternalLink size={16} className="text-[#00A651]" />
+                      <span className="text-[#00A651] font-medium">{att.name}</span>
                     </a>
                   ))}
                 </div>
@@ -771,7 +771,7 @@ Emerald Lakers Basketball Club`,
             </div>
 
             {/* Modal Actions */}
-            <div className="sticky bottom-0 bg-[#0d5943] border-t border-white/10 p-4">
+            <div className="sticky bottom-0 bg-white border-t border-white/10 p-4">
               {/* Scoring Actions */}
               {selectedNotification.type === 'scoring' && (
                 <div className="space-y-3">
@@ -779,9 +779,9 @@ Emerald Lakers Basketball Club`,
                     const assignment = getScoringAssignment(selectedNotification);
                     if (assignment?.status === 'confirmed') {
                       return (
-                        <div className="bg-[#22c55e]/20 rounded-lg p-3 text-center">
-                          <CheckCheck className="mx-auto mb-1 text-[#4ade80]" size={24} />
-                          <p className="text-[#4ade80] font-medium">Confirmed</p>
+                        <div className="bg-[#005028]/20 rounded-lg p-3 text-center">
+                          <CheckCheck className="mx-auto mb-1 text-[#00A651]" size={24} />
+                          <p className="text-[#00A651] font-medium">Confirmed</p>
                         </div>
                       );
                     }
@@ -790,14 +790,14 @@ Emerald Lakers Basketball Club`,
                       <div className="grid grid-cols-2 gap-3">
                         <button
                           onClick={() => handleConfirmScoring(selectedNotification)}
-                          className="py-3 bg-[#22c55e] hover:bg-[#1a8a68] rounded-lg font-medium flex items-center justify-center gap-2"
+                          className="py-3 bg-[#005028] hover:bg-gray-100 rounded-lg font-medium flex items-center justify-center gap-2"
                         >
                           <Check size={18} />
                           Confirm
                         </button>
                         <button
                           onClick={() => setShowSwapModal(true)}
-                          className="py-3 bg-white/10 hover:bg-white/20 rounded-lg font-medium flex items-center justify-center gap-2"
+                          className="py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium flex items-center justify-center gap-2"
                         >
                           <RefreshCw size={18} />
                           Request Swap
@@ -814,19 +814,19 @@ Emerald Lakers Basketball Club`,
                   <button
                     onClick={() => handleToggleRead(selectedNotification)}
                     disabled={togglingRead === selectedNotification.id}
-                    className="flex-1 py-2 bg-[#22c55e]/20 border border-[#22c55e]/30 rounded-lg text-sm flex items-center justify-center gap-2 text-[#4ade80] hover:bg-[#22c55e]/30 transition-colors disabled:opacity-50"
+                    className="flex-1 py-2 bg-[#005028]/20 border border-[#00A651]/30 rounded-lg text-sm flex items-center justify-center gap-2 text-[#00A651] hover:bg-[#00A651]/30 transition-colors disabled:opacity-50"
                   >
                     {togglingRead === selectedNotification.id
                       ? <Loader2 size={16} className="animate-spin" />
                       : <CheckCheck size={16} />}
                     Read
-                    <span className="text-xs text-white/40 ml-1">(Tap to unread)</span>
+                    <span className="text-xs text-gray-400 ml-1">(Tap to unread)</span>
                   </button>
                 ) : (
                   <button
                     onClick={() => handleToggleRead(selectedNotification)}
                     disabled={togglingRead === selectedNotification.id}
-                    className="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                    className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                   >
                     {togglingRead === selectedNotification.id
                       ? <Loader2 size={16} className="animate-spin" />
@@ -850,21 +850,21 @@ Emerald Lakers Basketball Club`,
       {/* Swap Request Modal */}
       {showSwapModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0d5943] rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
-              <ArrowRightLeft size={18} className="text-[#4ade80]" />
+              <ArrowRightLeft size={18} className="text-[#00A651]" />
               Request Swap
             </h3>
-            <p className="text-white/70 text-sm mb-4">
+            <p className="text-gray-600 text-sm mb-4">
               Select another parent from the team to send a swap request:
             </p>
 
             {/* Game details */}
             {selectedNotification?.gameData && (
-              <div className="bg-white/5 rounded-lg p-3 mb-4">
-                <p className="text-sm text-white/70">Scoring duty for:</p>
+              <div className="bg-gray-100 rounded-lg p-3 mb-4">
+                <p className="text-sm text-gray-600">Scoring duty for:</p>
                 <p className="font-medium">{selectedNotification.gameData.team} vs {selectedNotification.gameData.opponent}</p>
-                <p className="text-sm text-white/60">
+                <p className="text-sm text-gray-500">
                   {new Date(selectedNotification.gameData.date).toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })} at {selectedNotification.gameData.time}
                 </p>
               </div>
@@ -878,8 +878,8 @@ Emerald Lakers Basketball Club`,
                     onClick={() => setSwapTarget(parent)}
                     className={`w-full p-3 rounded-lg text-left transition-colors ${
                       swapTarget?.id === parent.id
-                        ? 'bg-[#22c55e] text-white'
-                        : 'bg-white/5 hover:bg-white/10'
+                        ? 'bg-[#005028] text-white'
+                        : 'bg-gray-100 hover:bg-gray-100'
                     }`}
                   >
                     <p className="font-medium">{parent.name}</p>
@@ -887,7 +887,7 @@ Emerald Lakers Basketball Club`,
                   </button>
                 ))
               ) : (
-                <div className="text-center py-4 text-white/50">
+                <div className="text-center py-4 text-gray-400">
                   <User className="mx-auto mb-2" size={24} />
                   <p>No other parents available for swap</p>
                 </div>
@@ -896,7 +896,7 @@ Emerald Lakers Basketball Club`,
 
             {/* Message field */}
             <div className="mb-4">
-              <label className="block text-sm text-white/70 mb-2">
+              <label className="block text-sm text-gray-600 mb-2">
                 <MessageSquare size={14} className="inline mr-1" />
                 Message (optional):
               </label>
@@ -905,7 +905,7 @@ Emerald Lakers Basketball Club`,
                 onChange={(e) => setSwapMessage(e.target.value)}
                 placeholder="e.g., Can you cover for me? I have a work commitment..."
                 rows={3}
-                className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 resize-none"
+                className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 placeholder-white/40 resize-none"
               />
             </div>
 
@@ -916,14 +916,14 @@ Emerald Lakers Basketball Club`,
                   setSwapTarget(null);
                   setSwapMessage('');
                 }}
-                className="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-medium"
+                className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={handleRequestSwap}
                 disabled={!swapTarget || isSendingSwap}
-                className="flex-1 py-2 bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-600 rounded-lg font-medium flex items-center justify-center gap-2"
+                className="flex-1 py-2 bg-[#005028] hover:bg-gray-100 disabled:bg-gray-600 rounded-lg font-medium flex items-center justify-center gap-2"
               >
                 {isSendingSwap ? (
                   <>
@@ -945,38 +945,38 @@ Emerald Lakers Basketball Club`,
       {/* Received Swap Request Modal */}
       {showReceivedSwapModal && selectedReceivedSwap && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0d5943] rounded-xl p-6 max-w-md w-full">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full">
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
               <ArrowRightLeft size={18} className="text-blue-400" />
               Swap Request
             </h3>
 
-            <div className="bg-white/5 rounded-lg p-4 mb-4">
+            <div className="bg-gray-100 rounded-lg p-4 mb-4">
               <p className="font-medium">{selectedReceivedSwap.gameName}</p>
-              <p className="text-sm text-white/60">
+              <p className="text-sm text-gray-500">
                 {selectedReceivedSwap.gameDate && new Date(selectedReceivedSwap.gameDate).toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' })}
                 {selectedReceivedSwap.gameTime && ` at ${selectedReceivedSwap.gameTime}`}
               </p>
 
               <div className="mt-4 pt-4 border-t border-white/10">
-                <p className="text-sm text-white/70">
+                <p className="text-sm text-gray-600">
                   <User size={14} className="inline mr-1" />
-                  Request from: <span className="font-medium text-white">{selectedReceivedSwap.requestingParentName}</span>
+                  Request from: <span className="font-medium text-gray-800">{selectedReceivedSwap.requestingParentName}</span>
                 </p>
               </div>
 
               {selectedReceivedSwap.message && (
                 <div className="mt-4 pt-4 border-t border-white/10">
-                  <p className="text-sm text-white/70 mb-1">
+                  <p className="text-sm text-gray-600 mb-1">
                     <MessageSquare size={14} className="inline mr-1" />
                     Message:
                   </p>
-                  <p className="text-sm italic bg-white/5 rounded p-2">"{selectedReceivedSwap.message}"</p>
+                  <p className="text-sm italic bg-gray-100 rounded p-2">"{selectedReceivedSwap.message}"</p>
                 </div>
               )}
             </div>
 
-            <p className="text-white/70 text-sm mb-4">
+            <p className="text-gray-600 text-sm mb-4">
               If you accept, you will be assigned to score for this game instead of {selectedReceivedSwap.requestingParentName}.
             </p>
 
@@ -992,7 +992,7 @@ Emerald Lakers Basketball Club`,
               <button
                 onClick={() => handleAcceptSwap(selectedReceivedSwap)}
                 disabled={isRespondingToSwap}
-                className="flex-1 py-2 bg-[#22c55e] hover:bg-[#1a8a68] rounded-lg font-medium flex items-center justify-center gap-2"
+                className="flex-1 py-2 bg-[#005028] hover:bg-gray-100 rounded-lg font-medium flex items-center justify-center gap-2"
               >
                 {isRespondingToSwap ? (
                   <Loader2 className="animate-spin" size={16} />
@@ -1010,7 +1010,7 @@ Emerald Lakers Basketball Club`,
                 setShowReceivedSwapModal(false);
                 setSelectedReceivedSwap(null);
               }}
-              className="w-full mt-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm"
+              className="w-full mt-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm"
             >
               Close
             </button>

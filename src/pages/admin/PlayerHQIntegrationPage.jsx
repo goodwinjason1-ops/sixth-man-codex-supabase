@@ -148,8 +148,8 @@ const PlayerHQIntegrationPage = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${
                 activeTab === tab.id
-                  ? 'bg-[#22c55e] text-white'
-                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  ? 'bg-[#005028] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               <tab.icon size={16} />
@@ -164,12 +164,12 @@ const PlayerHQIntegrationPage = () => {
         {activeTab === 'status' && (
           <div className="space-y-4">
             {/* Status Card */}
-            <div className="bg-[#0d5943] rounded-xl p-4">
+            <div className="bg-white rounded-xl p-4">
               <div className="flex items-center gap-3 mb-4">
                 {configured ? (
                   connectionStatus?.isConnected ? (
-                    <div className="w-12 h-12 bg-[#22c55e]/20 rounded-full flex items-center justify-center">
-                      <CheckCircle className="text-[#22c55e]" size={24} />
+                    <div className="w-12 h-12 bg-[#005028]/20 rounded-full flex items-center justify-center">
+                      <CheckCircle className="text-[#00A651]" size={24} />
                     </div>
                   ) : (
                     <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center">
@@ -189,7 +189,7 @@ const PlayerHQIntegrationPage = () => {
                         : 'Awaiting API Access'
                       : 'Not Configured'}
                   </h3>
-                  <p className="text-white/60 text-sm">
+                  <p className="text-gray-500 text-sm">
                     {configured
                       ? 'API credentials configured'
                       : 'API credentials not set'}
@@ -199,20 +199,20 @@ const PlayerHQIntegrationPage = () => {
 
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/60">Last Connection Test</span>
+                  <span className="text-gray-500">Last Connection Test</span>
                   <span>{connectionStatus?.lastChecked
                     ? new Date(connectionStatus.lastChecked).toLocaleString()
                     : 'Never'}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/60">Last Successful Sync</span>
+                  <span className="text-gray-500">Last Successful Sync</span>
                   <span>{connectionStatus?.lastSync
                     ? new Date(connectionStatus.lastSync).toLocaleString()
                     : 'Never'}</span>
                 </div>
                 {connectionStatus?.error && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-white/60">Status</span>
+                    <span className="text-gray-500">Status</span>
                     <span className="text-yellow-400">{connectionStatus.error}</span>
                   </div>
                 )}
@@ -221,7 +221,7 @@ const PlayerHQIntegrationPage = () => {
               <button
                 onClick={handleTestConnection}
                 disabled={testing}
-                className="w-full bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-500 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
+                className="w-full bg-[#005028] hover:bg-gray-100 disabled:bg-gray-500 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
               >
                 {testing ? (
                   <>
@@ -243,11 +243,11 @@ const PlayerHQIntegrationPage = () => {
                 <Info className="text-blue-400 flex-shrink-0" size={20} />
                 <div>
                   <h4 className="font-medium text-blue-400 mb-1">About PlayerHQ Integration</h4>
-                  <p className="text-sm text-white/70 mb-3">
+                  <p className="text-sm text-gray-600 mb-3">
                     PlayerHQ is the official basketball statistics platform used by Basketball Victoria.
                     Once API access is granted, this integration will enable:
                   </p>
-                  <ul className="text-sm text-white/70 space-y-1">
+                  <ul className="text-sm text-gray-600 space-y-1">
                     <li>• Live game scores and results</li>
                     <li>• Automatic player statistics sync</li>
                     <li>• Ladder positions and standings</li>
@@ -258,20 +258,20 @@ const PlayerHQIntegrationPage = () => {
             </div>
 
             {/* Configuration Guide */}
-            <div className="bg-[#0d5943] rounded-xl p-4">
+            <div className="bg-white rounded-xl p-4">
               <h3 className="font-bold mb-3 flex items-center gap-2">
                 <Settings size={18} />
                 Configuration
               </h3>
-              <p className="text-sm text-white/70 mb-3">
+              <p className="text-sm text-gray-600 mb-3">
                 To enable PlayerHQ integration, add the following environment variables:
               </p>
-              <div className="bg-black/30 rounded-lg p-3 font-mono text-sm text-[#4ade80] space-y-1">
+              <div className="bg-black/30 rounded-lg p-3 font-mono text-sm text-[#00A651] space-y-1">
                 <p>VITE_PLAYERHQ_API_KEY=your_api_key</p>
                 <p>VITE_PLAYERHQ_API_SECRET=your_api_secret</p>
                 <p>VITE_PLAYERHQ_ORG_ID=your_org_id</p>
               </div>
-              <p className="text-xs text-white/50 mt-2">
+              <p className="text-xs text-gray-400 mt-2">
                 Contact Basketball Victoria to request API access credentials.
               </p>
             </div>
@@ -294,21 +294,21 @@ const PlayerHQIntegrationPage = () => {
 
             <div className="grid gap-3">
               {syncOptions.map(option => (
-                <div key={option.id} className="bg-[#0d5943] rounded-xl p-4">
+                <div key={option.id} className="bg-white rounded-xl p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#22c55e]/20 rounded-lg flex items-center justify-center">
-                        <option.icon className="text-[#4ade80]" size={20} />
+                      <div className="w-10 h-10 bg-[#005028]/20 rounded-lg flex items-center justify-center">
+                        <option.icon className="text-[#00A651]" size={20} />
                       </div>
                       <div>
                         <h4 className="font-medium">{option.label}</h4>
-                        <p className="text-sm text-white/60">{option.description}</p>
+                        <p className="text-sm text-gray-500">{option.description}</p>
                       </div>
                     </div>
                     <button
                       onClick={() => handleSync(option.id)}
                       disabled={!configured || syncing}
-                      className="bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-600 disabled:cursor-not-allowed px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+                      className="bg-[#005028] hover:bg-gray-100 disabled:bg-gray-600 disabled:cursor-not-allowed px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
                     >
                       {syncing ? (
                         <RefreshCw className="animate-spin" size={16} />
@@ -323,7 +323,7 @@ const PlayerHQIntegrationPage = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-[#0d5943] rounded-xl p-4">
+            <div className="bg-white rounded-xl p-4">
               <h3 className="font-bold mb-3">Quick Actions</h3>
               <div className="grid grid-cols-2 gap-3">
                 <button
@@ -333,14 +333,14 @@ const PlayerHQIntegrationPage = () => {
                     handleSync('players');
                   }}
                   disabled={!configured || syncing}
-                  className="bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-600 px-4 py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
+                  className="bg-[#005028] hover:bg-gray-100 disabled:bg-gray-600 px-4 py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
                 >
                   <RefreshCw size={18} />
                   Sync All
                 </button>
                 <button
                   onClick={() => setActiveTab('import')}
-                  className="bg-white/10 hover:bg-white/20 px-4 py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
+                  className="bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
                 >
                   <Upload size={18} />
                   Import CSV
@@ -353,15 +353,15 @@ const PlayerHQIntegrationPage = () => {
         {/* CSV Import Tab */}
         {activeTab === 'import' && (
           <div className="space-y-4">
-            <div className="bg-[#0d5943] rounded-xl p-4">
+            <div className="bg-white rounded-xl p-4">
               <h3 className="font-bold mb-3">Import Data from CSV</h3>
-              <p className="text-sm text-white/70 mb-4">
+              <p className="text-sm text-gray-600 mb-4">
                 Use CSV import as an interim solution while awaiting PlayerHQ API access.
               </p>
 
               {/* Import Type Selection */}
               <div className="mb-4">
-                <label className="block text-sm text-white/70 mb-2">Data Type</label>
+                <label className="block text-sm text-gray-600 mb-2">Data Type</label>
                 <div className="flex gap-2">
                   {['players', 'games', 'stats'].map(type => (
                     <button
@@ -369,8 +369,8 @@ const PlayerHQIntegrationPage = () => {
                       onClick={() => setImportData(prev => ({ ...prev, type, file: null, preview: null }))}
                       className={`px-4 py-2 rounded-lg capitalize transition-colors ${
                         importData.type === type
-                          ? 'bg-[#22c55e] text-white'
-                          : 'bg-white/10 text-white/70'
+                          ? 'bg-[#005028] text-white'
+                          : 'bg-gray-100 text-gray-600'
                       }`}
                     >
                       {type}
@@ -382,7 +382,7 @@ const PlayerHQIntegrationPage = () => {
               {/* Template Download */}
               <button
                 onClick={() => handleDownloadTemplate(importData.type)}
-                className="w-full bg-white/10 hover:bg-white/20 py-3 rounded-lg font-medium flex items-center justify-center gap-2 mb-4 transition-colors"
+                className="w-full bg-gray-100 hover:bg-gray-200 py-3 rounded-lg font-medium flex items-center justify-center gap-2 mb-4 transition-colors"
               >
                 <Download size={18} />
                 Download {importData.type} Template
@@ -398,9 +398,9 @@ const PlayerHQIntegrationPage = () => {
                   id="csv-upload"
                 />
                 <label htmlFor="csv-upload" className="cursor-pointer">
-                  <Upload className="mx-auto mb-2 text-white/50" size={32} />
-                  <p className="text-white/70 mb-1">Click to upload CSV file</p>
-                  <p className="text-sm text-white/50">or drag and drop</p>
+                  <Upload className="mx-auto mb-2 text-gray-400" size={32} />
+                  <p className="text-gray-600 mb-1">Click to upload CSV file</p>
+                  <p className="text-sm text-gray-400">or drag and drop</p>
                 </label>
               </div>
 
@@ -409,7 +409,7 @@ const PlayerHQIntegrationPage = () => {
                 <div className="mt-4">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-medium">Preview</h4>
-                    <span className={`text-sm ${importData.preview.success ? 'text-[#4ade80]' : 'text-yellow-400'}`}>
+                    <span className={`text-sm ${importData.preview.success ? 'text-[#00A651]' : 'text-yellow-400'}`}>
                       {importData.preview.imported} rows parsed
                     </span>
                   </div>
@@ -426,7 +426,7 @@ const PlayerHQIntegrationPage = () => {
                   <div className="bg-black/30 rounded-lg p-3 max-h-40 overflow-auto">
                     <table className="w-full text-xs">
                       <thead>
-                        <tr className="text-white/50">
+                        <tr className="text-gray-400">
                           {importData.preview.data[0] && Object.keys(importData.preview.data[0]).slice(0, 4).map(key => (
                             <th key={key} className="text-left p-1">{key}</th>
                           ))}
@@ -434,7 +434,7 @@ const PlayerHQIntegrationPage = () => {
                       </thead>
                       <tbody>
                         {importData.preview.data.slice(0, 5).map((row, i) => (
-                          <tr key={i} className="text-white/70">
+                          <tr key={i} className="text-gray-600">
                             {Object.values(row).slice(0, 4).map((val, j) => (
                               <td key={j} className="p-1 truncate max-w-[100px]">{val}</td>
                             ))}
@@ -456,7 +456,7 @@ const PlayerHQIntegrationPage = () => {
                       setImportData({ type: 'players', file: null, preview: null });
                     }}
                     disabled={importData.preview.imported === 0}
-                    className="w-full bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-600 text-white py-3 rounded-lg font-medium mt-4 transition-colors"
+                    className="w-full bg-[#005028] hover:bg-gray-100 disabled:bg-gray-600 text-white py-3 rounded-lg font-medium mt-4 transition-colors"
                   >
                     Import {importData.preview.imported} Records
                   </button>
@@ -465,14 +465,14 @@ const PlayerHQIntegrationPage = () => {
             </div>
 
             {/* Export Options */}
-            <div className="bg-[#0d5943] rounded-xl p-4">
+            <div className="bg-white rounded-xl p-4">
               <h3 className="font-bold mb-3">Export Data</h3>
               <div className="grid grid-cols-2 gap-3">
-                <button className="bg-white/10 hover:bg-white/20 py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors">
+                <button className="bg-gray-100 hover:bg-gray-200 py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors">
                   <Download size={18} />
                   Export Players
                 </button>
-                <button className="bg-white/10 hover:bg-white/20 py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors">
+                <button className="bg-gray-100 hover:bg-gray-200 py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors">
                   <Download size={18} />
                   Export Games
                 </button>
@@ -491,27 +491,27 @@ const PlayerHQIntegrationPage = () => {
                   clearSyncLogs();
                   setSyncLogs([]);
                 }}
-                className="text-sm text-white/60 hover:text-white"
+                className="text-sm text-gray-500 hover:text-gray-800"
               >
                 Clear Logs
               </button>
             </div>
 
             {syncLogs.length === 0 ? (
-              <div className="bg-[#0d5943] rounded-xl p-8 text-center">
-                <Clock className="mx-auto mb-2 text-white/30" size={32} />
-                <p className="text-white/50">No sync activity yet</p>
+              <div className="bg-white rounded-xl p-8 text-center">
+                <Clock className="mx-auto mb-2 text-gray-800/30" size={32} />
+                <p className="text-gray-400">No sync activity yet</p>
               </div>
             ) : (
               <div className="space-y-2">
                 {syncLogs.map((log, index) => (
-                  <div key={index} className="bg-[#0d5943] rounded-xl p-4">
+                  <div key={index} className="bg-white rounded-xl p-4">
                     <div className="flex items-start gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        log.success ? 'bg-[#22c55e]/20' : 'bg-yellow-500/20'
+                        log.success ? 'bg-[#005028]/20' : 'bg-yellow-500/20'
                       }`}>
                         {log.success ? (
-                          <CheckCircle className="text-[#22c55e]" size={16} />
+                          <CheckCircle className="text-[#00A651]" size={16} />
                         ) : (
                           <AlertTriangle className="text-yellow-400" size={16} />
                         )}
@@ -521,13 +521,13 @@ const PlayerHQIntegrationPage = () => {
                           <span className="font-medium capitalize">
                             {log.type.replace(/_/g, ' ')}
                           </span>
-                          <span className="text-xs text-white/50">
+                          <span className="text-xs text-gray-400">
                             {new Date(log.timestamp).toLocaleTimeString()}
                           </span>
                         </div>
-                        <p className="text-sm text-white/70 mt-1">{log.message}</p>
+                        <p className="text-sm text-gray-600 mt-1">{log.message}</p>
                         {log.synced > 0 && (
-                          <p className="text-xs text-[#4ade80] mt-1">
+                          <p className="text-xs text-[#00A651] mt-1">
                             {log.synced} records synced
                           </p>
                         )}

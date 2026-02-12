@@ -18,7 +18,7 @@ import * as Icons from 'lucide-react';
  *   height      - Container height in px (default 300)
  */
 
-const DEFAULT_NODE_COLOR = '#4ade80';
+const DEFAULT_NODE_COLOR = '#00A651';
 const NODE_SIZE = 56;
 
 const FlowChart = ({ nodes = [], edges = [], title, description, height = 300 }) => {
@@ -49,12 +49,12 @@ const FlowChart = ({ nodes = [], edges = [], title, description, height = 300 })
 
   return (
     <div className="space-y-2">
-      {title && <p className="text-xs text-[#4ade80] font-semibold">{title}</p>}
-      {description && <p className="text-white/70 text-xs">{description}</p>}
+      {title && <p className="text-xs text-[#00A651] font-semibold">{title}</p>}
+      {description && <p className="text-gray-600 text-xs">{description}</p>}
 
       {/* Desktop / tablet layout */}
       <div
-        className="relative bg-[#0a3d2e] border-2 border-dashed border-[#1a8a68] rounded-xl overflow-hidden hidden sm:block"
+        className="relative bg-[#F5F9F5] border-2 border-dashed border-[#D4E4D4] rounded-xl overflow-hidden hidden sm:block"
         style={{ height }}
       >
         {/* SVG edge lines */}
@@ -143,11 +143,11 @@ const FlowChart = ({ nodes = [], edges = [], title, description, height = 300 })
               >
                 <NodeIcon className="w-5 h-5" style={{ color }} />
               </div>
-              <span className="text-[10px] text-white font-medium text-center whitespace-nowrap max-w-[80px] truncate">
+              <span className="text-[10px] text-gray-800 font-medium text-center whitespace-nowrap max-w-[80px] truncate">
                 {node.label}
               </span>
               {node.description && (
-                <span className="text-[9px] text-white/50 text-center max-w-[90px] leading-tight">
+                <span className="text-[9px] text-gray-400 text-center max-w-[90px] leading-tight">
                   {node.description}
                 </span>
               )}
@@ -157,7 +157,7 @@ const FlowChart = ({ nodes = [], edges = [], title, description, height = 300 })
       </div>
 
       {/* Mobile vertical layout */}
-      <div className="sm:hidden bg-[#0a3d2e] border-2 border-dashed border-[#1a8a68] rounded-xl p-4">
+      <div className="sm:hidden bg-[#F5F9F5] border-2 border-dashed border-[#D4E4D4] rounded-xl p-4">
         <div className="flex flex-col items-center gap-0">
           {mobileNodes.map((node, i) => {
             const NodeIcon = getIcon(node.icon);
@@ -186,9 +186,9 @@ const FlowChart = ({ nodes = [], edges = [], title, description, height = 300 })
                     <NodeIcon className="w-5 h-5" style={{ color }} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs text-white font-medium truncate">{node.label}</p>
+                    <p className="text-xs text-gray-800 font-medium truncate">{node.label}</p>
                     {node.description && (
-                      <p className="text-[10px] text-white/50 leading-tight">{node.description}</p>
+                      <p className="text-[10px] text-gray-400 leading-tight">{node.description}</p>
                     )}
                   </div>
                 </div>
@@ -209,7 +209,7 @@ const FlowChart = ({ nodes = [], edges = [], title, description, height = 300 })
                       </svg>
                     </div>
                     {edgeLabel && (
-                      <span className="text-[10px] text-white/40 italic">{edgeLabel}</span>
+                      <span className="text-[10px] text-gray-400 italic">{edgeLabel}</span>
                     )}
                   </div>
                 )}

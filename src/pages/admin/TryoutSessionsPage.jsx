@@ -191,7 +191,7 @@ const TryoutSessionsPage = () => {
       headerActions={
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#22c55e] hover:bg-[#4ade80] text-[#0a3d2e] rounded-lg font-medium transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[#005028] hover:bg-[#00A651] text-white rounded-lg font-medium transition-colors"
         >
           <Plus className="w-5 h-5" />
           <span className="hidden sm:inline">New Session</span>
@@ -208,7 +208,7 @@ const TryoutSessionsPage = () => {
               </div>
               <div>
                 <p className="text-violet-300 font-medium">Hour 1 (60 min)</p>
-                <p className="text-white/60 text-xs">Team 3 + newcomers. Identify 2-3 top players to promote.</p>
+                <p className="text-gray-500 text-xs">Team 3 + newcomers. Identify 2-3 top players to promote.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -217,7 +217,7 @@ const TryoutSessionsPage = () => {
               </div>
               <div>
                 <p className="text-orange-300 font-medium">Hour 2 (60 min)</p>
-                <p className="text-white/60 text-xs">Team 1 & 2 + promoted players. Select final teams.</p>
+                <p className="text-gray-500 text-xs">Team 1 & 2 + promoted players. Select final teams.</p>
               </div>
             </div>
           </div>
@@ -242,18 +242,18 @@ const TryoutSessionsPage = () => {
         {/* Loading State */}
         {loading ? (
           <div className="text-center py-12">
-            <div className="w-12 h-12 border-4 border-[#1a8a68] border-t-[#22c55e] rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-white">Loading sessions...</p>
+            <div className="w-12 h-12 border-4 border-[#D4E4D4] border-t-[#00A651] rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-gray-800">Loading sessions...</p>
           </div>
         ) : sessions.length === 0 ? (
           /* Empty State */
-          <div className="bg-[#0d5943] border-2 border-dashed border-[#1a8a68] rounded-xl p-12 text-center">
-            <ClipboardList className="w-16 h-16 text-[#1a8a68] mx-auto mb-4" />
-            <h3 className="text-white font-bold text-lg mb-2">No Tryout Sessions Yet</h3>
-            <p className="text-[#4ade80] mb-6">Create your first tryout session to start evaluating players</p>
+          <div className="bg-white border-2 border-dashed border-[#D4E4D4] rounded-xl p-12 text-center">
+            <ClipboardList className="w-16 h-16 text-[#6B7C6B] mx-auto mb-4" />
+            <h3 className="text-gray-800 font-bold text-lg mb-2">No Tryout Sessions Yet</h3>
+            <p className="text-[#00A651] mb-6">Create your first tryout session to start evaluating players</p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#22c55e] hover:bg-[#4ade80] text-[#0a3d2e] rounded-lg font-medium transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#005028] hover:bg-[#00A651] text-white rounded-lg font-medium transition-colors"
             >
               <Plus className="w-5 h-5" />
               Create Tryout Session
@@ -360,20 +360,20 @@ const SessionCard = ({
   const endDisplay = formatTime24to12(session.endTime);
 
   return (
-    <div className={`bg-[#0d5943] border rounded-xl p-5 hover:border-[#22c55e] transition-colors ${
+    <div className={`bg-white border rounded-xl p-5 hover:border-[#00A651] transition-colors ${
       session.sessionType === 'hour-1' ? 'border-violet-500/30' :
       session.sessionType === 'hour-2' ? 'border-orange-500/30' :
-      'border-[#1a8a68]'
+      'border-[#D4E4D4]'
     }`}>
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2 flex-wrap">
-            <h3 className="text-white font-bold text-lg">{session.name}</h3>
+            <h3 className="text-gray-800 font-bold text-lg">{session.name}</h3>
             {getSessionTypeBadge(session.sessionType)}
             {getStatusBadge(session.status)}
           </div>
 
-          <div className="flex flex-wrap gap-4 text-sm text-[#4ade80]">
+          <div className="flex flex-wrap gap-4 text-sm text-[#00A651]">
             <span className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
               {formatDate(session.date)}
@@ -382,7 +382,7 @@ const SessionCard = ({
               <span className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
                 {startDisplay}{endDisplay && ` - ${endDisplay}`}
-                {durationDisplay && <span className="text-white/40 ml-1">({durationDisplay})</span>}
+                {durationDisplay && <span className="text-gray-400 ml-1">({durationDisplay})</span>}
               </span>
             )}
             {session.venue && (
@@ -406,7 +406,7 @@ const SessionCard = ({
 
           <div className="flex items-center gap-2 mt-2 flex-wrap">
             {session.ageGroup && (
-              <span className="px-2 py-1 bg-[#1a8a68]/50 text-white text-xs rounded">
+              <span className="px-2 py-1 bg-[#D4E4D4]/50 text-gray-800 text-xs rounded">
                 {session.ageGroup}
               </span>
             )}
@@ -433,7 +433,7 @@ const SessionCard = ({
               onClick={() => navigate(`/tryout/${session.id}`)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${
                 session.status === 'active'
-                  ? 'bg-gradient-to-r from-[#22c55e] to-[#4ade80] text-[#0a3d2e] hover:from-[#4ade80] hover:to-[#86efac] assessor-btn-glow'
+                  ? 'bg-gradient-to-r from-[#00A651] to-[#00A651] text-white hover:from-[#00A651] hover:to-[#86efac] assessor-btn-glow'
                   : 'bg-gradient-to-r from-gray-500 to-gray-400 text-white'
               }`}
               title={session.status === 'closed' ? 'View Evaluations (Locked)' : 'Open Assessor View'}
@@ -459,7 +459,7 @@ const SessionCard = ({
           {/* View Results */}
           <button
             onClick={() => navigate(`/admin/tryouts/${session.id}/results`)}
-            className="p-2 bg-[#1a8a68] hover:bg-[#22c55e] text-white rounded-lg transition-colors"
+            className="p-2 bg-[#D4E4D4] hover:bg-[#00A651] text-white rounded-lg transition-colors"
             title="View Results"
           >
             <Eye className="w-5 h-5" />
@@ -471,8 +471,8 @@ const SessionCard = ({
             disabled={session.status === 'closed'}
             className={`p-2 rounded-lg transition-colors ${
               session.status === 'closed'
-                ? 'bg-[#1a8a68]/30 text-white/20 cursor-not-allowed'
-                : 'bg-[#1a8a68] hover:bg-[#22c55e] text-white'
+                ? 'bg-[#D4E4D4]/30 text-gray-800/20 cursor-not-allowed'
+                : 'bg-[#D4E4D4] hover:bg-[#00A651] text-white'
             }`}
             title={session.status === 'closed' ? 'Session is locked' : 'Edit Session'}
           >
@@ -768,12 +768,12 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-[#0d5943] border-b border-[#1a8a68] p-4 flex items-center justify-between z-10">
-          <h2 className="text-xl font-bold text-white">
+      <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-[#D4E4D4] p-4 flex items-center justify-between z-10">
+          <h2 className="text-xl font-bold text-gray-800">
             {session ? 'Edit Tryout Session' : 'Create Tryout Session'}
           </h2>
-          <button onClick={onClose} className="text-white/60 hover:text-white">
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -781,7 +781,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Session Type Selection */}
           <div>
-            <label className="block text-[#4ade80] text-sm font-medium mb-2">Session Type *</label>
+            <label className="block text-[#00A651] text-sm font-medium mb-2">Session Type *</label>
             <div className="grid grid-cols-2 gap-3">
               {SESSION_TYPES.map((type) => (
                 <button
@@ -793,18 +793,18 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                       ? type.id === 'hour-1'
                         ? 'border-violet-500 bg-violet-500/20'
                         : 'border-orange-500 bg-orange-500/20'
-                      : 'border-[#1a8a68] hover:border-[#22c55e]'
+                      : 'border-[#D4E4D4] hover:border-[#00A651]'
                   }`}
                 >
                   <p className={`font-medium ${
                     formData.sessionType === type.id
                       ? type.id === 'hour-1' ? 'text-violet-300' : 'text-orange-300'
-                      : 'text-white'
+                      : 'text-gray-800'
                   }`}>
                     {type.label}
                   </p>
-                  <p className="text-white/60 text-xs mt-1">{type.description}</p>
-                  <p className="text-[#4ade80] text-xs mt-1">{type.durationLabel}</p>
+                  <p className="text-gray-500 text-xs mt-1">{type.description}</p>
+                  <p className="text-[#00A651] text-xs mt-1">{type.durationLabel}</p>
                 </button>
               ))}
             </div>
@@ -813,24 +813,24 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
           {/* Basic Info */}
           <div className="space-y-4">
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-2">Session Name *</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-2">Session Name *</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder={`e.g., ${formData.ageGroup || 'U12'} Boys - ${formData.sessionType === 'hour-1' ? 'Hour 1' : 'Hour 2'}`}
-                className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[#4ade80] text-sm font-medium mb-2">Age Group *</label>
+                <label className="block text-[#00A651] text-sm font-medium mb-2">Age Group *</label>
                 <select
                   value={formData.ageGroup}
                   onChange={(e) => setFormData(prev => ({ ...prev, ageGroup: e.target.value }))}
-                  className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
                   required
                 >
                   <option value="">Select age group</option>
@@ -840,51 +840,51 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                 </select>
               </div>
               <div>
-                <label className="block text-[#4ade80] text-sm font-medium mb-2">Date</label>
+                <label className="block text-[#00A651] text-sm font-medium mb-2">Date</label>
                 <input
                   type="date"
                   value={formData.date}
                   onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                  className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
                 />
               </div>
             </div>
 
             {/* Time Range - native time pickers with auto-fill */}
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-2">
+              <label className="block text-[#00A651] text-sm font-medium mb-2">
                 Session Time
                 {durationMins && (
-                  <span className="ml-2 text-white/50 font-normal">({durationMins} min)</span>
+                  <span className="ml-2 text-gray-400 font-normal">({durationMins} min)</span>
                 )}
               </label>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-white/40 text-xs mb-1">Start</label>
+                  <label className="block text-gray-400 text-xs mb-1">Start</label>
                   <input
                     type="time"
                     value={formData.startTime}
                     onChange={(e) => handleStartTimeChange(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+                    className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-white/40 text-xs mb-1">
+                  <label className="block text-gray-400 text-xs mb-1">
                     End
                     {formData.endTimeAutoFilled && formData.endTime && (
-                      <span className="text-[#4ade80] ml-1">(auto-filled)</span>
+                      <span className="text-[#00A651] ml-1">(auto-filled)</span>
                     )}
                   </label>
                   <input
                     type="time"
                     value={formData.endTime}
                     onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value, endTimeAutoFilled: false }))}
-                    className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+                    className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
                   />
                 </div>
               </div>
               {formData.startTime && formData.endTime && (
-                <p className="text-white/40 text-xs mt-2">
+                <p className="text-gray-400 text-xs mt-2">
                   {formatTime24to12(formData.startTime)} - {formatTime24to12(formData.endTime)}
                   {durationMins && ` (${durationMins} min)`}
                 </p>
@@ -892,27 +892,27 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
             </div>
 
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-2">Venue</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-2">Venue</label>
               <input
                 type="text"
                 value={formData.venue}
                 onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
                 placeholder="e.g., Emerald Indoor Courts"
-                className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
               />
             </div>
 
             {/* Link to Hour 1 Session (for Hour 2 only) */}
             {formData.sessionType === 'hour-2' && (
               <div>
-                <label className="block text-[#4ade80] text-sm font-medium mb-2">
+                <label className="block text-[#00A651] text-sm font-medium mb-2">
                   <Link2 className="w-4 h-4 inline mr-1" />
                   Link to Hour 1 Session
                 </label>
                 <select
                   value={formData.linkedHour1SessionId}
                   onChange={(e) => setFormData(prev => ({ ...prev, linkedHour1SessionId: e.target.value }))}
-                  className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
                 >
                   <option value="">No link (standalone session)</option>
                   {hour1Sessions.map(s => (
@@ -921,7 +921,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                     </option>
                   ))}
                 </select>
-                <p className="text-white/40 text-xs mt-1">
+                <p className="text-gray-400 text-xs mt-1">
                   Linking allows you to promote top players from Hour 1 to this session
                 </p>
               </div>
@@ -930,8 +930,8 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
 
           {/* Players Section */}
           <div>
-            <h3 className="text-white font-medium mb-3 flex items-center gap-2">
-              <Users className="w-5 h-5 text-[#4ade80]" />
+            <h3 className="text-gray-800 font-medium mb-3 flex items-center gap-2">
+              <Users className="w-5 h-5 text-[#00A651]" />
               Players ({formData.players.length})
               {formData.sessionType === 'hour-1' && (
                 <span className="text-violet-300 text-xs ml-2">Team 3 + Newcomers</span>
@@ -942,14 +942,14 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
             </h3>
 
             {/* Player Mode Toggle */}
-            <div className="flex mb-3 bg-[#0a3d2e] rounded-lg p-1 border border-[#1a8a68]">
+            <div className="flex mb-3 bg-[#F5F9F5] rounded-lg p-1 border border-[#D4E4D4]">
               <button
                 type="button"
                 onClick={() => setPlayerMode('existing')}
                 className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
                   playerMode === 'existing'
-                    ? 'bg-[#22c55e] text-[#0a3d2e]'
-                    : 'text-white/60 hover:text-white'
+                    ? 'bg-[#005028] text-white'
+                    : 'text-gray-500 hover:text-gray-800'
                 }`}
               >
                 Existing Player
@@ -959,8 +959,8 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                 onClick={() => setPlayerMode('new')}
                 className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
                   playerMode === 'new'
-                    ? 'bg-[#22c55e] text-[#0a3d2e]'
-                    : 'text-white/60 hover:text-white'
+                    ? 'bg-[#005028] text-white'
+                    : 'text-gray-500 hover:text-gray-800'
                 }`}
               >
                 New Player
@@ -968,22 +968,22 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
             </div>
 
             {/* Add Player Form */}
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-lg p-3 mb-3 space-y-2">
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg p-3 mb-3 space-y-2">
               {playerMode === 'existing' ? (
                 /* Existing Player - searchable dropdown */
                 <div className="relative">
-                  <div className="flex items-center gap-1 bg-[#0d5943] border border-[#1a8a68] rounded-lg px-3 py-2">
-                    <Search className="w-4 h-4 text-[#1a8a68] flex-shrink-0" />
+                  <div className="flex items-center gap-1 bg-white border border-[#D4E4D4] rounded-lg px-3 py-2">
+                    <Search className="w-4 h-4 text-[#6B7C6B] flex-shrink-0" />
                     <input
                       type="text"
                       value={playerSearch}
                       onChange={(e) => setPlayerSearch(e.target.value)}
                       placeholder="Search players by name, team, age group..."
-                      className="flex-1 bg-transparent text-white placeholder-[#1a8a68] text-sm focus:outline-none"
+                      className="flex-1 bg-transparent text-gray-800 placeholder-gray-400 text-sm focus:outline-none"
                     />
                   </div>
                   {playerSearch.trim() && (
-                    <div className="absolute z-20 mt-1 w-full bg-[#0d5943] border border-[#1a8a68] rounded-lg shadow-xl max-h-48 overflow-y-auto">
+                    <div className="absolute z-20 mt-1 w-full bg-white border border-[#D4E4D4] rounded-lg shadow-xl max-h-48 overflow-y-auto">
                       {filteredPlayers.length > 0 ? (
                         filteredPlayers.slice(0, 20).map(player => {
                           const teamName = getTeamName(player.teamId);
@@ -1003,20 +1003,20 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                               className={`w-full text-left px-3 py-2 text-sm ${
                                 alreadyAdded
                                   ? 'opacity-40 cursor-not-allowed'
-                                  : overage ? 'hover:bg-red-500/10 bg-red-500/5' : 'hover:bg-white/10'
+                                  : overage ? 'hover:bg-red-500/10 bg-red-500/5' : 'hover:bg-gray-100'
                               }`}
                             >
-                              <span className={`font-medium ${overage ? 'text-red-300' : 'text-white'}`}>{player.name}</span>
-                              {teamName && <span className="text-[#4ade80] ml-1">- {teamName}</span>}
-                              {player.ageGroup && <span className="text-white/50 ml-1">- {player.ageGroup}</span>}
-                              {age && <span className="text-white/50 ml-1">- Age {age}</span>}
+                              <span className={`font-medium ${overage ? 'text-red-300' : 'text-gray-800'}`}>{player.name}</span>
+                              {teamName && <span className="text-[#00A651] ml-1">- {teamName}</span>}
+                              {player.ageGroup && <span className="text-gray-400 ml-1">- {player.ageGroup}</span>}
+                              {age && <span className="text-gray-400 ml-1">- Age {age}</span>}
                               {overage && <span className="text-red-400 ml-2 font-medium">(overage)</span>}
                               {alreadyAdded && <span className="text-orange-400 ml-2">(added)</span>}
                             </button>
                           );
                         })
                       ) : (
-                        <p className="px-3 py-2 text-[#1a8a68] text-sm">No players found</p>
+                        <p className="px-3 py-2 text-[#6B7C6B] text-sm">No players found</p>
                       )}
                     </div>
                   )}
@@ -1030,7 +1030,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                       value={newPlayer.name}
                       onChange={(e) => setNewPlayer(prev => ({ ...prev, name: e.target.value }))}
                       placeholder="Player name"
-                      className="flex-1 px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white placeholder-[#1a8a68] text-sm focus:border-[#22c55e] focus:outline-none"
+                      className="flex-1 px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 text-sm focus:border-[#00A651] focus:outline-none"
                       onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addPlayer())}
                     />
                     <input
@@ -1038,21 +1038,21 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                       value={newPlayer.number}
                       onChange={(e) => setNewPlayer(prev => ({ ...prev, number: e.target.value }))}
                       placeholder="#"
-                      className="w-14 px-2 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white placeholder-[#1a8a68] text-sm focus:border-[#22c55e] focus:outline-none text-center"
+                      className="w-14 px-2 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 text-sm focus:border-[#00A651] focus:outline-none text-center"
                     />
                     <input
                       type="text"
                       value={newPlayer.age}
                       onChange={(e) => setNewPlayer(prev => ({ ...prev, age: e.target.value }))}
                       placeholder="Age"
-                      className="w-14 px-2 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white placeholder-[#1a8a68] text-sm focus:border-[#22c55e] focus:outline-none text-center"
+                      className="w-14 px-2 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 text-sm focus:border-[#00A651] focus:outline-none text-center"
                     />
                   </div>
                   <div className="flex gap-2 items-center">
                     <select
                       value={newPlayer.playerAgeGroup}
                       onChange={(e) => setNewPlayer(prev => ({ ...prev, playerAgeGroup: e.target.value }))}
-                      className="flex-1 px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                      className="flex-1 px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none"
                     >
                       <option value="">Age Group: {formData.ageGroup || 'same as session'}</option>
                       {AGE_GROUPS.map(ag => (
@@ -1062,7 +1062,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                     <button
                       type="button"
                       onClick={addPlayer}
-                      className="px-4 py-2 bg-[#22c55e] hover:bg-[#4ade80] text-[#0a3d2e] rounded-lg font-medium text-sm flex items-center gap-1"
+                      className="px-4 py-2 bg-[#005028] hover:bg-[#00A651] text-white rounded-lg font-medium text-sm flex items-center gap-1"
                     >
                       <Plus className="w-4 h-4" />
                       Add
@@ -1074,17 +1074,17 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
 
             {/* Players List */}
             {formData.players.length > 0 ? (
-              <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-lg divide-y divide-[#1a8a68] max-h-48 overflow-y-auto">
+              <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg divide-y divide-[#D4E4D4] max-h-48 overflow-y-auto">
                 {formData.players.map((player) => (
                   <div key={player.id} className="flex items-center justify-between px-3 py-2">
                     <div className="flex items-center gap-2 flex-wrap min-w-0">
-                      <span className="w-8 h-8 bg-[#1a8a68] rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                      <span className="w-8 h-8 bg-[#D4E4D4] rounded-full flex items-center justify-center text-gray-800 text-xs font-bold flex-shrink-0">
                         {player.number || '?'}
                       </span>
-                      <span className="text-white text-sm">{player.name}</span>
-                      {player.age && <span className="text-[#4ade80] text-xs">Age {player.age}</span>}
+                      <span className="text-gray-800 text-sm">{player.name}</span>
+                      {player.age && <span className="text-[#00A651] text-xs">Age {player.age}</span>}
                       {(player.playerAgeGroup || player.ageGroup) && (
-                        <span className="px-1.5 py-0.5 bg-[#1a8a68]/50 text-white text-xs rounded">
+                        <span className="px-1.5 py-0.5 bg-[#D4E4D4]/50 text-gray-800 text-xs rounded">
                           {player.playerAgeGroup || player.ageGroup}
                         </span>
                       )}
@@ -1111,19 +1111,19 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                 ))}
               </div>
             ) : (
-              <p className="text-[#1a8a68] text-sm text-center py-4">No players added yet</p>
+              <p className="text-[#6B7C6B] text-sm text-center py-4">No players added yet</p>
             )}
           </div>
 
           {/* Assessors Section */}
           <div>
-            <h3 className="text-white font-medium mb-3 flex items-center gap-2">
-              <UserPlus className="w-5 h-5 text-[#4ade80]" />
+            <h3 className="text-gray-800 font-medium mb-3 flex items-center gap-2">
+              <UserPlus className="w-5 h-5 text-[#00A651]" />
               Assessors ({formData.assessors.length})
             </h3>
 
             {/* Add Assessor Form */}
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-lg p-3 mb-3 space-y-2">
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg p-3 mb-3 space-y-2">
               <div className="flex gap-2 items-center">
                 <select
                   value={newAssessor.role}
@@ -1133,7 +1133,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                     setCoachSearch('');
                     setShowCoachDropdown(false);
                   }}
-                  className="flex-1 px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                  className="flex-1 px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none"
                 >
                   <option value="volunteer">Volunteer</option>
                   <option value="coach">Coach</option>
@@ -1146,8 +1146,8 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
               {(newAssessor.role === 'coach' || newAssessor.role === 'tryout_assessor') ? (
                 <div className="space-y-2">
                   <div className="relative">
-                    <div className="flex items-center gap-1 bg-[#0d5943] border border-[#1a8a68] rounded-lg px-3 py-2">
-                      <Search className="w-4 h-4 text-[#1a8a68] flex-shrink-0" />
+                    <div className="flex items-center gap-1 bg-white border border-[#D4E4D4] rounded-lg px-3 py-2">
+                      <Search className="w-4 h-4 text-[#6B7C6B] flex-shrink-0" />
                       <input
                         type="text"
                         value={coachSearch}
@@ -1161,11 +1161,11 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                         }}
                         onFocus={() => setShowCoachDropdown(true)}
                         placeholder="Search coaches..."
-                        className="flex-1 bg-transparent text-white placeholder-[#1a8a68] text-sm focus:outline-none"
+                        className="flex-1 bg-transparent text-gray-800 placeholder-gray-400 text-sm focus:outline-none"
                       />
                     </div>
                     {showCoachDropdown && (
-                      <div className="absolute z-20 mt-1 w-full bg-[#0d5943] border border-[#1a8a68] rounded-lg shadow-xl max-h-40 overflow-y-auto">
+                      <div className="absolute z-20 mt-1 w-full bg-white border border-[#D4E4D4] rounded-lg shadow-xl max-h-40 overflow-y-auto">
                         {filteredCoaches.length > 0 ? (
                           filteredCoaches.map(coach => {
                             const teamLabel = (coach.teamNames || []).join(', ');
@@ -1174,26 +1174,26 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                                 key={coach.id}
                                 type="button"
                                 onClick={() => selectCoach(coach)}
-                                className="w-full text-left px-3 py-2 hover:bg-white/10 text-sm"
+                                className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm"
                               >
-                                <span className="text-white">{coach.displayName}</span>
+                                <span className="text-gray-800">{coach.displayName}</span>
                                 {teamLabel && (
-                                  <span className="text-[#4ade80] ml-1">({teamLabel})</span>
+                                  <span className="text-[#00A651] ml-1">({teamLabel})</span>
                                 )}
                                 {coach.email && (
-                                  <span className="text-white/40 ml-1 text-xs">{coach.email}</span>
+                                  <span className="text-gray-400 ml-1 text-xs">{coach.email}</span>
                                 )}
                               </button>
                             );
                           })
                         ) : (
-                          <p className="px-3 py-2 text-[#1a8a68] text-sm">No coaches found</p>
+                          <p className="px-3 py-2 text-[#6B7C6B] text-sm">No coaches found</p>
                         )}
                       </div>
                     )}
                   </div>
                   {newAssessor.userId && (
-                    <p className="text-[#4ade80] text-xs">
+                    <p className="text-[#00A651] text-xs">
                       Selected: {newAssessor.name} ({newAssessor.email})
                     </p>
                   )}
@@ -1206,7 +1206,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                     value={newAssessor.name}
                     onChange={(e) => setNewAssessor(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="Assessor name"
-                    className="flex-1 px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white placeholder-[#1a8a68] text-sm focus:border-[#22c55e] focus:outline-none"
+                    className="flex-1 px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 text-sm focus:border-[#00A651] focus:outline-none"
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addAssessor())}
                   />
                   <input
@@ -1214,7 +1214,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                     value={newAssessor.email}
                     onChange={(e) => setNewAssessor(prev => ({ ...prev, email: e.target.value }))}
                     placeholder="Email (optional)"
-                    className="flex-1 px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white placeholder-[#1a8a68] text-sm focus:border-[#22c55e] focus:outline-none"
+                    className="flex-1 px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 text-sm focus:border-[#00A651] focus:outline-none"
                   />
                 </div>
               )}
@@ -1224,7 +1224,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                   type="button"
                   onClick={addAssessor}
                   disabled={!newAssessor.name.trim()}
-                  className="px-4 py-2 bg-[#22c55e] hover:bg-[#4ade80] disabled:bg-[#1a8a68] disabled:cursor-not-allowed text-[#0a3d2e] rounded-lg font-medium text-sm flex items-center gap-1"
+                  className="px-4 py-2 bg-[#005028] hover:bg-[#00A651] disabled:bg-[#D4E4D4] disabled:cursor-not-allowed text-white rounded-lg font-medium text-sm flex items-center gap-1"
                 >
                   <Plus className="w-4 h-4" />
                   Add
@@ -1234,24 +1234,24 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
 
             {/* Assessors List */}
             {formData.assessors.length > 0 ? (
-              <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-lg divide-y divide-[#1a8a68]">
+              <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg divide-y divide-[#D4E4D4]">
                 {formData.assessors.map((assessor) => (
                   <div key={assessor.id} className="flex items-center justify-between px-3 py-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-white text-sm">{assessor.name}</span>
-                      {assessor.email && <span className="text-[#4ade80] text-xs">{assessor.email}</span>}
+                      <span className="text-gray-800 text-sm">{assessor.name}</span>
+                      {assessor.email && <span className="text-[#00A651] text-xs">{assessor.email}</span>}
                       <span className={`px-1.5 py-0.5 text-xs rounded ${
                         assessor.role === 'coach' ? 'bg-green-500/20 text-green-300' :
                         assessor.role === 'tryout_assessor' ? 'bg-violet-500/20 text-violet-300' :
                         assessor.role === 'team_manager' ? 'bg-blue-500/20 text-blue-300' :
-                        'bg-[#1a8a68]/50 text-white/70'
+                        'bg-[#D4E4D4]/50 text-gray-600'
                       }`}>
                         {assessor.role === 'team_manager' ? 'Team Manager' :
                          assessor.role === 'tryout_assessor' ? 'Assessor' :
                          assessor.role || 'volunteer'}
                       </span>
                       {assessor.userId && (
-                        <span className="text-[#4ade80] text-xs">(linked)</span>
+                        <span className="text-[#00A651] text-xs">(linked)</span>
                       )}
                     </div>
                     <button
@@ -1265,27 +1265,27 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                 ))}
               </div>
             ) : (
-              <p className="text-[#1a8a68] text-sm text-center py-4">No assessors added yet</p>
+              <p className="text-[#6B7C6B] text-sm text-center py-4">No assessors added yet</p>
             )}
           </div>
 
           {/* Submit Buttons */}
-          <div className="flex gap-3 pt-4 border-t border-[#1a8a68]">
+          <div className="flex gap-3 pt-4 border-t border-[#D4E4D4]">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg font-medium hover:border-[#22c55e] transition-colors"
+              className="flex-1 py-3 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg font-medium hover:border-[#00A651] transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving || !formData.name.trim() || !formData.ageGroup}
-              className="flex-1 py-3 bg-[#22c55e] hover:bg-[#4ade80] disabled:bg-[#1a8a68] text-[#0a3d2e] rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-[#005028] hover:bg-[#00A651] disabled:bg-[#D4E4D4] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
             >
               {saving ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-[#0a3d2e] border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-[#D4E4D4] border-t-transparent rounded-full animate-spin" />
                   Saving...
                 </>
               ) : (
@@ -1342,16 +1342,16 @@ const PromotePlayersModal = ({ session, sessions, onClose, onPromote }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#0d5943] border-2 border-orange-500/50 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-[#0d5943] border-b border-[#1a8a68] p-4 flex items-center justify-between">
+      <div className="bg-white border-2 border-orange-500/50 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-[#D4E4D4] p-4 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
               <ArrowUpCircle className="w-6 h-6 text-orange-400" />
               Promote Players
             </h2>
             <p className="text-orange-300 text-sm">Move top performers to Hour 2</p>
           </div>
-          <button onClick={onClose} className="text-white/60 hover:text-white">
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -1380,14 +1380,14 @@ const PromotePlayersModal = ({ session, sessions, onClose, onPromote }) => {
 
           {/* Target Session Selection */}
           <div>
-            <label className="block text-[#4ade80] text-sm font-medium mb-2">
+            <label className="block text-[#00A651] text-sm font-medium mb-2">
               Promote to Hour 2 Session
             </label>
             {hour2Sessions.length > 0 ? (
               <select
                 value={targetSessionId}
                 onChange={(e) => setTargetSessionId(e.target.value)}
-                className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-orange-500 focus:outline-none"
+                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-orange-500 focus:outline-none"
               >
                 <option value="">Select Hour 2 session...</option>
                 {hour2Sessions.map(s => (
@@ -1407,52 +1407,52 @@ const PromotePlayersModal = ({ session, sessions, onClose, onPromote }) => {
 
           {/* Player Selection */}
           <div>
-            <label className="block text-[#4ade80] text-sm font-medium mb-2">
+            <label className="block text-[#00A651] text-sm font-medium mb-2">
               Select Players to Promote ({selectedPlayers.length} selected)
             </label>
             {availablePlayers.length > 0 ? (
-              <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-lg divide-y divide-[#1a8a68] max-h-60 overflow-y-auto">
+              <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg divide-y divide-[#D4E4D4] max-h-60 overflow-y-auto">
                 {availablePlayers.map((player) => (
                   <label
                     key={player.id}
-                    className="flex items-center gap-3 px-3 py-3 cursor-pointer hover:bg-white/5"
+                    className="flex items-center gap-3 px-3 py-3 cursor-pointer hover:bg-gray-100"
                   >
                     <input
                       type="checkbox"
                       checked={selectedPlayers.includes(player.id)}
                       onChange={() => togglePlayer(player.id)}
-                      className="w-5 h-5 rounded border-[#1a8a68] bg-[#0a3d2e] text-orange-500 focus:ring-orange-500"
+                      className="w-5 h-5 rounded border-[#D4E4D4] bg-[#F5F9F5] text-orange-500 focus:ring-orange-500"
                     />
-                    <span className="w-10 h-10 bg-[#1a8a68] rounded-full flex items-center justify-center text-white font-bold">
+                    <span className="w-10 h-10 bg-[#D4E4D4] rounded-full flex items-center justify-center text-gray-800 font-bold">
                       {player.number || '?'}
                     </span>
                     <div className="flex-1">
-                      <p className="text-white font-medium">{player.name}</p>
-                      {player.age && <p className="text-[#4ade80] text-xs">Age {player.age}</p>}
+                      <p className="text-gray-800 font-medium">{player.name}</p>
+                      {player.age && <p className="text-[#00A651] text-xs">Age {player.age}</p>}
                     </div>
                   </label>
                 ))}
               </div>
             ) : (
-              <div className="p-4 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-center">
-                <p className="text-[#1a8a68]">All players have been promoted</p>
+              <div className="p-4 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-center">
+                <p className="text-[#6B7C6B]">All players have been promoted</p>
               </div>
             )}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4 border-t border-[#1a8a68]">
+          <div className="flex gap-3 pt-4 border-t border-[#D4E4D4]">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg font-medium hover:border-[#22c55e] transition-colors"
+              className="flex-1 py-3 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg font-medium hover:border-[#00A651] transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handlePromote}
               disabled={promoting || !targetSessionId || selectedPlayers.length === 0}
-              className="flex-1 py-3 bg-orange-500 hover:bg-orange-400 disabled:bg-[#1a8a68] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-orange-500 hover:bg-orange-400 disabled:bg-[#D4E4D4] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
             >
               {promoting ? (
                 <>

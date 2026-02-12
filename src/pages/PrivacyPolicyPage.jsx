@@ -131,27 +131,27 @@ const SECTIONS = [
 const Section = ({ section, isOpen, onToggle }) => {
   const Icon = section.icon;
   return (
-    <div className="border border-[#1a8a68]/50 rounded-xl overflow-hidden">
+    <div className="border border-[#D4E4D4]/50 rounded-xl overflow-hidden">
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-3 p-4 text-left hover:bg-[#0d5943]/50 transition-colors"
+        className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50/50 transition-colors"
       >
-        <div className="w-9 h-9 rounded-lg bg-[#1a8a68]/30 flex items-center justify-center flex-shrink-0">
-          <Icon className="w-4.5 h-4.5 text-[#4ade80]" />
+        <div className="w-9 h-9 rounded-lg bg-[#D4E4D4]/30 flex items-center justify-center flex-shrink-0">
+          <Icon className="w-4.5 h-4.5 text-[#00A651]" />
         </div>
-        <span className="flex-1 font-semibold text-white text-sm">{section.title}</span>
+        <span className="flex-1 font-semibold text-gray-800 text-sm">{section.title}</span>
         {isOpen ? (
-          <ChevronUp className="w-5 h-5 text-[#4ade80]" />
+          <ChevronUp className="w-5 h-5 text-[#00A651]" />
         ) : (
-          <ChevronDown className="w-5 h-5 text-white/40" />
+          <ChevronDown className="w-5 h-5 text-gray-400" />
         )}
       </button>
       {isOpen && (
         <div className="px-4 pb-4 space-y-3">
           {section.content.map((item, i) => (
             <div key={i} className="pl-12">
-              <h4 className="text-[#4ade80] text-xs font-semibold mb-0.5">{item.heading}</h4>
-              <p className="text-white/70 text-sm leading-relaxed">{item.text}</p>
+              <h4 className="text-[#00A651] text-xs font-semibold mb-0.5">{item.heading}</h4>
+              <p className="text-gray-600 text-sm leading-relaxed">{item.text}</p>
             </div>
           ))}
         </div>
@@ -184,28 +184,28 @@ const PrivacyPolicyPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
+    <div className="min-h-screen bg-[#F5F9F5]">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-[#0d5943] border-b border-[#1a8a68]/30 print:static">
+      <div className="sticky top-0 z-10 bg-white border-b border-[#D4E4D4]/30 print:static">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center print:hidden"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center print:hidden"
             >
-              <ArrowLeft className="w-5 h-5 text-white" />
+              <ArrowLeft className="w-5 h-5 text-gray-800" />
             </button>
             <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-[#4ade80]" />
-              <h1 className="text-white font-bold text-lg">Privacy Policy</h1>
+              <Shield className="w-5 h-5 text-[#00A651]" />
+              <h1 className="text-gray-800 font-bold text-lg">Privacy Policy</h1>
             </div>
           </div>
           <button
             onClick={handlePrint}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center print:hidden"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center print:hidden"
             title="Print"
           >
-            <Printer className="w-5 h-5 text-white/60" />
+            <Printer className="w-5 h-5 text-gray-500" />
           </button>
         </div>
       </div>
@@ -213,23 +213,23 @@ const PrivacyPolicyPage = () => {
       {/* Content */}
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
         {/* Intro Card */}
-        <div className="bg-[#0d5943] border border-[#1a8a68]/50 rounded-xl p-5">
+        <div className="bg-white border border-[#D4E4D4]/50 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-[#22c55e]/20 border-2 border-[#22c55e] rounded-full flex items-center justify-center">
-              <Shield className="w-6 h-6 text-[#4ade80]" />
+            <div className="w-12 h-12 bg-[#005028]/20 border-2 border-[#00A651] rounded-full flex items-center justify-center">
+              <Shield className="w-6 h-6 text-[#00A651]" />
             </div>
             <div>
-              <h2 className="text-white font-bold text-lg">Emerald Lakers Basketball Club</h2>
-              <p className="text-[#4ade80] text-sm">Sixth Man App — Privacy Policy</p>
+              <h2 className="text-gray-800 font-bold text-lg">Emerald Lakers Basketball Club</h2>
+              <p className="text-[#00A651] text-sm">Sixth Man App — Privacy Policy</p>
             </div>
           </div>
-          <p className="text-white/70 text-sm leading-relaxed">
+          <p className="text-gray-600 text-sm leading-relaxed">
             The Emerald Lakers Basketball Club ("we", "us", "our") is committed to protecting the
             privacy of our members, including players, parents, coaches, and volunteers. This policy
             explains how we collect, use, store, and protect your personal information when you use
             the Sixth Man club management application.
           </p>
-          <p className="text-white/40 text-xs mt-3">
+          <p className="text-gray-400 text-xs mt-3">
             Last updated: February 2026
           </p>
         </div>
@@ -238,13 +238,13 @@ const PrivacyPolicyPage = () => {
         <div className="flex gap-2 print:hidden">
           <button
             onClick={expandAll}
-            className="px-3 py-1.5 text-xs font-medium text-[#4ade80] bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-lg hover:bg-[#22c55e]/20 transition-colors"
+            className="px-3 py-1.5 text-xs font-medium text-[#00A651] bg-[#005028]/10 border border-[#00A651]/30 rounded-lg hover:bg-[#00A651]/20 transition-colors"
           >
             Expand All
           </button>
           <button
             onClick={collapseAll}
-            className="px-3 py-1.5 text-xs font-medium text-white/50 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors"
+            className="px-3 py-1.5 text-xs font-medium text-gray-400 bg-gray-100 border border-white/10 rounded-lg hover:bg-gray-100 transition-colors"
           >
             Collapse All
           </button>
@@ -263,9 +263,9 @@ const PrivacyPolicyPage = () => {
         </div>
 
         {/* Summary rights card */}
-        <div className="bg-[#0d5943] border border-[#22c55e]/40 rounded-xl p-5">
-          <h3 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-            <FileText className="w-4 h-4 text-[#4ade80]" />
+        <div className="bg-white border border-[#00A651]/40 rounded-xl p-5">
+          <h3 className="text-gray-800 font-bold text-sm mb-3 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-[#00A651]" />
             Your Rights at a Glance
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -275,20 +275,20 @@ const PrivacyPolicyPage = () => {
               { icon: Trash2, label: 'Delete Data' },
               { icon: Download, label: 'Export Data' },
             ].map(({ icon: RIcon, label }) => (
-              <div key={label} className="bg-[#0a3d2e] rounded-lg p-3 text-center">
-                <RIcon className="w-5 h-5 text-[#4ade80] mx-auto mb-1.5" />
-                <p className="text-white/70 text-xs font-medium">{label}</p>
+              <div key={label} className="bg-[#F5F9F5] rounded-lg p-3 text-center">
+                <RIcon className="w-5 h-5 text-[#00A651] mx-auto mb-1.5" />
+                <p className="text-gray-600 text-xs font-medium">{label}</p>
               </div>
             ))}
           </div>
-          <p className="text-white/40 text-xs mt-3">
+          <p className="text-gray-400 text-xs mt-3">
             Contact admin@emeraldlakers.com to exercise any of these rights.
           </p>
         </div>
 
         {/* Footer */}
         <div className="text-center pb-6">
-          <p className="text-white/30 text-xs">
+          <p className="text-gray-800/30 text-xs">
             &copy; 2026 Emerald Lakers Basketball Club. All rights reserved.
           </p>
         </div>

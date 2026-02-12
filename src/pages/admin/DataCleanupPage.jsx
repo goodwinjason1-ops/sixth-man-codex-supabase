@@ -515,7 +515,7 @@ const DataCleanupPage = () => {
           {scanResults && (
             <button
               onClick={exportBackup}
-              className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg text-sm hover:border-[#22c55e] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg text-sm hover:border-[#00A651] transition-colors"
             >
               <Download size={16} />
               <span className="hidden sm:inline">Export</span>
@@ -524,7 +524,7 @@ const DataCleanupPage = () => {
           <button
             onClick={scanForIssues}
             disabled={scanning}
-            className="flex items-center gap-2 px-4 py-2 bg-[#22c55e] text-[#0a3d2e] rounded-lg font-semibold text-sm hover:bg-[#4ade80] disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-[#005028] text-white rounded-lg font-semibold text-sm hover:bg-[#00A651] disabled:opacity-50 transition-colors"
           >
             {scanning ? (
               <Loader2 size={16} className="animate-spin" />
@@ -538,10 +538,10 @@ const DataCleanupPage = () => {
     >
       <div className="space-y-6">
         {/* Dry Run Toggle */}
-        <div className="flex items-center justify-between bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
+        <div className="flex items-center justify-between bg-white border border-[#D4E4D4] rounded-xl p-4">
           <div>
-            <p className="text-white font-medium text-sm">Safe Mode (Dry Run)</p>
-            <p className="text-white/50 text-xs mt-0.5">
+            <p className="text-gray-800 font-medium text-sm">Safe Mode (Dry Run)</p>
+            <p className="text-gray-400 text-xs mt-0.5">
               {dryRun
                 ? 'Actions will be simulated — nothing is deleted or modified'
                 : 'Actions will modify Firestore data permanently'}
@@ -550,7 +550,7 @@ const DataCleanupPage = () => {
           <button
             onClick={() => setDryRun(!dryRun)}
             className={`relative w-12 h-6 rounded-full transition-colors ${
-              dryRun ? 'bg-[#22c55e]' : 'bg-red-500'
+              dryRun ? 'bg-[#005028]' : 'bg-red-500'
             }`}
           >
             <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
@@ -576,7 +576,7 @@ const DataCleanupPage = () => {
                 label="Total Users"
                 value={scanResults.totalUsers}
                 icon={Users}
-                color="text-white"
+                color="text-gray-800"
               />
               <SummaryCard
                 label="Issues Found"
@@ -604,12 +604,12 @@ const DataCleanupPage = () => {
 
             {/* Clean All button */}
             {totalIssues > 0 && (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white border border-[#D4E4D4] rounded-xl p-4">
                 <div>
-                  <p className="text-white font-medium text-sm">
+                  <p className="text-gray-800 font-medium text-sm">
                     {totalIssues} issue{totalIssues !== 1 ? 's' : ''} found across {Object.values(scanResults.issues).filter(arr => arr.length > 0).length} categories
                   </p>
-                  <p className="text-white/50 text-xs mt-0.5">
+                  <p className="text-gray-400 text-xs mt-0.5">
                     {dryRun ? 'Dry run: preview changes before applying' : 'Changes will be applied to Firestore'}
                   </p>
                 </div>
@@ -622,7 +622,7 @@ const DataCleanupPage = () => {
                   disabled={cleaning}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                     dryRun
-                      ? 'bg-[#22c55e] text-[#0a3d2e] hover:bg-[#4ade80]'
+                      ? 'bg-[#005028] text-white hover:bg-[#00A651]'
                       : 'bg-red-500 text-white hover:bg-red-600'
                   } disabled:opacity-50`}
                 >
@@ -633,29 +633,29 @@ const DataCleanupPage = () => {
             )}
 
             {totalIssues === 0 && (
-              <div className="bg-[#0d5943] border-2 border-green-500/30 rounded-xl p-6 text-center">
+              <div className="bg-white border-2 border-green-500/30 rounded-xl p-6 text-center">
                 <CheckCircle2 className="w-12 h-12 text-green-400 mx-auto mb-3" />
-                <p className="text-white font-semibold">All Clear</p>
-                <p className="text-white/50 text-sm mt-1">No issues found in {scanResults.totalUsers} user documents.</p>
+                <p className="text-gray-800 font-semibold">All Clear</p>
+                <p className="text-gray-400 text-sm mt-1">No issues found in {scanResults.totalUsers} user documents.</p>
               </div>
             )}
 
             {/* Issue Categories */}
             <div className="space-y-3">
               {categories.filter(c => c.count > 0).map(cat => (
-                <div key={cat.id} className="bg-[#0d5943] border border-[#1a8a68] rounded-xl overflow-hidden">
+                <div key={cat.id} className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
                   {/* Category Header */}
                   <button
                     onClick={() => setExpandedCategory(expandedCategory === cat.id ? null : cat.id)}
-                    className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
+                    className="w-full flex items-center justify-between p-4 hover:bg-gray-100 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 ${cat.bgColor} rounded-lg flex items-center justify-center`}>
                         <cat.icon className={cat.color} size={20} />
                       </div>
                       <div className="text-left">
-                        <p className="text-white font-medium text-sm">{cat.label}</p>
-                        <p className="text-white/50 text-xs">{cat.description}</p>
+                        <p className="text-gray-800 font-medium text-sm">{cat.label}</p>
+                        <p className="text-gray-400 text-xs">{cat.description}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -663,22 +663,22 @@ const DataCleanupPage = () => {
                         {cat.count}
                       </span>
                       {expandedCategory === cat.id ? (
-                        <ChevronDown className="text-white/40" size={18} />
+                        <ChevronDown className="text-gray-400" size={18} />
                       ) : (
-                        <ChevronRight className="text-white/40" size={18} />
+                        <ChevronRight className="text-gray-400" size={18} />
                       )}
                     </div>
                   </button>
 
                   {/* Expanded Items */}
                   {expandedCategory === cat.id && (
-                    <div className="border-t border-[#1a8a68]/50">
+                    <div className="border-t border-[#D4E4D4]/50">
                       {/* Category Action Bar */}
-                      <div className="px-4 py-3 bg-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                        <span className="text-white/60 text-xs">
+                      <div className="px-4 py-3 bg-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <span className="text-gray-500 text-xs">
                           {cat.count} item{cat.count !== 1 ? 's' : ''} in this category
                           {deleteProgress?.categoryId === cat.id && (
-                            <span className="text-[#4ade80] ml-2">
+                            <span className="text-[#00A651] ml-2">
                               — deleting {deleteProgress.current} of {deleteProgress.total}...
                             </span>
                           )}
@@ -694,7 +694,7 @@ const DataCleanupPage = () => {
                               disabled={cleaning}
                               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                                 dryRun
-                                  ? 'bg-[#22c55e]/20 text-[#4ade80] hover:bg-[#22c55e]/30'
+                                  ? 'bg-[#005028]/20 text-[#00A651] hover:bg-[#00A651]/30'
                                   : 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30'
                               } disabled:opacity-50`}
                             >
@@ -721,9 +721,9 @@ const DataCleanupPage = () => {
                       {/* Progress Bar */}
                       {deleteProgress?.categoryId === cat.id && (
                         <div className="px-4 pb-2">
-                          <div className="w-full bg-[#0a3d2e] rounded-full h-1.5">
+                          <div className="w-full bg-[#F5F9F5] rounded-full h-1.5">
                             <div
-                              className="bg-[#22c55e] h-1.5 rounded-full transition-all duration-200"
+                              className="bg-[#005028] h-1.5 rounded-full transition-all duration-200"
                               style={{ width: `${(deleteProgress.current / deleteProgress.total) * 100}%` }}
                             />
                           </div>
@@ -734,16 +734,16 @@ const DataCleanupPage = () => {
                         {cat.items.map((item, idx) => (
                           <div
                             key={item.id + '-' + idx}
-                            className="flex items-center justify-between px-4 py-3 border-t border-[#1a8a68]/20 hover:bg-white/5"
+                            className="flex items-center justify-between px-4 py-3 border-t border-[#D4E4D4]/20 hover:bg-gray-100"
                           >
                             <div className="flex-1 min-w-0">
-                              <p className="text-white text-sm truncate">{item.label}</p>
-                              <p className="text-white/40 text-xs truncate">{item.sublabel}</p>
+                              <p className="text-gray-800 text-sm truncate">{item.label}</p>
+                              <p className="text-gray-400 text-xs truncate">{item.sublabel}</p>
                             </div>
                             <div className="flex items-center gap-2 ml-3 flex-shrink-0">
                               <button
                                 onClick={() => setDetailDoc(item.details)}
-                                className="p-1.5 text-white/40 hover:text-white transition-colors"
+                                className="p-1.5 text-gray-400 hover:text-gray-800 transition-colors"
                                 title="View details"
                               >
                                 <Eye size={14} />
@@ -776,12 +776,12 @@ const DataCleanupPage = () => {
 
         {/* Cleanup Log */}
         {cleanupLog.length > 0 && (
-          <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[#1a8a68]/50">
-              <p className="text-white font-medium text-sm">Activity Log</p>
+          <div className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#D4E4D4]/50">
+              <p className="text-gray-800 font-medium text-sm">Activity Log</p>
               <button
                 onClick={() => setCleanupLog([])}
-                className="text-white/40 hover:text-white text-xs"
+                className="text-gray-400 hover:text-gray-800 text-xs"
               >
                 Clear
               </button>
@@ -793,13 +793,13 @@ const DataCleanupPage = () => {
                     entry.type === 'error' ? 'text-red-400' :
                     entry.type === 'success' ? 'text-green-400' :
                     entry.type === 'dry-run' ? 'text-blue-400' :
-                    'text-white/60'
+                    'text-gray-500'
                   }`}>
                     {entry.type === 'error' ? '✗' :
                      entry.type === 'success' ? '✓' :
                      entry.type === 'dry-run' ? '◦' : '→'}
                   </span>
-                  <p className="text-white/70 text-xs font-mono break-all">{entry.message}</p>
+                  <p className="text-gray-600 text-xs font-mono break-all">{entry.message}</p>
                 </div>
               ))}
             </div>
@@ -808,10 +808,10 @@ const DataCleanupPage = () => {
 
         {/* Empty State */}
         {!scanResults && !scanning && (
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-8 text-center">
-            <Search className="w-16 h-16 text-[#1a8a68] mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-white mb-2">Scan Your Data</h2>
-            <p className="text-[#1a8a68] text-sm max-w-md mx-auto">
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
+            <Search className="w-16 h-16 text-[#6B7C6B] mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-800 mb-2">Scan Your Data</h2>
+            <p className="text-[#6B7C6B] text-sm max-w-md mx-auto">
               Click &ldquo;Scan for Issues&rdquo; to check the users collection for duplicates,
               missing fields, orphaned documents, and other problems.
             </p>
@@ -820,8 +820,8 @@ const DataCleanupPage = () => {
 
         {scanning && (
           <div className="text-center py-12">
-            <Loader2 className="w-10 h-10 text-[#4ade80] animate-spin mx-auto mb-3" />
-            <p className="text-white/60 text-sm">Scanning Firestore users collection...</p>
+            <Loader2 className="w-10 h-10 text-[#00A651] animate-spin mx-auto mb-3" />
+            <p className="text-gray-500 text-sm">Scanning Firestore users collection...</p>
           </div>
         )}
       </div>
@@ -829,14 +829,14 @@ const DataCleanupPage = () => {
       {/* Confirmation Dialog */}
       {confirmAction && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0d5943] border border-[#1a8a68] rounded-2xl p-6 max-w-md w-full">
+          <div className="bg-white border border-[#D4E4D4] rounded-2xl p-6 max-w-md w-full">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center">
                 <AlertTriangle className="text-yellow-400" size={20} />
               </div>
-              <h3 className="text-white font-bold">Confirm Action</h3>
+              <h3 className="text-gray-800 font-bold">Confirm Action</h3>
             </div>
-            <p className="text-white/80 text-sm mb-2">{confirmAction.label}</p>
+            <p className="text-gray-700 text-sm mb-2">{confirmAction.label}</p>
             {confirmAction.description && !dryRun && (
               <p className="text-red-300 text-xs mb-4">{confirmAction.description}</p>
             )}
@@ -853,7 +853,7 @@ const DataCleanupPage = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmAction(null)}
-                className="flex-1 px-4 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg text-sm hover:border-[#22c55e] transition-colors"
+                className="flex-1 px-4 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg text-sm hover:border-[#00A651] transition-colors"
               >
                 Cancel
               </button>
@@ -865,7 +865,7 @@ const DataCleanupPage = () => {
                 }}
                 className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                   dryRun
-                    ? 'bg-[#22c55e] text-[#0a3d2e] hover:bg-[#4ade80]'
+                    ? 'bg-[#005028] text-white hover:bg-[#00A651]'
                     : 'bg-red-500 text-white hover:bg-red-600'
                 }`}
               >
@@ -879,18 +879,18 @@ const DataCleanupPage = () => {
       {/* Document Detail Modal */}
       {detailDoc && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0d5943] border border-[#1a8a68] rounded-2xl max-w-lg w-full max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b border-[#1a8a68]/50">
-              <h3 className="text-white font-bold text-sm">Document Details</h3>
+          <div className="bg-white border border-[#D4E4D4] rounded-2xl max-w-lg w-full max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-[#D4E4D4]/50">
+              <h3 className="text-gray-800 font-bold text-sm">Document Details</h3>
               <button
                 onClick={() => setDetailDoc(null)}
-                className="text-white/40 hover:text-white"
+                className="text-gray-400 hover:text-gray-800"
               >
                 <X size={18} />
               </button>
             </div>
             <div className="p-4 overflow-y-auto flex-1">
-              <pre className="text-white/80 text-xs font-mono whitespace-pre-wrap break-all">
+              <pre className="text-gray-700 text-xs font-mono whitespace-pre-wrap break-all">
                 {JSON.stringify(
                   detailDoc,
                   (key, value) => {
@@ -913,10 +913,10 @@ const DataCleanupPage = () => {
 
 // Summary Card
 const SummaryCard = ({ label, value, icon: Icon, color }) => (
-  <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4 text-center">
+  <div className="bg-white border border-[#D4E4D4] rounded-xl p-4 text-center">
     <Icon className={`${color} mx-auto mb-2`} size={20} />
-    <p className="text-2xl font-bold text-white">{value}</p>
-    <p className="text-white/60 text-xs">{label}</p>
+    <p className="text-2xl font-bold text-gray-800">{value}</p>
+    <p className="text-gray-500 text-xs">{label}</p>
   </div>
 );
 

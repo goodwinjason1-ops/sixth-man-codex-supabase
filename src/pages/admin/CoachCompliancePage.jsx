@@ -161,7 +161,7 @@ const CoachCompliancePage = () => {
   const StatusCell = ({ status, label, expiry }) => (
     <div className="flex flex-col">
       <span className={`text-xs font-medium ${getStatusColor(status)}`}>{label || '—'}</span>
-      <span className="text-[10px] text-[#1a8a68]">{formatDate(expiry)}</span>
+      <span className="text-[10px] text-[#6B7C6B]">{formatDate(expiry)}</span>
     </div>
   );
 
@@ -185,42 +185,42 @@ const CoachCompliancePage = () => {
     >
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-8 h-8 text-[#4ade80] animate-spin" />
+          <Loader2 className="w-8 h-8 text-[#00A651] animate-spin" />
         </div>
       ) : (
         <>
           {/* Summary Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-            <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4 text-center">
+            <div className="bg-white border border-[#D4E4D4] rounded-xl p-4 text-center">
               <Users className="w-6 h-6 text-blue-400 mx-auto mb-1" />
-              <p className="text-2xl font-bold text-white">{stats.total}</p>
-              <p className="text-[#1a8a68] text-xs">Total Coaches</p>
+              <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
+              <p className="text-[#6B7C6B] text-xs">Total Coaches</p>
             </div>
-            <div className="bg-[#0d5943] border border-green-500/30 rounded-xl p-4 text-center">
+            <div className="bg-white border border-green-500/30 rounded-xl p-4 text-center">
               <CheckCircle className="w-6 h-6 text-green-400 mx-auto mb-1" />
               <p className="text-2xl font-bold text-green-400">{stats.compliant}</p>
-              <p className="text-[#1a8a68] text-xs">Fully Compliant</p>
+              <p className="text-[#6B7C6B] text-xs">Fully Compliant</p>
             </div>
-            <div className="bg-[#0d5943] border border-yellow-500/30 rounded-xl p-4 text-center">
+            <div className="bg-white border border-yellow-500/30 rounded-xl p-4 text-center">
               <AlertTriangle className="w-6 h-6 text-yellow-400 mx-auto mb-1" />
               <p className="text-2xl font-bold text-yellow-400">{stats.expiring}</p>
-              <p className="text-[#1a8a68] text-xs">Expiring Soon</p>
+              <p className="text-[#6B7C6B] text-xs">Expiring Soon</p>
             </div>
-            <div className="bg-[#0d5943] border border-red-500/30 rounded-xl p-4 text-center">
+            <div className="bg-white border border-red-500/30 rounded-xl p-4 text-center">
               <XCircle className="w-6 h-6 text-red-400 mx-auto mb-1" />
               <p className="text-2xl font-bold text-red-400">{stats.expired}</p>
-              <p className="text-[#1a8a68] text-xs">Expired / Missing</p>
+              <p className="text-[#6B7C6B] text-xs">Expired / Missing</p>
             </div>
           </div>
 
           {/* Filter & Export Bar */}
           <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
             <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-[#1a8a68]" />
+              <Filter className="w-4 h-4 text-[#6B7C6B]" />
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                className="px-3 py-1.5 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                className="px-3 py-1.5 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none"
               >
                 <option value="all">All Coaches</option>
                 <option value="expiring">Expiring Soon</option>
@@ -229,7 +229,7 @@ const CoachCompliancePage = () => {
             </div>
             <button
               onClick={handleExportCSV}
-              className="flex items-center gap-2 px-3 py-1.5 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-[#4ade80] text-sm hover:border-[#22c55e] transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-[#00A651] text-sm hover:border-[#00A651] transition-colors"
             >
               <Download className="w-4 h-4" />
               Export CSV
@@ -237,32 +237,32 @@ const CoachCompliancePage = () => {
           </div>
 
           {filteredRecords.length === 0 ? (
-            <div className="bg-[#0d5943] border-2 border-dashed border-[#1a8a68] rounded-2xl p-8 text-center">
-              <ShieldCheck className="w-10 h-10 text-[#1a8a68] mx-auto mb-3" />
-              <p className="text-white font-medium mb-1">No records found</p>
-              <p className="text-[#1a8a68] text-sm">
+            <div className="bg-white border-2 border-dashed border-[#D4E4D4] rounded-2xl p-8 text-center">
+              <ShieldCheck className="w-10 h-10 text-[#6B7C6B] mx-auto mb-3" />
+              <p className="text-gray-800 font-medium mb-1">No records found</p>
+              <p className="text-[#6B7C6B] text-sm">
                 {filter !== 'all' ? 'Try changing the filter.' : 'Coaches need to set up their accreditations.'}
               </p>
             </div>
           ) : (
             <>
               {/* Desktop Table */}
-              <div className="hidden md:block bg-[#0d5943] border border-[#1a8a68] rounded-xl overflow-hidden">
+              <div className="hidden md:block bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#1a8a68]">
-                      <th className="text-left px-4 py-3 text-[#4ade80] text-xs font-medium uppercase tracking-wider">Coach</th>
-                      <th className="text-left px-4 py-3 text-[#4ade80] text-xs font-medium uppercase tracking-wider">Coaching</th>
-                      <th className="text-left px-4 py-3 text-[#4ade80] text-xs font-medium uppercase tracking-wider">First Aid</th>
-                      <th className="text-left px-4 py-3 text-[#4ade80] text-xs font-medium uppercase tracking-wider">WWCC</th>
-                      <th className="text-center px-4 py-3 text-[#4ade80] text-xs font-medium uppercase tracking-wider">Status</th>
+                    <tr className="border-b border-[#D4E4D4]">
+                      <th className="text-left px-4 py-3 text-[#00A651] text-xs font-medium uppercase tracking-wider">Coach</th>
+                      <th className="text-left px-4 py-3 text-[#00A651] text-xs font-medium uppercase tracking-wider">Coaching</th>
+                      <th className="text-left px-4 py-3 text-[#00A651] text-xs font-medium uppercase tracking-wider">First Aid</th>
+                      <th className="text-left px-4 py-3 text-[#00A651] text-xs font-medium uppercase tracking-wider">WWCC</th>
+                      <th className="text-center px-4 py-3 text-[#00A651] text-xs font-medium uppercase tracking-wider">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#1a8a68]/50">
+                  <tbody className="divide-y divide-[#D4E4D4]/50">
                     {filteredRecords.map((rec) => (
-                      <tr key={rec.id} className="hover:bg-[#0a3d2e]/50 transition-colors">
+                      <tr key={rec.id} className="hover:bg-[#F5F9F5]/50 transition-colors">
                         <td className="px-4 py-3">
-                          <p className="text-white text-sm font-medium">{rec.coachName || 'Unknown'}</p>
+                          <p className="text-gray-800 text-sm font-medium">{rec.coachName || 'Unknown'}</p>
                         </td>
                         <td className="px-4 py-3">
                           <StatusCell
@@ -297,41 +297,41 @@ const CoachCompliancePage = () => {
               {/* Mobile Cards */}
               <div className="md:hidden space-y-3">
                 {filteredRecords.map((rec) => (
-                  <div key={rec.id} className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
+                  <div key={rec.id} className="bg-white border border-[#D4E4D4] rounded-xl p-4">
                     <div className="flex items-center justify-between mb-3">
-                      <p className="text-white font-medium text-sm">{rec.coachName || 'Unknown'}</p>
+                      <p className="text-gray-800 font-medium text-sm">{rec.coachName || 'Unknown'}</p>
                       <RowStatusIcon status={rec.rowStatus} />
                     </div>
                     <div className="grid grid-cols-3 gap-3">
                       <div>
                         <div className="flex items-center gap-1 mb-1">
-                          <Award className="w-3 h-3 text-[#1a8a68]" />
-                          <span className="text-[#1a8a68] text-[10px] uppercase">Coaching</span>
+                          <Award className="w-3 h-3 text-[#6B7C6B]" />
+                          <span className="text-[#6B7C6B] text-[10px] uppercase">Coaching</span>
                         </div>
                         <span className={`text-xs font-medium ${getStatusColor(rec.coachingStatus)}`}>
                           {rec.coaching?.level || '—'}
                         </span>
-                        <p className="text-[10px] text-[#1a8a68]">{formatDate(rec.coaching?.expiryDate)}</p>
+                        <p className="text-[10px] text-[#6B7C6B]">{formatDate(rec.coaching?.expiryDate)}</p>
                       </div>
                       <div>
                         <div className="flex items-center gap-1 mb-1">
-                          <Heart className="w-3 h-3 text-[#1a8a68]" />
-                          <span className="text-[#1a8a68] text-[10px] uppercase">First Aid</span>
+                          <Heart className="w-3 h-3 text-[#6B7C6B]" />
+                          <span className="text-[#6B7C6B] text-[10px] uppercase">First Aid</span>
                         </div>
                         <span className={`text-xs font-medium ${getStatusColor(rec.firstAidStatus)}`}>
                           {rec.firstAid?.level || '—'}
                         </span>
-                        <p className="text-[10px] text-[#1a8a68]">{formatDate(rec.firstAid?.expiryDate)}</p>
+                        <p className="text-[10px] text-[#6B7C6B]">{formatDate(rec.firstAid?.expiryDate)}</p>
                       </div>
                       <div>
                         <div className="flex items-center gap-1 mb-1">
-                          <ShieldCheck className="w-3 h-3 text-[#1a8a68]" />
-                          <span className="text-[#1a8a68] text-[10px] uppercase">WWCC</span>
+                          <ShieldCheck className="w-3 h-3 text-[#6B7C6B]" />
+                          <span className="text-[#6B7C6B] text-[10px] uppercase">WWCC</span>
                         </div>
                         <span className={`text-xs font-medium ${getStatusColor(rec.wwccStatus)}`}>
                           {rec.wwcc?.checkNumber ? `#${rec.wwcc.checkNumber}` : '—'}
                         </span>
-                        <p className="text-[10px] text-[#1a8a68]">{formatDate(rec.wwcc?.expiryDate)}</p>
+                        <p className="text-[10px] text-[#6B7C6B]">{formatDate(rec.wwcc?.expiryDate)}</p>
                       </div>
                     </div>
                   </div>

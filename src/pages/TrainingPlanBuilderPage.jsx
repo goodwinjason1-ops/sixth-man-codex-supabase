@@ -367,7 +367,7 @@ const TrainingPlanBuilderPage = () => {
         <>
           <button
             onClick={() => setShowPreview(true)}
-            className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg hover:border-[#00A651] transition-colors"
           >
             <Eye className="w-4 h-4" />
             <span className="hidden sm:inline">Preview</span>
@@ -375,7 +375,7 @@ const TrainingPlanBuilderPage = () => {
           <button
             onClick={() => handleSave('draft')}
             disabled={saving}
-            className="flex items-center gap-2 px-3 py-2 bg-[#1a8a68] text-white rounded-lg hover:bg-[#22c55e] transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-3 py-2 bg-[#D4E4D4] text-white rounded-lg hover:bg-[#00A651] transition-colors disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             <span className="hidden sm:inline">{saving ? 'Saving...' : 'Save Draft'}</span>
@@ -393,23 +393,23 @@ const TrainingPlanBuilderPage = () => {
         )}
 
         {/* Plan Setup Section */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5">
-          <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[#4ade80]" />
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
+          <h2 className="text-gray-800 font-semibold mb-4 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-[#00A651]" />
             Plan Setup
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Plan Name */}
             <div className="sm:col-span-2">
-              <label className="block text-[#4ade80] text-sm font-medium mb-2">Plan Name *</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-2">Plan Name *</label>
               <input
                 type="text"
                 value={planName}
                 onChange={(e) => setPlanName(e.target.value)}
                 placeholder="e.g., U12 Pre-Season Skills Development"
-                className={`w-full px-4 py-3 bg-[#0a3d2e] border rounded-xl text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none ${
-                  errors.planName ? 'border-red-500' : 'border-[#1a8a68]'
+                className={`w-full px-4 py-3 bg-[#F5F9F5] border rounded-xl text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none ${
+                  errors.planName ? 'border-red-500' : 'border-[#D4E4D4]'
                 }`}
               />
               {errors.planName && <p className="text-red-400 text-xs mt-1">{errors.planName}</p>}
@@ -417,12 +417,12 @@ const TrainingPlanBuilderPage = () => {
 
             {/* Team Selector */}
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-2">Team *</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-2">Team *</label>
               <select
                 value={selectedTeam}
                 onChange={(e) => setSelectedTeam(e.target.value)}
-                className={`w-full px-4 py-3 bg-[#0a3d2e] border rounded-xl text-white focus:border-[#22c55e] focus:outline-none ${
-                  errors.team ? 'border-red-500' : 'border-[#1a8a68]'
+                className={`w-full px-4 py-3 bg-[#F5F9F5] border rounded-xl text-gray-800 focus:border-[#00A651] focus:outline-none ${
+                  errors.team ? 'border-red-500' : 'border-[#D4E4D4]'
                 }`}
               >
                 <option value="">Select a team</option>
@@ -435,23 +435,23 @@ const TrainingPlanBuilderPage = () => {
 
             {/* Age Group (auto-filled) */}
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-2">Age Group</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-2">Age Group</label>
               <input
                 type="text"
                 value={ageGroup}
                 readOnly
-                className="w-full px-4 py-3 bg-[#0a3d2e]/50 border border-[#1a8a68] rounded-xl text-[#4ade80]"
+                className="w-full px-4 py-3 bg-[#F5F9F5]/50 border border-[#D4E4D4] rounded-xl text-[#00A651]"
                 placeholder="Auto-filled from team"
               />
             </div>
 
             {/* Duration */}
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-2">Plan Duration</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-2">Plan Duration</label>
               <select
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
-                className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl text-white focus:border-[#22c55e] focus:outline-none"
+                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl text-gray-800 focus:border-[#00A651] focus:outline-none"
               >
                 {DURATION_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -461,13 +461,13 @@ const TrainingPlanBuilderPage = () => {
 
             {/* Date Range */}
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-2">Start Date *</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-2">Start Date *</label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className={`w-full px-4 py-3 bg-[#0a3d2e] border rounded-xl text-white focus:border-[#22c55e] focus:outline-none ${
-                  errors.startDate ? 'border-red-500' : 'border-[#1a8a68]'
+                className={`w-full px-4 py-3 bg-[#F5F9F5] border rounded-xl text-gray-800 focus:border-[#00A651] focus:outline-none ${
+                  errors.startDate ? 'border-red-500' : 'border-[#D4E4D4]'
                 }`}
               />
               {errors.startDate && <p className="text-red-400 text-xs mt-1">{errors.startDate}</p>}
@@ -475,14 +475,14 @@ const TrainingPlanBuilderPage = () => {
 
             {duration !== 'single' && (
               <div>
-                <label className="block text-[#4ade80] text-sm font-medium mb-2">End Date *</label>
+                <label className="block text-[#00A651] text-sm font-medium mb-2">End Date *</label>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   min={startDate}
-                  className={`w-full px-4 py-3 bg-[#0a3d2e] border rounded-xl text-white focus:border-[#22c55e] focus:outline-none ${
-                    errors.endDate ? 'border-red-500' : 'border-[#1a8a68]'
+                  className={`w-full px-4 py-3 bg-[#F5F9F5] border rounded-xl text-gray-800 focus:border-[#00A651] focus:outline-none ${
+                    errors.endDate ? 'border-red-500' : 'border-[#D4E4D4]'
                   }`}
                 />
                 {errors.endDate && <p className="text-red-400 text-xs mt-1">{errors.endDate}</p>}
@@ -491,7 +491,7 @@ const TrainingPlanBuilderPage = () => {
 
             {/* Focus Areas */}
             <div className="sm:col-span-2">
-              <label className="block text-[#4ade80] text-sm font-medium mb-2">
+              <label className="block text-[#00A651] text-sm font-medium mb-2">
                 Primary Focus Areas (select 1-3) *
               </label>
               <div className="flex flex-wrap gap-2">
@@ -503,8 +503,8 @@ const TrainingPlanBuilderPage = () => {
                     disabled={focusAreas.length >= 3 && !focusAreas.includes(skill.id)}
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                       focusAreas.includes(skill.id)
-                        ? 'bg-[#22c55e] text-[#0a3d2e]'
-                        : 'bg-[#0a3d2e] border border-[#1a8a68] text-white hover:border-[#22c55e] disabled:opacity-50'
+                        ? 'bg-[#005028] text-white'
+                        : 'bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 hover:border-[#00A651] disabled:opacity-50'
                     }`}
                   >
                     {skill.name}
@@ -517,22 +517,22 @@ const TrainingPlanBuilderPage = () => {
         </div>
 
         {/* Coverage Stats */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5">
-          <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
-            <Target className="w-5 h-5 text-[#4ade80]" />
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
+          <h2 className="text-gray-800 font-semibold mb-4 flex items-center gap-2">
+            <Target className="w-5 h-5 text-[#00A651]" />
             Skill Coverage
           </h2>
 
           <div className="flex items-center gap-4 mb-4">
             <div className="flex-1">
-              <div className="h-3 bg-[#0a3d2e] rounded-full overflow-hidden">
+              <div className="h-3 bg-[#F5F9F5] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#1a8a68] to-[#22c55e] transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-[#005028] to-[#00A651] transition-all duration-500"
                   style={{ width: `${coverageStats.coverage}%` }}
                 />
               </div>
             </div>
-            <span className="text-white font-bold">{coverageStats.coverage}%</span>
+            <span className="text-gray-800 font-bold">{coverageStats.coverage}%</span>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -541,8 +541,8 @@ const TrainingPlanBuilderPage = () => {
                 key={skill.id}
                 className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs ${
                   skill.covered
-                    ? 'bg-[#22c55e]/20 text-[#4ade80] border border-[#22c55e]'
-                    : 'bg-[#0a3d2e] text-[#1a8a68] border border-[#1a8a68]'
+                    ? 'bg-[#005028]/20 text-[#00A651] border border-[#00A651]'
+                    : 'bg-[#F5F9F5] text-[#6B7C6B] border border-[#D4E4D4]'
                 }`}
               >
                 {skill.covered && <CheckCircle2 className="w-3 h-3" />}
@@ -552,7 +552,7 @@ const TrainingPlanBuilderPage = () => {
             ))}
           </div>
 
-          <p className="text-[#1a8a68] text-sm mt-3">
+          <p className="text-[#6B7C6B] text-sm mt-3">
             {coverageStats.coveredSkills} of {coverageStats.totalSkills} skills covered •
             Total drill time: {coverageStats.totalDrillTime} mins
           </p>
@@ -561,13 +561,13 @@ const TrainingPlanBuilderPage = () => {
         {/* Sessions */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-white font-semibold flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-[#4ade80]" />
+            <h2 className="text-gray-800 font-semibold flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-[#00A651]" />
               Training Sessions ({sessions.length})
             </h2>
             <button
               onClick={addSession}
-              className="flex items-center gap-2 px-3 py-2 bg-[#22c55e] text-[#0a3d2e] rounded-lg font-medium hover:bg-[#4ade80] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-[#005028] text-white rounded-lg font-medium hover:bg-[#00A651] transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add Session
@@ -598,12 +598,12 @@ const TrainingPlanBuilderPage = () => {
         </div>
 
         {/* Save Actions */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => handleSave('draft')}
               disabled={saving}
-              className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-xl font-medium hover:border-[#22c55e] transition-colors disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-xl font-medium hover:border-[#00A651] transition-colors disabled:opacity-50"
             >
               <Save className="w-5 h-5" />
               Save as Draft
@@ -611,7 +611,7 @@ const TrainingPlanBuilderPage = () => {
             <button
               onClick={() => handleSave('active')}
               disabled={saving}
-              className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#22c55e] text-[#0a3d2e] rounded-xl font-semibold hover:bg-[#4ade80] transition-colors disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#005028] text-white rounded-xl font-semibold hover:bg-[#00A651] transition-colors disabled:opacity-50"
             >
               <CheckCircle2 className="w-5 h-5" />
               Save & Activate
@@ -689,19 +689,19 @@ const SessionBuilder = ({
   const totalDrillTime = session.drills.reduce((sum, d) => sum + (d.duration || 0), 0);
 
   return (
-    <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl overflow-hidden">
+    <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl overflow-hidden">
       {/* Session Header */}
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-4 hover:bg-[#0a3d2e]/30 transition-colors"
+        className="w-full flex items-center justify-between p-4 hover:bg-[#F5F9F5]/30 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#22c55e] rounded-lg flex items-center justify-center text-[#0a3d2e] font-bold">
+          <div className="w-10 h-10 bg-[#005028] rounded-lg flex items-center justify-center text-white font-bold">
             {session.sessionNumber}
           </div>
           <div className="text-left">
-            <h3 className="text-white font-semibold">{session.name || `Session ${session.sessionNumber}`}</h3>
-            <p className="text-[#1a8a68] text-sm">
+            <h3 className="text-gray-800 font-semibold">{session.name || `Session ${session.sessionNumber}`}</h3>
+            <p className="text-[#6B7C6B] text-sm">
               {session.date || 'No date set'} • {session.drills.length} drills • {totalDrillTime} mins
             </p>
           </div>
@@ -719,9 +719,9 @@ const SessionBuilder = ({
             </button>
           )}
           {isExpanded ? (
-            <ChevronUp className="w-5 h-5 text-[#4ade80]" />
+            <ChevronUp className="w-5 h-5 text-[#00A651]" />
           ) : (
-            <ChevronDown className="w-5 h-5 text-[#4ade80]" />
+            <ChevronDown className="w-5 h-5 text-[#00A651]" />
           )}
         </div>
       </button>
@@ -732,34 +732,34 @@ const SessionBuilder = ({
           {/* Session Details */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-[#4ade80] text-xs font-medium mb-1">Session Name</label>
+              <label className="block text-[#00A651] text-xs font-medium mb-1">Session Name</label>
               <input
                 type="text"
                 value={session.name}
                 onChange={(e) => onUpdate('name', e.target.value)}
-                className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-[#4ade80] text-xs font-medium mb-1">Date *</label>
+              <label className="block text-[#00A651] text-xs font-medium mb-1">Date *</label>
               <input
                 type="date"
                 value={session.date}
                 onChange={(e) => onUpdate('date', e.target.value)}
-                className={`w-full px-3 py-2 bg-[#0a3d2e] border rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none ${
-                  errors[`session_${sessionIndex}_date`] ? 'border-red-500' : 'border-[#1a8a68]'
+                className={`w-full px-3 py-2 bg-[#F5F9F5] border rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none ${
+                  errors[`session_${sessionIndex}_date`] ? 'border-red-500' : 'border-[#D4E4D4]'
                 }`}
               />
             </div>
             <div>
-              <label className="block text-[#4ade80] text-xs font-medium mb-1">Duration (mins)</label>
+              <label className="block text-[#00A651] text-xs font-medium mb-1">Duration (mins)</label>
               <input
                 type="number"
                 value={session.duration}
                 onChange={(e) => onUpdate('duration', parseInt(e.target.value) || 0)}
                 min="15"
                 max="180"
-                className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none"
               />
             </div>
           </div>
@@ -767,10 +767,10 @@ const SessionBuilder = ({
           {/* Warm-up */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-[#4ade80] text-xs font-medium">Warm-up Activities</label>
+              <label className="text-[#00A651] text-xs font-medium">Warm-up Activities</label>
               <button
                 onClick={() => onShowTemplates('warmup')}
-                className="text-[#4ade80] text-xs hover:text-white transition-colors"
+                className="text-[#00A651] text-xs hover:text-gray-800 transition-colors"
               >
                 Use Template
               </button>
@@ -780,19 +780,19 @@ const SessionBuilder = ({
               onChange={(e) => onUpdate('warmUp', e.target.value)}
               placeholder="Describe warm-up activities..."
               rows={2}
-              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none resize-none"
+              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none resize-none"
             />
           </div>
 
           {/* Drills */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-[#4ade80] text-xs font-medium">
+              <label className="text-[#00A651] text-xs font-medium">
                 Skill Drills ({session.drills.length})
               </label>
               <button
                 onClick={onAddDrill}
-                className="flex items-center gap-1 px-2 py-1 bg-[#22c55e] text-[#0a3d2e] rounded-lg text-xs font-medium hover:bg-[#4ade80] transition-colors"
+                className="flex items-center gap-1 px-2 py-1 bg-[#005028] text-white rounded-lg text-xs font-medium hover:bg-[#00A651] transition-colors"
               >
                 <Plus className="w-3 h-3" />
                 Add Drill
@@ -801,12 +801,12 @@ const SessionBuilder = ({
 
             {session.drills.length === 0 ? (
               <div className={`p-4 border-2 border-dashed rounded-xl text-center ${
-                errors[`session_${sessionIndex}_drills`] ? 'border-red-500 bg-red-500/10' : 'border-[#1a8a68]'
+                errors[`session_${sessionIndex}_drills`] ? 'border-red-500 bg-red-500/10' : 'border-[#D4E4D4]'
               }`}>
-                <p className="text-[#1a8a68] text-sm">No drills added yet</p>
+                <p className="text-[#6B7C6B] text-sm">No drills added yet</p>
                 <button
                   onClick={onAddDrill}
-                  className="mt-2 text-[#4ade80] text-sm font-medium hover:text-white transition-colors"
+                  className="mt-2 text-[#00A651] text-sm font-medium hover:text-gray-800 transition-colors"
                 >
                   Browse Drill Library
                 </button>
@@ -816,21 +816,21 @@ const SessionBuilder = ({
                 {session.drills.map((drill, drillIndex) => (
                   <div
                     key={drill.id}
-                    className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-3"
+                    className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-3"
                   >
                     <div className="flex items-start gap-2">
                       <div className="flex flex-col gap-1">
                         <button
                           onClick={() => onMoveDrill(drillIndex, -1)}
                           disabled={drillIndex === 0}
-                          className="p-1 text-[#1a8a68] hover:text-white disabled:opacity-30 transition-colors"
+                          className="p-1 text-[#6B7C6B] hover:text-gray-800 disabled:opacity-30 transition-colors"
                         >
                           <ChevronUp className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => onMoveDrill(drillIndex, 1)}
                           disabled={drillIndex === session.drills.length - 1}
-                          className="p-1 text-[#1a8a68] hover:text-white disabled:opacity-30 transition-colors"
+                          className="p-1 text-[#6B7C6B] hover:text-gray-800 disabled:opacity-30 transition-colors"
                         >
                           <ChevronDown className="w-4 h-4" />
                         </button>
@@ -838,19 +838,19 @@ const SessionBuilder = ({
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-white font-medium text-sm">{drill.name}</span>
-                          <span className="px-2 py-0.5 bg-[#22c55e]/20 text-[#4ade80] text-[10px] rounded-full">
+                          <span className="text-gray-800 font-medium text-sm">{drill.name}</span>
+                          <span className="px-2 py-0.5 bg-[#005028]/20 text-[#00A651] text-[10px] rounded-full">
                             {SKILL_CATEGORIES.find(s => s.id === drill.skillFocus)?.name}
                           </span>
                         </div>
-                        <p className="text-[#1a8a68] text-xs line-clamp-2">{drill.description}</p>
-                        <div className="flex items-center gap-3 mt-2 text-xs text-[#4ade80]">
+                        <p className="text-[#6B7C6B] text-xs line-clamp-2">{drill.description}</p>
+                        <div className="flex items-center gap-3 mt-2 text-xs text-[#00A651]">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {drill.duration} mins
                           </span>
                           {drill.equipment && (
-                            <span className="text-[#1a8a68]">{drill.equipment}</span>
+                            <span className="text-[#6B7C6B]">{drill.equipment}</span>
                           )}
                         </div>
                       </div>
@@ -871,10 +871,10 @@ const SessionBuilder = ({
           {/* Small-Sided Games */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-[#4ade80] text-xs font-medium">Small-Sided Games (Optional)</label>
+              <label className="text-[#00A651] text-xs font-medium">Small-Sided Games (Optional)</label>
               <button
                 onClick={() => onShowTemplates('game')}
-                className="text-[#4ade80] text-xs hover:text-white transition-colors"
+                className="text-[#00A651] text-xs hover:text-gray-800 transition-colors"
               >
                 Use Template
               </button>
@@ -884,17 +884,17 @@ const SessionBuilder = ({
               onChange={(e) => onUpdate('smallSidedGames', e.target.value)}
               placeholder="Describe any game-like activities..."
               rows={2}
-              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none resize-none"
+              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none resize-none"
             />
           </div>
 
           {/* Cool-down */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-[#4ade80] text-xs font-medium">Cool-down Activities</label>
+              <label className="text-[#00A651] text-xs font-medium">Cool-down Activities</label>
               <button
                 onClick={() => onShowTemplates('cooldown')}
-                className="text-[#4ade80] text-xs hover:text-white transition-colors"
+                className="text-[#00A651] text-xs hover:text-gray-800 transition-colors"
               >
                 Use Template
               </button>
@@ -904,19 +904,19 @@ const SessionBuilder = ({
               onChange={(e) => onUpdate('coolDown', e.target.value)}
               placeholder="Describe cool-down activities..."
               rows={2}
-              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none resize-none"
+              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none resize-none"
             />
           </div>
 
           {/* Notes */}
           <div>
-            <label className="block text-[#4ade80] text-xs font-medium mb-1">Coach Notes</label>
+            <label className="block text-[#00A651] text-xs font-medium mb-1">Coach Notes</label>
             <textarea
               value={session.notes}
               onChange={(e) => onUpdate('notes', e.target.value)}
               placeholder="Any additional notes for this session..."
               rows={2}
-              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none resize-none"
+              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none resize-none"
             />
           </div>
         </div>
@@ -940,30 +940,30 @@ const DrillLibraryModal = ({
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <div
-        className="relative w-full sm:max-w-2xl max-h-[90vh] bg-[#0d5943] border-2 border-[#1a8a68] rounded-t-3xl sm:rounded-2xl overflow-hidden"
+        className="relative w-full sm:max-w-2xl max-h-[90vh] bg-white border-2 border-[#D4E4D4] rounded-t-3xl sm:rounded-2xl overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-[#0a3d2e] border-b border-[#1a8a68] p-4 z-10">
+        <div className="sticky top-0 bg-[#F5F9F5] border-b border-[#D4E4D4] p-4 z-10">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-white">Drill Library</h2>
+            <h2 className="text-xl font-bold text-gray-800">Drill Library</h2>
             <button
               onClick={onClose}
-              className="w-10 h-10 bg-[#0d5943] border border-[#1a8a68] rounded-full flex items-center justify-center hover:border-[#22c55e] transition-colors"
+              className="w-10 h-10 bg-white border border-[#D4E4D4] rounded-full flex items-center justify-center hover:border-[#00A651] transition-colors"
             >
-              <X className="w-5 h-5 text-white" />
+              <X className="w-5 h-5 text-gray-800" />
             </button>
           </div>
 
           {/* Search */}
           <div className="relative mb-3">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1a8a68]" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#6B7C6B]" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search drills..."
-              className="w-full pl-10 pr-4 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+              className="w-full pl-10 pr-4 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
             />
           </div>
 
@@ -973,8 +973,8 @@ const DrillLibraryModal = ({
               onClick={() => onCategoryChange('all')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
                 selectedCategory === 'all'
-                  ? 'bg-[#22c55e] text-[#0a3d2e]'
-                  : 'bg-[#0d5943] border border-[#1a8a68] text-white hover:border-[#22c55e]'
+                  ? 'bg-[#005028] text-white'
+                  : 'bg-white border border-[#D4E4D4] text-gray-800 hover:border-[#00A651]'
               }`}
             >
               All
@@ -985,8 +985,8 @@ const DrillLibraryModal = ({
                 onClick={() => onCategoryChange(skill.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
                   selectedCategory === skill.id
-                    ? 'bg-[#22c55e] text-[#0a3d2e]'
-                    : 'bg-[#0d5943] border border-[#1a8a68] text-white hover:border-[#22c55e]'
+                    ? 'bg-[#005028] text-white'
+                    : 'bg-white border border-[#D4E4D4] text-gray-800 hover:border-[#00A651]'
                 }`}
               >
                 {skill.name}
@@ -999,21 +999,21 @@ const DrillLibraryModal = ({
         <div className="overflow-y-auto max-h-[calc(90vh-200px)] p-4 space-y-3">
           {drills.length === 0 ? (
             <div className="text-center py-8">
-              <AlertCircle className="w-12 h-12 text-[#1a8a68] mx-auto mb-3" />
-              <p className="text-[#1a8a68]">No drills found matching your criteria</p>
+              <AlertCircle className="w-12 h-12 text-[#6B7C6B] mx-auto mb-3" />
+              <p className="text-[#6B7C6B]">No drills found matching your criteria</p>
             </div>
           ) : (
             drills.map(drill => (
               <button
                 key={drill.id}
                 onClick={() => onSelectDrill(drill)}
-                className="w-full text-left bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4 hover:border-[#22c55e] transition-colors group"
+                className="w-full text-left bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4 hover:border-[#00A651] transition-colors group"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className="text-white font-semibold">{drill.name}</span>
-                      <span className="px-2 py-0.5 bg-[#22c55e]/20 text-[#4ade80] text-[10px] rounded-full">
+                      <span className="text-gray-800 font-semibold">{drill.name}</span>
+                      <span className="px-2 py-0.5 bg-[#005028]/20 text-[#00A651] text-[10px] rounded-full">
                         {SKILL_CATEGORIES.find(s => s.id === drill.skillFocus)?.name}
                       </span>
                       <span className={`px-2 py-0.5 text-[10px] rounded-full ${
@@ -1024,16 +1024,16 @@ const DrillLibraryModal = ({
                         {drill.difficulty}
                       </span>
                     </div>
-                    <p className="text-[#1a8a68] text-sm line-clamp-2 mb-2">{drill.description}</p>
+                    <p className="text-[#6B7C6B] text-sm line-clamp-2 mb-2">{drill.description}</p>
                     <div className="flex items-center gap-3 text-xs">
-                      <span className="text-[#4ade80] flex items-center gap-1">
+                      <span className="text-[#00A651] flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {drill.duration} mins
                       </span>
-                      <span className="text-[#1a8a68]">{drill.equipment?.join(', ') || 'No equipment'}</span>
+                      <span className="text-[#6B7C6B]">{drill.equipment?.join(', ') || 'No equipment'}</span>
                     </div>
                   </div>
-                  <Plus className="w-5 h-5 text-[#1a8a68] group-hover:text-[#22c55e] transition-colors flex-shrink-0 ml-2" />
+                  <Plus className="w-5 h-5 text-[#6B7C6B] group-hover:text-[#00A651] transition-colors flex-shrink-0 ml-2" />
                 </div>
               </button>
             ))
@@ -1058,17 +1058,17 @@ const TemplatesModal = ({ type, onSelect, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <div
-        className="relative w-full max-w-md bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl overflow-hidden"
+        className="relative w-full max-w-md bg-white border-2 border-[#D4E4D4] rounded-2xl overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
-        <div className="p-4 border-b border-[#1a8a68]">
+        <div className="p-4 border-b border-[#D4E4D4]">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-white">{title}</h2>
+            <h2 className="text-lg font-bold text-gray-800">{title}</h2>
             <button
               onClick={onClose}
-              className="w-8 h-8 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center hover:border-[#22c55e] transition-colors"
+              className="w-8 h-8 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center hover:border-[#00A651] transition-colors"
             >
-              <X className="w-4 h-4 text-white" />
+              <X className="w-4 h-4 text-gray-800" />
             </button>
           </div>
         </div>
@@ -1078,13 +1078,13 @@ const TemplatesModal = ({ type, onSelect, onClose }) => {
             <button
               key={template.id}
               onClick={() => onSelect(template)}
-              className="w-full text-left bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-3 hover:border-[#22c55e] transition-colors"
+              className="w-full text-left bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-3 hover:border-[#00A651] transition-colors"
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-white font-medium text-sm">{template.name}</span>
-                <span className="text-[#4ade80] text-xs">{template.duration} mins</span>
+                <span className="text-gray-800 font-medium text-sm">{template.name}</span>
+                <span className="text-[#00A651] text-xs">{template.duration} mins</span>
               </div>
-              <p className="text-[#1a8a68] text-xs">{template.description}</p>
+              <p className="text-[#6B7C6B] text-xs">{template.description}</p>
             </button>
           ))}
         </div>
@@ -1103,19 +1103,19 @@ const PreviewModal = ({ plan, onClose }) => {
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-[#0a3d2e] p-4 z-10">
+        <div className="sticky top-0 bg-[#F5F9F5] p-4 z-10">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-white">{plan.name || 'Untitled Plan'}</h2>
-              <p className="text-[#4ade80] text-sm">
+              <h2 className="text-xl font-bold text-gray-800">{plan.name || 'Untitled Plan'}</h2>
+              <p className="text-[#00A651] text-sm">
                 {plan.team} • {plan.ageGroup} • {plan.sessions.length} session(s)
               </p>
             </div>
             <button
               onClick={onClose}
-              className="w-10 h-10 bg-[#0d5943] border border-[#1a8a68] rounded-full flex items-center justify-center hover:border-[#22c55e] transition-colors"
+              className="w-10 h-10 bg-white border border-[#D4E4D4] rounded-full flex items-center justify-center hover:border-[#00A651] transition-colors"
             >
-              <X className="w-5 h-5 text-white" />
+              <X className="w-5 h-5 text-gray-800" />
             </button>
           </div>
         </div>
@@ -1146,7 +1146,7 @@ const PreviewModal = ({ plan, onClose }) => {
           {plan.sessions.map((session, index) => (
             <div key={index} className="mb-6 pb-6 border-b border-gray-200 last:border-0">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-[#22c55e] rounded-lg flex items-center justify-center text-white font-bold">
+                <div className="w-10 h-10 bg-[#005028] rounded-lg flex items-center justify-center text-white font-bold">
                   {session.sessionNumber}
                 </div>
                 <div>

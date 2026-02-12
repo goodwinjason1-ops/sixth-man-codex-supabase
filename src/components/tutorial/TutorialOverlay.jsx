@@ -46,21 +46,21 @@ const TutorialOverlay = () => {
 
       {/* Card */}
       <div
-        className="relative w-full sm:max-w-md max-h-[90vh] bg-[#0d5943] rounded-t-3xl sm:rounded-2xl border border-[#1a8a68] shadow-2xl animate-slideUp flex flex-col"
+        className="relative w-full sm:max-w-md max-h-[90vh] bg-white rounded-t-3xl sm:rounded-2xl border border-[#D4E4D4] shadow-2xl animate-slideUp flex flex-col"
         {...swipeHandlers}
       >
         {/* Header: progress bar + close */}
         <div className="px-5 pt-5 pb-3 flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-white/60 text-xs font-medium uppercase tracking-wider">
+            <h4 className="text-gray-500 text-xs font-medium uppercase tracking-wider">
               {activeTutorial.title}
             </h4>
             <button
               onClick={skipTutorial}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Close tutorial"
             >
-              <X className="w-4 h-4 text-white/60" />
+              <X className="w-4 h-4 text-gray-500" />
             </button>
           </div>
           <TutorialProgressBar current={currentStep} total={activeTutorial.steps.length} />
@@ -76,13 +76,13 @@ const TutorialOverlay = () => {
         </div>
 
         {/* Navigation buttons */}
-        <div className="px-5 pb-5 pt-3 flex-shrink-0 border-t border-[#1a8a68]/50">
+        <div className="px-5 pb-5 pt-3 flex-shrink-0 border-t border-[#D4E4D4]/50">
           <div className="flex items-center justify-between gap-3">
             {/* Back button */}
             {!isFirst ? (
               <button
                 onClick={prevStep}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-[#1a8a68] text-white/70 text-sm hover:bg-[#1a8a68]/30 transition-colors min-h-[44px]"
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-[#D4E4D4] text-gray-600 text-sm hover:bg-gray-100/30 transition-colors min-h-[44px]"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Back
@@ -90,7 +90,7 @@ const TutorialOverlay = () => {
             ) : (
               <button
                 onClick={skipTutorial}
-                className="px-4 py-2.5 rounded-xl text-white/40 text-sm hover:text-white/60 transition-colors min-h-[44px]"
+                className="px-4 py-2.5 rounded-xl text-gray-400 text-sm hover:text-gray-500 transition-colors min-h-[44px]"
               >
                 Skip
               </button>
@@ -100,7 +100,7 @@ const TutorialOverlay = () => {
             {!isLast ? (
               <button
                 onClick={nextStep}
-                className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-[#22c55e] text-white font-semibold text-sm hover:bg-[#16a34a] transition-colors min-h-[44px]"
+                className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-[#005028] text-white font-semibold text-sm hover:bg-[#16a34a] transition-colors min-h-[44px]"
               >
                 Next
                 <ChevronRight className="w-4 h-4" />
@@ -108,7 +108,7 @@ const TutorialOverlay = () => {
             ) : (
               <button
                 onClick={completeTutorial}
-                className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-[#22c55e] text-white font-semibold text-sm hover:bg-[#16a34a] transition-colors min-h-[44px]"
+                className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-[#005028] text-white font-semibold text-sm hover:bg-[#16a34a] transition-colors min-h-[44px]"
               >
                 <Check className="w-4 h-4" />
                 Done
@@ -117,7 +117,7 @@ const TutorialOverlay = () => {
           </div>
 
           {/* Swipe hint on mobile */}
-          <p className="text-center text-white/20 text-xs mt-3 sm:hidden animate-swipe-hint">
+          <p className="text-center text-gray-800/20 text-xs mt-3 sm:hidden animate-swipe-hint">
             Swipe left or right to navigate
           </p>
         </div>

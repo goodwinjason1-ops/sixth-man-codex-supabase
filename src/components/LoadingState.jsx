@@ -7,17 +7,17 @@ const LoadingState = ({
 }) => {
   const content = (
     <div className="text-center">
-      <div className="w-16 h-16 border-4 border-[#22c55e] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-white font-medium">{message}</p>
+      <div className="w-16 h-16 border-4 border-[#00A651] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-gray-800 font-medium">{message}</p>
       {submessage && (
-        <p className="text-white/60 text-sm mt-1">{submessage}</p>
+        <p className="text-gray-500 text-sm mt-1">{submessage}</p>
       )}
     </div>
   );
 
   if (fullScreen) {
     return (
-      <div className="min-h-screen bg-[#0a3d2e] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F5F9F5] flex items-center justify-center">
         {content}
       </div>
     );

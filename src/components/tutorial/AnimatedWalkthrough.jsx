@@ -139,23 +139,23 @@ const AnimatedWalkthrough = ({
   return (
     <div className="space-y-3">
       {title && (
-        <p className="text-xs text-[#4ade80] font-semibold">{title}</p>
+        <p className="text-xs text-[#00A651] font-semibold">{title}</p>
       )}
 
       {/* Visual container */}
-      <div className="relative bg-[#0a3d2e] border-2 border-dashed border-[#1a8a68] rounded-xl min-h-[180px] overflow-hidden select-none">
+      <div className="relative bg-[#F5F9F5] border-2 border-dashed border-[#D4E4D4] rounded-xl min-h-[180px] overflow-hidden select-none">
         {/* Background grid hint */}
         <div className="absolute inset-0 opacity-5"
           style={{
-            backgroundImage: 'radial-gradient(circle, #4ade80 1px, transparent 1px)',
+            backgroundImage: 'radial-gradient(circle, #00A651 1px, transparent 1px)',
             backgroundSize: '20px 20px',
           }}
         />
 
         {/* Placeholder icon */}
         <div className="flex flex-col items-center justify-center text-center opacity-20 pt-8">
-          <Monitor className="w-8 h-8 text-[#4ade80] mb-1" />
-          <p className="text-white/40 text-[10px]">Interactive walkthrough</p>
+          <Monitor className="w-8 h-8 text-[#00A651] mb-1" />
+          <p className="text-gray-400 text-[10px]">Interactive walkthrough</p>
         </div>
 
         {/* Swipe trail */}
@@ -185,21 +185,21 @@ const AnimatedWalkthrough = ({
           }}
         >
           {/* Cursor dot */}
-          <div className="w-3 h-3 rounded-full bg-[#4ade80] shadow-lg animate-cursor-blink" />
+          <div className="w-3 h-3 rounded-full bg-[#00A651] shadow-lg animate-cursor-blink" />
 
           {/* Click ripple */}
           {showRipple && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-8 h-8 rounded-full border-2 border-[#4ade80] animate-ripple" />
+              <div className="w-8 h-8 rounded-full border-2 border-[#00A651] animate-ripple" />
             </div>
           )}
 
           {/* Typing indicator */}
           {showTyping && (
-            <div className="absolute left-5 top-1/2 -translate-y-1/2 flex gap-1 bg-[#0d5943] px-2 py-1 rounded-md">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] animate-typing-dot" style={{ animationDelay: '0ms' }} />
-              <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] animate-typing-dot" style={{ animationDelay: '200ms' }} />
-              <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] animate-typing-dot" style={{ animationDelay: '400ms' }} />
+            <div className="absolute left-5 top-1/2 -translate-y-1/2 flex gap-1 bg-white px-2 py-1 rounded-md">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00A651] animate-typing-dot" style={{ animationDelay: '0ms' }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00A651] animate-typing-dot" style={{ animationDelay: '200ms' }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00A651] animate-typing-dot" style={{ animationDelay: '400ms' }} />
             </div>
           )}
         </div>
@@ -212,10 +212,10 @@ const AnimatedWalkthrough = ({
               onClick={() => { setCurrentStep(i); setIsComplete(false); }}
               className={`w-2 h-2 rounded-full transition-all min-w-[8px] min-h-[8px] ${
                 i === currentStep
-                  ? 'bg-[#4ade80] scale-125'
+                  ? 'bg-[#00A651] scale-125'
                   : i < currentStep
-                    ? 'bg-[#4ade80]/50'
-                    : 'bg-white/20'
+                    ? 'bg-[#00A651]/50'
+                    : 'bg-gray-200'
               }`}
               aria-label={`Go to step ${i + 1}`}
             />
@@ -230,7 +230,7 @@ const AnimatedWalkthrough = ({
           <button
             onClick={goPrev}
             disabled={currentStep === 0}
-            className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-white/60 hover:text-white hover:bg-[#1a8a68]/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-800 hover:bg-gray-100/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             aria-label="Previous step"
           >
             <SkipBack className="w-4 h-4" />
@@ -238,7 +238,7 @@ const AnimatedWalkthrough = ({
 
           <button
             onClick={togglePlay}
-            className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-[#1a8a68]/40 text-[#4ade80] hover:bg-[#1a8a68]/60 transition-colors"
+            className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-[#D4E4D4]/40 text-[#00A651] hover:bg-gray-100/60 transition-colors"
             aria-label={isPlaying ? 'Pause' : 'Play'}
           >
             {isComplete ? (
@@ -253,7 +253,7 @@ const AnimatedWalkthrough = ({
           <button
             onClick={goNext}
             disabled={currentStep >= steps.length - 1 && !loop}
-            className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-white/60 hover:text-white hover:bg-[#1a8a68]/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-800 hover:bg-gray-100/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             aria-label="Next step"
           >
             <SkipForward className="w-4 h-4" />
@@ -262,8 +262,8 @@ const AnimatedWalkthrough = ({
 
         {/* Step description */}
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-white/80 truncate">
-            <span className="text-[#4ade80] font-semibold">Step {currentStep + 1}/{steps.length}:</span>{' '}
+          <p className="text-xs text-gray-700 truncate">
+            <span className="text-[#00A651] font-semibold">Step {currentStep + 1}/{steps.length}:</span>{' '}
             {step.label || 'Processing...'}
           </p>
         </div>

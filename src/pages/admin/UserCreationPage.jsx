@@ -144,7 +144,7 @@ const UserCreationPage = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email */}
           <div>
-            <label className="flex items-center gap-2 text-[#4ade80] text-sm font-medium mb-2">
+            <label className="flex items-center gap-2 text-[#00A651] text-sm font-medium mb-2">
               <Mail className="w-4 h-4" />
               Email Address
             </label>
@@ -153,14 +153,14 @@ const UserCreationPage = () => {
               value={formData.email}
               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
               placeholder="user@example.com"
-              className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+              className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
               required
             />
           </div>
 
           {/* Display Name */}
           <div>
-            <label className="flex items-center gap-2 text-[#4ade80] text-sm font-medium mb-2">
+            <label className="flex items-center gap-2 text-[#00A651] text-sm font-medium mb-2">
               <User className="w-4 h-4" />
               Display Name
             </label>
@@ -169,14 +169,14 @@ const UserCreationPage = () => {
               value={formData.displayName}
               onChange={(e) => setFormData(prev => ({ ...prev, displayName: e.target.value }))}
               placeholder="Full name"
-              className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+              className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
               required
             />
           </div>
 
           {/* Temporary Password */}
           <div>
-            <label className="flex items-center gap-2 text-[#4ade80] text-sm font-medium mb-2">
+            <label className="flex items-center gap-2 text-[#00A651] text-sm font-medium mb-2">
               <Lock className="w-4 h-4" />
               Temporary Password
             </label>
@@ -185,16 +185,16 @@ const UserCreationPage = () => {
               value={formData.password}
               onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
               placeholder="Minimum 6 characters"
-              className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+              className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
               required
               minLength={6}
             />
-            <p className="text-white/40 text-xs mt-1">The user should change this after first login.</p>
+            <p className="text-gray-400 text-xs mt-1">The user should change this after first login.</p>
           </div>
 
           {/* Role Selection */}
           <div>
-            <label className="flex items-center gap-2 text-[#4ade80] text-sm font-medium mb-2">
+            <label className="flex items-center gap-2 text-[#00A651] text-sm font-medium mb-2">
               <Shield className="w-4 h-4" />
               Role
             </label>
@@ -202,7 +202,7 @@ const UserCreationPage = () => {
               <select
                 value={formData.role}
                 onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none appearance-none"
+                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none appearance-none"
                 required
               >
                 <option value="">Select a role...</option>
@@ -212,22 +212,22 @@ const UserCreationPage = () => {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1a8a68] pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B7C6B] pointer-events-none" />
             </div>
           </div>
 
           {/* Permission Summary Card */}
           {formData.role && (
-            <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
+            <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
               <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-[#4ade80] flex-shrink-0 mt-0.5" />
+                <Info className="w-5 h-5 text-[#00A651] flex-shrink-0 mt-0.5" />
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${selectedRoleBadge}`}>
                       {ROLE_LABELS[formData.role]}
                     </span>
                   </div>
-                  <p className="text-white/80 text-sm">{selectedRoleDescription}</p>
+                  <p className="text-gray-700 text-sm">{selectedRoleDescription}</p>
                 </div>
               </div>
             </div>
@@ -237,11 +237,11 @@ const UserCreationPage = () => {
           <button
             type="submit"
             disabled={creating || !formData.email || !formData.displayName || !formData.password || !formData.role}
-            className="w-full py-3 bg-[#22c55e] hover:bg-[#4ade80] disabled:bg-[#1a8a68] disabled:cursor-not-allowed text-[#0a3d2e] rounded-lg font-bold transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 bg-[#005028] hover:bg-[#00A651] disabled:bg-[#D4E4D4] disabled:cursor-not-allowed text-white rounded-lg font-bold transition-colors flex items-center justify-center gap-2"
           >
             {creating ? (
               <>
-                <div className="w-5 h-5 border-2 border-[#0a3d2e] border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-[#D4E4D4] border-t-transparent rounded-full animate-spin" />
                 Creating User...
               </>
             ) : (

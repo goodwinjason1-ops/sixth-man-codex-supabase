@@ -144,13 +144,13 @@ const DataExplorerPage = () => {
               }}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-colors ${
                 selectedCollection === key
-                  ? 'bg-[#22c55e] text-white'
-                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  ? 'bg-[#005028] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               <col.icon size={16} />
               {col.name}
-              <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs">
+              <span className="bg-gray-200 px-2 py-0.5 rounded-full text-xs">
                 {col.data.length}
               </span>
             </button>
@@ -160,24 +160,24 @@ const DataExplorerPage = () => {
 
       <div className="space-y-4">
         {/* Search and Filter Bar */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
             {/* Search */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={18} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               <input
                 type="text"
                 placeholder={`Search ${currentCollection.name.toLowerCase()}...`}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-white/5 border border-white/20 rounded-lg pl-10 pr-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-[#22c55e]"
+                className="w-full bg-gray-100 border border-white/20 rounded-lg pl-10 pr-4 py-2 text-gray-800 placeholder-white/40 focus:outline-none focus:border-[#00A651]"
               />
             </div>
 
             {/* Export Button */}
             <button
               onClick={exportToCSV}
-              className="flex items-center gap-2 px-4 py-2 bg-[#22c55e] hover:bg-[#1a8a68] rounded-lg font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-[#005028] hover:bg-gray-100 rounded-lg font-medium transition-colors"
             >
               <Download size={18} />
               Export CSV
@@ -195,7 +195,7 @@ const DataExplorerPage = () => {
                   key={field}
                   value={filters[field] || ''}
                   onChange={(e) => setFilters(prev => ({ ...prev, [field]: e.target.value }))}
-                  className="bg-white/5 border border-white/20 rounded-lg px-3 py-1 text-sm text-white focus:outline-none focus:border-[#22c55e]"
+                  className="bg-gray-100 border border-white/20 rounded-lg px-3 py-1 text-sm text-gray-800 focus:outline-none focus:border-[#00A651]"
                 >
                   <option value="">{field.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}</option>
                   {uniqueValues.slice(0, 20).map(val => (
@@ -208,7 +208,7 @@ const DataExplorerPage = () => {
             {Object.keys(filters).length > 0 && (
               <button
                 onClick={() => setFilters({})}
-                className="px-3 py-1 text-sm text-white/60 hover:text-white"
+                className="px-3 py-1 text-sm text-gray-500 hover:text-gray-800"
               >
                 Clear Filters
               </button>
@@ -218,14 +218,14 @@ const DataExplorerPage = () => {
 
         {/* Results Summary */}
         <div className="flex items-center justify-between text-sm">
-          <span className="text-white/60">
+          <span className="text-gray-500">
             Showing {processedData.length} of {currentCollection.data.length} records
           </span>
-          <div className="flex items-center gap-2 text-white/60">
+          <div className="flex items-center gap-2 text-gray-500">
             <span>Sort:</span>
             <button
               onClick={() => handleSort(sortField)}
-              className="flex items-center gap-1 text-white hover:text-[#4ade80]"
+              className="flex items-center gap-1 text-gray-800 hover:text-[#00A651]"
             >
               {sortField}
               <ChevronDown
@@ -237,23 +237,23 @@ const DataExplorerPage = () => {
         </div>
 
         {/* Data Table */}
-        <div className="bg-[#0d5943] rounded-xl overflow-hidden">
+        <div className="bg-white rounded-xl overflow-hidden">
           {processedData.length === 0 ? (
             <div className="p-8 text-center">
-              <Database className="mx-auto mb-2 text-white/30" size={32} />
-              <p className="text-white/50">No records found</p>
-              <p className="text-sm text-white/30">Try adjusting your search or filters</p>
+              <Database className="mx-auto mb-2 text-gray-800/30" size={32} />
+              <p className="text-gray-400">No records found</p>
+              <p className="text-sm text-gray-800/30">Try adjusting your search or filters</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-white/5 border-b border-white/10">
+                <thead className="bg-gray-100 border-b border-white/10">
                   <tr>
                     {currentCollection.columns.map(col => (
                       <th
                         key={col}
                         onClick={() => handleSort(col)}
-                        className="px-4 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider cursor-pointer hover:text-white"
+                        className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-800"
                       >
                         <div className="flex items-center gap-1">
                           {col.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
@@ -266,7 +266,7 @@ const DataExplorerPage = () => {
                         </div>
                       </th>
                     ))}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -274,7 +274,7 @@ const DataExplorerPage = () => {
                 <tbody className="divide-y divide-white/5">
                   {processedData.slice(0, 50).map((item, index) => (
                     <React.Fragment key={item.id || index}>
-                      <tr className="hover:bg-white/5">
+                      <tr className="hover:bg-gray-100">
                         {currentCollection.columns.map(col => (
                           <td key={col} className="px-4 py-3 text-sm">
                             <span className="truncate block max-w-[150px]">
@@ -287,18 +287,18 @@ const DataExplorerPage = () => {
                         <td className="px-4 py-3">
                           <button
                             onClick={() => setExpandedRow(expandedRow === index ? null : index)}
-                            className="p-1 hover:bg-white/10 rounded transition-colors"
+                            className="p-1 hover:bg-gray-100 rounded transition-colors"
                           >
-                            <Eye size={16} className="text-white/50" />
+                            <Eye size={16} className="text-gray-400" />
                           </button>
                         </td>
                       </tr>
                       {expandedRow === index && (
                         <tr>
-                          <td colSpan={currentCollection.columns.length + 1} className="px-4 py-3 bg-white/5">
+                          <td colSpan={currentCollection.columns.length + 1} className="px-4 py-3 bg-gray-100">
                             <div className="text-sm">
-                              <p className="font-medium mb-2 text-white/70">Full Record:</p>
-                              <pre className="bg-black/30 rounded-lg p-3 overflow-x-auto text-xs text-[#4ade80]">
+                              <p className="font-medium mb-2 text-gray-600">Full Record:</p>
+                              <pre className="bg-black/30 rounded-lg p-3 overflow-x-auto text-xs text-[#00A651]">
                                 {JSON.stringify(item, null, 2)}
                               </pre>
                             </div>
@@ -310,7 +310,7 @@ const DataExplorerPage = () => {
                 </tbody>
               </table>
               {processedData.length > 50 && (
-                <div className="p-4 text-center text-sm text-white/50 border-t border-white/10">
+                <div className="p-4 text-center text-sm text-gray-400 border-t border-white/10">
                   Showing first 50 of {processedData.length} records. Export to CSV for full data.
                 </div>
               )}
@@ -320,21 +320,21 @@ const DataExplorerPage = () => {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-[#0d5943] rounded-xl p-4 text-center">
+          <div className="bg-white rounded-xl p-4 text-center">
             <p className="text-2xl font-bold">{players?.length || 0}</p>
-            <p className="text-xs text-white/50">Total Players</p>
+            <p className="text-xs text-gray-400">Total Players</p>
           </div>
-          <div className="bg-[#0d5943] rounded-xl p-4 text-center">
+          <div className="bg-white rounded-xl p-4 text-center">
             <p className="text-2xl font-bold">{Object.keys(evaluations || {}).length}</p>
-            <p className="text-xs text-white/50">Total Evaluations</p>
+            <p className="text-xs text-gray-400">Total Evaluations</p>
           </div>
-          <div className="bg-[#0d5943] rounded-xl p-4 text-center">
+          <div className="bg-white rounded-xl p-4 text-center">
             <p className="text-2xl font-bold">{teams?.length || [...new Set(players?.map(p => p.team))].filter(Boolean).length}</p>
-            <p className="text-xs text-white/50">Total Teams</p>
+            <p className="text-xs text-gray-400">Total Teams</p>
           </div>
-          <div className="bg-[#0d5943] rounded-xl p-4 text-center">
+          <div className="bg-white rounded-xl p-4 text-center">
             <p className="text-2xl font-bold">{processedData.length}</p>
-            <p className="text-xs text-white/50">Current Results</p>
+            <p className="text-xs text-gray-400">Current Results</p>
           </div>
         </div>
       </div>

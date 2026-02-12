@@ -19,7 +19,7 @@ const MessagesPage = () => {
             ]}
             className="mb-4"
           />
-          <h1 className="text-2xl font-bold text-white">Messages</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Messages</h1>
           <p className="text-lakers-300 mt-1">Team communications</p>
         </div>
       </div>
@@ -30,7 +30,7 @@ const MessagesPage = () => {
           <div className="w-20 h-20 bg-lakers-700 border border-lakers-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <MessageSquare className="w-10 h-10 text-lakers-300" />
           </div>
-          <h2 className="text-xl font-bold text-white mb-2">Team Messages</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Team Messages</h2>
           <p className="text-lakers-400">Team communications coming soon</p>
         </div>
       </div>

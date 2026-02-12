@@ -61,14 +61,14 @@ const PracticeAttendance = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       {/* Header Section */}
-      <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4 mb-6">
+      <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4 mb-6">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-12 h-12 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-xl flex items-center justify-center">
-            <Users className="w-6 h-6 text-[#4ade80]" />
+          <div className="w-12 h-12 bg-[#F5F9F5] border-2 border-[#D4E4D4] rounded-xl flex items-center justify-center">
+            <Users className="w-6 h-6 text-[#00A651]" />
           </div>
           <div>
-            <h2 className="text-white font-bold text-lg">Training Attendance</h2>
-            <div className="flex items-center gap-1.5 text-[#4ade80] text-sm">
+            <h2 className="text-gray-800 font-bold text-lg">Training Attendance</h2>
+            <div className="flex items-center gap-1.5 text-[#00A651] text-sm">
               <Clock className="w-3.5 h-3.5" />
               <span>Tuesday 5:30 PM - U12 Emerald</span>
             </div>
@@ -77,26 +77,26 @@ const PracticeAttendance = () => {
 
         {/* Summary Stats */}
         <div className="grid grid-cols-3 gap-2">
-          <div className="bg-[#0a3d2e] rounded-lg p-3 text-center">
+          <div className="bg-[#F5F9F5] rounded-lg p-3 text-center">
             <div className="flex items-center justify-center gap-1.5 mb-1">
-              <UserCheck className="w-4 h-4 text-[#4ade80]" />
+              <UserCheck className="w-4 h-4 text-[#00A651]" />
             </div>
-            <p className="text-[#4ade80] text-xl font-bold">{stats.present}</p>
-            <p className="text-white/50 text-xs">Present</p>
+            <p className="text-[#00A651] text-xl font-bold">{stats.present}</p>
+            <p className="text-gray-400 text-xs">Present</p>
           </div>
-          <div className="bg-[#0a3d2e] rounded-lg p-3 text-center">
+          <div className="bg-[#F5F9F5] rounded-lg p-3 text-center">
             <div className="flex items-center justify-center gap-1.5 mb-1">
               <UserX className="w-4 h-4 text-red-400" />
             </div>
             <p className="text-red-400 text-xl font-bold">{stats.absent}</p>
-            <p className="text-white/50 text-xs">Absent</p>
+            <p className="text-gray-400 text-xs">Absent</p>
           </div>
-          <div className="bg-[#0a3d2e] rounded-lg p-3 text-center">
+          <div className="bg-[#F5F9F5] rounded-lg p-3 text-center">
             <div className="flex items-center justify-center gap-1.5 mb-1">
-              <BarChart3 className="w-4 h-4 text-white/60" />
+              <BarChart3 className="w-4 h-4 text-gray-500" />
             </div>
-            <p className="text-white text-xl font-bold">{stats.percentage}%</p>
-            <p className="text-white/50 text-xs">Rate</p>
+            <p className="text-gray-800 text-xl font-bold">{stats.percentage}%</p>
+            <p className="text-gray-400 text-xs">Rate</p>
           </div>
         </div>
       </div>
@@ -105,23 +105,23 @@ const PracticeAttendance = () => {
       <div className="flex gap-2 mb-4">
         <button
           onClick={markAllPresent}
-          className="flex items-center gap-1.5 px-4 py-2.5 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-[#4ade80] text-sm font-medium hover:border-[#22c55e] transition-colors min-h-[44px]"
+          className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-[#D4E4D4] rounded-lg text-[#00A651] text-sm font-medium hover:border-[#00A651] transition-colors min-h-[44px]"
         >
           <CheckCircle className="w-4 h-4" />
           Mark All Present
         </button>
         <div className="flex-1" />
-        <div className="flex items-center gap-1.5 text-white/40 text-sm">
+        <div className="flex items-center gap-1.5 text-gray-400 text-sm">
           <span>{stats.present}/{stats.total} present</span>
         </div>
       </div>
 
       {/* Attendance Progress Bar */}
       <div className="mb-6">
-        <div className="h-2 bg-[#0a3d2e] rounded-full overflow-hidden flex">
+        <div className="h-2 bg-[#F5F9F5] rounded-full overflow-hidden flex">
           {stats.present > 0 && (
             <div
-              className="h-full bg-[#22c55e] transition-all duration-300"
+              className="h-full bg-[#005028] transition-all duration-300"
               style={{ width: `${(stats.present / stats.total) * 100}%` }}
             />
           )}
@@ -147,42 +147,42 @@ const PracticeAttendance = () => {
               onClick={() => toggleAttendance(player.id)}
               className={`w-full text-left rounded-xl p-4 transition-all duration-200 active:scale-[0.98] flex items-center gap-3 min-h-[60px] ${
                 isPresent
-                  ? 'bg-[#22c55e]/15 border-2 border-[#22c55e]'
+                  ? 'bg-[#005028]/15 border-2 border-[#00A651]'
                   : isAbsent
                     ? 'bg-red-500/10 border-2 border-red-500/50'
-                    : 'bg-[#0d5943] border-2 border-[#1a8a68] hover:border-[#22c55e]/50'
+                    : 'bg-white border-2 border-[#D4E4D4] hover:border-[#00A651]/50'
               }`}
             >
               {/* Status Icon */}
               <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${
                 isPresent
-                  ? 'bg-[#22c55e]/20'
+                  ? 'bg-[#005028]/20'
                   : isAbsent
                     ? 'bg-red-500/20'
-                    : 'bg-[#0a3d2e] border border-[#1a8a68]'
+                    : 'bg-[#F5F9F5] border border-[#D4E4D4]'
               }`}>
                 {isPresent ? (
-                  <CheckCircle className="w-6 h-6 text-[#4ade80]" />
+                  <CheckCircle className="w-6 h-6 text-[#00A651]" />
                 ) : isAbsent ? (
                   <XCircle className="w-6 h-6 text-red-400" />
                 ) : (
-                  <span className="text-white font-bold">#{player.number}</span>
+                  <span className="text-gray-800 font-bold">#{player.number}</span>
                 )}
               </div>
 
               {/* Player Info */}
               <div className="flex-1 min-w-0">
                 <h3 className={`font-semibold ${
-                  isPresent ? 'text-white' : isAbsent ? 'text-white/60' : 'text-white'
+                  isPresent ? 'text-gray-800' : isAbsent ? 'text-gray-500' : 'text-gray-800'
                 }`}>
                   {player.name}
                 </h3>
                 <p className={`text-xs ${
                   isPresent
-                    ? 'text-[#4ade80]'
+                    ? 'text-[#00A651]'
                     : isAbsent
                       ? 'text-red-400'
-                      : 'text-white/40'
+                      : 'text-gray-400'
                 }`}>
                   {isPresent ? 'Present' : isAbsent ? 'Absent' : 'Tap to mark attendance'}
                 </p>
@@ -191,7 +191,7 @@ const PracticeAttendance = () => {
               {/* Number Badge */}
               {(isPresent || isAbsent) && (
                 <span className={`text-sm font-bold ${
-                  isPresent ? 'text-[#4ade80]' : 'text-red-400/60'
+                  isPresent ? 'text-[#00A651]' : 'text-red-400/60'
                 }`}>
                   #{player.number}
                 </span>
@@ -203,12 +203,12 @@ const PracticeAttendance = () => {
 
       {/* Completion Message */}
       {stats.unmarked === 0 && (
-        <div className="mt-6 bg-[#22c55e]/10 border border-[#22c55e]/40 rounded-xl p-4 text-center">
-          <CheckCircle className="w-8 h-8 text-[#4ade80] mx-auto mb-2" />
-          <p className="text-[#4ade80] font-semibold">
+        <div className="mt-6 bg-[#005028]/10 border border-[#00A651]/40 rounded-xl p-4 text-center">
+          <CheckCircle className="w-8 h-8 text-[#00A651] mx-auto mb-2" />
+          <p className="text-[#00A651] font-semibold">
             Attendance Complete!
           </p>
-          <p className="text-white/60 text-sm mt-1">
+          <p className="text-gray-500 text-sm mt-1">
             {stats.present}/{stats.total} present ({stats.percentage}%)
           </p>
         </div>

@@ -20,11 +20,11 @@ const QuickStartCarousel = ({ userRole }) => {
       {/* Header with overall progress */}
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h2 className="text-white font-bold text-base flex items-center gap-2">
-            <Icons.GraduationCap className="w-4 h-4 text-[#4ade80]" />
+          <h2 className="text-gray-800 font-bold text-base flex items-center gap-2">
+            <Icons.GraduationCap className="w-4 h-4 text-[#00A651]" />
             Quick Start
           </h2>
-          <p className="text-white/40 text-xs mt-0.5">
+          <p className="text-gray-400 text-xs mt-0.5">
             {completedCount}/{totalCount} tutorials completed
           </p>
         </div>
@@ -45,12 +45,12 @@ const QuickStartCarousel = ({ userRole }) => {
               key={id}
               className={`flex-shrink-0 w-64 rounded-xl p-5 border transition-all ${
                 isRecommended && !completed
-                  ? 'bg-[#22c55e]/10 border-[#22c55e]/40'
-                  : 'bg-[#0d5943] border-[#1a8a68]'
+                  ? 'bg-[#005028]/10 border-[#00A651]/40'
+                  : 'bg-white border-[#D4E4D4]'
               }`}
             >
               {isRecommended && !completed && (
-                <span className="text-[10px] font-bold uppercase tracking-wide text-[#4ade80] mb-2 block">
+                <span className="text-[10px] font-bold uppercase tracking-wide text-[#00A651] mb-2 block">
                   Recommended for you
                 </span>
               )}
@@ -58,18 +58,18 @@ const QuickStartCarousel = ({ userRole }) => {
               <div className="flex items-center gap-3 mb-3">
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    completed ? 'bg-[#22c55e]/20' : 'bg-[#1a8a68]/40'
+                    completed ? 'bg-[#005028]/20' : 'bg-[#D4E4D4]/40'
                   }`}
                 >
                   {completed ? (
-                    <Icons.CheckCircle2 className="w-5 h-5 text-[#22c55e]" />
+                    <Icons.CheckCircle2 className="w-5 h-5 text-[#00A651]" />
                   ) : (
-                    <IconComponent className="w-5 h-5 text-[#4ade80]" />
+                    <IconComponent className="w-5 h-5 text-[#00A651]" />
                   )}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-white font-semibold text-sm truncate">{tutorial.title}</h3>
-                  <span className="text-white/30 text-xs flex items-center gap-1">
+                  <h3 className="text-gray-800 font-semibold text-sm truncate">{tutorial.title}</h3>
+                  <span className="text-gray-800/30 text-xs flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {tutorial.estimatedMinutes} min &bull; {tutorial.steps.length} steps
                   </span>
@@ -80,8 +80,8 @@ const QuickStartCarousel = ({ userRole }) => {
                 onClick={() => startTutorial(id)}
                 className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors min-h-[40px] ${
                   completed
-                    ? 'bg-[#1a8a68]/30 text-white/70 hover:bg-[#1a8a68]/50'
-                    : 'bg-[#22c55e] text-white hover:bg-[#16a34a]'
+                    ? 'bg-[#D4E4D4]/30 text-gray-600 hover:bg-gray-100/50'
+                    : 'bg-[#005028] text-white hover:bg-[#16a34a]'
                 }`}
               >
                 {completed ? (

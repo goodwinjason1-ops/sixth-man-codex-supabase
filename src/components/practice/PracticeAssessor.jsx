@@ -116,8 +116,8 @@ const PracticeAssessor = () => {
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Section Header */}
         <div className="mb-5">
-          <h2 className="text-white font-bold text-lg">Select Player to Assess</h2>
-          <p className="text-[#1a8a68] text-sm mt-1">
+          <h2 className="text-gray-800 font-bold text-lg">Select Player to Assess</h2>
+          <p className="text-[#6B7C6B] text-sm mt-1">
             {completedCount}/{FAKE_PLAYERS.length} players assessed
           </p>
         </div>
@@ -133,10 +133,10 @@ const PracticeAssessor = () => {
                 key={player.id}
                 className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
                   done
-                    ? 'bg-[#4ade80]'
+                    ? 'bg-[#00A651]'
                     : started
-                      ? 'bg-[#22c55e]/40'
-                      : 'bg-white/20'
+                      ? 'bg-[#005028]/40'
+                      : 'bg-gray-200'
                 }`}
               />
             );
@@ -155,23 +155,23 @@ const PracticeAssessor = () => {
               <button
                 key={player.id}
                 onClick={() => setSelectedPlayer(player)}
-                className="w-full text-left bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4 transition-all duration-200 hover:border-[#22c55e] hover:bg-[#0f6b52] active:scale-[0.98] group"
+                className="w-full text-left bg-white border-2 border-[#D4E4D4] rounded-xl p-4 transition-all duration-200 hover:border-[#00A651] hover:bg-[#E8F0E8] active:scale-[0.98] group"
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-colors ${
                     done
-                      ? 'bg-[#22c55e]/20 border-[#22c55e]'
-                      : 'bg-[#0a3d2e] border-[#1a8a68] group-hover:border-[#22c55e]'
+                      ? 'bg-[#005028]/20 border-[#00A651]'
+                      : 'bg-[#F5F9F5] border-[#D4E4D4] group-hover:border-[#00A651]'
                   }`}>
                     {done ? (
-                      <CheckCircle className="w-6 h-6 text-[#4ade80]" />
+                      <CheckCircle className="w-6 h-6 text-[#00A651]" />
                     ) : (
-                      <span className="text-white font-bold text-lg">#{player.number}</span>
+                      <span className="text-gray-800 font-bold text-lg">#{player.number}</span>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-white font-semibold">{player.name}</h3>
-                    <p className="text-[#4ade80] text-xs">
+                    <h3 className="text-gray-800 font-semibold">{player.name}</h3>
+                    <p className="text-[#00A651] text-xs">
                       {done
                         ? `Assessment complete${notes > 0 ? ` + ${notes} notes` : ''}`
                         : ratedCount > 0
@@ -180,7 +180,7 @@ const PracticeAssessor = () => {
                       }
                     </p>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-[#1a8a68] group-hover:text-[#4ade80] group-hover:translate-x-1 transition-all" />
+                  <ChevronRight className="w-5 h-5 text-[#6B7C6B] group-hover:text-[#00A651] group-hover:translate-x-1 transition-all" />
                 </div>
               </button>
             );
@@ -194,15 +194,15 @@ const PracticeAssessor = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       {/* Player Header Card */}
-      <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4 mb-6">
+      <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4 mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-14 h-14 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-xl">#{selectedPlayer.number}</span>
+            <div className="w-14 h-14 bg-[#F5F9F5] border-2 border-[#D4E4D4] rounded-full flex items-center justify-center">
+              <span className="text-gray-800 font-bold text-xl">#{selectedPlayer.number}</span>
             </div>
             <div>
-              <h2 className="text-white font-bold text-lg">{selectedPlayer.name}</h2>
-              <p className="text-[#4ade80] text-sm">
+              <h2 className="text-gray-800 font-bold text-lg">{selectedPlayer.name}</h2>
+              <p className="text-[#00A651] text-sm">
                 {allRated
                   ? `All metrics rated${noteCount(selectedPlayer.id) > 0 ? ` + ${noteCount(selectedPlayer.id)} notes` : ''}`
                   : `${METRICS.filter((m) => currentPlayerRatings[m.id] > 0).length}/${METRICS.length} rated`
@@ -212,7 +212,7 @@ const PracticeAssessor = () => {
           </div>
           <button
             onClick={() => setSelectedPlayer(null)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm hover:border-[#22c55e] transition-colors min-w-[44px] min-h-[44px] justify-center"
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm hover:border-[#00A651] transition-colors min-w-[44px] min-h-[44px] justify-center"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Back</span>
@@ -232,22 +232,22 @@ const PracticeAssessor = () => {
           return (
             <div
               key={metric.id}
-              className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4"
+              className="bg-white border border-[#D4E4D4] rounded-xl p-4"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-[#4ade80]" />
+                <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+                  <Icon className="w-5 h-5 text-[#00A651]" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="text-white font-medium text-sm">{metric.name}</h4>
+                    <h4 className="text-gray-800 font-medium text-sm">{metric.name}</h4>
                     {currentNote && !isNoteOpen && (
-                      <span className="text-[10px] text-[#4ade80] bg-[#22c55e]/20 px-1.5 py-0.5 rounded">notes</span>
+                      <span className="text-[10px] text-[#00A651] bg-[#005028]/20 px-1.5 py-0.5 rounded">notes</span>
                     )}
                   </div>
-                  <p className="text-[#1a8a68] text-xs">{metric.description}</p>
+                  <p className="text-[#6B7C6B] text-xs">{metric.description}</p>
                 </div>
-                <span className="text-2xl font-bold text-[#4ade80] w-8 text-right">
+                <span className="text-2xl font-bold text-[#00A651] w-8 text-right">
                   {currentValue || '-'}
                 </span>
               </div>
@@ -260,10 +260,10 @@ const PracticeAssessor = () => {
                     onClick={() => handleRate(selectedPlayer.id, metric.id, level)}
                     className={`flex-1 py-3 rounded-lg text-sm font-bold transition-all duration-200 min-h-[44px] ${
                       currentValue === level
-                        ? 'bg-[#22c55e] text-[#0a3d2e] scale-105'
+                        ? 'bg-[#005028] text-white scale-105'
                         : currentValue > 0 && currentValue >= level
-                          ? 'bg-[#22c55e]/40 text-white'
-                          : 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68] hover:border-[#22c55e] hover:text-[#22c55e]'
+                          ? 'bg-[#005028]/40 text-white'
+                          : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] hover:border-[#00A651] hover:text-[#00A651]'
                     }`}
                   >
                     {level}
@@ -274,7 +274,7 @@ const PracticeAssessor = () => {
               {/* Notes toggle + collapsible textarea */}
               <button
                 onClick={() => toggleNote(selectedPlayer.id, metric.id)}
-                className="mt-2 flex items-center gap-1 text-[10px] text-[#1a8a68] hover:text-[#4ade80] transition-colors"
+                className="mt-2 flex items-center gap-1 text-[10px] text-[#6B7C6B] hover:text-[#00A651] transition-colors"
               >
                 <MessageSquare className="w-3 h-3" />
                 <span>{isNoteOpen ? 'Hide note' : currentNote ? 'Edit note' : 'Add note'}</span>
@@ -286,7 +286,7 @@ const PracticeAssessor = () => {
                   onChange={(e) => handleNoteChange(selectedPlayer.id, metric.id, e.target.value)}
                   placeholder={`${metric.name} notes for ${selectedPlayer.name}...`}
                   rows={2}
-                  className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-xs placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none resize-none"
+                  className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-xs placeholder-gray-400 focus:border-[#00A651] focus:outline-none resize-none"
                 />
               </div>
             </div>
@@ -298,16 +298,16 @@ const PracticeAssessor = () => {
       {distributionFeedback && (
         <div className={`rounded-xl p-4 flex items-center gap-3 mb-6 ${
           distributionFeedback.type === 'success'
-            ? 'bg-[#22c55e]/10 border border-[#22c55e]/40'
+            ? 'bg-[#005028]/10 border border-[#00A651]/40'
             : 'bg-amber-500/10 border border-amber-500/40'
         }`}>
           {distributionFeedback.type === 'success' ? (
-            <BarChart3 className="w-5 h-5 text-[#4ade80] flex-shrink-0" />
+            <BarChart3 className="w-5 h-5 text-[#00A651] flex-shrink-0" />
           ) : (
             <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0" />
           )}
           <p className={`text-sm font-medium ${
-            distributionFeedback.type === 'success' ? 'text-[#4ade80]' : 'text-amber-300'
+            distributionFeedback.type === 'success' ? 'text-[#00A651]' : 'text-amber-300'
           }`}>
             {distributionFeedback.message}
           </p>
@@ -316,28 +316,28 @@ const PracticeAssessor = () => {
 
       {/* Summary Section (when all rated) */}
       {allRated && (
-        <div className="bg-[#0d5943] border-2 border-[#22c55e] rounded-xl p-4">
+        <div className="bg-white border-2 border-[#00A651] rounded-xl p-4">
           <div className="flex items-center gap-2 mb-3">
-            <Star className="w-5 h-5 text-[#4ade80]" />
-            <h3 className="text-white font-bold">Rating Summary</h3>
+            <Star className="w-5 h-5 text-[#00A651]" />
+            <h3 className="text-gray-800 font-bold">Rating Summary</h3>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {METRICS.map((metric) => {
               const Icon = metric.icon;
               const note = currentPlayerNotes[metric.id];
               return (
-                <div key={metric.id} className="bg-[#0a3d2e] rounded-lg p-3 text-center">
-                  <Icon className="w-4 h-4 text-[#4ade80] mx-auto mb-1" />
-                  <p className="text-white/60 text-xs">{metric.name}</p>
-                  <p className="text-[#4ade80] text-xl font-bold">{currentPlayerRatings[metric.id]}</p>
-                  {note && <p className="text-white/40 text-[10px] mt-1 truncate">{note}</p>}
+                <div key={metric.id} className="bg-[#F5F9F5] rounded-lg p-3 text-center">
+                  <Icon className="w-4 h-4 text-[#00A651] mx-auto mb-1" />
+                  <p className="text-gray-500 text-xs">{metric.name}</p>
+                  <p className="text-[#00A651] text-xl font-bold">{currentPlayerRatings[metric.id]}</p>
+                  {note && <p className="text-gray-400 text-[10px] mt-1 truncate">{note}</p>}
                 </div>
               );
             })}
-            <div className="bg-[#0a3d2e] rounded-lg p-3 text-center">
-              <BarChart3 className="w-4 h-4 text-[#4ade80] mx-auto mb-1" />
-              <p className="text-white/60 text-xs">Average</p>
-              <p className="text-[#4ade80] text-xl font-bold">
+            <div className="bg-[#F5F9F5] rounded-lg p-3 text-center">
+              <BarChart3 className="w-4 h-4 text-[#00A651] mx-auto mb-1" />
+              <p className="text-gray-500 text-xs">Average</p>
+              <p className="text-[#00A651] text-xl font-bold">
                 {(METRICS.reduce((sum, m) => sum + currentPlayerRatings[m.id], 0) / METRICS.length).toFixed(1)}
               </p>
             </div>

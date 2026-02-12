@@ -122,7 +122,7 @@ const TeamManagementPage = () => {
       <PageShell title="Team Management" subtitle="Loading teams..." backTo="/admin"
         breadcrumbs={[{ label: 'Home', url: '/welcome' }, { label: 'Admin', url: '/admin' }, { label: 'Team Management' }]}>
         <div className="flex justify-center py-20">
-          <div className="w-12 h-12 border-4 border-[#22c55e] border-t-transparent rounded-full animate-spin" />
+          <div className="w-12 h-12 border-4 border-[#00A651] border-t-transparent rounded-full animate-spin" />
         </div>
       </PageShell>
     );
@@ -141,11 +141,11 @@ const TeamManagementPage = () => {
       headerActions={
         <div className="flex items-center gap-2">
           <button onClick={() => setShowCSVImport(true)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm transition-colors">
+            className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-sm transition-colors">
             <Upload size={14} /> Import
           </button>
           <button onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[#22c55e] hover:bg-[#4ade80] text-[#0a3d2e] rounded-lg font-medium text-sm transition-colors">
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#005028] hover:bg-[#00A651] text-white rounded-lg font-medium text-sm transition-colors">
             <Plus size={16} /> New Team
           </button>
         </div>
@@ -173,37 +173,37 @@ const TeamManagementPage = () => {
       {/* Search & Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input type="text" placeholder="Search teams or coaches..."
             value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white placeholder-white/40 focus:border-[#22c55e] focus:outline-none text-sm" />
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-white/40 focus:border-[#00A651] focus:outline-none text-sm" />
         </div>
         <select value={ageFilter} onChange={e => setAgeFilter(e.target.value)}
-          className="px-3 py-2.5 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none">
+          className="px-3 py-2.5 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none">
           <option value="all">All Ages</option>
           {AGE_GROUPS.map(ag => <option key={ag} value={ag}>{ag}</option>)}
         </select>
         {!coordinatorGender && (
           <select value={genderFilter} onChange={e => setGenderFilter(e.target.value)}
-            className="px-3 py-2.5 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none">
+            className="px-3 py-2.5 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none">
             <option value="all">All Genders</option>
             {GENDERS.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
           </select>
         )}
       </div>
 
-      <p className="text-white/50 text-xs mb-3">{filteredTeams.length} team{filteredTeams.length !== 1 ? 's' : ''} found</p>
+      <p className="text-gray-400 text-xs mb-3">{filteredTeams.length} team{filteredTeams.length !== 1 ? 's' : ''} found</p>
 
       {/* Team Cards Grid */}
       {filteredTeams.length === 0 ? (
-        <div className="text-center text-white/40 text-sm py-16">No teams match your filters.</div>
+        <div className="text-center text-gray-400 text-sm py-16">No teams match your filters.</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredTeams.map(team => (
-            <div key={team.id} className="bg-[#0d5943] rounded-xl border border-[#1a8a68]/30 p-4 hover:border-[#22c55e]/50 transition-colors">
+            <div key={team.id} className="bg-white rounded-xl border border-[#D4E4D4]/30 p-4 hover:border-[#00A651]/50 transition-colors">
               <div className="flex items-start justify-between mb-3">
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-white font-bold truncate">{team.name}</h3>
+                  <h3 className="text-gray-800 font-bold truncate">{team.name}</h3>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30">
                       {team.ageGroup}
@@ -215,38 +215,38 @@ const TeamManagementPage = () => {
                     }`}>
                       {team.gender}
                     </span>
-                    {team.season && <span className="text-white/40 text-xs">{team.season}</span>}
+                    {team.season && <span className="text-gray-400 text-xs">{team.season}</span>}
                   </div>
                 </div>
               </div>
 
               <div className="space-y-2 mb-3">
                 <div className="flex items-center gap-2 text-sm">
-                  <Users size={14} className="text-white/40" />
+                  <Users size={14} className="text-gray-400" />
                   {team.coachName ? (
-                    <span className="text-white/80">{team.coachName}</span>
+                    <span className="text-gray-700">{team.coachName}</span>
                   ) : (
                     <span className="text-yellow-400 text-xs">No Coach Assigned</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-white/10 rounded-full h-2">
-                    <div className="bg-[#22c55e] rounded-full h-2 transition-all"
+                  <div className="flex-1 bg-gray-100 rounded-full h-2">
+                    <div className="bg-[#005028] rounded-full h-2 transition-all"
                       style={{ width: `${Math.min(100, ((team.playerIds?.length || 0) / 12) * 100)}%` }} />
                   </div>
-                  <span className="text-white/60 text-xs whitespace-nowrap">
+                  <span className="text-gray-500 text-xs whitespace-nowrap">
                     {team.playerIds?.length || 0}/12
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 pt-2 border-t border-[#1a8a68]/20">
+              <div className="flex items-center gap-2 pt-2 border-t border-[#D4E4D4]/20">
                 <button onClick={() => setViewTeam(team)}
-                  className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs text-white/60 hover:text-white hover:bg-white/5 rounded-lg">
+                  className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
                   <Eye size={13} /> View
                 </button>
                 <button onClick={() => setEditTeam({ ...team })}
-                  className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs text-white/60 hover:text-white hover:bg-white/5 rounded-lg">
+                  className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
                   <Edit3 size={13} /> Edit
                 </button>
                 <button onClick={() => setDeleteConfirm(team)}
@@ -272,17 +272,17 @@ const TeamManagementPage = () => {
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h4 className="text-white font-medium text-sm">Roster ({viewTeam.playerIds?.length || 0})</h4>
+                <h4 className="text-gray-800 font-medium text-sm">Roster ({viewTeam.playerIds?.length || 0})</h4>
                 <button onClick={() => { setViewTeam(null); setEditTeam({ ...viewTeam }); }}
-                  className="text-xs text-[#4ade80] hover:text-white">Manage Players</button>
+                  className="text-xs text-[#00A651] hover:text-gray-800">Manage Players</button>
               </div>
               {(!viewTeam.playerIds || viewTeam.playerIds.length === 0) ? (
-                <p className="text-white/40 text-sm">No players assigned.</p>
+                <p className="text-gray-400 text-sm">No players assigned.</p>
               ) : (
                 <div className="space-y-1 max-h-48 overflow-y-auto">
                   {viewTeam.playerIds.map(pid => (
-                    <div key={pid} className="flex items-center justify-between bg-[#0a3d2e] rounded-lg px-3 py-2">
-                      <span className="text-white text-sm">{getUserName(pid)}</span>
+                    <div key={pid} className="flex items-center justify-between bg-[#F5F9F5] rounded-lg px-3 py-2">
+                      <span className="text-gray-800 text-sm">{getUserName(pid)}</span>
                       <button onClick={async () => {
                         const res = await removePlayerFromTeam(viewTeam.id, pid);
                         if (res.success) {
@@ -299,7 +299,7 @@ const TeamManagementPage = () => {
               )}
             </div>
 
-            <div className="flex gap-2 pt-2 border-t border-[#1a8a68]/30">
+            <div className="flex gap-2 pt-2 border-t border-[#D4E4D4]/30">
               <button onClick={() => { setViewTeam(null); setEditTeam({ ...viewTeam }); }}
                 className="flex-1 py-2 bg-blue-500/20 text-blue-400 rounded-lg text-sm hover:bg-blue-500/30">
                 Edit Team
@@ -336,8 +336,8 @@ const TeamManagementPage = () => {
       {deleteConfirm && (
         <Modal onClose={() => setDeleteConfirm(null)} title="Delete Team" danger>
           <div className="space-y-4">
-            <p className="text-white/80 text-sm">
-              Delete <strong className="text-white">{deleteConfirm.name}</strong>?
+            <p className="text-gray-700 text-sm">
+              Delete <strong className="text-gray-800">{deleteConfirm.name}</strong>?
             </p>
             {(deleteConfirm.playerIds?.length || 0) > 0 && (
               <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 text-xs text-yellow-300">
@@ -347,7 +347,7 @@ const TeamManagementPage = () => {
             )}
             <div className="flex gap-3">
               <button onClick={() => setDeleteConfirm(null)}
-                className="flex-1 py-2.5 bg-white/10 text-white rounded-lg text-sm font-medium hover:bg-white/20">Cancel</button>
+                className="flex-1 py-2.5 bg-gray-100 text-gray-800 rounded-lg text-sm font-medium hover:bg-gray-200">Cancel</button>
               <button onClick={handleDeleteTeam}
                 className="flex-1 py-2.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600">Delete</button>
             </div>
@@ -375,31 +375,31 @@ const TeamManagementPage = () => {
 
 // ─── Stat Card ───
 const StatCard = ({ label, value, icon: Icon, color }) => (
-  <div className="bg-[#0d5943] rounded-xl border border-[#1a8a68]/30 p-4">
+  <div className="bg-white rounded-xl border border-[#D4E4D4]/30 p-4">
     <div className="flex items-center gap-2 mb-1">
       <Icon size={16} className={color} />
-      <span className="text-white/50 text-xs">{label}</span>
+      <span className="text-gray-400 text-xs">{label}</span>
     </div>
-    <p className="text-2xl font-bold text-white">{value}</p>
+    <p className="text-2xl font-bold text-gray-800">{value}</p>
   </div>
 );
 
 // ─── Detail Item ───
 const DetailItem = ({ label, value }) => (
-  <div className="bg-[#0a3d2e] rounded-lg p-3">
-    <p className="text-white/50 text-xs mb-1">{label}</p>
-    <p className="text-white font-medium text-sm">{value}</p>
+  <div className="bg-[#F5F9F5] rounded-lg p-3">
+    <p className="text-gray-400 text-xs mb-1">{label}</p>
+    <p className="text-gray-800 font-medium text-sm">{value}</p>
   </div>
 );
 
 // ─── Modal Wrapper ───
 const Modal = ({ children, title, onClose, danger }) => (
   <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/60" onClick={onClose}>
-    <div className="bg-[#0d5943] rounded-2xl border border-[#1a8a68]/30 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl"
+    <div className="bg-white rounded-2xl border border-[#D4E4D4]/30 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl"
       onClick={e => e.stopPropagation()}>
-      <div className={`flex items-center justify-between px-5 py-4 border-b ${danger ? 'border-red-500/30' : 'border-[#1a8a68]/30'}`}>
-        <h3 className={`font-bold ${danger ? 'text-red-400' : 'text-white'}`}>{title}</h3>
-        <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-lg"><X size={18} className="text-white/60" /></button>
+      <div className={`flex items-center justify-between px-5 py-4 border-b ${danger ? 'border-red-500/30' : 'border-[#D4E4D4]/30'}`}>
+        <h3 className={`font-bold ${danger ? 'text-red-400' : 'text-gray-800'}`}>{title}</h3>
+        <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg"><X size={18} className="text-gray-500" /></button>
       </div>
       <div className="px-5 py-4">{children}</div>
     </div>
@@ -589,29 +589,29 @@ const TeamFormModal = ({ team, coaches: initialCoaches, players, allTeams, coord
     <Modal onClose={onClose} title={isEdit ? 'Edit Team' : 'Create Team'}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="text-[#4ade80] text-sm font-medium mb-1.5 block">Team Name</label>
+          <label className="text-[#00A651] text-sm font-medium mb-1.5 block">Team Name</label>
           <input type="text" value={form.name}
             onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
             placeholder="e.g. U14 Boys Green"
-            className="w-full px-3 py-2.5 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+            className="w-full px-3 py-2.5 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none"
             required />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-[#4ade80] text-sm font-medium mb-1.5 block">Age Group</label>
+            <label className="text-[#00A651] text-sm font-medium mb-1.5 block">Age Group</label>
             <select value={form.ageGroup} onChange={e => setForm(p => ({ ...p, ageGroup: e.target.value }))}
-              className="w-full px-3 py-2.5 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+              className="w-full px-3 py-2.5 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none"
               required>
               <option value="">Select...</option>
               {AGE_GROUPS.map(ag => <option key={ag} value={ag}>{ag}</option>)}
             </select>
           </div>
           <div>
-            <label className="text-[#4ade80] text-sm font-medium mb-1.5 block">Gender</label>
+            <label className="text-[#00A651] text-sm font-medium mb-1.5 block">Gender</label>
             <select value={form.gender} onChange={e => setForm(p => ({ ...p, gender: e.target.value }))}
               disabled={!!coordinatorGender}
-              className="w-full px-3 py-2.5 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none disabled:opacity-50"
+              className="w-full px-3 py-2.5 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none disabled:opacity-50"
               required>
               <option value="">Select...</option>
               {GENDERS.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
@@ -621,40 +621,40 @@ const TeamFormModal = ({ team, coaches: initialCoaches, players, allTeams, coord
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-[#4ade80] text-sm font-medium mb-1.5 block">Season</label>
+            <label className="text-[#00A651] text-sm font-medium mb-1.5 block">Season</label>
             <input type="text" value={form.season}
               onChange={e => setForm(p => ({ ...p, season: e.target.value }))}
               placeholder="e.g. 2026 Winter"
-              className="w-full px-3 py-2.5 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none" />
+              className="w-full px-3 py-2.5 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none" />
           </div>
           <div>
-            <label className="text-[#4ade80] text-sm font-medium mb-1.5 block">Coach</label>
+            <label className="text-[#00A651] text-sm font-medium mb-1.5 block">Coach</label>
             <select value={form.coachId} onChange={e => setForm(p => ({ ...p, coachId: e.target.value }))}
-              className="w-full px-3 py-2.5 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none">
+              className="w-full px-3 py-2.5 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none">
               <option value="">No Coach</option>
               {coaches.map(c => <option key={c.id} value={c.id}>{c.displayName ? `${c.displayName} (${c.email})` : c.email}</option>)}
             </select>
             <button type="button" onClick={() => setShowNewCoach(!showNewCoach)}
-              className="mt-1.5 text-xs text-[#4ade80] hover:text-white flex items-center gap-1">
+              className="mt-1.5 text-xs text-[#00A651] hover:text-gray-800 flex items-center gap-1">
               <Plus size={12} /> Add New Coach
             </button>
             {showNewCoach && (
-              <div className="mt-2 p-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg space-y-2">
+              <div className="mt-2 p-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg space-y-2">
                 <input type="text" placeholder="Full Name" value={newCoach.name}
                   onChange={e => setNewCoach(p => ({ ...p, name: e.target.value }))}
-                  className="w-full px-2.5 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-xs focus:border-[#22c55e] focus:outline-none" />
+                  className="w-full px-2.5 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-xs focus:border-[#00A651] focus:outline-none" />
                 <input type="email" placeholder="Email" value={newCoach.email}
                   onChange={e => setNewCoach(p => ({ ...p, email: e.target.value }))}
-                  className="w-full px-2.5 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-xs focus:border-[#22c55e] focus:outline-none" />
+                  className="w-full px-2.5 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-xs focus:border-[#00A651] focus:outline-none" />
                 <input type="text" placeholder="Password (default: Temp1234!)" value={newCoach.password}
                   onChange={e => setNewCoach(p => ({ ...p, password: e.target.value }))}
-                  className="w-full px-2.5 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-xs focus:border-[#22c55e] focus:outline-none" />
+                  className="w-full px-2.5 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-xs focus:border-[#00A651] focus:outline-none" />
                 {coachError && <p className="text-red-400 text-xs">{coachError}</p>}
                 <div className="flex gap-2">
                   <button type="button" onClick={() => setShowNewCoach(false)}
-                    className="flex-1 py-1.5 text-xs bg-white/10 text-white rounded-lg hover:bg-white/20">Cancel</button>
+                    className="flex-1 py-1.5 text-xs bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200">Cancel</button>
                   <button type="button" onClick={handleCreateCoach} disabled={creatingCoach}
-                    className="flex-1 py-1.5 text-xs bg-[#22c55e] text-[#0a3d2e] rounded-lg font-bold hover:bg-[#4ade80] disabled:opacity-50 flex items-center justify-center gap-1">
+                    className="flex-1 py-1.5 text-xs bg-[#005028] text-white rounded-lg font-bold hover:bg-[#00A651] disabled:opacity-50 flex items-center justify-center gap-1">
                     {creatingCoach ? <><Loader2 size={12} className="animate-spin" /> Creating...</> : 'Create Coach'}
                   </button>
                 </div>
@@ -665,7 +665,7 @@ const TeamFormModal = ({ team, coaches: initialCoaches, players, allTeams, coord
 
         {/* Player Assignment */}
         <div>
-          <label className="text-[#4ade80] text-sm font-medium mb-1.5 block">
+          <label className="text-[#00A651] text-sm font-medium mb-1.5 block">
             Players ({form.playerIds.length})
           </label>
 
@@ -675,7 +675,7 @@ const TeamFormModal = ({ team, coaches: initialCoaches, players, allTeams, coord
               {form.playerIds.map(pid => {
                 const p = players.find(pl => pl.id === pid);
                 return (
-                  <span key={pid} className="flex items-center gap-1 px-2 py-1 bg-[#22c55e]/20 text-[#4ade80] rounded-full text-xs">
+                  <span key={pid} className="flex items-center gap-1 px-2 py-1 bg-[#005028]/20 text-[#00A651] rounded-full text-xs">
                     {p?.displayName || p?.email || pid}
                     <button type="button" onClick={() => setForm(prev => ({ ...prev, playerIds: prev.playerIds.filter(id => id !== pid) }))}>
                       <X size={12} />
@@ -690,44 +690,44 @@ const TeamFormModal = ({ team, coaches: initialCoaches, players, allTeams, coord
           <div className="relative">
             <input type="text" placeholder="Search players to add..."
               value={playerSearch} onChange={e => setPlayerSearch(e.target.value)}
-              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none" />
+              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none" />
           </div>
           {playerSearch && availablePlayers.length > 0 && (
-            <div className="mt-1 max-h-32 overflow-y-auto bg-[#0a3d2e] border border-[#1a8a68] rounded-lg">
+            <div className="mt-1 max-h-32 overflow-y-auto bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg">
               {availablePlayers.slice(0, 10).map(p => (
                 <button key={p.id} type="button"
                   onClick={() => {
                     setForm(prev => ({ ...prev, playerIds: [...prev.playerIds, p.id] }));
                     setPlayerSearch('');
                   }}
-                  className="w-full text-left px-3 py-2 text-sm text-white hover:bg-white/10 flex items-center gap-2">
-                  <UserPlus size={12} className="text-[#4ade80]" />
+                  className="w-full text-left px-3 py-2 text-sm text-gray-800 hover:bg-gray-100 flex items-center gap-2">
+                  <UserPlus size={12} className="text-[#00A651]" />
                   {p.displayName || p.email}
                 </button>
               ))}
             </div>
           )}
           <button type="button" onClick={() => setShowNewPlayer(!showNewPlayer)}
-            className="mt-1.5 text-xs text-[#4ade80] hover:text-white flex items-center gap-1">
+            className="mt-1.5 text-xs text-[#00A651] hover:text-gray-800 flex items-center gap-1">
             <Plus size={12} /> Add New Player
           </button>
           {showNewPlayer && (
-            <div className="mt-2 p-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg space-y-2">
+            <div className="mt-2 p-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg space-y-2">
               <input type="text" placeholder="Full Name" value={newPlayer.name}
                 onChange={e => setNewPlayer(p => ({ ...p, name: e.target.value }))}
-                className="w-full px-2.5 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-xs focus:border-[#22c55e] focus:outline-none" />
+                className="w-full px-2.5 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-xs focus:border-[#00A651] focus:outline-none" />
               <input type="email" placeholder="Email" value={newPlayer.email}
                 onChange={e => setNewPlayer(p => ({ ...p, email: e.target.value }))}
-                className="w-full px-2.5 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-xs focus:border-[#22c55e] focus:outline-none" />
+                className="w-full px-2.5 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-xs focus:border-[#00A651] focus:outline-none" />
               <input type="text" placeholder="Password (default: Temp1234!)" value={newPlayer.password}
                 onChange={e => setNewPlayer(p => ({ ...p, password: e.target.value }))}
-                className="w-full px-2.5 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-xs focus:border-[#22c55e] focus:outline-none" />
+                className="w-full px-2.5 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-xs focus:border-[#00A651] focus:outline-none" />
               {playerError && <p className="text-red-400 text-xs">{playerError}</p>}
               <div className="flex gap-2">
                 <button type="button" onClick={() => setShowNewPlayer(false)}
-                  className="flex-1 py-1.5 text-xs bg-white/10 text-white rounded-lg hover:bg-white/20">Cancel</button>
+                  className="flex-1 py-1.5 text-xs bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200">Cancel</button>
                 <button type="button" onClick={handleCreatePlayer} disabled={creatingPlayer}
-                  className="flex-1 py-1.5 text-xs bg-[#22c55e] text-[#0a3d2e] rounded-lg font-bold hover:bg-[#4ade80] disabled:opacity-50 flex items-center justify-center gap-1">
+                  className="flex-1 py-1.5 text-xs bg-[#005028] text-white rounded-lg font-bold hover:bg-[#00A651] disabled:opacity-50 flex items-center justify-center gap-1">
                   {creatingPlayer ? <><Loader2 size={12} className="animate-spin" /> Creating...</> : 'Create Player'}
                 </button>
               </div>
@@ -737,9 +737,9 @@ const TeamFormModal = ({ team, coaches: initialCoaches, players, allTeams, coord
 
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={onClose}
-            className="flex-1 py-2.5 bg-white/10 text-white rounded-lg text-sm font-medium hover:bg-white/20">Cancel</button>
+            className="flex-1 py-2.5 bg-gray-100 text-gray-800 rounded-lg text-sm font-medium hover:bg-gray-200">Cancel</button>
           <button type="submit" disabled={saving || !form.name || !form.ageGroup || !form.gender}
-            className="flex-1 py-2.5 bg-[#22c55e] text-[#0a3d2e] rounded-lg text-sm font-bold hover:bg-[#4ade80] disabled:opacity-50 disabled:cursor-not-allowed">
+            className="flex-1 py-2.5 bg-[#005028] text-white rounded-lg text-sm font-bold hover:bg-[#00A651] disabled:opacity-50 disabled:cursor-not-allowed">
             {saving ? 'Saving...' : isEdit ? 'Update Team' : 'Create Team'}
           </button>
         </div>
@@ -788,15 +788,15 @@ const CSVImportModal = ({ coaches, currentUserId, coordinatorGender, onClose, on
   return (
     <Modal onClose={onClose} title="Import Teams from CSV">
       <div className="space-y-4">
-        <div className="bg-[#0a3d2e] border border-[#1a8a68]/50 rounded-lg p-3">
-          <p className="text-white/70 text-xs mb-1">Expected CSV format:</p>
-          <code className="text-[#4ade80] text-xs">team_name,age_group,gender,season,coach_email</code>
+        <div className="bg-[#F5F9F5] border border-[#D4E4D4]/50 rounded-lg p-3">
+          <p className="text-gray-600 text-xs mb-1">Expected CSV format:</p>
+          <code className="text-[#00A651] text-xs">team_name,age_group,gender,season,coach_email</code>
         </div>
 
         <div>
           <input type="file" accept=".csv,.txt" ref={fileRef} onChange={handleFile} className="hidden" />
           <button onClick={() => fileRef.current?.click()}
-            className="w-full py-3 bg-[#0a3d2e] border-2 border-dashed border-[#1a8a68] rounded-lg text-white/60 text-sm hover:border-[#22c55e] hover:text-white transition-colors flex items-center justify-center gap-2">
+            className="w-full py-3 bg-[#F5F9F5] border-2 border-dashed border-[#D4E4D4] rounded-lg text-gray-500 text-sm hover:border-[#00A651] hover:text-gray-800 transition-colors flex items-center justify-center gap-2">
             <Upload size={16} /> Choose CSV File
           </button>
         </div>
@@ -845,10 +845,10 @@ const CSVImportModal = ({ coaches, currentUserId, coordinatorGender, onClose, on
 
         <div className="flex gap-3 pt-2">
           <button onClick={onClose}
-            className="flex-1 py-2.5 bg-white/10 text-white rounded-lg text-sm font-medium hover:bg-white/20">Cancel</button>
+            className="flex-1 py-2.5 bg-gray-100 text-gray-800 rounded-lg text-sm font-medium hover:bg-gray-200">Cancel</button>
           <button onClick={handleImport}
             disabled={!preview || preview.valid.length === 0 || importing}
-            className="flex-1 py-2.5 bg-[#22c55e] text-[#0a3d2e] rounded-lg text-sm font-bold hover:bg-[#4ade80] disabled:opacity-50 disabled:cursor-not-allowed">
+            className="flex-1 py-2.5 bg-[#005028] text-white rounded-lg text-sm font-bold hover:bg-[#00A651] disabled:opacity-50 disabled:cursor-not-allowed">
             {importing ? 'Importing...' : `Import ${preview?.valid.length || 0} Teams`}
           </button>
         </div>

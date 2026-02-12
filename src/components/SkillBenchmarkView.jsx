@@ -4,16 +4,16 @@ import { useData } from '../contexts/DataContext';
 import { DEFAULT_BENCHMARKS, LEVEL_LABELS } from '../data/skillBenchmarks';
 
 const levelColors = {
-  1: 'border-[#1a8a68] bg-[#1a8a68]/20',
-  2: 'border-[#22c55e] bg-[#22c55e]/20',
-  3: 'border-[#4ade80] bg-[#4ade80]/20',
+  1: 'border-[#D4E4D4] bg-[#D4E4D4]/20',
+  2: 'border-[#00A651] bg-[#005028]/20',
+  3: 'border-[#00A651] bg-[#00A651]/20',
   4: 'border-[#86efac] bg-[#86efac]/20'
 };
 
 const levelBadgeColors = {
-  1: 'bg-[#1a8a68]',
-  2: 'bg-[#22c55e]',
-  3: 'bg-[#4ade80]',
+  1: 'bg-[#D4E4D4]',
+  2: 'bg-[#005028]',
+  3: 'bg-[#00A651]',
   4: 'bg-[#86efac]'
 };
 
@@ -107,16 +107,16 @@ const SkillBenchmarkView = ({
   };
 
   const content = (
-    <div className={`bg-[#0d5943] ${isModal ? 'border-2 border-[#1a8a68] rounded-2xl max-w-lg w-full max-h-[80vh] overflow-hidden flex flex-col' : 'rounded-xl'}`}>
+    <div className={`bg-white ${isModal ? 'border-2 border-[#D4E4D4] rounded-2xl max-w-lg w-full max-h-[80vh] overflow-hidden flex flex-col' : 'rounded-xl'}`}>
       {/* Header */}
-      <div className="px-4 py-4 border-b border-[#1a8a68] flex items-center justify-between sticky top-0 bg-[#0d5943] z-10">
+      <div className="px-4 py-4 border-b border-[#D4E4D4] flex items-center justify-between sticky top-0 bg-white z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-            <Info className="w-5 h-5 text-[#4ade80]" />
+          <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+            <Info className="w-5 h-5 text-[#00A651]" />
           </div>
           <div>
-            <h3 className="text-white font-semibold">{skillName}</h3>
-            <p className="text-[#4ade80] text-xs">
+            <h3 className="text-gray-800 font-semibold">{skillName}</h3>
+            <p className="text-[#00A651] text-xs">
               {benchmark?.ageGroupName || ageGroupId.toUpperCase()} Benchmarks
             </p>
           </div>
@@ -124,9 +124,9 @@ const SkillBenchmarkView = ({
         {onClose && (
           <button
             onClick={onClose}
-            className="w-8 h-8 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center hover:bg-[#1a8a68] transition-colors"
+            className="w-8 h-8 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
           >
-            <X className="w-4 h-4 text-white" />
+            <X className="w-4 h-4 text-gray-800" />
           </button>
         )}
       </div>
@@ -135,7 +135,7 @@ const SkillBenchmarkView = ({
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-[#4ade80] animate-spin" />
+            <Loader2 className="w-8 h-8 text-[#00A651] animate-spin" />
           </div>
         ) : (
           [1, 2, 3, 4].map((level) => {
@@ -152,8 +152,8 @@ const SkillBenchmarkView = ({
                 key={level}
                 className={`border-2 rounded-xl overflow-hidden transition-all duration-200 ${
                   isCurrentLevel
-                    ? `${levelColors[level]} ring-2 ring-[#4ade80]`
-                    : 'border-[#1a8a68] bg-[#0a3d2e]'
+                    ? `${levelColors[level]} ring-2 ring-[#00A651]`
+                    : 'border-[#D4E4D4] bg-[#F5F9F5]'
                 }`}
               >
                 <button
@@ -162,12 +162,12 @@ const SkillBenchmarkView = ({
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-lg ${levelBadgeColors[level]} flex items-center justify-center`}>
-                      <span className="text-[#0a3d2e] font-bold">{level}</span>
+                      <span className="text-white font-bold">{level}</span>
                     </div>
                     <div className="text-left">
-                      <span className="text-white font-medium">{levelData.label}</span>
+                      <span className="text-gray-800 font-medium">{levelData.label}</span>
                       {isCurrentLevel && (
-                        <span className="ml-2 text-[10px] px-2 py-0.5 bg-[#4ade80] text-[#0a3d2e] rounded-full font-medium">
+                        <span className="ml-2 text-[10px] px-2 py-0.5 bg-[#00A651] text-white rounded-full font-medium">
                           Current
                         </span>
                       )}
@@ -175,14 +175,14 @@ const SkillBenchmarkView = ({
                   </div>
                   <div className="flex items-center gap-2">
                     {hasCriteria && (
-                      <span className="text-[#1a8a68] text-xs">
+                      <span className="text-[#6B7C6B] text-xs">
                         {levelData.criteria.length} criteria
                       </span>
                     )}
                     {isExpanded ? (
-                      <ChevronUp className="w-5 h-5 text-[#4ade80]" />
+                      <ChevronUp className="w-5 h-5 text-[#00A651]" />
                     ) : (
-                      <ChevronDown className="w-5 h-5 text-[#1a8a68]" />
+                      <ChevronDown className="w-5 h-5 text-[#6B7C6B]" />
                     )}
                   </div>
                 </button>
@@ -198,12 +198,12 @@ const SkillBenchmarkView = ({
                           key={idx}
                           className="flex items-start gap-2 text-sm"
                         >
-                          <CheckCircle2 className="w-4 h-4 text-[#4ade80] flex-shrink-0 mt-0.5" />
-                          <span className="text-white/90">{criterion}</span>
+                          <CheckCircle2 className="w-4 h-4 text-[#00A651] flex-shrink-0 mt-0.5" />
+                          <span className="text-gray-800">{criterion}</span>
                         </div>
                       ))
                     ) : (
-                      <p className="text-[#1a8a68] text-sm italic">
+                      <p className="text-[#6B7C6B] text-sm italic">
                         No criteria defined for this level yet.
                       </p>
                     )}
@@ -217,8 +217,8 @@ const SkillBenchmarkView = ({
 
       {/* Footer */}
       {isModal && (
-        <div className="px-4 py-3 border-t border-[#1a8a68] bg-[#0a3d2e]">
-          <p className="text-[#1a8a68] text-xs text-center">
+        <div className="px-4 py-3 border-t border-[#D4E4D4] bg-[#F5F9F5]">
+          <p className="text-[#6B7C6B] text-xs text-center">
             Tap a level to view assessment criteria
           </p>
         </div>
@@ -253,7 +253,7 @@ export const SkillBenchmarkButton = ({
     <>
       <button
         onClick={() => setShowBenchmark(true)}
-        className="flex items-center gap-1 px-2 py-1 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-[10px] text-[#4ade80] hover:border-[#22c55e] hover:text-[#22c55e] transition-colors"
+        className="flex items-center gap-1 px-2 py-1 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-[10px] text-[#00A651] hover:border-[#00A651] hover:text-[#00A651] transition-colors"
         title="View benchmark criteria"
       >
         <Info className="w-3 h-3" />

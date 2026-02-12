@@ -21,7 +21,7 @@ const ProgressRing = ({
   percent = 0,
   size = 80,
   strokeWidth = 6,
-  color = '#4ade80',
+  color = '#00A651',
   trackColor = 'rgba(74, 222, 128, 0.15)',
   label,
   showPercent = true,
@@ -90,7 +90,7 @@ const ProgressRing = ({
       </div>
 
       {label && (
-        <span className="text-[10px] text-white/60 text-center leading-tight">{label}</span>
+        <span className="text-[10px] text-gray-500 text-center leading-tight">{label}</span>
       )}
     </div>
   );

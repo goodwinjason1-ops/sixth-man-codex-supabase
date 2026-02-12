@@ -352,7 +352,7 @@ const CoachPlayerOverviewPage = () => {
   // Get skill level dot color
   const getSkillDotColor = (skill) => {
     if (!skill) return 'bg-gray-400'; // Not assessed
-    if (skill.level >= 3) return 'bg-[#22c55e]'; // Green - Level 3-4
+    if (skill.level >= 3) return 'bg-[#005028]'; // Green - Level 3-4
     if (skill.level === 2) return 'bg-yellow-400'; // Yellow - Level 2
     return 'bg-red-400'; // Red - Level 1
   };
@@ -469,8 +469,8 @@ const CoachPlayerOverviewPage = () => {
       >
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
-            <div className="w-12 h-12 border-4 border-[#1a8a68] border-t-[#22c55e] rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-white font-medium">Loading players...</p>
+            <div className="w-12 h-12 border-4 border-[#D4E4D4] border-t-[#00A651] rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-gray-800 font-medium">Loading players...</p>
           </div>
         </div>
       </PageShell>
@@ -495,8 +495,8 @@ const CoachPlayerOverviewPage = () => {
             onClick={() => setSelectedTeam('all')}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
               selectedTeam === 'all'
-                ? 'bg-[#22c55e] text-[#0a3d2e]'
-                : 'bg-[#0d5943] border border-[#1a8a68] text-white hover:border-[#22c55e]'
+                ? 'bg-[#005028] text-white'
+                : 'bg-white border border-[#D4E4D4] text-gray-800 hover:border-[#00A651]'
             }`}
           >
             All Teams
@@ -507,8 +507,8 @@ const CoachPlayerOverviewPage = () => {
               onClick={() => setSelectedTeam(team.id)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                 selectedTeam === team.id
-                  ? 'bg-[#22c55e] text-[#0a3d2e]'
-                  : 'bg-[#0d5943] border border-[#1a8a68] text-white hover:border-[#22c55e]'
+                  ? 'bg-[#005028] text-white'
+                  : 'bg-white border border-[#D4E4D4] text-gray-800 hover:border-[#00A651]'
               }`}
             >
               {team.name}
@@ -517,21 +517,21 @@ const CoachPlayerOverviewPage = () => {
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-4 mb-6">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-4 mb-6">
           {/* Search Bar */}
           <div className="relative mb-3">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1a8a68]" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#6B7C6B]" />
             <input
               type="text"
               placeholder="Search players by name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+              className="w-full pl-10 pr-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1a8a68] hover:text-white"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#6B7C6B] hover:text-gray-800"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -541,7 +541,7 @@ const CoachPlayerOverviewPage = () => {
           {/* Filter Toggle */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 text-[#4ade80] text-sm hover:text-white transition-colors"
+            className="flex items-center gap-2 text-[#00A651] text-sm hover:text-gray-800 transition-colors"
           >
             <Filter className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
@@ -549,10 +549,10 @@ const CoachPlayerOverviewPage = () => {
 
           {/* Expanded Filters */}
           {showFilters && (
-            <div className="mt-4 pt-4 border-t border-[#1a8a68] grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="mt-4 pt-4 border-t border-[#D4E4D4] grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Filter By */}
               <div>
-                <label className="block text-[#1a8a68] text-xs font-medium mb-2">Filter By</label>
+                <label className="block text-[#6B7C6B] text-xs font-medium mb-2">Filter By</label>
                 <div className="flex flex-wrap gap-2">
                   {[
                     { value: 'all', label: 'All Players' },
@@ -564,8 +564,8 @@ const CoachPlayerOverviewPage = () => {
                       onClick={() => setFilterType(option.value)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                         filterType === option.value
-                          ? 'bg-[#22c55e] text-[#0a3d2e]'
-                          : 'bg-[#0a3d2e] border border-[#1a8a68] text-white hover:border-[#22c55e]'
+                          ? 'bg-[#005028] text-white'
+                          : 'bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 hover:border-[#00A651]'
                       }`}
                     >
                       {option.label}
@@ -576,7 +576,7 @@ const CoachPlayerOverviewPage = () => {
 
               {/* Sort By */}
               <div>
-                <label className="block text-[#1a8a68] text-xs font-medium mb-2">Sort By</label>
+                <label className="block text-[#6B7C6B] text-xs font-medium mb-2">Sort By</label>
                 <div className="flex flex-wrap gap-2">
                   {[
                     { value: 'name', label: 'Name' },
@@ -588,8 +588,8 @@ const CoachPlayerOverviewPage = () => {
                       onClick={() => setSortBy(option.value)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 ${
                         sortBy === option.value
-                          ? 'bg-[#22c55e] text-[#0a3d2e]'
-                          : 'bg-[#0a3d2e] border border-[#1a8a68] text-white hover:border-[#22c55e]'
+                          ? 'bg-[#005028] text-white'
+                          : 'bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 hover:border-[#00A651]'
                       }`}
                     >
                       <SortAsc className="w-3 h-3" />
@@ -604,10 +604,10 @@ const CoachPlayerOverviewPage = () => {
 
         {/* Player Grid */}
         {filteredPlayers.length === 0 ? (
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-8 text-center">
-            <AlertCircle className="w-12 h-12 text-[#1a8a68] mx-auto mb-3" />
-            <h3 className="text-white font-semibold mb-2">No Players Found</h3>
-            <p className="text-[#1a8a68] text-sm">
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
+            <AlertCircle className="w-12 h-12 text-[#6B7C6B] mx-auto mb-3" />
+            <h3 className="text-gray-800 font-semibold mb-2">No Players Found</h3>
+            <p className="text-[#6B7C6B] text-sm">
               {searchQuery ? 'Try a different search term' : 'No players match the current filters'}
             </p>
           </div>
@@ -619,11 +619,11 @@ const CoachPlayerOverviewPage = () => {
                 <button
                   key={player.id}
                   onClick={() => handlePlayerClick(player)}
-                  className="group bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-4 text-left transition-all duration-200 hover:border-[#22c55e] hover:scale-[1.02] hover:shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98]"
+                  className="group bg-white border-2 border-[#D4E4D4] rounded-2xl p-4 text-left transition-all duration-200 hover:border-[#00A651] hover:scale-[1.02] hover:shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98]"
                 >
                   {/* Player Header */}
                   <div className="flex items-start gap-3 mb-3">
-                    <div className="w-12 h-12 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-full flex items-center justify-center flex-shrink-0 group-hover:border-[#22c55e] transition-colors">
+                    <div className="w-12 h-12 bg-[#F5F9F5] border-2 border-[#D4E4D4] rounded-full flex items-center justify-center flex-shrink-0 group-hover:border-[#00A651] transition-colors">
                       {player.photoURL ? (
                         <img
                           src={player.photoURL}
@@ -631,30 +631,30 @@ const CoachPlayerOverviewPage = () => {
                           className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
-                        <User className="w-6 h-6 text-[#4ade80]" />
+                        <User className="w-6 h-6 text-[#00A651]" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-white font-semibold truncate group-hover:text-[#4ade80] transition-colors">
+                      <h3 className="text-gray-800 font-semibold truncate group-hover:text-[#00A651] transition-colors">
                         {player.name}
                       </h3>
-                      <p className="text-[#1a8a68] text-xs">
+                      <p className="text-[#6B7C6B] text-xs">
                         {player.teamName} • {player.ageGroup}
                       </p>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-[#1a8a68] group-hover:text-[#4ade80] group-hover:translate-x-1 transition-all flex-shrink-0" />
+                    <ChevronRight className="w-5 h-5 text-[#6B7C6B] group-hover:text-[#00A651] group-hover:translate-x-1 transition-all flex-shrink-0" />
                   </div>
 
                   {/* Overall Progress */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-[#4ade80]" />
-                      <span className="text-white text-sm font-medium">
+                      <TrendingUp className="w-4 h-4 text-[#00A651]" />
+                      <span className="text-gray-800 text-sm font-medium">
                         Avg Level: {stats.avgLevel || '-'}
                       </span>
                     </div>
                     {stats.seasonProgress > 0 && (
-                      <span className="text-[#22c55e] text-xs font-medium bg-[#22c55e]/20 px-2 py-0.5 rounded-full">
+                      <span className="text-[#00A651] text-xs font-medium bg-[#005028]/20 px-2 py-0.5 rounded-full">
                         +{stats.seasonProgress} this season
                       </span>
                     )}
@@ -668,7 +668,7 @@ const CoachPlayerOverviewPage = () => {
                         className={`w-6 h-6 rounded-full ${getSkillDotColor(player.skills?.[skill.id])} flex items-center justify-center transition-transform group-hover:scale-110`}
                         title={`${skill.name}: Level ${player.skills?.[skill.id]?.level || 'Not assessed'}`}
                       >
-                        <span className="text-[8px] font-bold text-white">
+                        <span className="text-[8px] font-bold text-gray-800">
                           {player.skills?.[skill.id]?.level || '?'}
                         </span>
                       </div>
@@ -677,10 +677,10 @@ const CoachPlayerOverviewPage = () => {
 
                   {/* Stats Footer */}
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-[#1a8a68]">
+                    <span className="text-[#6B7C6B]">
                       {stats.assessedCount}/{stats.totalSkills} skills assessed
                     </span>
-                    <span className={`flex items-center gap-1 ${stats.needsAssessment ? 'text-yellow-400' : 'text-[#4ade80]'}`}>
+                    <span className={`flex items-center gap-1 ${stats.needsAssessment ? 'text-yellow-400' : 'text-[#00A651]'}`}>
                       <Clock className="w-3 h-3" />
                       {formatRelativeDate(stats.lastAssessment)}
                     </span>
@@ -695,7 +695,7 @@ const CoachPlayerOverviewPage = () => {
         <div className="mt-6 flex gap-3">
           <button
             onClick={() => navigate('/coach-assessment')}
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#22c55e] text-[#0a3d2e] font-semibold rounded-xl hover:bg-[#4ade80] transition-colors active:scale-[0.98]"
+            className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#005028] text-white font-semibold rounded-xl hover:bg-[#00A651] transition-colors active:scale-[0.98]"
           >
             <Plus className="w-5 h-5" />
             New Assessment
@@ -703,24 +703,24 @@ const CoachPlayerOverviewPage = () => {
         </div>
 
         {/* Legend */}
-        <div className="mt-6 bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-          <h3 className="text-white font-medium text-sm mb-3">Skill Level Colors</h3>
+        <div className="mt-6 bg-white border border-[#D4E4D4] rounded-xl p-4">
+          <h3 className="text-gray-800 font-medium text-sm mb-3">Skill Level Colors</h3>
           <div className="flex flex-wrap gap-4 text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-[#22c55e]" />
-              <span className="text-white">Level 3-4 (Competent+)</span>
+              <div className="w-4 h-4 rounded-full bg-[#005028]" />
+              <span className="text-gray-800">Level 3-4 (Competent+)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded-full bg-yellow-400" />
-              <span className="text-white">Level 2 (Developing)</span>
+              <span className="text-gray-800">Level 2 (Developing)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded-full bg-red-400" />
-              <span className="text-white">Level 1 (Emerging)</span>
+              <span className="text-gray-800">Level 1 (Emerging)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded-full bg-gray-400" />
-              <span className="text-white">Not Assessed</span>
+              <span className="text-gray-800">Not Assessed</span>
             </div>
           </div>
         </div>
@@ -762,9 +762,9 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
   const getLevelColor = (level) => {
     if (!level) return 'bg-gray-400';
     switch (level) {
-      case 1: return 'bg-[#1a8a68]';
-      case 2: return 'bg-[#22c55e]';
-      case 3: return 'bg-[#4ade80]';
+      case 1: return 'bg-[#D4E4D4]';
+      case 2: return 'bg-[#005028]';
+      case 3: return 'bg-[#00A651]';
       case 4: return 'bg-[#86efac]';
       default: return 'bg-gray-400';
     }
@@ -773,9 +773,9 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
   const getLevelTextColor = (level) => {
     if (!level) return 'text-gray-400';
     switch (level) {
-      case 1: return 'text-[#1a8a68]';
-      case 2: return 'text-[#22c55e]';
-      case 3: return 'text-[#4ade80]';
+      case 1: return 'text-[#6B7C6B]';
+      case 2: return 'text-[#00A651]';
+      case 3: return 'text-[#00A651]';
       case 4: return 'text-[#86efac]';
       default: return 'text-gray-400';
     }
@@ -827,13 +827,13 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
 
       {/* Modal Content */}
       <div
-        className="relative w-full sm:max-w-2xl max-h-[95vh] bg-[#0d5943] border-2 border-[#1a8a68] rounded-t-3xl sm:rounded-2xl overflow-hidden animate-slideUp sm:animate-scaleIn"
+        className="relative w-full sm:max-w-2xl max-h-[95vh] bg-white border-2 border-[#D4E4D4] rounded-t-3xl sm:rounded-2xl overflow-hidden animate-slideUp sm:animate-scaleIn"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-[#0a3d2e] border-b border-[#1a8a68] p-4 z-10">
+        <div className="sticky top-0 bg-[#F5F9F5] border-b border-[#D4E4D4] p-4 z-10">
           <div className="flex items-center gap-3">
-            <div className="w-14 h-14 bg-[#0d5943] border-2 border-[#1a8a68] rounded-full flex items-center justify-center">
+            <div className="w-14 h-14 bg-white border-2 border-[#D4E4D4] rounded-full flex items-center justify-center">
               {player.photoURL ? (
                 <img
                   src={player.photoURL}
@@ -841,36 +841,36 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
-                <User className="w-7 h-7 text-[#4ade80]" />
+                <User className="w-7 h-7 text-[#00A651]" />
               )}
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-bold text-white">{player.name}</h2>
-              <p className="text-[#4ade80] text-sm">
+              <h2 className="text-xl font-bold text-gray-800">{player.name}</h2>
+              <p className="text-[#00A651] text-sm">
                 {player.teamName} • {player.ageGroup}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="w-10 h-10 bg-[#0d5943] border border-[#1a8a68] rounded-full flex items-center justify-center hover:bg-[#1a8a68] hover:border-[#22c55e] transition-all"
+              className="w-10 h-10 bg-white border border-[#D4E4D4] rounded-full flex items-center justify-center hover:bg-gray-100 hover:border-[#00A651] transition-all"
             >
-              <X className="w-5 h-5 text-white" />
+              <X className="w-5 h-5 text-gray-800" />
             </button>
           </div>
 
           {/* Stats Summary */}
           <div className="flex gap-4 mt-4">
-            <div className="flex-1 bg-[#0d5943] border border-[#1a8a68] rounded-lg p-2 text-center">
-              <p className="text-lg font-bold text-white">{avgLevel}</p>
-              <p className="text-[10px] text-[#1a8a68]">Avg Level</p>
+            <div className="flex-1 bg-white border border-[#D4E4D4] rounded-lg p-2 text-center">
+              <p className="text-lg font-bold text-gray-800">{avgLevel}</p>
+              <p className="text-[10px] text-[#6B7C6B]">Avg Level</p>
             </div>
-            <div className="flex-1 bg-[#0d5943] border border-[#1a8a68] rounded-lg p-2 text-center">
-              <p className="text-lg font-bold text-white">{assessedSkills.length}/8</p>
-              <p className="text-[10px] text-[#1a8a68]">Skills Assessed</p>
+            <div className="flex-1 bg-white border border-[#D4E4D4] rounded-lg p-2 text-center">
+              <p className="text-lg font-bold text-gray-800">{assessedSkills.length}/8</p>
+              <p className="text-[10px] text-[#6B7C6B]">Skills Assessed</p>
             </div>
-            <div className="flex-1 bg-[#0d5943] border border-[#1a8a68] rounded-lg p-2 text-center">
-              <p className="text-lg font-bold text-[#22c55e]">+{player.seasonProgress || 0}</p>
-              <p className="text-[10px] text-[#1a8a68]">Season Progress</p>
+            <div className="flex-1 bg-white border border-[#D4E4D4] rounded-lg p-2 text-center">
+              <p className="text-lg font-bold text-[#00A651]">+{player.seasonProgress || 0}</p>
+              <p className="text-[10px] text-[#6B7C6B]">Season Progress</p>
             </div>
           </div>
 
@@ -886,8 +886,8 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
                   activeTab === tab.id
-                    ? 'bg-[#22c55e] text-[#0a3d2e]'
-                    : 'bg-[#0d5943] border border-[#1a8a68] text-white hover:border-[#22c55e]'
+                    ? 'bg-[#005028] text-white'
+                    : 'bg-white border border-[#D4E4D4] text-gray-800 hover:border-[#00A651]'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -908,14 +908,14 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
                 return (
                   <div
                     key={skillCat.id}
-                    className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4"
+                    className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4"
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${skill ? getLevelColor(skill.level) + '/20' : 'bg-gray-500/20'} border ${skill ? 'border-' + getLevelColor(skill.level).replace('bg-', '') : 'border-gray-500'}`}>
                         <Icon className={`w-5 h-5 ${skill ? getLevelTextColor(skill.level) : 'text-gray-400'}`} />
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-white font-medium text-sm">{skillCat.name}</h4>
+                        <h4 className="text-gray-800 font-medium text-sm">{skillCat.name}</h4>
                         <p className={`text-xs ${skill ? getLevelTextColor(skill.level) : 'text-gray-400'}`}>
                           {skill ? `Level ${skill.level}: ${LEVEL_LABELS[skill.level]}` : 'Not assessed yet'}
                         </p>
@@ -926,11 +926,11 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
                             {[1, 2, 3, 4].map(lvl => (
                               <div
                                 key={lvl}
-                                className={`w-2 h-6 rounded-full ${lvl <= skill.level ? getLevelColor(lvl) : 'bg-[#0d5943] border border-[#1a8a68]'}`}
+                                className={`w-2 h-6 rounded-full ${lvl <= skill.level ? getLevelColor(lvl) : 'bg-white border border-[#D4E4D4]'}`}
                               />
                             ))}
                           </div>
-                          <p className="text-[10px] text-[#1a8a68] mt-1">
+                          <p className="text-[10px] text-[#6B7C6B] mt-1">
                             {formatDate(skill.lastAssessed)}
                           </p>
                         </div>
@@ -947,20 +947,20 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
             <div className="space-y-4">
               {/* Progression Chart */}
               {progressionData.length > 1 && (
-                <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4">
-                  <h3 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-[#4ade80]" />
+                <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4">
+                  <h3 className="text-gray-800 font-semibold text-sm mb-3 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-[#00A651]" />
                     Progression Over Time
                   </h3>
                   <div className="h-32">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={progressionData}>
-                        <XAxis dataKey="month" tick={{ fill: '#4ade80', fontSize: 10 }} />
-                        <YAxis domain={[0, 4]} tick={{ fill: '#4ade80', fontSize: 10 }} />
+                        <XAxis dataKey="month" tick={{ fill: '#00A651', fontSize: 10 }} />
+                        <YAxis domain={[0, 4]} tick={{ fill: '#00A651', fontSize: 10 }} />
                         <Tooltip
                           contentStyle={{
-                            backgroundColor: '#0d5943',
-                            border: '1px solid #1a8a68',
+                            backgroundColor: '#FFFFFF',
+                            border: '1px solid #D4E4D4',
                             borderRadius: '8px',
                             color: 'white'
                           }}
@@ -968,9 +968,9 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
                         <Line
                           type="monotone"
                           dataKey="avgLevel"
-                          stroke="#22c55e"
+                          stroke="#00A651"
                           strokeWidth={2}
-                          dot={{ fill: '#22c55e', strokeWidth: 0 }}
+                          dot={{ fill: '#00A651', strokeWidth: 0 }}
                         />
                       </LineChart>
                     </ResponsiveContainer>
@@ -979,9 +979,9 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
               )}
 
               {/* Assessment Timeline */}
-              <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4">
-                <h3 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-[#4ade80]" />
+              <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4">
+                <h3 className="text-gray-800 font-semibold text-sm mb-3 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-[#00A651]" />
                   Assessment Timeline
                 </h3>
                 {player.assessmentHistory && player.assessmentHistory.length > 0 ? (
@@ -994,23 +994,23 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
                       return (
                         <div
                           key={index}
-                          className="flex gap-3 pb-3 border-b border-[#1a8a68] last:border-0 last:pb-0"
+                          className="flex gap-3 pb-3 border-b border-[#D4E4D4] last:border-0 last:pb-0"
                         >
                           <div className={`w-8 h-8 rounded-full ${getLevelColor(assessment.level)} flex items-center justify-center flex-shrink-0`}>
-                            <span className="text-xs font-bold text-white">{assessment.level}</span>
+                            <span className="text-xs font-bold text-gray-800">{assessment.level}</span>
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="text-white text-sm font-medium">
+                              <span className="text-gray-800 text-sm font-medium">
                                 {skillCat?.name || assessment.skillId}
                               </span>
                               {levelChange !== null && levelChange > 0 && (
-                                <span className="text-[10px] bg-[#22c55e]/20 text-[#22c55e] px-1.5 py-0.5 rounded-full font-medium">
+                                <span className="text-[10px] bg-[#005028]/20 text-[#00A651] px-1.5 py-0.5 rounded-full font-medium">
                                   +{levelChange} level
                                 </span>
                               )}
                             </div>
-                            <p className="text-[#1a8a68] text-xs">
+                            <p className="text-[#6B7C6B] text-xs">
                               {formatDate(assessment.date)} • {assessment.coach}
                             </p>
                           </div>
@@ -1019,7 +1019,7 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
                     })}
                   </div>
                 ) : (
-                  <p className="text-[#1a8a68] text-sm text-center py-4">No assessment history yet</p>
+                  <p className="text-[#6B7C6B] text-sm text-center py-4">No assessment history yet</p>
                 )}
               </div>
             </div>
@@ -1027,9 +1027,9 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
 
           {/* Notes Tab */}
           {activeTab === 'notes' && (
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4">
-              <h3 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-[#4ade80]" />
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4">
+              <h3 className="text-gray-800 font-semibold text-sm mb-3 flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-[#00A651]" />
                 Coach Notes
               </h3>
               {player.assessmentHistory && player.assessmentHistory.filter(a => a.notes).length > 0 ? (
@@ -1039,37 +1039,37 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
                     return (
                       <div
                         key={index}
-                        className="p-3 bg-[#0d5943] rounded-lg border border-[#1a8a68]"
+                        className="p-3 bg-white rounded-lg border border-[#D4E4D4]"
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-[#4ade80] text-xs font-medium">{skillCat?.name}</span>
-                          <span className="text-[10px] text-[#1a8a68]">{formatDate(assessment.date)}</span>
+                          <span className="text-[#00A651] text-xs font-medium">{skillCat?.name}</span>
+                          <span className="text-[10px] text-[#6B7C6B]">{formatDate(assessment.date)}</span>
                         </div>
-                        <p className="text-white text-sm leading-relaxed">{assessment.notes}</p>
-                        <p className="text-[10px] text-[#1a8a68] mt-2">— {assessment.coach}</p>
+                        <p className="text-gray-800 text-sm leading-relaxed">{assessment.notes}</p>
+                        <p className="text-[10px] text-[#6B7C6B] mt-2">— {assessment.coach}</p>
                       </div>
                     );
                   })}
                 </div>
               ) : (
-                <p className="text-[#1a8a68] text-sm text-center py-4">No coach notes yet</p>
+                <p className="text-[#6B7C6B] text-sm text-center py-4">No coach notes yet</p>
               )}
             </div>
           )}
         </div>
 
         {/* Footer Actions */}
-        <div className="sticky bottom-0 p-4 bg-[#0a3d2e] border-t border-[#1a8a68] flex gap-3">
+        <div className="sticky bottom-0 p-4 bg-[#F5F9F5] border-t border-[#D4E4D4] flex gap-3">
           <button
             onClick={onAssess}
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#22c55e] text-[#0a3d2e] font-semibold rounded-xl hover:bg-[#4ade80] transition-colors active:scale-[0.98]"
+            className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#005028] text-white font-semibold rounded-xl hover:bg-[#00A651] transition-colors active:scale-[0.98]"
           >
             <Edit3 className="w-5 h-5" />
             Assess Player
           </button>
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-transparent border border-[#1a8a68] text-white font-medium rounded-xl hover:bg-[#1a8a68] transition-colors"
+            className="px-6 py-3 bg-transparent border border-[#D4E4D4] text-gray-800 font-medium rounded-xl hover:bg-gray-100 transition-colors"
           >
             Close
           </button>

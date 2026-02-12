@@ -51,7 +51,7 @@ const StepIndicator = ({ current, total }) => (
       <div
         key={i}
         className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-          i <= current ? 'bg-[#4ade80]' : 'bg-white/20'
+          i <= current ? 'bg-[#00A651]' : 'bg-gray-200'
         }`}
       />
     ))}
@@ -142,8 +142,8 @@ const PracticeAdminTryout = () => {
         return (
           <div>
             <div className="mb-5">
-              <h3 className="text-white font-bold text-lg">Select Age Group</h3>
-              <p className="text-[#1a8a68] text-sm mt-1">Choose the age group for this tryout session</p>
+              <h3 className="text-gray-800 font-bold text-lg">Select Age Group</h3>
+              <p className="text-[#6B7C6B] text-sm mt-1">Choose the age group for this tryout session</p>
             </div>
 
             <div className="space-y-3">
@@ -153,23 +153,23 @@ const PracticeAdminTryout = () => {
                   onClick={() => setAgeGroup(group.id)}
                   className={`w-full text-left rounded-xl p-4 transition-all duration-200 active:scale-[0.98] flex items-center gap-3 min-h-[60px] ${
                     ageGroup === group.id
-                      ? 'bg-[#22c55e]/15 border-2 border-[#22c55e]'
-                      : 'bg-[#0d5943] border-2 border-[#1a8a68] hover:border-[#22c55e]/50'
+                      ? 'bg-[#005028]/15 border-2 border-[#00A651]'
+                      : 'bg-white border-2 border-[#D4E4D4] hover:border-[#00A651]/50'
                   }`}
                 >
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg ${
                     ageGroup === group.id
-                      ? 'bg-[#22c55e] text-[#0a3d2e]'
-                      : 'bg-[#0a3d2e] border border-[#1a8a68] text-white'
+                      ? 'bg-[#005028] text-white'
+                      : 'bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800'
                   }`}>
                     {group.label}
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-white font-semibold">{group.label} Division</h4>
-                    <p className="text-[#1a8a68] text-xs">{group.description}</p>
+                    <h4 className="text-gray-800 font-semibold">{group.label} Division</h4>
+                    <p className="text-[#6B7C6B] text-xs">{group.description}</p>
                   </div>
                   {ageGroup === group.id && (
-                    <CheckCircle className="w-6 h-6 text-[#4ade80]" />
+                    <CheckCircle className="w-6 h-6 text-[#00A651]" />
                   )}
                 </button>
               ))}
@@ -182,56 +182,56 @@ const PracticeAdminTryout = () => {
         return (
           <div>
             <div className="mb-5">
-              <h3 className="text-white font-bold text-lg">Set Date & Time</h3>
-              <p className="text-[#1a8a68] text-sm mt-1">When will the tryout session take place?</p>
+              <h3 className="text-gray-800 font-bold text-lg">Set Date & Time</h3>
+              <p className="text-[#6B7C6B] text-sm mt-1">When will the tryout session take place?</p>
             </div>
 
             <div className="space-y-4">
               {/* Date Input */}
-              <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-                <label className="flex items-center gap-2 text-white font-medium text-sm mb-3">
-                  <Calendar className="w-4 h-4 text-[#4ade80]" />
+              <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
+                <label className="flex items-center gap-2 text-gray-800 font-medium text-sm mb-3">
+                  <Calendar className="w-4 h-4 text-[#00A651]" />
                   Date
                 </label>
                 <input
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none min-h-[44px]"
+                  className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none min-h-[44px]"
                 />
                 {date && (
-                  <p className="text-[#4ade80] text-xs mt-2">
+                  <p className="text-[#00A651] text-xs mt-2">
                     {formatDisplayDate(date)}
                   </p>
                 )}
               </div>
 
               {/* Time Input */}
-              <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-                <label className="flex items-center gap-2 text-white font-medium text-sm mb-3">
-                  <Clock className="w-4 h-4 text-[#4ade80]" />
+              <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
+                <label className="flex items-center gap-2 text-gray-800 font-medium text-sm mb-3">
+                  <Clock className="w-4 h-4 text-[#00A651]" />
                   Start Time
                 </label>
                 <input
                   type="time"
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none min-h-[44px]"
+                  className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none min-h-[44px]"
                 />
                 {time && (
-                  <p className="text-[#4ade80] text-xs mt-2">
+                  <p className="text-[#00A651] text-xs mt-2">
                     {formatDisplayTime(time)}
                   </p>
                 )}
               </div>
 
               {/* Location (static) */}
-              <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-                <label className="flex items-center gap-2 text-white font-medium text-sm mb-3">
-                  <MapPin className="w-4 h-4 text-[#4ade80]" />
+              <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
+                <label className="flex items-center gap-2 text-gray-800 font-medium text-sm mb-3">
+                  <MapPin className="w-4 h-4 text-[#00A651]" />
                   Location
                 </label>
-                <div className="px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white/60 text-sm">
+                <div className="px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-500 text-sm">
                   Emerald Lakers Home Court
                 </div>
               </div>
@@ -246,14 +246,14 @@ const PracticeAdminTryout = () => {
             <div className="mb-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-white font-bold text-lg">Add Players</h3>
-                  <p className="text-[#1a8a68] text-sm mt-1">
+                  <h3 className="text-gray-800 font-bold text-lg">Add Players</h3>
+                  <p className="text-[#6B7C6B] text-sm mt-1">
                     {selectedPlayers.length}/{FAKE_PLAYERS.length} selected
                   </p>
                 </div>
                 <button
                   onClick={selectAllPlayers}
-                  className="px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-[#4ade80] text-xs font-medium hover:border-[#22c55e] transition-colors min-h-[44px] flex items-center"
+                  className="px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-[#00A651] text-xs font-medium hover:border-[#00A651] transition-colors min-h-[44px] flex items-center"
                 >
                   {selectedPlayers.length === FAKE_PLAYERS.length ? 'Deselect All' : 'Select All'}
                 </button>
@@ -269,27 +269,27 @@ const PracticeAdminTryout = () => {
                     onClick={() => togglePlayer(player.id)}
                     className={`w-full text-left rounded-xl p-4 transition-all duration-200 active:scale-[0.98] flex items-center gap-3 min-h-[56px] ${
                       isSelected
-                        ? 'bg-[#22c55e]/15 border-2 border-[#22c55e]'
-                        : 'bg-[#0d5943] border-2 border-[#1a8a68] hover:border-[#22c55e]/50'
+                        ? 'bg-[#005028]/15 border-2 border-[#00A651]'
+                        : 'bg-white border-2 border-[#D4E4D4] hover:border-[#00A651]/50'
                     }`}
                   >
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                       isSelected
-                        ? 'bg-[#22c55e]/20'
-                        : 'bg-[#0a3d2e] border border-[#1a8a68]'
+                        ? 'bg-[#005028]/20'
+                        : 'bg-[#F5F9F5] border border-[#D4E4D4]'
                     }`}>
                       {isSelected ? (
-                        <Check className="w-5 h-5 text-[#4ade80]" />
+                        <Check className="w-5 h-5 text-[#00A651]" />
                       ) : (
-                        <UserPlus className="w-4 h-4 text-[#1a8a68]" />
+                        <UserPlus className="w-4 h-4 text-[#6B7C6B]" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-white font-medium text-sm">{player.name}</h4>
-                      <p className="text-[#1a8a68] text-xs">Age {player.age}</p>
+                      <h4 className="text-gray-800 font-medium text-sm">{player.name}</h4>
+                      <p className="text-[#6B7C6B] text-xs">Age {player.age}</p>
                     </div>
                     {isSelected && (
-                      <span className="text-[#4ade80] text-xs font-medium">Added</span>
+                      <span className="text-[#00A651] text-xs font-medium">Added</span>
                     )}
                   </button>
                 );
@@ -303,8 +303,8 @@ const PracticeAdminTryout = () => {
         return (
           <div>
             <div className="mb-5">
-              <h3 className="text-white font-bold text-lg">Assign Assessors</h3>
-              <p className="text-[#1a8a68] text-sm mt-1">
+              <h3 className="text-gray-800 font-bold text-lg">Assign Assessors</h3>
+              <p className="text-[#6B7C6B] text-sm mt-1">
                 {selectedAssessors.length}/{FAKE_ASSESSORS.length} selected
               </p>
             </div>
@@ -318,27 +318,27 @@ const PracticeAdminTryout = () => {
                     onClick={() => toggleAssessor(assessor.id)}
                     className={`w-full text-left rounded-xl p-4 transition-all duration-200 active:scale-[0.98] flex items-center gap-3 min-h-[56px] ${
                       isSelected
-                        ? 'bg-[#22c55e]/15 border-2 border-[#22c55e]'
-                        : 'bg-[#0d5943] border-2 border-[#1a8a68] hover:border-[#22c55e]/50'
+                        ? 'bg-[#005028]/15 border-2 border-[#00A651]'
+                        : 'bg-white border-2 border-[#D4E4D4] hover:border-[#00A651]/50'
                     }`}
                   >
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                       isSelected
-                        ? 'bg-[#22c55e]/20'
-                        : 'bg-[#0a3d2e] border border-[#1a8a68]'
+                        ? 'bg-[#005028]/20'
+                        : 'bg-[#F5F9F5] border border-[#D4E4D4]'
                     }`}>
                       {isSelected ? (
-                        <Check className="w-5 h-5 text-[#4ade80]" />
+                        <Check className="w-5 h-5 text-[#00A651]" />
                       ) : (
-                        <ClipboardList className="w-4 h-4 text-[#1a8a68]" />
+                        <ClipboardList className="w-4 h-4 text-[#6B7C6B]" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-white font-medium text-sm">{assessor.name}</h4>
-                      <p className="text-[#1a8a68] text-xs">{assessor.role}</p>
+                      <h4 className="text-gray-800 font-medium text-sm">{assessor.name}</h4>
+                      <p className="text-[#6B7C6B] text-xs">{assessor.role}</p>
                     </div>
                     {isSelected && (
-                      <span className="text-[#4ade80] text-xs font-medium">Assigned</span>
+                      <span className="text-[#00A651] text-xs font-medium">Assigned</span>
                     )}
                   </button>
                 );
@@ -353,23 +353,23 @@ const PracticeAdminTryout = () => {
           <div>
             {/* Success Header */}
             <div className="text-center mb-6">
-              <div className="w-20 h-20 bg-[#22c55e]/20 border-2 border-[#22c55e] rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trophy className="w-10 h-10 text-[#4ade80]" />
+              <div className="w-20 h-20 bg-[#005028]/20 border-2 border-[#00A651] rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trophy className="w-10 h-10 text-[#00A651]" />
               </div>
-              <h3 className="text-white font-bold text-xl">Session Created!</h3>
-              <p className="text-[#4ade80] text-sm mt-1">Your tryout session is ready to go</p>
+              <h3 className="text-gray-800 font-bold text-xl">Session Created!</h3>
+              <p className="text-[#00A651] text-sm mt-1">Your tryout session is ready to go</p>
             </div>
 
             {/* Summary Card */}
-            <div className="bg-[#0d5943] border-2 border-[#22c55e] rounded-xl p-5 space-y-4">
+            <div className="bg-white border-2 border-[#00A651] rounded-xl p-5 space-y-4">
               {/* Age Group */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#0a3d2e] rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Star className="w-5 h-5 text-[#4ade80]" />
+                <div className="w-10 h-10 bg-[#F5F9F5] rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Star className="w-5 h-5 text-[#00A651]" />
                 </div>
                 <div>
-                  <p className="text-white/50 text-xs">Age Group</p>
-                  <p className="text-white font-semibold">
+                  <p className="text-gray-400 text-xs">Age Group</p>
+                  <p className="text-gray-800 font-semibold">
                     {AGE_GROUPS.find((g) => g.id === ageGroup)?.label} Division
                   </p>
                 </div>
@@ -377,51 +377,51 @@ const PracticeAdminTryout = () => {
 
               {/* Date & Time */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#0a3d2e] rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Calendar className="w-5 h-5 text-[#4ade80]" />
+                <div className="w-10 h-10 bg-[#F5F9F5] rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Calendar className="w-5 h-5 text-[#00A651]" />
                 </div>
                 <div>
-                  <p className="text-white/50 text-xs">Date & Time</p>
-                  <p className="text-white font-semibold">
+                  <p className="text-gray-400 text-xs">Date & Time</p>
+                  <p className="text-gray-800 font-semibold">
                     {formatDisplayDate(date)}
                   </p>
-                  <p className="text-[#4ade80] text-sm">{formatDisplayTime(time)}</p>
+                  <p className="text-[#00A651] text-sm">{formatDisplayTime(time)}</p>
                 </div>
               </div>
 
               {/* Location */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#0a3d2e] rounded-lg flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-5 h-5 text-[#4ade80]" />
+                <div className="w-10 h-10 bg-[#F5F9F5] rounded-lg flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-5 h-5 text-[#00A651]" />
                 </div>
                 <div>
-                  <p className="text-white/50 text-xs">Location</p>
-                  <p className="text-white font-semibold">Emerald Lakers Home Court</p>
+                  <p className="text-gray-400 text-xs">Location</p>
+                  <p className="text-gray-800 font-semibold">Emerald Lakers Home Court</p>
                 </div>
               </div>
 
               {/* Players */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#0a3d2e] rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Users className="w-5 h-5 text-[#4ade80]" />
+                <div className="w-10 h-10 bg-[#F5F9F5] rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Users className="w-5 h-5 text-[#00A651]" />
                 </div>
                 <div>
-                  <p className="text-white/50 text-xs">Players</p>
-                  <p className="text-white font-semibold">{selectedPlayers.length} players registered</p>
+                  <p className="text-gray-400 text-xs">Players</p>
+                  <p className="text-gray-800 font-semibold">{selectedPlayers.length} players registered</p>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {selectedPlayers.slice(0, 5).map((id) => {
                       const player = FAKE_PLAYERS.find((p) => p.id === id);
                       return (
                         <span
                           key={id}
-                          className="px-2 py-0.5 bg-[#0a3d2e] rounded text-[#4ade80] text-xs"
+                          className="px-2 py-0.5 bg-[#F5F9F5] rounded text-[#00A651] text-xs"
                         >
                           {player?.name?.split(' ')[0]}
                         </span>
                       );
                     })}
                     {selectedPlayers.length > 5 && (
-                      <span className="px-2 py-0.5 bg-[#0a3d2e] rounded text-white/40 text-xs">
+                      <span className="px-2 py-0.5 bg-[#F5F9F5] rounded text-gray-400 text-xs">
                         +{selectedPlayers.length - 5} more
                       </span>
                     )}
@@ -431,19 +431,19 @@ const PracticeAdminTryout = () => {
 
               {/* Assessors */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#0a3d2e] rounded-lg flex items-center justify-center flex-shrink-0">
-                  <ClipboardList className="w-5 h-5 text-[#4ade80]" />
+                <div className="w-10 h-10 bg-[#F5F9F5] rounded-lg flex items-center justify-center flex-shrink-0">
+                  <ClipboardList className="w-5 h-5 text-[#00A651]" />
                 </div>
                 <div>
-                  <p className="text-white/50 text-xs">Assessors</p>
-                  <p className="text-white font-semibold">{selectedAssessors.length} assessors assigned</p>
+                  <p className="text-gray-400 text-xs">Assessors</p>
+                  <p className="text-gray-800 font-semibold">{selectedAssessors.length} assessors assigned</p>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {selectedAssessors.map((id) => {
                       const assessor = FAKE_ASSESSORS.find((a) => a.id === id);
                       return (
                         <span
                           key={id}
-                          className="px-2 py-0.5 bg-[#0a3d2e] rounded text-[#4ade80] text-xs"
+                          className="px-2 py-0.5 bg-[#F5F9F5] rounded text-[#00A651] text-xs"
                         >
                           {assessor?.name}
                         </span>
@@ -470,10 +470,10 @@ const PracticeAdminTryout = () => {
 
       {/* Step Label */}
       <div className="flex items-center justify-between mb-6">
-        <p className="text-white/40 text-xs">
+        <p className="text-gray-400 text-xs">
           Step {step + 1} of {TOTAL_STEPS}
         </p>
-        <p className="text-[#4ade80] text-xs font-medium">
+        <p className="text-[#00A651] text-xs font-medium">
           {stepLabels[step]}
         </p>
       </div>
@@ -487,7 +487,7 @@ const PracticeAdminTryout = () => {
           {step > 0 && (
             <button
               onClick={handleBack}
-              className="flex-1 py-3 bg-[#0d5943] border border-[#1a8a68] text-white rounded-xl font-medium transition-all flex items-center justify-center gap-2 hover:border-[#22c55e] min-h-[48px]"
+              className="flex-1 py-3 bg-white border border-[#D4E4D4] text-gray-800 rounded-xl font-medium transition-all flex items-center justify-center gap-2 hover:border-[#00A651] min-h-[48px]"
             >
               <ChevronLeft className="w-5 h-5" />
               Back
@@ -498,8 +498,8 @@ const PracticeAdminTryout = () => {
             disabled={!canAdvance}
             className={`flex-1 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 min-h-[48px] ${
               canAdvance
-                ? 'bg-[#1a8a68] hover:bg-[#22c55e] text-white active:scale-[0.98]'
-                : 'bg-[#0d5943] border border-[#1a8a68] text-[#1a8a68] cursor-not-allowed'
+                ? 'bg-[#D4E4D4] hover:bg-[#00A651] text-white active:scale-[0.98]'
+                : 'bg-white border border-[#D4E4D4] text-[#6B7C6B] cursor-not-allowed'
             }`}
           >
             {step === TOTAL_STEPS - 2 ? 'Create Session' : 'Next'}

@@ -1983,7 +1983,7 @@ const NotificationsPage = () => {
   ];
 
   // Custom dropdown styles to fix visibility
-  const dropdownStyles = "bg-gray-50 text-gray-900 border border-gray-300 rounded-lg px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-[#22c55e] focus:border-transparent";
+  const dropdownStyles = "bg-gray-50 text-gray-900 border border-gray-300 rounded-lg px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-[#00A651] focus:border-transparent";
   const dropdownOptionStyles = "bg-white text-gray-900";
 
   return (
@@ -2005,8 +2005,8 @@ const NotificationsPage = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-colors ${
                 activeTab === tab.id
-                  ? 'bg-[#22c55e] text-white'
-                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  ? 'bg-[#005028] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               <tab.icon size={16} />
@@ -2021,7 +2021,7 @@ const NotificationsPage = () => {
         {activeTab === 'create' && (
           <div className="space-y-4">
             {/* Notification Type */}
-            <div className="bg-[#0d5943] rounded-xl p-4">
+            <div className="bg-white rounded-xl p-4">
               <h3 className="font-bold mb-3">Notification Type</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {Object.entries(NOTIFICATION_TYPE_CONFIG).map(([type, config]) => {
@@ -2034,8 +2034,8 @@ const NotificationsPage = () => {
                       onClick={() => handleTypeSelect(type)}
                       className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
                         isSelected
-                          ? 'bg-[#22c55e] text-white'
-                          : 'bg-white/5 hover:bg-white/10 text-white/70'
+                          ? 'bg-[#005028] text-white'
+                          : 'bg-gray-100 hover:bg-gray-100 text-gray-600'
                       }`}
                     >
                       <Icon size={24} />
@@ -2049,7 +2049,7 @@ const NotificationsPage = () => {
             {notificationType && notificationType !== 'scoring' && (
               <>
                 {/* Target Audience */}
-                <div className="bg-[#0d5943] rounded-xl p-4">
+                <div className="bg-white rounded-xl p-4">
                   <h3 className="font-bold mb-3">Target Audience</h3>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {[
@@ -2068,8 +2068,8 @@ const NotificationsPage = () => {
                         }}
                         className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
                           audienceType === opt.type
-                            ? 'bg-[#22c55e] text-white'
-                            : 'bg-white/10 text-white/70'
+                            ? 'bg-[#005028] text-white'
+                            : 'bg-gray-100 text-gray-600'
                         }`}
                       >
                         <opt.icon size={16} />
@@ -2093,7 +2093,7 @@ const NotificationsPage = () => {
                           }}
                           onFocus={() => setShowIndividualDropdown(true)}
                           placeholder="Search for player or parent..."
-                          className="w-full bg-gray-50 text-gray-900 border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#22c55e]"
+                          className="w-full bg-gray-50 text-gray-900 border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00A651]"
                         />
 
                         {/* Dropdown Results */}
@@ -2105,7 +2105,7 @@ const NotificationsPage = () => {
                                   key={individual.id}
                                   onClick={() => handleSelectIndividual(individual)}
                                   disabled={selectedUsers.includes(individual.id)}
-                                  className={`w-full px-4 py-3 text-left hover:bg-[#22c55e]/10 border-b border-gray-100 last:border-b-0 ${
+                                  className={`w-full px-4 py-3 text-left hover:bg-[#00A651]/10 border-b border-gray-100 last:border-b-0 ${
                                     selectedUsers.includes(individual.id) ? 'bg-gray-100 opacity-50' : ''
                                   }`}
                                 >
@@ -2133,12 +2133,12 @@ const NotificationsPage = () => {
                             return (
                               <span
                                 key={userId}
-                                className="inline-flex items-center gap-1 px-3 py-1 bg-[#22c55e]/20 text-[#4ade80] rounded-full text-sm"
+                                className="inline-flex items-center gap-1 px-3 py-1 bg-[#005028]/20 text-[#00A651] rounded-full text-sm"
                               >
                                 {individual?.name || 'Unknown'}
                                 <button
                                   onClick={() => handleRemoveIndividual(userId)}
-                                  className="hover:text-white"
+                                  className="hover:text-gray-800"
                                 >
                                   <X size={14} />
                                 </button>
@@ -2165,8 +2165,8 @@ const NotificationsPage = () => {
                         onClick={handleSelectAllAgeGroups}
                         className={`w-full px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
                           selectedAgeGroups.length === ageGroups.length
-                            ? 'bg-[#22c55e] text-white'
-                            : 'bg-white/10 text-white/70 hover:bg-white/20'
+                            ? 'bg-[#005028] text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                       >
                         {selectedAgeGroups.length === ageGroups.length ? <CheckSquare size={16} /> : <Square size={16} />}
@@ -2182,8 +2182,8 @@ const NotificationsPage = () => {
                             onClick={() => handleAgeGroupToggle(ag)}
                             className={`px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
                               selectedAgeGroups.includes(ag)
-                                ? 'bg-[#22c55e] text-white'
-                                : 'bg-white/5 hover:bg-white/10 text-white/70'
+                                ? 'bg-[#005028] text-white'
+                                : 'bg-gray-100 hover:bg-gray-100 text-gray-600'
                             }`}
                           >
                             {selectedAgeGroups.includes(ag) ? <CheckSquare size={14} /> : <Square size={14} />}
@@ -2200,10 +2200,10 @@ const NotificationsPage = () => {
                               setSelectSpecificPlayers(!selectSpecificPlayers);
                               setSelectedAgeGroupPlayers([]);
                             }}
-                            className="flex items-center gap-2 text-sm text-white/70 hover:text-white"
+                            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
                           >
                             {selectSpecificPlayers ? (
-                              <ToggleRight size={20} className="text-[#22c55e]" />
+                              <ToggleRight size={20} className="text-[#00A651]" />
                             ) : (
                               <ToggleLeft size={20} />
                             )}
@@ -2213,12 +2213,12 @@ const NotificationsPage = () => {
                           {selectSpecificPlayers && (
                             <div className="mt-3 space-y-2">
                               <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm text-white/70">
+                                <span className="text-sm text-gray-600">
                                   {ageGroupPlayers.length} players in selected age groups
                                 </span>
                                 <button
                                   onClick={handleSelectAllAgeGroupPlayers}
-                                  className="text-xs text-[#4ade80] hover:underline"
+                                  className="text-xs text-[#00A651] hover:underline"
                                 >
                                   {selectedAgeGroupPlayers.length === ageGroupPlayers.length ? 'Deselect All' : 'Select All'}
                                 </button>
@@ -2230,8 +2230,8 @@ const NotificationsPage = () => {
                                     onClick={() => handleAgeGroupPlayerToggle(player.id)}
                                     className={`w-full px-3 py-2 rounded-lg text-sm text-left flex items-center gap-2 ${
                                       selectedAgeGroupPlayers.includes(player.id)
-                                        ? 'bg-[#22c55e] text-white'
-                                        : 'bg-white/5 hover:bg-white/10 text-white/70'
+                                        ? 'bg-[#005028] text-white'
+                                        : 'bg-gray-100 hover:bg-gray-100 text-gray-600'
                                     }`}
                                   >
                                     {selectedAgeGroupPlayers.includes(player.id) ? <CheckSquare size={14} /> : <Square size={14} />}
@@ -2260,8 +2260,8 @@ const NotificationsPage = () => {
                   {audienceType === AUDIENCE_TYPES.TEAM && (
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 mb-2">
-                        <Filter size={16} className="text-white/50" />
-                        <span className="text-sm text-white/70">Filter by age:</span>
+                        <Filter size={16} className="text-gray-400" />
+                        <span className="text-sm text-gray-600">Filter by age:</span>
                         <select
                           value={ageGroupFilter}
                           onChange={(e) => setAgeGroupFilter(e.target.value)}
@@ -2278,8 +2278,8 @@ const NotificationsPage = () => {
                         onClick={handleSelectAllTeams}
                         className={`w-full px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
                           selectedTeams.length === filteredTeams.length && filteredTeams.length > 0
-                            ? 'bg-[#22c55e] text-white'
-                            : 'bg-white/10 text-white/70 hover:bg-white/20'
+                            ? 'bg-[#005028] text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                       >
                         {selectedTeams.length === filteredTeams.length && filteredTeams.length > 0
@@ -2300,8 +2300,8 @@ const NotificationsPage = () => {
                               onClick={() => handleTeamToggle(team.id)}
                               className={`px-3 py-2 rounded-lg text-sm transition-colors text-left flex items-center gap-2 ${
                                 selectedTeams.includes(team.id)
-                                  ? 'bg-[#22c55e] text-white'
-                                  : 'bg-white/5 hover:bg-white/10 text-white/70'
+                                  ? 'bg-[#005028] text-white'
+                                  : 'bg-gray-100 hover:bg-gray-100 text-gray-600'
                               }`}
                             >
                               {selectedTeams.includes(team.id) ? <CheckSquare size={14} /> : <Square size={14} />}
@@ -2324,8 +2324,8 @@ const NotificationsPage = () => {
                   )}
 
                   {/* Recipient Count Preview */}
-                  <div className="mt-4 p-3 bg-white/5 rounded-lg">
-                    <div className="flex items-center gap-2 text-white/80 mb-2">
+                  <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+                    <div className="flex items-center gap-2 text-gray-700 mb-2">
                       <Users size={16} />
                       <span className="font-medium">
                         {isLoadingUsers ? 'Loading...' : `This will notify ${recipientInfo.total} ${recipientInfo.total === 1 ? 'person' : 'people'}`}
@@ -2333,7 +2333,7 @@ const NotificationsPage = () => {
                     </div>
                     {recipientInfo.total > 0 && (
                       <>
-                        <div className="flex flex-wrap gap-4 text-xs text-white/60 mb-2">
+                        <div className="flex flex-wrap gap-4 text-xs text-gray-500 mb-2">
                           <span className="flex items-center gap-1">
                             <Bell size={12} /> {recipientInfo.inApp} in-app
                           </span>
@@ -2345,7 +2345,7 @@ const NotificationsPage = () => {
                           </span>
                         </div>
                         {recipientInfo.recipients.length > 0 && (
-                          <div className="text-xs text-white/50 border-t border-white/10 pt-2 mt-2">
+                          <div className="text-xs text-gray-400 border-t border-white/10 pt-2 mt-2">
                             <span>Recipients: </span>
                             {recipientInfo.recipients.map((r, i) => (
                               <span key={i}>
@@ -2368,13 +2368,13 @@ const NotificationsPage = () => {
                 </div>
 
                 {/* Message Composer */}
-                <div className="bg-[#0d5943] rounded-xl p-4">
+                <div className="bg-white rounded-xl p-4">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-bold">Message</h3>
                     {notificationType && NOTIFICATION_TEMPLATES[notificationType] && hasEditedCurrent && (
                       <button
                         onClick={handleResetTemplate}
-                        className="text-xs text-[#4ade80] hover:text-white flex items-center gap-1"
+                        className="text-xs text-[#00A651] hover:text-gray-800 flex items-center gap-1"
                       >
                         <RefreshCw size={12} />
                         Reset to Template
@@ -2384,27 +2384,27 @@ const NotificationsPage = () => {
 
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm text-white/70 mb-1">Subject</label>
+                      <label className="block text-sm text-gray-600 mb-1">Subject</label>
                       <input
                         type="text"
                         value={subject}
                         onChange={(e) => handleSubjectChange(e.target.value)}
                         placeholder="Enter subject line..."
-                        className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:border-[#22c55e]"
+                        className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 placeholder-white/40 focus:outline-none focus:border-[#00A651]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm text-white/70 mb-1">Message</label>
+                      <label className="block text-sm text-gray-600 mb-1">Message</label>
                       <textarea
                         value={message}
                         onChange={(e) => handleMessageChange(e.target.value)}
                         placeholder="Enter your message..."
                         rows={6}
-                        className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:border-[#22c55e] resize-none"
+                        className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 placeholder-white/40 focus:outline-none focus:border-[#00A651] resize-none"
                       />
                       {notificationType && NOTIFICATION_TEMPLATES[notificationType] && (
-                        <p className="text-xs text-white/40 mt-1">
+                        <p className="text-xs text-gray-400 mt-1">
                           Template variables: {'{parentName}'}, {'{teamName}'}, {'{gameDate}'}, etc.
                         </p>
                       )}
@@ -2412,14 +2412,14 @@ const NotificationsPage = () => {
 
                     {/* Priority */}
                     <div>
-                      <label className="block text-sm text-white/70 mb-1">Priority</label>
+                      <label className="block text-sm text-gray-600 mb-1">Priority</label>
                       <div className="flex gap-2">
                         <button
                           onClick={() => setPriority(PRIORITY_LEVELS.NORMAL)}
                           className={`flex-1 py-2 rounded-lg text-sm transition-colors ${
                             priority === PRIORITY_LEVELS.NORMAL
-                              ? 'bg-[#22c55e] text-white'
-                              : 'bg-white/10 text-white/70'
+                              ? 'bg-[#005028] text-white'
+                              : 'bg-gray-100 text-gray-600'
                           }`}
                         >
                           Normal
@@ -2429,7 +2429,7 @@ const NotificationsPage = () => {
                           className={`flex-1 py-2 rounded-lg text-sm transition-colors ${
                             priority === PRIORITY_LEVELS.URGENT
                               ? 'bg-red-500 text-white'
-                              : 'bg-white/10 text-white/70'
+                              : 'bg-gray-100 text-gray-600'
                           }`}
                         >
                           Urgent
@@ -2439,16 +2439,16 @@ const NotificationsPage = () => {
 
                     {/* Attachments */}
                     <div>
-                      <label className="block text-sm text-white/70 mb-1">Attachments / Links</label>
+                      <label className="block text-sm text-gray-600 mb-1">Attachments / Links</label>
                       {attachments.length > 0 && (
                         <div className="space-y-2 mb-2">
                           {attachments.map((att, i) => (
-                            <div key={i} className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2">
-                              <Link2 size={14} className="text-[#4ade80]" />
+                            <div key={i} className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
+                              <Link2 size={14} className="text-[#00A651]" />
                               <span className="flex-1 text-sm truncate">{att.name}</span>
                               <button
                                 onClick={() => handleRemoveAttachment(i)}
-                                className="text-white/50 hover:text-red-400"
+                                className="text-gray-400 hover:text-red-400"
                               >
                                 <X size={14} />
                               </button>
@@ -2462,19 +2462,19 @@ const NotificationsPage = () => {
                           value={newAttachmentName}
                           onChange={(e) => setNewAttachmentName(e.target.value)}
                           placeholder="Link name"
-                          className="w-1/3 bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#22c55e]"
+                          className="w-1/3 bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-sm text-gray-800 placeholder-white/40 focus:outline-none focus:border-[#00A651]"
                         />
                         <input
                           type="url"
                           value={newAttachmentUrl}
                           onChange={(e) => setNewAttachmentUrl(e.target.value)}
                           placeholder="https://..."
-                          className="flex-1 bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#22c55e]"
+                          className="flex-1 bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-sm text-gray-800 placeholder-white/40 focus:outline-none focus:border-[#00A651]"
                         />
                         <button
                           onClick={handleAddAttachment}
                           disabled={!newAttachmentUrl || !newAttachmentName}
-                          className="px-3 py-2 bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-600 rounded-lg transition-colors"
+                          className="px-3 py-2 bg-[#005028] hover:bg-gray-100 disabled:bg-gray-600 rounded-lg transition-colors"
                         >
                           <Plus size={18} />
                         </button>
@@ -2483,14 +2483,14 @@ const NotificationsPage = () => {
 
                     {/* Schedule */}
                     <div>
-                      <label className="block text-sm text-white/70 mb-1">When to Send</label>
+                      <label className="block text-sm text-gray-600 mb-1">When to Send</label>
                       <div className="flex gap-2 mb-2">
                         <button
                           onClick={() => setSendImmediately(true)}
                           className={`flex-1 py-2 rounded-lg text-sm transition-colors ${
                             sendImmediately
-                              ? 'bg-[#22c55e] text-white'
-                              : 'bg-white/10 text-white/70'
+                              ? 'bg-[#005028] text-white'
+                              : 'bg-gray-100 text-gray-600'
                           }`}
                         >
                           Send Immediately
@@ -2499,8 +2499,8 @@ const NotificationsPage = () => {
                           onClick={() => setSendImmediately(false)}
                           className={`flex-1 py-2 rounded-lg text-sm transition-colors ${
                             !sendImmediately
-                              ? 'bg-[#22c55e] text-white'
-                              : 'bg-white/10 text-white/70'
+                              ? 'bg-[#005028] text-white'
+                              : 'bg-gray-100 text-gray-600'
                           }`}
                         >
                           Schedule
@@ -2530,7 +2530,7 @@ const NotificationsPage = () => {
                 <button
                   onClick={() => setShowConfirmModal(true)}
                   disabled={!canSend || isSending}
-                  className="w-full py-4 bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-600 disabled:cursor-not-allowed rounded-xl font-bold flex items-center justify-center gap-2 transition-colors"
+                  className="w-full py-4 bg-[#005028] hover:bg-gray-100 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-xl font-bold flex items-center justify-center gap-2 transition-colors"
                 >
                   {isSending ? (
                     <>
@@ -2554,7 +2554,7 @@ const NotificationsPage = () => {
 
             {/* 5-Step Scoring Wizard */}
             {notificationType === 'scoring' && (
-              <div className="bg-[#0d5943] rounded-xl p-4">
+              <div className="bg-white rounded-xl p-4">
                 <h3 className="font-bold mb-4">Scoring Roster Reminder</h3>
 
                 {/* Progress Steps */}
@@ -2569,15 +2569,15 @@ const NotificationsPage = () => {
                     <React.Fragment key={step.num}>
                       <div className="flex flex-col items-center">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                          scoringStep >= step.num ? 'bg-[#22c55e] text-white' : 'bg-white/10 text-white/50'
+                          scoringStep >= step.num ? 'bg-[#005028] text-white' : 'bg-gray-100 text-gray-400'
                         }`}>
                           {scoringStep > step.num ? <Check size={16} /> : step.num}
                         </div>
-                        <span className="text-xs text-white/50 mt-1">{step.label}</span>
+                        <span className="text-xs text-gray-400 mt-1">{step.label}</span>
                       </div>
                       {idx < 4 && (
                         <div className={`flex-1 h-1 rounded mt-[-16px] ${
-                          scoringStep > step.num ? 'bg-[#22c55e]' : 'bg-white/10'
+                          scoringStep > step.num ? 'bg-[#005028]' : 'bg-gray-100'
                         }`} />
                       )}
                     </React.Fragment>
@@ -2587,7 +2587,7 @@ const NotificationsPage = () => {
                 {/* Step 1: Select Team - FIXED DROPDOWN */}
                 {scoringStep === 1 && (
                   <div>
-                    <h4 className="text-sm text-white/70 mb-3">Step 1: Select Team</h4>
+                    <h4 className="text-sm text-gray-600 mb-3">Step 1: Select Team</h4>
 
                     {availableTeams.length > 0 ? (
                       <>
@@ -2612,7 +2612,7 @@ const NotificationsPage = () => {
                             }
                           }}
                           disabled={!selectedScoringTeam}
-                          className="w-full mt-4 py-3 bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-600 disabled:cursor-not-allowed rounded-xl font-bold transition-colors"
+                          className="w-full mt-4 py-3 bg-[#005028] hover:bg-gray-100 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-xl font-bold transition-colors"
                         >
                           Next: Select Game
                         </button>
@@ -2623,7 +2623,7 @@ const NotificationsPage = () => {
                           <AlertCircle size={18} />
                           No teams found in database
                         </p>
-                        <p className="text-sm text-white/60">
+                        <p className="text-sm text-gray-500">
                           Go to "Data Tools" tab to create sample teams for testing.
                         </p>
                       </div>
@@ -2634,19 +2634,19 @@ const NotificationsPage = () => {
                 {/* Step 2: Select Game */}
                 {scoringStep === 2 && (
                   <div>
-                    <h4 className="text-sm text-white/70 mb-3">Step 2: Select Game</h4>
+                    <h4 className="text-sm text-gray-600 mb-3">Step 2: Select Game</h4>
                     <button
                       onClick={() => {
                         setScoringStep(1);
                         setSelectedScoringTeam('');
                       }}
-                      className="text-sm text-[#4ade80] mb-3 flex items-center gap-1"
+                      className="text-sm text-[#00A651] mb-3 flex items-center gap-1"
                     >
                       <ArrowLeft size={14} /> Back to team selection
                     </button>
 
-                    <div className="bg-white/5 rounded-lg p-3 mb-4">
-                      <p className="text-sm text-white/70">Selected Team:</p>
+                    <div className="bg-gray-100 rounded-lg p-3 mb-4">
+                      <p className="text-sm text-gray-600">Selected Team:</p>
                       <p className="font-medium">
                         {availableTeams.find(t => t.id === selectedScoringTeam)?.name || selectedScoringTeam}
                       </p>
@@ -2661,27 +2661,27 @@ const NotificationsPage = () => {
                               setSelectedGame(game);
                               setScoringStep(3);
                             }}
-                            className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg text-left transition-colors"
+                            className="w-full p-3 bg-gray-100 hover:bg-gray-100 rounded-lg text-left transition-colors"
                           >
                             <div className="flex justify-between items-center">
                               <div>
                                 <p className="font-medium">vs {game.opponent}</p>
-                                <p className="text-sm text-white/60">
+                                <p className="text-sm text-gray-500">
                                   {new Date(game.date).toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })} at {formatTimeStringAU(game.time)}
                                 </p>
-                                <p className="text-xs text-white/40">{game.venue}</p>
+                                <p className="text-xs text-gray-400">{game.venue}</p>
                               </div>
-                              <ChevronRight size={18} className="text-white/50" />
+                              <ChevronRight size={18} className="text-gray-400" />
                             </div>
                           </button>
                         ))}
                       </div>
                     ) : (
-                      <div className="bg-white/5 rounded-lg p-4">
+                      <div className="bg-gray-100 rounded-lg p-4">
                         <div className="text-center mb-4">
-                          <Calendar className="mx-auto mb-2 text-white/30" size={32} />
-                          <p className="text-white/70 font-medium">No upcoming games found</p>
-                          <p className="text-white/50 text-sm mt-1">
+                          <Calendar className="mx-auto mb-2 text-gray-800/30" size={32} />
+                          <p className="text-gray-600 font-medium">No upcoming games found</p>
+                          <p className="text-gray-400 text-sm mt-1">
                             for {availableTeams.find(t => t.id === selectedScoringTeam)?.name || selectedScoringTeam}
                           </p>
                         </div>
@@ -2700,7 +2700,7 @@ const NotificationsPage = () => {
                         {/* Debug info toggle */}
                         <button
                           onClick={() => setShowDebugInfo(!showDebugInfo)}
-                          className="w-full text-xs text-white/40 hover:text-white/60 py-1 flex items-center justify-center gap-1"
+                          className="w-full text-xs text-gray-400 hover:text-gray-500 py-1 flex items-center justify-center gap-1"
                         >
                           <Info size={12} />
                           {showDebugInfo ? '▼ Hide debug info' : '▶ Show debug info (for troubleshooting)'}
@@ -2708,9 +2708,9 @@ const NotificationsPage = () => {
 
                         {showDebugInfo && (
                           <div className="mt-2 p-3 bg-black/30 rounded-lg text-xs space-y-2 border border-white/10">
-                            <p className="text-white/70 font-medium border-b border-white/10 pb-1">Query Debug Info</p>
+                            <p className="text-gray-600 font-medium border-b border-white/10 pb-1">Query Debug Info</p>
 
-                            <div className="space-y-1 text-white/50 font-mono">
+                            <div className="space-y-1 text-gray-400 font-mono">
                               <p><span className="text-blue-400">Searching for:</span></p>
                               <p className="pl-2">teamId = "{selectedScoringTeam}"</p>
                               <p className="pl-2">teamName = "{availableTeams.find(t => t.id === selectedScoringTeam)?.name}"</p>
@@ -2735,14 +2735,14 @@ const NotificationsPage = () => {
                               )}
                             </div>
 
-                            <p className="text-white/40 mt-3 text-center">See browser console for detailed logs</p>
+                            <p className="text-gray-400 mt-3 text-center">See browser console for detailed logs</p>
                           </div>
                         )}
 
                         <div className="flex flex-col gap-2 mt-4">
                           <button
                             onClick={() => navigate('/admin/schedule')}
-                            className="w-full py-2 bg-[#22c55e]/20 text-[#4ade80] rounded-lg text-sm font-medium hover:bg-[#22c55e]/30 flex items-center justify-center gap-2"
+                            className="w-full py-2 bg-[#005028]/20 text-[#00A651] rounded-lg text-sm font-medium hover:bg-[#00A651]/30 flex items-center justify-center gap-2"
                           >
                             <Plus size={14} />
                             Add Games via Schedule Management
@@ -2750,7 +2750,7 @@ const NotificationsPage = () => {
 
                           <button
                             onClick={() => setShowManualGameEntry(!showManualGameEntry)}
-                            className="w-full py-2 bg-white/10 text-white rounded-lg text-sm font-medium hover:bg-white/20 flex items-center justify-center gap-2"
+                            className="w-full py-2 bg-gray-100 text-gray-800 rounded-lg text-sm font-medium hover:bg-gray-200 flex items-center justify-center gap-2"
                           >
                             <Edit size={14} />
                             {showManualGameEntry ? 'Cancel Manual Entry' : 'Enter Game Manually'}
@@ -2766,7 +2766,7 @@ const NotificationsPage = () => {
                                 });
                                 alert(`Logged ${availableGames.length} games to console. Check browser dev tools.`);
                               }}
-                              className="w-full py-2 bg-white/5 text-white/60 rounded-lg text-xs font-medium hover:bg-white/10"
+                              className="w-full py-2 bg-gray-100 text-gray-500 rounded-lg text-xs font-medium hover:bg-gray-100"
                             >
                               Log all games to console ({availableGames.length} games)
                             </button>
@@ -2775,49 +2775,49 @@ const NotificationsPage = () => {
 
                         {/* Manual Game Entry Form */}
                         {showManualGameEntry && (
-                          <div className="mt-4 p-3 bg-white/5 rounded-lg space-y-3">
+                          <div className="mt-4 p-3 bg-gray-100 rounded-lg space-y-3">
                             <h5 className="font-medium text-sm">Manual Game Entry</h5>
 
                             <div>
-                              <label className="block text-xs text-white/70 mb-1">Date</label>
+                              <label className="block text-xs text-gray-600 mb-1">Date</label>
                               <input
                                 type="date"
                                 value={manualGameDate}
                                 onChange={(e) => setManualGameDate(e.target.value)}
                                 min={new Date().toISOString().split('T')[0]}
-                                className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white text-sm"
+                                className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 text-sm"
                               />
                             </div>
 
                             <div>
-                              <label className="block text-xs text-white/70 mb-1">Time</label>
+                              <label className="block text-xs text-gray-600 mb-1">Time</label>
                               <input
                                 type="time"
                                 value={manualGameTime}
                                 onChange={(e) => setManualGameTime(e.target.value)}
-                                className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white text-sm"
+                                className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 text-sm"
                               />
                             </div>
 
                             <div>
-                              <label className="block text-xs text-white/70 mb-1">Opponent</label>
+                              <label className="block text-xs text-gray-600 mb-1">Opponent</label>
                               <input
                                 type="text"
                                 value={manualGameOpponent}
                                 onChange={(e) => setManualGameOpponent(e.target.value)}
                                 placeholder="e.g., Hills Hawks"
-                                className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-white/40"
+                                className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 text-sm placeholder-white/40"
                               />
                             </div>
 
                             <div>
-                              <label className="block text-xs text-white/70 mb-1">Venue</label>
+                              <label className="block text-xs text-gray-600 mb-1">Venue</label>
                               <input
                                 type="text"
                                 value={manualGameVenue}
                                 onChange={(e) => setManualGameVenue(e.target.value)}
                                 placeholder="e.g., Emerald Indoor Courts"
-                                className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-white/40"
+                                className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 text-sm placeholder-white/40"
                               />
                             </div>
 
@@ -2842,7 +2842,7 @@ const NotificationsPage = () => {
                                 setShowManualGameEntry(false);
                               }}
                               disabled={!manualGameDate || !manualGameOpponent}
-                              className="w-full py-2 bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-600 rounded-lg text-sm font-medium"
+                              className="w-full py-2 bg-[#005028] hover:bg-gray-100 disabled:bg-gray-600 rounded-lg text-sm font-medium"
                             >
                               Use This Game
                             </button>
@@ -2856,18 +2856,18 @@ const NotificationsPage = () => {
                 {/* Step 3: Select Parent */}
                 {scoringStep === 3 && (
                   <div>
-                    <h4 className="text-sm text-white/70 mb-3">Step 3: Select Parent to Score</h4>
+                    <h4 className="text-sm text-gray-600 mb-3">Step 3: Select Parent to Score</h4>
                     <button
                       onClick={() => setScoringStep(2)}
-                      className="text-sm text-[#4ade80] mb-3 flex items-center gap-1"
+                      className="text-sm text-[#00A651] mb-3 flex items-center gap-1"
                     >
                       <ArrowLeft size={14} /> Back to games
                     </button>
 
-                    <div className="bg-white/5 rounded-lg p-3 mb-4">
-                      <p className="text-sm text-white/70">Selected Game:</p>
+                    <div className="bg-gray-100 rounded-lg p-3 mb-4">
+                      <p className="text-sm text-gray-600">Selected Game:</p>
                       <p className="font-medium">{selectedGame?.team} vs {selectedGame?.opponent}</p>
-                      <p className="text-sm text-white/60">
+                      <p className="text-sm text-gray-500">
                         {selectedGame && new Date(selectedGame.date).toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' })} at {formatTimeStringAU(selectedGame?.time)}
                       </p>
                     </div>
@@ -2894,11 +2894,11 @@ const NotificationsPage = () => {
                               }));
                               setScoringStep(4);
                             }}
-                            className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg text-left transition-colors"
+                            className="w-full p-3 bg-gray-100 hover:bg-gray-100 rounded-lg text-left transition-colors"
                           >
                             <p className="font-medium">{parent.name}</p>
-                            <p className="text-sm text-white/60">Parent of {parent.playerName}</p>
-                            {parent.email && <p className="text-xs text-white/40">{parent.email}</p>}
+                            <p className="text-sm text-gray-500">Parent of {parent.playerName}</p>
+                            {parent.email && <p className="text-xs text-gray-400">{parent.email}</p>}
                           </button>
                         ))}
                       </div>
@@ -2908,7 +2908,7 @@ const NotificationsPage = () => {
                           <AlertCircle size={18} />
                           No parents found for this team
                         </p>
-                        <p className="text-sm text-white/60 mt-2">
+                        <p className="text-sm text-gray-500 mt-2">
                           Players need parent information (parentName, parentEmail) in their records.
                         </p>
                       </div>
@@ -2919,37 +2919,37 @@ const NotificationsPage = () => {
                 {/* Step 4: Customize Message */}
                 {scoringStep === 4 && (
                   <div>
-                    <h4 className="text-sm text-white/70 mb-3">Step 4: Customize Message</h4>
+                    <h4 className="text-sm text-gray-600 mb-3">Step 4: Customize Message</h4>
                     <button
                       onClick={() => setScoringStep(3)}
-                      className="text-sm text-[#4ade80] mb-3 flex items-center gap-1"
+                      className="text-sm text-[#00A651] mb-3 flex items-center gap-1"
                     >
                       <ArrowLeft size={14} /> Back to parent selection
                     </button>
 
-                    <div className="bg-white/5 rounded-lg p-3 mb-4">
-                      <p className="text-sm text-white/70">Sending to:</p>
+                    <div className="bg-gray-100 rounded-lg p-3 mb-4">
+                      <p className="text-sm text-gray-600">Sending to:</p>
                       <p className="font-medium">{teamParents.find(p => p.id === selectedParent)?.name}</p>
-                      <p className="text-xs text-white/50">{teamParents.find(p => p.id === selectedParent)?.email}</p>
+                      <p className="text-xs text-gray-400">{teamParents.find(p => p.id === selectedParent)?.email}</p>
                     </div>
 
                     <div className="space-y-3">
                       <div>
-                        <label className="block text-sm text-white/70 mb-1">Subject</label>
+                        <label className="block text-sm text-gray-600 mb-1">Subject</label>
                         <input
                           type="text"
                           value={scoringSubject}
                           onChange={(e) => setScoringSubject(e.target.value)}
-                          className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#22c55e]"
+                          className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:border-[#00A651]"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm text-white/70 mb-1">Message</label>
+                        <label className="block text-sm text-gray-600 mb-1">Message</label>
                         <textarea
                           value={scoringMessage}
                           onChange={(e) => setScoringMessage(e.target.value)}
                           rows={8}
-                          className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#22c55e] resize-none"
+                          className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:border-[#00A651] resize-none"
                         />
                       </div>
                     </div>
@@ -2957,7 +2957,7 @@ const NotificationsPage = () => {
                     <button
                       onClick={() => setScoringStep(5)}
                       disabled={!scoringMessage.trim()}
-                      className="w-full mt-4 py-3 bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-600 rounded-xl font-bold transition-colors"
+                      className="w-full mt-4 py-3 bg-[#005028] hover:bg-gray-100 disabled:bg-gray-600 rounded-xl font-bold transition-colors"
                     >
                       Preview & Send
                     </button>
@@ -2967,41 +2967,41 @@ const NotificationsPage = () => {
                 {/* Step 5: Confirm & Send */}
                 {scoringStep === 5 && (
                   <div>
-                    <h4 className="text-sm text-white/70 mb-3">Step 5: Review & Send</h4>
+                    <h4 className="text-sm text-gray-600 mb-3">Step 5: Review & Send</h4>
                     <button
                       onClick={() => setScoringStep(4)}
-                      className="text-sm text-[#4ade80] mb-3 flex items-center gap-1"
+                      className="text-sm text-[#00A651] mb-3 flex items-center gap-1"
                     >
                       <ArrowLeft size={14} /> Back to edit message
                     </button>
 
                     <div className="space-y-3">
-                      <div className="bg-white/5 rounded-lg p-4">
+                      <div className="bg-gray-100 rounded-lg p-4">
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="w-10 h-10 bg-[#22c55e]/20 rounded-full flex items-center justify-center">
-                            <Calendar className="text-[#4ade80]" size={20} />
+                          <div className="w-10 h-10 bg-[#005028]/20 rounded-full flex items-center justify-center">
+                            <Calendar className="text-[#00A651]" size={20} />
                           </div>
                           <div>
                             <p className="font-medium">{selectedGame?.team} vs {selectedGame?.opponent}</p>
-                            <p className="text-sm text-white/60">
+                            <p className="text-sm text-gray-500">
                               {selectedGame && new Date(selectedGame.date).toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })} at {formatTimeStringAU(selectedGame?.time)}
                             </p>
                           </div>
                         </div>
 
                         <div className="border-t border-white/10 pt-3 mt-3">
-                          <p className="text-sm text-white/70 mb-1">Recipient:</p>
+                          <p className="text-sm text-gray-600 mb-1">Recipient:</p>
                           <p className="font-medium">{teamParents.find(p => p.id === selectedParent)?.name}</p>
                         </div>
 
                         <div className="border-t border-white/10 pt-3 mt-3">
-                          <p className="text-sm text-white/70 mb-1">Subject:</p>
+                          <p className="text-sm text-gray-600 mb-1">Subject:</p>
                           <p className="text-sm">{scoringSubject}</p>
                         </div>
 
                         <div className="border-t border-white/10 pt-3 mt-3">
-                          <p className="text-sm text-white/70 mb-1">Message Preview:</p>
-                          <p className="text-sm whitespace-pre-wrap bg-white/5 rounded p-2 max-h-40 overflow-y-auto">{scoringMessage}</p>
+                          <p className="text-sm text-gray-600 mb-1">Message Preview:</p>
+                          <p className="text-sm whitespace-pre-wrap bg-gray-100 rounded p-2 max-h-40 overflow-y-auto">{scoringMessage}</p>
                         </div>
                       </div>
 
@@ -3015,7 +3015,7 @@ const NotificationsPage = () => {
                       <button
                         onClick={() => setShowConfirmModal(true)}
                         disabled={isSending}
-                        className="w-full py-4 bg-[#22c55e] hover:bg-[#1a8a68] rounded-xl font-bold flex items-center justify-center gap-2 transition-colors"
+                        className="w-full py-4 bg-[#005028] hover:bg-gray-100 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors"
                       >
                         {isSending ? (
                           <>
@@ -3041,10 +3041,10 @@ const NotificationsPage = () => {
         {activeTab === 'scoring' && (
           <div className="space-y-4">
             {/* Header with actions */}
-            <div className="bg-[#0d5943] rounded-xl p-4">
+            <div className="bg-white rounded-xl p-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <h3 className="font-bold flex items-center gap-2">
-                  <Calendar size={18} className="text-[#4ade80]" />
+                  <Calendar size={18} className="text-[#00A651]" />
                   Scoring Roster Management
                 </h3>
                 <div className="flex gap-2">
@@ -3059,7 +3059,7 @@ const NotificationsPage = () => {
                   )}
                   <button
                     onClick={() => setShowAutoAssignModal(true)}
-                    className="px-3 py-1.5 bg-[#22c55e]/20 text-[#4ade80] rounded-lg text-sm font-medium flex items-center gap-1"
+                    className="px-3 py-1.5 bg-[#005028]/20 text-[#00A651] rounded-lg text-sm font-medium flex items-center gap-1"
                   >
                     <RefreshCw size={14} />
                     Auto-Assign
@@ -3095,25 +3095,25 @@ const NotificationsPage = () => {
 
               {/* Summary stats */}
               <div className="grid grid-cols-4 gap-2 mb-4">
-                <div className="bg-white/5 rounded-lg p-2 text-center">
-                  <p className="text-lg font-bold text-white">{scoringAssignments.length}</p>
-                  <p className="text-xs text-white/60">Total</p>
+                <div className="bg-gray-100 rounded-lg p-2 text-center">
+                  <p className="text-lg font-bold text-gray-800">{scoringAssignments.length}</p>
+                  <p className="text-xs text-gray-500">Total</p>
                 </div>
-                <div className="bg-[#22c55e]/10 rounded-lg p-2 text-center">
-                  <p className="text-lg font-bold text-[#4ade80]">
+                <div className="bg-[#005028]/10 rounded-lg p-2 text-center">
+                  <p className="text-lg font-bold text-[#00A651]">
                     {scoringAssignments.filter(a => a.status === 'confirmed').length}
                   </p>
-                  <p className="text-xs text-white/60">Confirmed</p>
+                  <p className="text-xs text-gray-500">Confirmed</p>
                 </div>
                 <div className="bg-yellow-500/10 rounded-lg p-2 text-center">
                   <p className="text-lg font-bold text-yellow-400">
                     {scoringAssignments.filter(a => a.status === 'pending').length}
                   </p>
-                  <p className="text-xs text-white/60">Pending</p>
+                  <p className="text-xs text-gray-500">Pending</p>
                 </div>
                 <div className="bg-blue-500/10 rounded-lg p-2 text-center">
                   <p className="text-lg font-bold text-blue-400">{pendingSwapCount}</p>
-                  <p className="text-xs text-white/60">Swaps</p>
+                  <p className="text-xs text-gray-500">Swaps</p>
                 </div>
               </div>
             </div>
@@ -3122,22 +3122,22 @@ const NotificationsPage = () => {
             <div className="space-y-3">
               {filteredScoringAssignments.length > 0 ? (
                 filteredScoringAssignments.map(assignment => (
-                  <div key={assignment.id} className="bg-[#0d5943] rounded-xl p-4">
+                  <div key={assignment.id} className="bg-white rounded-xl p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <p className="font-medium">{assignment.game}</p>
-                        <p className="text-sm text-white/60">
+                        <p className="text-sm text-gray-500">
                           {new Date(assignment.date).toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })} at {formatTimeStringAU(assignment.time)}
                         </p>
                         {assignment.venue && (
-                          <p className="text-xs text-white/40 flex items-center gap-1 mt-1">
+                          <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
                             <MapPin size={10} /> {assignment.venue}
                           </p>
                         )}
                       </div>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
                         assignment.status === 'confirmed'
-                          ? 'bg-[#22c55e]/20 text-[#4ade80]'
+                          ? 'bg-[#005028]/20 text-[#00A651]'
                           : assignment.status === 'swap_requested'
                           ? 'bg-blue-500/20 text-blue-400'
                           : 'bg-yellow-500/20 text-yellow-400'
@@ -3153,10 +3153,10 @@ const NotificationsPage = () => {
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <User size={14} className="text-white/50" />
+                        <User size={14} className="text-gray-400" />
                         <span className="text-sm">{assignment.parentName || 'Unassigned'}</span>
                         {assignment.parentEmail && (
-                          <span className="text-xs text-white/40">({assignment.parentEmail})</span>
+                          <span className="text-xs text-gray-400">({assignment.parentEmail})</span>
                         )}
                       </div>
                     </div>
@@ -3168,7 +3168,7 @@ const NotificationsPage = () => {
                           setEditingAssignment(assignment);
                           setShowReassignModal(true);
                         }}
-                        className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors"
+                        className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors"
                       >
                         <Edit size={12} />
                         Reassign
@@ -3192,7 +3192,7 @@ const NotificationsPage = () => {
                         <button
                           onClick={() => handleMarkConfirmed(assignment)}
                           disabled={isMarkingConfirmed === assignment.id}
-                          className="px-3 py-1.5 bg-[#22c55e]/20 text-[#4ade80] hover:bg-[#22c55e]/30 disabled:opacity-50 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors"
+                          className="px-3 py-1.5 bg-[#005028]/20 text-[#00A651] hover:bg-[#00A651]/30 disabled:opacity-50 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors"
                         >
                           {isMarkingConfirmed === assignment.id ? (
                             <>
@@ -3211,7 +3211,7 @@ const NotificationsPage = () => {
                       <button
                         onClick={() => handleSendReminder(assignment)}
                         disabled={isSending}
-                        className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors"
+                        className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors"
                       >
                         <Bell size={12} />
                         Send Reminder
@@ -3224,7 +3224,7 @@ const NotificationsPage = () => {
                             setSelectedScoringTeam(assignment.teamId || assignment.teamName);
                             setShowSwapModal(true);
                           }}
-                          className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors"
+                          className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors"
                         >
                           <ArrowRightLeft size={12} />
                           Request Swap
@@ -3234,10 +3234,10 @@ const NotificationsPage = () => {
                   </div>
                 ))
               ) : (
-                <div className="bg-[#0d5943] rounded-xl p-8 text-center">
-                  <Calendar className="mx-auto mb-2 text-white/30" size={32} />
-                  <p className="text-white/50">No scoring assignments found</p>
-                  <p className="text-sm text-white/30 mt-1">
+                <div className="bg-white rounded-xl p-8 text-center">
+                  <Calendar className="mx-auto mb-2 text-gray-800/30" size={32} />
+                  <p className="text-gray-400">No scoring assignments found</p>
+                  <p className="text-sm text-gray-800/30 mt-1">
                     Use the "Create" tab to send scoring notifications, or "Auto-Assign" to assign games automatically.
                   </p>
                 </div>
@@ -3246,29 +3246,29 @@ const NotificationsPage = () => {
 
             {/* Pending Swap Requests Section */}
             {swapRequests.filter(s => s.status === 'pending').length > 0 && (
-              <div className="bg-[#0d5943] rounded-xl p-4">
+              <div className="bg-white rounded-xl p-4">
                 <h4 className="font-bold mb-3 flex items-center gap-2">
                   <ArrowRightLeft size={16} className="text-blue-400" />
                   Pending Swap Requests
                 </h4>
                 <div className="space-y-2">
                   {swapRequests.filter(s => s.status === 'pending').map(swap => (
-                    <div key={swap.id} className="bg-white/5 rounded-lg p-3">
+                    <div key={swap.id} className="bg-gray-100 rounded-lg p-3">
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium text-sm">{swap.gameName || swap.gameId}</p>
-                          <p className="text-xs text-white/60">
+                          <p className="text-xs text-gray-500">
                             {swap.requestingParentName} → {swap.targetParentName}
                           </p>
                           {swap.reason && (
-                            <p className="text-xs text-white/40 mt-1">"{swap.reason}"</p>
+                            <p className="text-xs text-gray-400 mt-1">"{swap.reason}"</p>
                           )}
                         </div>
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleApproveSwapRequest(swap)}
                             disabled={isProcessingSwap}
-                            className="p-1.5 bg-[#22c55e]/20 text-[#4ade80] hover:bg-[#22c55e]/30 rounded-lg"
+                            className="p-1.5 bg-[#005028]/20 text-[#00A651] hover:bg-[#00A651]/30 rounded-lg"
                           >
                             <Check size={14} />
                           </button>
@@ -3292,16 +3292,16 @@ const NotificationsPage = () => {
         {/* History Tab */}
         {activeTab === 'history' && (
           <div className="space-y-4">
-            <div className="bg-[#0d5943] rounded-xl p-4">
+            <div className="bg-white rounded-xl p-4">
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={18} />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                   <input
                     type="text"
                     placeholder="Search notifications..."
                     value={historySearch}
                     onChange={(e) => setHistorySearch(e.target.value)}
-                    className="w-full bg-white/5 border border-white/20 rounded-lg pl-10 pr-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-[#22c55e]"
+                    className="w-full bg-gray-100 border border-white/20 rounded-lg pl-10 pr-4 py-2 text-gray-800 placeholder-white/40 focus:outline-none focus:border-[#00A651]"
                   />
                 </div>
                 <select
@@ -3323,10 +3323,10 @@ const NotificationsPage = () => {
                   const Icon = getTypeIcon(notif.type);
 
                   return (
-                    <div key={notif.id} className="bg-[#0d5943] rounded-xl p-4">
+                    <div key={notif.id} className="bg-white rounded-xl p-4">
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-white/10">
-                          <Icon className="text-[#4ade80]" size={20} />
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-100">
+                          <Icon className="text-[#00A651]" size={20} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
@@ -3335,9 +3335,9 @@ const NotificationsPage = () => {
                               <span className="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs rounded">Urgent</span>
                             )}
                           </div>
-                          <p className="text-sm text-white/60 line-clamp-2 mt-1">{notif.message}</p>
+                          <p className="text-sm text-gray-500 line-clamp-2 mt-1">{notif.message}</p>
 
-                          <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-white/50">
+                          <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-400">
                             <span>{new Date(notif.sentAt).toLocaleDateString('en-AU')}</span>
                             <span className="flex items-center gap-1">
                               <Eye size={12} /> {notif.readCount}/{notif.totalRecipients}
@@ -3359,9 +3359,9 @@ const NotificationsPage = () => {
                   );
                 })
               ) : (
-                <div className="bg-[#0d5943] rounded-xl p-8 text-center">
-                  <Bell className="mx-auto mb-2 text-white/30" size={32} />
-                  <p className="text-white/50">No notifications found</p>
+                <div className="bg-white rounded-xl p-8 text-center">
+                  <Bell className="mx-auto mb-2 text-gray-800/30" size={32} />
+                  <p className="text-gray-400">No notifications found</p>
                 </div>
               )}
             </div>
@@ -3371,12 +3371,12 @@ const NotificationsPage = () => {
         {/* Preview Tab */}
         {activeTab === 'preview' && (
           <div className="space-y-4">
-            <div className="bg-[#0d5943] rounded-xl p-4">
+            <div className="bg-white rounded-xl p-4">
               <h3 className="font-bold mb-3 flex items-center gap-2">
-                <Eye size={18} className="text-[#4ade80]" />
+                <Eye size={18} className="text-[#00A651]" />
                 View Notifications as Parent
               </h3>
-              <p className="text-white/60 text-sm mb-4">
+              <p className="text-gray-500 text-sm mb-4">
                 Select a parent to see their notification inbox.
               </p>
 
@@ -3396,9 +3396,9 @@ const NotificationsPage = () => {
             </div>
 
             {previewUser && (
-              <div className="bg-[#0d5943] rounded-xl p-4">
+              <div className="bg-white rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <Inbox size={18} className="text-[#4ade80]" />
+                  <Inbox size={18} className="text-[#00A651]" />
                   <span className="font-medium">
                     Inbox for {searchableIndividuals.find(i => i.id === previewUser)?.name}
                   </span>
@@ -3407,15 +3407,15 @@ const NotificationsPage = () => {
                 {previewNotifications.length > 0 ? (
                   <div className="space-y-3">
                     {previewNotifications.map(notif => (
-                      <div key={notif.id} className="bg-white/5 rounded-lg p-3">
+                      <div key={notif.id} className="bg-gray-100 rounded-lg p-3">
                         <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#22c55e]/20">
-                            {React.createElement(getTypeIcon(notif.type), { size: 16, className: 'text-[#4ade80]' })}
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#005028]/20">
+                            {React.createElement(getTypeIcon(notif.type), { size: 16, className: 'text-[#00A651]' })}
                           </div>
                           <div className="flex-1">
                             <p className="font-medium text-sm">{notif.subject}</p>
-                            <p className="text-xs text-white/60 mt-1 line-clamp-2">{notif.message}</p>
-                            <p className="text-xs text-white/40 mt-2">
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-2">{notif.message}</p>
+                            <p className="text-xs text-gray-400 mt-2">
                               {new Date(notif.sentAt).toLocaleString('en-AU')}
                             </p>
                           </div>
@@ -3425,38 +3425,38 @@ const NotificationsPage = () => {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <Inbox className="mx-auto mb-2 text-white/30" size={32} />
-                    <p className="text-white/50">No notifications for this user</p>
+                    <Inbox className="mx-auto mb-2 text-gray-800/30" size={32} />
+                    <p className="text-gray-400">No notifications for this user</p>
                   </div>
                 )}
               </div>
             )}
 
             {/* Test Users Credentials */}
-            <div className="bg-[#0d5943] rounded-xl p-4">
+            <div className="bg-white rounded-xl p-4">
               <h3 className="font-bold mb-3 flex items-center gap-2">
-                <UserCheck size={18} className="text-[#4ade80]" />
+                <UserCheck size={18} className="text-[#00A651]" />
                 Test User Credentials
               </h3>
-              <p className="text-white/60 text-sm mb-4">
+              <p className="text-gray-500 text-sm mb-4">
                 Use these credentials to login and test notifications from the parent's perspective.
               </p>
 
               {testUsers.length > 0 ? (
                 <div className="space-y-2">
                   {testUsers.slice(0, 5).map(user => (
-                    <div key={user.id} className="bg-white/5 rounded-lg p-3 flex items-center justify-between">
+                    <div key={user.id} className="bg-gray-100 rounded-lg p-3 flex items-center justify-between">
                       <div>
                         <p className="font-medium text-sm">{user.name}</p>
-                        <p className="text-xs text-white/60">{user.email}</p>
-                        <p className="text-xs text-white/40">Role: {user.role} • Password: Test123!</p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                        <p className="text-xs text-gray-400">Role: {user.role} • Password: Test123!</p>
                       </div>
                       <button
                         onClick={() => handleCopyCredentials(user)}
                         className={`p-2 rounded-lg transition-colors ${
                           copiedCredentials === user.id
-                            ? 'bg-[#22c55e] text-white'
-                            : 'bg-white/10 hover:bg-white/20'
+                            ? 'bg-[#005028] text-white'
+                            : 'bg-gray-100 hover:bg-gray-200'
                         }`}
                       >
                         {copiedCredentials === user.id ? <Check size={16} /> : <Copy size={16} />}
@@ -3466,7 +3466,7 @@ const NotificationsPage = () => {
                 </div>
               ) : (
                 <div className="text-center py-4">
-                  <p className="text-white/50 text-sm">No test users found. Create sample data first.</p>
+                  <p className="text-gray-400 text-sm">No test users found. Create sample data first.</p>
                 </div>
               )}
             </div>
@@ -3476,12 +3476,12 @@ const NotificationsPage = () => {
         {/* Data Tools Tab */}
         {activeTab === 'settings' && (
           <div className="space-y-4">
-            <div className="bg-[#0d5943] rounded-xl p-4">
+            <div className="bg-white rounded-xl p-4">
               <h3 className="font-bold mb-2 flex items-center gap-2">
-                <Database size={18} className="text-[#4ade80]" />
+                <Database size={18} className="text-[#00A651]" />
                 Sample Data Tools
               </h3>
-              <p className="text-white/60 text-sm mb-4">
+              <p className="text-gray-500 text-sm mb-4">
                 Create or clear sample data for testing notifications.
               </p>
 
@@ -3504,7 +3504,7 @@ const NotificationsPage = () => {
                 <button
                   onClick={handlePopulateSampleData}
                   disabled={isPopulatingData}
-                  className="py-3 px-4 bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-600 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                  className="py-3 px-4 bg-[#005028] hover:bg-gray-100 disabled:bg-gray-600 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   <Plus size={18} />
                   Create Sample Data
@@ -3520,44 +3520,44 @@ const NotificationsPage = () => {
               </div>
             </div>
 
-            <div className="bg-[#0d5943] rounded-xl p-4">
+            <div className="bg-white rounded-xl p-4">
               <h3 className="font-bold mb-2">Current Data Status</h3>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between p-2 bg-white/5 rounded-lg">
-                  <span className="text-white/70">Teams in database:</span>
+                <div className="flex justify-between p-2 bg-gray-100 rounded-lg">
+                  <span className="text-gray-600">Teams in database:</span>
                   <span className="font-medium">{teams?.length || 0}</span>
                 </div>
-                <div className="flex justify-between p-2 bg-white/5 rounded-lg">
-                  <span className="text-white/70">Players in database:</span>
+                <div className="flex justify-between p-2 bg-gray-100 rounded-lg">
+                  <span className="text-gray-600">Players in database:</span>
                   <span className="font-medium">{players?.length || 0}</span>
                 </div>
-                <div className="flex justify-between p-2 bg-white/5 rounded-lg">
-                  <span className="text-white/70">Users in database:</span>
+                <div className="flex justify-between p-2 bg-gray-100 rounded-lg">
+                  <span className="text-gray-600">Users in database:</span>
                   <span className="font-medium">{allUsers?.length || 0}</span>
                 </div>
-                <div className="flex justify-between p-2 bg-white/5 rounded-lg">
-                  <span className="text-white/70">Test users:</span>
+                <div className="flex justify-between p-2 bg-gray-100 rounded-lg">
+                  <span className="text-gray-600">Test users:</span>
                   <span className="font-medium">{testUsers?.length || 0}</span>
                 </div>
-                <div className="flex justify-between p-2 bg-white/5 rounded-lg">
-                  <span className="text-white/70">Games in database:</span>
+                <div className="flex justify-between p-2 bg-gray-100 rounded-lg">
+                  <span className="text-gray-600">Games in database:</span>
                   <span className="font-medium">{games?.length || 0}</span>
                 </div>
-                <div className="flex justify-between p-2 bg-white/5 rounded-lg">
-                  <span className="text-white/70">Scoring assignments:</span>
+                <div className="flex justify-between p-2 bg-gray-100 rounded-lg">
+                  <span className="text-gray-600">Scoring assignments:</span>
                   <span className="font-medium">{scoringAssignments?.length || 0}</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white/5 rounded-xl p-4">
+            <div className="bg-gray-100 rounded-xl p-4">
               <div className="flex items-start gap-3">
-                <Info className="text-[#4ade80] flex-shrink-0" size={20} />
+                <Info className="text-[#00A651] flex-shrink-0" size={20} />
                 <div>
-                  <p className="text-sm text-white/70">
+                  <p className="text-sm text-gray-600">
                     <strong>Sample Data includes:</strong>
                   </p>
-                  <ul className="text-sm text-white/60 mt-2 list-disc list-inside space-y-1">
+                  <ul className="text-sm text-gray-500 mt-2 list-disc list-inside space-y-1">
                     <li>6 teams (Lakers U8, U10, U12, U14, U16, U19)</li>
                     <li>21 sample players across all age groups</li>
                     <li>5 test parent accounts with varied notification preferences</li>
@@ -3575,9 +3575,9 @@ const NotificationsPage = () => {
       {/* Confirm Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0d5943] rounded-xl p-6 max-w-sm w-full">
+          <div className="bg-white rounded-xl p-6 max-w-sm w-full">
             <h3 className="text-lg font-bold mb-4">Confirm Send</h3>
-            <p className="text-white/70 mb-4">
+            <p className="text-gray-600 mb-4">
               Send this {NOTIFICATION_TYPE_CONFIG[notificationType]?.label || 'notification'} to {
                 notificationType === 'scoring'
                   ? '1 parent'
@@ -3585,8 +3585,8 @@ const NotificationsPage = () => {
               }?
             </p>
 
-            <div className="bg-white/5 rounded-lg p-3 mb-4">
-              <p className="text-sm text-white/70 mb-2">Will be delivered via:</p>
+            <div className="bg-gray-100 rounded-lg p-3 mb-4">
+              <p className="text-sm text-gray-600 mb-2">Will be delivered via:</p>
               <div className="flex flex-wrap gap-2">
                 <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded flex items-center gap-1">
                   <Bell size={12} /> In-App
@@ -3608,13 +3608,13 @@ const NotificationsPage = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConfirmModal(false)}
-                className="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-medium transition-colors"
+                className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSend}
-                className="flex-1 py-2 bg-[#22c55e] hover:bg-[#1a8a68] rounded-lg font-medium transition-colors"
+                className="flex-1 py-2 bg-[#005028] hover:bg-gray-100 rounded-lg font-medium transition-colors"
               >
                 Send
               </button>
@@ -3626,19 +3626,19 @@ const NotificationsPage = () => {
       {/* Success Modal with Detailed Delivery Status */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0d5943] rounded-xl p-6 max-w-md w-full">
-            <div className="w-16 h-16 bg-[#22c55e] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check size={32} className="text-white" />
+          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+            <div className="w-16 h-16 bg-[#005028] rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check size={32} className="text-gray-800" />
             </div>
             <h3 className="text-lg font-bold text-center mb-2">Notification Sent!</h3>
 
             {deliveryStats && (
-              <div className="bg-white/5 rounded-lg p-4 mb-4">
-                <p className="text-sm text-white/70 mb-3">Delivery Summary:</p>
+              <div className="bg-gray-100 rounded-lg p-4 mb-4">
+                <p className="text-sm text-gray-600 mb-3">Delivery Summary:</p>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2 text-sm">
-                      <Users size={14} className="text-white/50" /> Total Recipients
+                      <Users size={14} className="text-gray-400" /> Total Recipients
                     </span>
                     <span className="font-medium">{recipientInfo.total}</span>
                   </div>
@@ -3667,14 +3667,14 @@ const NotificationsPage = () => {
                 {/* Expandable Recipients List */}
                 {detailedDeliveryRecipients.length > 0 && (
                   <details className="mt-3 pt-3 border-t border-white/10">
-                    <summary className="text-sm text-white/60 cursor-pointer hover:text-white">
+                    <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-800">
                       View recipient details ({detailedDeliveryRecipients.length})
                     </summary>
                     <div className="mt-2 max-h-32 overflow-y-auto space-y-1">
                       {detailedDeliveryRecipients.map((r, i) => (
-                        <div key={i} className="flex items-center justify-between text-xs p-1 bg-white/5 rounded">
+                        <div key={i} className="flex items-center justify-between text-xs p-1 bg-gray-100 rounded">
                           <span className="truncate">{r.name || r.email}</span>
-                          <span className="text-[#4ade80]">{r.channels.inApp}</span>
+                          <span className="text-[#00A651]">{r.channels.inApp}</span>
                         </div>
                       ))}
                     </div>
@@ -3689,7 +3689,7 @@ const NotificationsPage = () => {
                 setDeliveryStats(null);
                 setDetailedDeliveryRecipients([]);
               }}
-              className="w-full py-2 bg-[#22c55e] hover:bg-[#1a8a68] rounded-lg font-medium transition-colors"
+              className="w-full py-2 bg-[#005028] hover:bg-gray-100 rounded-lg font-medium transition-colors"
             >
               Done
             </button>
@@ -3700,17 +3700,17 @@ const NotificationsPage = () => {
       {/* Swap Request Modal */}
       {showSwapModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0d5943] rounded-xl p-6 max-w-md w-full">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full">
             <h3 className="text-lg font-bold mb-4">Request Scoring Swap</h3>
 
-            <div className="bg-white/5 rounded-lg p-3 mb-4">
-              <p className="text-sm text-white/70">Current Assignment:</p>
+            <div className="bg-gray-100 rounded-lg p-3 mb-4">
+              <p className="text-sm text-gray-600">Current Assignment:</p>
               <p className="font-medium">{selectedSwapAssignment?.game}</p>
-              <p className="text-sm text-white/60">{selectedSwapAssignment?.parentName}</p>
+              <p className="text-sm text-gray-500">{selectedSwapAssignment?.parentName}</p>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm text-white/70 mb-2">Swap with:</label>
+              <label className="block text-sm text-gray-600 mb-2">Swap with:</label>
               <select
                 value={swapTargetParent}
                 onChange={(e) => setSwapTargetParent(e.target.value)}
@@ -3725,13 +3725,13 @@ const NotificationsPage = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm text-white/70 mb-2">Reason (optional):</label>
+              <label className="block text-sm text-gray-600 mb-2">Reason (optional):</label>
               <textarea
                 value={swapReason}
                 onChange={(e) => setSwapReason(e.target.value)}
                 placeholder="Why is the swap needed?"
                 rows={3}
-                className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 resize-none"
+                className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 placeholder-white/40 resize-none"
               />
             </div>
 
@@ -3743,14 +3743,14 @@ const NotificationsPage = () => {
                   setSwapTargetParent('');
                   setSwapReason('');
                 }}
-                className="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-medium transition-colors"
+                className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateSwapRequest}
                 disabled={!swapTargetParent}
-                className="flex-1 py-2 bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+                className="flex-1 py-2 bg-[#005028] hover:bg-gray-100 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
               >
                 Send Request
               </button>
@@ -3762,26 +3762,26 @@ const NotificationsPage = () => {
       {/* Reassignment Modal */}
       {showReassignModal && editingAssignment && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0d5943] rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <Edit size={18} className="text-[#4ade80]" />
+              <Edit size={18} className="text-[#00A651]" />
               Reassign Scoring Duty
             </h3>
 
-            <div className="bg-white/5 rounded-lg p-3 mb-4">
-              <p className="text-sm text-white/70">Current Assignment:</p>
+            <div className="bg-gray-100 rounded-lg p-3 mb-4">
+              <p className="text-sm text-gray-600">Current Assignment:</p>
               <p className="font-medium">{editingAssignment.game}</p>
-              <p className="text-sm text-white/60">
+              <p className="text-sm text-gray-500">
                 {new Date(editingAssignment.date).toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' })} at {formatTimeStringAU(editingAssignment.time)}
               </p>
               <div className="flex items-center gap-2 mt-2 pt-2 border-t border-white/10">
-                <User size={14} className="text-white/50" />
+                <User size={14} className="text-gray-400" />
                 <span className="text-sm">Currently: {editingAssignment.parentName || 'Unassigned'}</span>
               </div>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm text-white/70 mb-2">Reassign to:</label>
+              <label className="block text-sm text-gray-600 mb-2">Reassign to:</label>
               <select
                 value={reassignmentTarget}
                 onChange={(e) => setReassignmentTarget(e.target.value)}
@@ -3803,13 +3803,13 @@ const NotificationsPage = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm text-white/70 mb-2">Reason for change (optional):</label>
+              <label className="block text-sm text-gray-600 mb-2">Reason for change (optional):</label>
               <textarea
                 value={reassignmentReason}
                 onChange={(e) => setReassignmentReason(e.target.value)}
                 placeholder="e.g., Parent requested change, scheduling conflict..."
                 rows={3}
-                className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 resize-none"
+                className="w-full bg-gray-100 border border-white/20 rounded-lg px-3 py-2 text-gray-800 placeholder-white/40 resize-none"
               />
             </div>
 
@@ -3828,14 +3828,14 @@ const NotificationsPage = () => {
                   setReassignmentTarget('');
                   setReassignmentReason('');
                 }}
-                className="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-medium transition-colors"
+                className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleReassignWithNotification}
                 disabled={!reassignmentTarget || isProcessingSwap}
-                className="flex-1 py-2 bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-600 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                className="flex-1 py-2 bg-[#005028] hover:bg-gray-100 disabled:bg-gray-600 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
               >
                 {isProcessingSwap ? (
                   <>
@@ -3857,18 +3857,18 @@ const NotificationsPage = () => {
       {/* Auto-Assign Modal */}
       {showAutoAssignModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0d5943] rounded-xl p-6 max-w-md w-full">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full">
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <RefreshCw size={18} className="text-[#4ade80]" />
+              <RefreshCw size={18} className="text-[#00A651]" />
               Auto-Assign Scoring Duties
             </h3>
 
-            <p className="text-white/60 text-sm mb-4">
+            <p className="text-gray-500 text-sm mb-4">
               Automatically distribute scoring duties evenly among parents for all unassigned upcoming games.
             </p>
 
             <div className="mb-4">
-              <label className="block text-sm text-white/70 mb-2">Select Team:</label>
+              <label className="block text-sm text-gray-600 mb-2">Select Team:</label>
               <select
                 value={autoAssignTeam}
                 onChange={(e) => setAutoAssignTeam(e.target.value)}
@@ -3885,8 +3885,8 @@ const NotificationsPage = () => {
             </div>
 
             {autoAssignTeam && (
-              <div className="bg-white/5 rounded-lg p-3 mb-4">
-                <p className="text-sm text-white/70 mb-2">Preview:</p>
+              <div className="bg-gray-100 rounded-lg p-3 mb-4">
+                <p className="text-sm text-gray-600 mb-2">Preview:</p>
                 {(() => {
                   const team = availableTeams.find(t => t.id === autoAssignTeam);
                   const unassignedGames = availableGames.filter(g =>
@@ -3895,8 +3895,8 @@ const NotificationsPage = () => {
                   );
                   return (
                     <div className="text-sm">
-                      <p className="text-white">{unassignedGames.length} unassigned game{unassignedGames.length !== 1 ? 's' : ''}</p>
-                      <p className="text-white/60">{team?.playerCount || 0} parents available</p>
+                      <p className="text-gray-800">{unassignedGames.length} unassigned game{unassignedGames.length !== 1 ? 's' : ''}</p>
+                      <p className="text-gray-500">{team?.playerCount || 0} parents available</p>
                     </div>
                   );
                 })()}
@@ -3916,14 +3916,14 @@ const NotificationsPage = () => {
                   setShowAutoAssignModal(false);
                   setAutoAssignTeam('');
                 }}
-                className="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-medium transition-colors"
+                className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAutoAssign}
                 disabled={!autoAssignTeam || isProcessingSwap}
-                className="flex-1 py-2 bg-[#22c55e] hover:bg-[#1a8a68] disabled:bg-gray-600 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                className="flex-1 py-2 bg-[#005028] hover:bg-gray-100 disabled:bg-gray-600 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
               >
                 {isProcessingSwap ? (
                   <>
@@ -3945,7 +3945,7 @@ const NotificationsPage = () => {
       {/* View Swap Requests Modal */}
       {showSwapRequestsModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0d5943] rounded-xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
               <ArrowRightLeft size={18} className="text-blue-400" />
               Pending Swap Requests ({swapRequests.filter(s => s.status === 'pending').length})
@@ -3955,39 +3955,39 @@ const NotificationsPage = () => {
               <div>
                 <button
                   onClick={() => setSelectedSwapRequest(null)}
-                  className="text-sm text-[#4ade80] mb-3 flex items-center gap-1"
+                  className="text-sm text-[#00A651] mb-3 flex items-center gap-1"
                 >
                   <ArrowLeft size={14} /> Back to all requests
                 </button>
 
-                <div className="bg-white/5 rounded-lg p-4 mb-4">
+                <div className="bg-gray-100 rounded-lg p-4 mb-4">
                   <p className="font-medium">{selectedSwapRequest.gameName || 'Game'}</p>
-                  <p className="text-sm text-white/60">
+                  <p className="text-sm text-gray-500">
                     {selectedSwapRequest.gameDate && new Date(selectedSwapRequest.gameDate).toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </p>
 
                   <div className="mt-4 pt-4 border-t border-white/10">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-white/70">From:</span>
+                      <span className="text-sm text-gray-600">From:</span>
                       <span className="font-medium">{selectedSwapRequest.requestingParentName}</span>
                     </div>
                     <div className="flex items-center justify-center my-2">
                       <ArrowRightLeft size={16} className="text-blue-400" />
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/70">To:</span>
+                      <span className="text-sm text-gray-600">To:</span>
                       <span className="font-medium">{selectedSwapRequest.targetParentName}</span>
                     </div>
                   </div>
 
                   {selectedSwapRequest.reason && (
                     <div className="mt-4 pt-4 border-t border-white/10">
-                      <p className="text-sm text-white/70">Reason:</p>
+                      <p className="text-sm text-gray-600">Reason:</p>
                       <p className="text-sm italic">"{selectedSwapRequest.reason}"</p>
                     </div>
                   )}
 
-                  <p className="text-xs text-white/40 mt-4">
+                  <p className="text-xs text-gray-400 mt-4">
                     Requested: {selectedSwapRequest.createdAt && new Date(selectedSwapRequest.createdAt).toLocaleString('en-AU')}
                   </p>
                 </div>
@@ -4004,7 +4004,7 @@ const NotificationsPage = () => {
                   <button
                     onClick={() => handleApproveSwapRequest(selectedSwapRequest)}
                     disabled={isProcessingSwap}
-                    className="flex-1 py-2 bg-[#22c55e] hover:bg-[#1a8a68] rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                    className="flex-1 py-2 bg-[#005028] hover:bg-gray-100 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
                   >
                     {isProcessingSwap ? (
                       <Loader2 className="animate-spin" size={16} />
@@ -4025,33 +4025,33 @@ const NotificationsPage = () => {
                       <button
                         key={swap.id}
                         onClick={() => setSelectedSwapRequest(swap)}
-                        className="w-full bg-white/5 hover:bg-white/10 rounded-lg p-4 text-left transition-colors"
+                        className="w-full bg-gray-100 hover:bg-gray-100 rounded-lg p-4 text-left transition-colors"
                       >
                         <div className="flex justify-between items-start">
                           <div>
                             <p className="font-medium">{swap.gameName || swap.gameId}</p>
-                            <p className="text-sm text-white/60">
+                            <p className="text-sm text-gray-500">
                               {swap.requestingParentName} → {swap.targetParentName}
                             </p>
                             {swap.reason && (
-                              <p className="text-xs text-white/40 mt-1 line-clamp-1">"{swap.reason}"</p>
+                              <p className="text-xs text-gray-400 mt-1 line-clamp-1">"{swap.reason}"</p>
                             )}
                           </div>
-                          <ChevronRight size={16} className="text-white/50" />
+                          <ChevronRight size={16} className="text-gray-400" />
                         </div>
                       </button>
                     ))}
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <ArrowRightLeft className="mx-auto mb-2 text-white/30" size={32} />
-                    <p className="text-white/50">No pending swap requests</p>
+                    <ArrowRightLeft className="mx-auto mb-2 text-gray-800/30" size={32} />
+                    <p className="text-gray-400">No pending swap requests</p>
                   </div>
                 )}
 
                 <button
                   onClick={() => setShowSwapRequestsModal(false)}
-                  className="w-full mt-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-medium transition-colors"
+                  className="w-full mt-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
                 >
                   Close
                 </button>

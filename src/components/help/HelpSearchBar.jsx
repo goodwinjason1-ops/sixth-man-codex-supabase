@@ -112,7 +112,7 @@ const HelpSearchBar = ({ roleFilter = null }) => {
     return (
       <>
         {text.slice(0, idx)}
-        <mark className="bg-[#4ade80]/30 text-white rounded px-0.5">{text.slice(idx, idx + q.length)}</mark>
+        <mark className="bg-[#00A651]/30 text-white rounded px-0.5">{text.slice(idx, idx + q.length)}</mark>
         {text.slice(idx + q.length)}
       </>
     );
@@ -122,22 +122,22 @@ const HelpSearchBar = ({ roleFilter = null }) => {
     <button
       key={`${r.roleSlug}-${r.sectionId}`}
       onClick={() => handleSelect(r)}
-      className={`w-full text-left px-4 py-3 transition-colors border-b border-[#1a8a68]/30 last:border-b-0 ${
-        idx === activeIndex ? 'bg-[#1a8a68]/40' : 'hover:bg-[#1a8a68]/30'
+      className={`w-full text-left px-4 py-3 transition-colors border-b border-[#D4E4D4]/30 last:border-b-0 ${
+        idx === activeIndex ? 'bg-[#D4E4D4]/40' : 'hover:bg-gray-100/30'
       }`}
     >
       <div className="flex items-center gap-2 mb-0.5">
         {r.pageTitle && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#1a8a68]/50 text-white/60">
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#D4E4D4]/50 text-gray-500">
             {r.pageTitle}
           </span>
         )}
-        <span className="text-white text-sm font-medium">
+        <span className="text-gray-800 text-sm font-medium">
           {highlightMatch(r.title, query)}
         </span>
       </div>
       {r.snippet && (
-        <p className="text-white/50 text-xs line-clamp-2 mt-0.5">
+        <p className="text-gray-400 text-xs line-clamp-2 mt-0.5">
           {highlightMatch(r.snippet, query)}
         </p>
       )}
@@ -147,7 +147,7 @@ const HelpSearchBar = ({ roleFilter = null }) => {
   return (
     <div ref={wrapperRef} className="relative">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
         <input
           ref={inputRef}
           type="text"
@@ -156,12 +156,12 @@ const HelpSearchBar = ({ roleFilter = null }) => {
           onFocus={handleFocus}
           onKeyDown={handleKeyDown}
           placeholder="Search help topics..."
-          className="w-full bg-[#0d5943] border border-[#1a8a68] rounded-xl pl-10 pr-10 py-3 text-white text-sm placeholder:text-white/40 focus:outline-none focus:border-[#22c55e] transition-colors"
+          className="w-full bg-white border border-[#D4E4D4] rounded-xl pl-10 pr-10 py-3 text-gray-800 text-sm placeholder:text-gray-400 focus:outline-none focus:border-[#00A651] transition-colors"
         />
         {query && (
           <button
             onClick={() => { setQuery(''); setResults([]); setShowDropdown(false); setShowSuggestions(false); }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-800"
           >
             <X className="w-4 h-4" />
           </button>
@@ -170,16 +170,16 @@ const HelpSearchBar = ({ roleFilter = null }) => {
 
       {/* Popular suggestions on focus */}
       {showSuggestions && !showDropdown && (
-        <div className="absolute z-20 w-full mt-1 bg-[#0d5943] border border-[#1a8a68] rounded-xl shadow-lg overflow-hidden">
-          <div className="px-4 py-2 border-b border-[#1a8a68]/30">
-            <span className="text-white/40 text-xs font-medium">Popular topics</span>
+        <div className="absolute z-20 w-full mt-1 bg-white border border-[#D4E4D4] rounded-xl shadow-lg overflow-hidden">
+          <div className="px-4 py-2 border-b border-[#D4E4D4]/30">
+            <span className="text-gray-400 text-xs font-medium">Popular topics</span>
           </div>
           <div className="flex flex-wrap gap-2 p-3">
             {POPULAR_TOPICS.map((topic) => (
               <button
                 key={topic.query}
                 onClick={() => handleSuggestionClick(topic)}
-                className="px-3 py-1.5 bg-[#1a8a68]/30 hover:bg-[#1a8a68]/50 rounded-lg text-white/80 text-xs transition-colors"
+                className="px-3 py-1.5 bg-[#D4E4D4]/30 hover:bg-gray-100/50 rounded-lg text-gray-700 text-xs transition-colors"
               >
                 {topic.label}
               </button>
@@ -190,19 +190,19 @@ const HelpSearchBar = ({ roleFilter = null }) => {
 
       {/* Grouped search results */}
       {showDropdown && (
-        <div className="absolute z-20 w-full mt-1 bg-[#0d5943] border border-[#1a8a68] rounded-xl shadow-lg overflow-hidden max-h-80 overflow-y-auto">
+        <div className="absolute z-20 w-full mt-1 bg-white border border-[#D4E4D4] rounded-xl shadow-lg overflow-hidden max-h-80 overflow-y-auto">
           {(groupedResults.sections || []).length > 0 && (
             <>
-              <div className="px-4 py-1.5 bg-[#0a3d2e]/50 border-b border-[#1a8a68]/30">
-                <span className="text-white/40 text-[10px] font-medium uppercase tracking-wide">Guide Sections</span>
+              <div className="px-4 py-1.5 bg-[#F5F9F5]/50 border-b border-[#D4E4D4]/30">
+                <span className="text-gray-400 text-[10px] font-medium uppercase tracking-wide">Guide Sections</span>
               </div>
               {groupedResults.sections.map((r, i) => renderResultItem(r, i))}
             </>
           )}
           {(groupedResults.faqs || []).length > 0 && (
             <>
-              <div className="px-4 py-1.5 bg-[#0a3d2e]/50 border-b border-[#1a8a68]/30">
-                <span className="text-white/40 text-[10px] font-medium uppercase tracking-wide">FAQs</span>
+              <div className="px-4 py-1.5 bg-[#F5F9F5]/50 border-b border-[#D4E4D4]/30">
+                <span className="text-gray-400 text-[10px] font-medium uppercase tracking-wide">FAQs</span>
               </div>
               {groupedResults.faqs.map((r, i) => renderResultItem(r, sectionCount + i))}
             </>

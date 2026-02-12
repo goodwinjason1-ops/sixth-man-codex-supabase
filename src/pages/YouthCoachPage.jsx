@@ -130,7 +130,7 @@ const YouthCoachPage = () => {
       <div className="min-h-screen bg-gray-900 p-4 flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
-          <p className="text-white font-semibold">Program not found</p>
+          <p className="text-gray-800 font-semibold">Program not found</p>
           <button onClick={() => navigate('/admin/youth-programs')} className="mt-3 text-emerald-400 hover:underline">Go back</button>
         </div>
       </div>
@@ -143,29 +143,29 @@ const YouthCoachPage = () => {
       <div className={`bg-gradient-to-r ${config.color} p-4 pb-6`}>
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-3">
-            <button onClick={() => navigate('/admin/youth-programs')} className="p-2 rounded-lg bg-white/20 hover:bg-white/30 text-white">
+            <button onClick={() => navigate('/admin/youth-programs')} className="p-2 rounded-lg bg-gray-200 hover:bg-white/30 text-gray-800">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="flex-1">
-              <h1 className="text-xl font-bold text-white">{program.name}</h1>
-              <p className="text-white/80 text-sm">{config.name} | Ages {config.ageRange} | Week {currentWeek} of {config.totalWeeks}</p>
+              <h1 className="text-xl font-bold text-gray-800">{program.name}</h1>
+              <p className="text-gray-700 text-sm">{config.name} | Ages {config.ageRange} | Week {currentWeek} of {config.totalWeeks}</p>
             </div>
             <div className="text-3xl">{program.programType === PROGRAM_TYPES.LITTLE_LAKERS ? '🏀' : '🌟'}</div>
           </div>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="bg-white/20 rounded-lg p-2 text-center">
-              <p className="text-white font-bold text-lg">{enrollments.filter(e => e.status === 'active').length}</p>
-              <p className="text-white/70 text-xs">Enrolled</p>
+            <div className="bg-gray-200 rounded-lg p-2 text-center">
+              <p className="text-gray-800 font-bold text-lg">{enrollments.filter(e => e.status === 'active').length}</p>
+              <p className="text-gray-600 text-xs">Enrolled</p>
             </div>
-            <div className="bg-white/20 rounded-lg p-2 text-center">
-              <p className="text-white font-bold text-lg">{sessions.filter(s => s.status === 'completed').length}</p>
-              <p className="text-white/70 text-xs">Sessions Done</p>
+            <div className="bg-gray-200 rounded-lg p-2 text-center">
+              <p className="text-gray-800 font-bold text-lg">{sessions.filter(s => s.status === 'completed').length}</p>
+              <p className="text-gray-600 text-xs">Sessions Done</p>
             </div>
-            <div className="bg-white/20 rounded-lg p-2 text-center">
-              <p className="text-white font-bold text-lg">{config.totalWeeks}</p>
-              <p className="text-white/70 text-xs">Total Weeks</p>
+            <div className="bg-gray-200 rounded-lg p-2 text-center">
+              <p className="text-gray-800 font-bold text-lg">{config.totalWeeks}</p>
+              <p className="text-gray-600 text-xs">Total Weeks</p>
             </div>
           </div>
         </div>
@@ -317,18 +317,18 @@ const SessionPlanTab = ({ config, curriculum, activities, tips, currentWeek, set
         <button
           onClick={() => setCurrentWeek(Math.max(1, currentWeek - 1))}
           disabled={currentWeek <= 1}
-          className="p-2 text-gray-400 hover:text-white disabled:opacity-30 rounded-lg hover:bg-gray-700"
+          className="p-2 text-gray-400 hover:text-gray-800 disabled:opacity-30 rounded-lg hover:bg-gray-700"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="text-center">
-          <p className="text-white font-bold">Week {currentWeek}: {weekPlan.theme}</p>
+          <p className="text-gray-800 font-bold">Week {currentWeek}: {weekPlan.theme}</p>
           <p className="text-gray-400 text-xs">Focus: {weekPlan.focus}</p>
         </div>
         <button
           onClick={() => setCurrentWeek(Math.min(config.totalWeeks, currentWeek + 1))}
           disabled={currentWeek >= config.totalWeeks}
-          className="p-2 text-gray-400 hover:text-white disabled:opacity-30 rounded-lg hover:bg-gray-700"
+          className="p-2 text-gray-400 hover:text-gray-800 disabled:opacity-30 rounded-lg hover:bg-gray-700"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
@@ -359,7 +359,7 @@ const SessionPlanTab = ({ config, curriculum, activities, tips, currentWeek, set
               <Play className="w-4 h-4 text-orange-400" />
             </div>
             <div>
-              <h3 className="text-white font-semibold text-sm">Warm-Up</h3>
+              <h3 className="text-gray-800 font-semibold text-sm">Warm-Up</h3>
               <p className="text-gray-400 text-xs">{config.id === PROGRAM_TYPES.LITTLE_LAKERS ? '5 min' : '7 min'}</p>
             </div>
           </div>
@@ -374,7 +374,7 @@ const SessionPlanTab = ({ config, curriculum, activities, tips, currentWeek, set
                 {idx + 1}
               </div>
               <div className="flex-1">
-                <h3 className="text-white font-semibold text-sm">{activity.name}</h3>
+                <h3 className="text-gray-800 font-semibold text-sm">{activity.name}</h3>
                 <p className="text-gray-400 text-xs">{activity.duration} min | {activity.category}</p>
               </div>
               <div className="flex items-center gap-1">
@@ -429,7 +429,7 @@ const SessionPlanTab = ({ config, curriculum, activities, tips, currentWeek, set
               <Heart className="w-4 h-4 text-blue-400" />
             </div>
             <div>
-              <h3 className="text-white font-semibold text-sm">Cool-Down</h3>
+              <h3 className="text-gray-800 font-semibold text-sm">Cool-Down</h3>
               <p className="text-gray-400 text-xs">5 min</p>
             </div>
           </div>
@@ -580,7 +580,7 @@ const AttendanceTab = ({ enrollments, sessions, programId, currentWeek, onRecord
       {/* Attendance Summary */}
       <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-white font-semibold">Week {selectedWeek} Attendance</h3>
+          <h3 className="text-gray-800 font-semibold">Week {selectedWeek} Attendance</h3>
           <span className="text-emerald-400 text-sm font-medium">{presentCount}/{activeEnrollments.length} present</span>
         </div>
 
@@ -606,7 +606,7 @@ const AttendanceTab = ({ enrollments, sessions, programId, currentWeek, onRecord
                     {isPresent ? <CheckCircle className="w-4 h-4" /> : <X className="w-4 h-4" />}
                   </button>
                   <div className="flex-1">
-                    <p className={`text-sm font-medium ${isPresent ? 'text-white' : 'text-gray-500 line-through'}`}>
+                    <p className={`text-sm font-medium ${isPresent ? 'text-gray-800' : 'text-gray-500 line-through'}`}>
                       {enrollment.childName}
                     </p>
                     <p className="text-gray-500 text-xs">Age {enrollment.childAge}</p>
@@ -701,7 +701,7 @@ const MilestonesTab = ({ enrollments, milestoneList, programId, programType, cur
     <div className="space-y-4">
       {/* Child Selector */}
       <div>
-        <h3 className="text-white font-semibold text-sm mb-2">Select Child</h3>
+        <h3 className="text-gray-800 font-semibold text-sm mb-2">Select Child</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {activeEnrollments.map(enrollment => (
             <button
@@ -713,7 +713,7 @@ const MilestonesTab = ({ enrollments, milestoneList, programId, programType, cur
                   : 'bg-gray-800 border-gray-700 border hover:border-gray-600'
               }`}
             >
-              <p className="text-white text-sm font-medium truncate">{enrollment.childName}</p>
+              <p className="text-gray-800 text-sm font-medium truncate">{enrollment.childName}</p>
               <p className="text-gray-400 text-xs">Age {enrollment.childAge}</p>
             </button>
           ))}
@@ -723,7 +723,7 @@ const MilestonesTab = ({ enrollments, milestoneList, programId, programType, cur
       {/* Milestones */}
       {selectedChild && (
         <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
-          <h3 className="text-white font-semibold mb-3">Developmental Milestones</h3>
+          <h3 className="text-gray-800 font-semibold mb-3">Developmental Milestones</h3>
           <p className="text-gray-400 text-xs mb-4">Tap to cycle: Not Started → Improving → Achieved</p>
 
           <div className="space-y-2">
@@ -765,7 +765,7 @@ const MilestonesTab = ({ enrollments, milestoneList, programId, programType, cur
           <div className="mt-4 pt-4 border-t border-gray-700">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-400">Progress</span>
-              <span className="text-white font-medium">
+              <span className="text-gray-800 font-medium">
                 {Object.values(childMilestones).filter(s => s === MILESTONE_STATUS.ACHIEVED).length}/{milestoneList.length} achieved
               </span>
             </div>
@@ -827,7 +827,7 @@ const ActivitiesTab = ({ activities, config }) => {
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           placeholder="Search activities..."
-          className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
+          className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2.5 text-gray-800 placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
         />
       </div>
 
@@ -861,10 +861,10 @@ const ActivitiesTab = ({ activities, config }) => {
                 className="w-full flex items-center gap-3 p-4 text-left"
               >
                 <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${config.color} flex items-center justify-center flex-shrink-0`}>
-                  <Play className="w-5 h-5 text-white" />
+                  <Play className="w-5 h-5 text-gray-800" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white font-medium text-sm">{activity.name}</p>
+                  <p className="text-gray-800 font-medium text-sm">{activity.name}</p>
                   <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
                     <span>{activity.duration} min</span>
                     <span>|</span>
@@ -978,7 +978,7 @@ const ParentNotesTab = ({ enrollments, programId, currentWeek, coachName, curric
   return (
     <div className="space-y-4">
       <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
-        <h3 className="text-white font-semibold mb-1">Week {currentWeek} Parent Note</h3>
+        <h3 className="text-gray-800 font-semibold mb-1">Week {currentWeek} Parent Note</h3>
         <p className="text-gray-400 text-xs mb-3">
           This message will be saved for all {activeEnrollments.length} enrolled families
         </p>
@@ -987,7 +987,7 @@ const ParentNotesTab = ({ enrollments, programId, currentWeek, coachName, curric
           value={message}
           onChange={e => setMessage(e.target.value)}
           rows={10}
-          className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none text-sm"
+          className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-500 focus:border-emerald-500 focus:outline-none text-sm"
           placeholder="Write a message to parents..."
         />
 
@@ -1011,7 +1011,7 @@ const ParentNotesTab = ({ enrollments, programId, currentWeek, coachName, curric
 
       {/* Recipients Preview */}
       <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
-        <h4 className="text-white font-semibold text-sm mb-2">Recipients ({activeEnrollments.length})</h4>
+        <h4 className="text-gray-800 font-semibold text-sm mb-2">Recipients ({activeEnrollments.length})</h4>
         <div className="space-y-1">
           {activeEnrollments.map(e => (
             <div key={e.id} className="flex items-center justify-between text-sm py-1">

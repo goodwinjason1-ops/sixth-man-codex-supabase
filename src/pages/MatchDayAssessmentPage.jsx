@@ -109,12 +109,12 @@ const levelColors = {
   1: 'bg-red-500',
   2: 'bg-orange-500',
   3: 'bg-yellow-500',
-  4: 'bg-[#22c55e]',
+  4: 'bg-[#005028]',
   5: 'bg-[#86efac]'
 };
 
 const resultOptions = [
-  { id: 'win', label: 'Win', color: 'bg-[#22c55e]' },
+  { id: 'win', label: 'Win', color: 'bg-[#005028]' },
   { id: 'loss', label: 'Loss', color: 'bg-red-500' },
   { id: 'draw', label: 'Draw', color: 'bg-yellow-500' }
 ];
@@ -732,9 +732,9 @@ const MatchDayAssessmentPage = () => {
   }, [draftIdFromUrl, currentUser, draftLoaded, navigate]);
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
+    <div className="min-h-screen bg-[#F5F9F5]">
       {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68] sticky top-0 z-20">
+      <div className="bg-white border-b border-[#D4E4D4] sticky top-0 z-20">
         <div className="max-w-4xl mx-auto px-4 py-4">
           {/* Breadcrumb Navigation */}
           <Breadcrumb
@@ -748,12 +748,12 @@ const MatchDayAssessmentPage = () => {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-xl flex items-center justify-center">
-                <Trophy className="w-6 h-6 text-[#4ade80]" />
+              <div className="w-12 h-12 bg-[#F5F9F5] border-2 border-[#D4E4D4] rounded-xl flex items-center justify-center">
+                <Trophy className="w-6 h-6 text-[#00A651]" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Match Day Assessment</h1>
-                <p className="text-[#4ade80] text-sm">
+                <h1 className="text-xl font-bold text-gray-800">Match Day Assessment</h1>
+                <p className="text-[#00A651] text-sm">
                   {userProfile?.displayName || 'Coach'}
                 </p>
               </div>
@@ -763,7 +763,7 @@ const MatchDayAssessmentPage = () => {
             <div className="flex flex-col items-end gap-1">
               <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
                 isOnline
-                  ? 'bg-[#065f46] text-[#4ade80] border border-[#22c55e]'
+                  ? 'bg-[#005028] text-[#00A651] border border-[#00A651]'
                   : 'bg-yellow-900/50 text-yellow-400 border border-yellow-600'
               }`}>
                 {isOnline ? (
@@ -790,7 +790,7 @@ const MatchDayAssessmentPage = () => {
 
         {/* Team Tabs - Only show if multiple teams */}
         {hasMultipleTeams ? (
-          <div className="border-t border-[#1a8a68]">
+          <div className="border-t border-[#D4E4D4]">
             <div
               ref={tabsContainerRef}
               className="flex overflow-x-auto hide-scrollbar"
@@ -803,8 +803,8 @@ const MatchDayAssessmentPage = () => {
                   onClick={() => handleTeamChange(team.id)}
                   className={`flex-shrink-0 px-6 py-3 font-medium text-sm transition-all duration-200 border-b-2 ${
                     activeTeamId === team.id
-                      ? 'bg-[#065f46] text-white border-[#4ade80]'
-                      : 'bg-[#0d5943] text-[#4ade80] border-transparent hover:bg-[#0a4a38] hover:text-white'
+                      ? 'bg-[#005028] text-white border-[#00A651]'
+                      : 'bg-white text-[#00A651] border-transparent hover:bg-[#0a4a38] hover:text-gray-800'
                   }`}
                 >
                   {team.name}
@@ -813,9 +813,9 @@ const MatchDayAssessmentPage = () => {
             </div>
           </div>
         ) : (
-          <div className="border-t border-[#1a8a68] px-4 py-3 bg-[#065f46]">
-            <p className="text-white font-medium">{activeTeam?.name || 'Team'}</p>
-            <p className="text-[#4ade80] text-xs">{activeTeam?.ageGroup} Division</p>
+          <div className="border-t border-[#D4E4D4] px-4 py-3 bg-[#005028]">
+            <p className="text-gray-800 font-medium">{activeTeam?.name || 'Team'}</p>
+            <p className="text-[#00A651] text-xs">{activeTeam?.ageGroup} Division</p>
           </div>
         )}
       </div>
@@ -823,7 +823,7 @@ const MatchDayAssessmentPage = () => {
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Game Day Banner */}
         {isGameDayMode && gameDayData && (
-          <div className="bg-gradient-to-r from-[#22c55e]/30 to-[#4ade80]/20 border-2 border-[#22c55e] rounded-xl p-4 mb-6 relative overflow-hidden">
+          <div className="bg-gradient-to-r from-[#00A651]/30 to-[#00A651]/20 border-2 border-[#00A651] rounded-xl p-4 mb-6 relative overflow-hidden">
             {/* Animated background pulse */}
             <div
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
@@ -842,17 +842,17 @@ const MatchDayAssessmentPage = () => {
             <div className="relative z-10">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-14 h-14 bg-[#22c55e] rounded-xl flex items-center justify-center shadow-lg shadow-[#22c55e]/30">
-                    <Zap className="w-7 h-7 text-white" />
+                  <div className="w-14 h-14 bg-[#005028] rounded-xl flex items-center justify-center shadow-lg shadow-[#00A651]/30">
+                    <Zap className="w-7 h-7 text-gray-800" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[#4ade80] text-xs font-bold uppercase tracking-wider">🏀 Game Day Mode</span>
+                      <span className="text-[#00A651] text-xs font-bold uppercase tracking-wider">🏀 Game Day Mode</span>
                     </div>
-                    <h3 className="text-white font-bold text-lg">
+                    <h3 className="text-gray-800 font-bold text-lg">
                       {gameDayData.teamName} vs {gameDayData.opponent}
                     </h3>
-                    <div className="flex items-center gap-3 text-sm text-[#4ade80] mt-1">
+                    <div className="flex items-center gap-3 text-sm text-[#00A651] mt-1">
                       <span className="flex items-center gap-1">
                         <ClockIcon className="w-3.5 h-3.5" />
                         {gameDayData.timeString || gameDayData.time}
@@ -872,10 +872,10 @@ const MatchDayAssessmentPage = () => {
                   <div className="relative game-selector-container">
                     <button
                       onClick={() => setShowGameSelector(!showGameSelector)}
-                      className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm font-medium transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-800 text-sm font-medium transition-colors"
                     >
                       <span className="hidden sm:inline">Switch Game</span>
-                      <span className="bg-[#22c55e] text-[#0a3d2e] text-xs font-bold px-2 py-0.5 rounded-full">
+                      <span className="bg-[#005028] text-white text-xs font-bold px-2 py-0.5 rounded-full">
                         {allTodaysGames.length}
                       </span>
                       <ChevronDown className={`w-4 h-4 transition-transform ${showGameSelector ? 'rotate-180' : ''}`} />
@@ -883,9 +883,9 @@ const MatchDayAssessmentPage = () => {
 
                     {/* Game Selector Dropdown */}
                     {showGameSelector && (
-                      <div className="absolute top-full right-0 mt-2 w-64 bg-[#0d5943] border border-[#1a8a68] rounded-xl shadow-xl z-30 overflow-hidden">
-                        <div className="p-2 border-b border-[#1a8a68]">
-                          <p className="text-[#4ade80] text-xs font-medium">Today's Games</p>
+                      <div className="absolute top-full right-0 mt-2 w-64 bg-white border border-[#D4E4D4] rounded-xl shadow-xl z-30 overflow-hidden">
+                        <div className="p-2 border-b border-[#D4E4D4]">
+                          <p className="text-[#00A651] text-xs font-medium">Today's Games</p>
                         </div>
                         <div className="max-h-48 overflow-y-auto">
                           {allTodaysGames.map((game, index) => {
@@ -894,14 +894,14 @@ const MatchDayAssessmentPage = () => {
                               <button
                                 key={game.id || index}
                                 onClick={() => handleSwitchGame(game)}
-                                className={`w-full px-3 py-3 text-left hover:bg-[#0a3d2e] transition-colors ${
-                                  isActive ? 'bg-[#22c55e]/20 border-l-4 border-[#22c55e]' : ''
+                                className={`w-full px-3 py-3 text-left hover:bg-[#F5F9F5] transition-colors ${
+                                  isActive ? 'bg-[#005028]/20 border-l-4 border-[#00A651]' : ''
                                 }`}
                               >
-                                <p className={`font-medium text-sm ${isActive ? 'text-[#4ade80]' : 'text-white'}`}>
+                                <p className={`font-medium text-sm ${isActive ? 'text-[#00A651]' : 'text-gray-800'}`}>
                                   {game.teamName} vs {game.opponent}
                                 </p>
-                                <p className="text-xs text-[#1a8a68] mt-0.5">
+                                <p className="text-xs text-[#6B7C6B] mt-0.5">
                                   {game.timeString || game.time} • {game.venue || 'TBD'}
                                 </p>
                               </button>
@@ -915,10 +915,10 @@ const MatchDayAssessmentPage = () => {
               </div>
 
               {/* Exit Game Day Mode link */}
-              <div className="mt-3 pt-3 border-t border-[#22c55e]/30">
+              <div className="mt-3 pt-3 border-t border-[#00A651]/30">
                 <button
                   onClick={() => navigate('/dashboard', { state: { skipGameDayRedirect: true } })}
-                  className="text-xs text-[#4ade80]/70 hover:text-[#4ade80] transition-colors"
+                  className="text-xs text-[#00A651]/70 hover:text-[#00A651] transition-colors"
                 >
                   ← Return to Dashboard
                 </button>
@@ -971,40 +971,40 @@ const MatchDayAssessmentPage = () => {
         )}
 
         {/* Match Details Section */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4 mb-6">
-          <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-[#4ade80]" />
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4 mb-6">
+          <h2 className="text-gray-800 font-semibold mb-4 flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-[#00A651]" />
             Match Details
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Date Picker */}
             <div>
-              <label className="block text-[#4ade80] text-xs font-medium mb-2">Match Date</label>
+              <label className="block text-[#00A651] text-xs font-medium mb-2">Match Date</label>
               <input
                 type="date"
                 value={matchDate}
                 onChange={(e) => setMatchDate(e.target.value)}
-                className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
               />
             </div>
 
             {/* Opponent Name */}
             <div>
-              <label className="block text-[#4ade80] text-xs font-medium mb-2">Opponent</label>
+              <label className="block text-[#00A651] text-xs font-medium mb-2">Opponent</label>
               <input
                 type="text"
                 value={opponentName}
                 onChange={(e) => setOpponentName(e.target.value)}
                 placeholder="Enter opponent team name"
-                className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
               />
             </div>
           </div>
 
           {/* Game Result */}
           <div className="mt-4">
-            <label className="block text-[#4ade80] text-xs font-medium mb-2">Result</label>
+            <label className="block text-[#00A651] text-xs font-medium mb-2">Result</label>
             <div className="flex gap-3">
               {resultOptions.map((option) => (
                 <button
@@ -1012,8 +1012,8 @@ const MatchDayAssessmentPage = () => {
                   onClick={() => setGameResult(option.id)}
                   className={`flex-1 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
                     gameResult === option.id
-                      ? `${option.color} text-white`
-                      : 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68] hover:border-[#22c55e] hover:text-[#22c55e]'
+                      ? `${option.color} text-gray-800`
+                      : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] hover:border-[#00A651] hover:text-[#00A651]'
                   }`}
                 >
                   {option.label}
@@ -1025,8 +1025,8 @@ const MatchDayAssessmentPage = () => {
 
         {/* Team Performance Section */}
         <div className="mb-6">
-          <h2 className="text-white font-semibold mb-1">Team Performance</h2>
-          <p className="text-[#1a8a68] text-sm mb-4">Rate each area (1-5) - Tap info icon to see criteria</p>
+          <h2 className="text-gray-800 font-semibold mb-1">Team Performance</h2>
+          <p className="text-[#6B7C6B] text-sm mb-4">Rate each area (1-5) - Tap info icon to see criteria</p>
 
           <div className="space-y-3">
             {teamMetrics.map((metric) => {
@@ -1038,29 +1038,29 @@ const MatchDayAssessmentPage = () => {
               return (
                 <div
                   key={metric.id}
-                  className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4"
+                  className="bg-white border border-[#D4E4D4] rounded-xl p-4"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-[#4ade80]" />
+                    <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+                      <Icon className="w-5 h-5 text-[#00A651]" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h4 className="text-white font-medium text-sm">{metric.name}</h4>
+                        <h4 className="text-gray-800 font-medium text-sm">{metric.name}</h4>
                         <button
                           onClick={() => setShowCriteriaTooltip(isTooltipOpen ? null : tooltipKey)}
-                          className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                         >
-                          <Info className="w-4 h-4 text-[#4ade80]" />
+                          <Info className="w-4 h-4 text-[#00A651]" />
                         </button>
                       </div>
-                      <p className="text-[#1a8a68] text-xs">{metric.description}</p>
+                      <p className="text-[#6B7C6B] text-xs">{metric.description}</p>
                     </div>
                     {currentLevel > 0 && (
                       <span className={`text-xs font-medium px-2 py-1 rounded ${
                         currentLevel <= 2 ? 'text-orange-400 bg-orange-500/20' :
                         currentLevel === 3 ? 'text-yellow-400 bg-yellow-500/20' :
-                        'text-[#4ade80] bg-[#22c55e]/20'
+                        'text-[#00A651] bg-[#005028]/20'
                       }`}>
                         {levelLabels[currentLevel]}
                       </span>
@@ -1069,14 +1069,14 @@ const MatchDayAssessmentPage = () => {
 
                   {/* Criteria Tooltip */}
                   {isTooltipOpen && (
-                    <div className="mb-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg p-3">
+                    <div className="mb-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
-                        <h5 className="text-[#4ade80] text-xs font-medium">
+                        <h5 className="text-[#00A651] text-xs font-medium">
                           {metric.name} Criteria ({matchAgeGroup.name})
                         </h5>
                         <button
                           onClick={() => setShowCriteriaTooltip(null)}
-                          className="text-white/50 hover:text-white"
+                          className="text-gray-400 hover:text-gray-800"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -1086,19 +1086,19 @@ const MatchDayAssessmentPage = () => {
                           const criteria = getLevelCriteria(matchAgeGroup.id, metric.id, level);
                           return (
                             <div key={level} className="flex gap-2">
-                              <span className={`w-6 h-6 flex-shrink-0 rounded text-xs font-bold flex items-center justify-center ${levelColors[level]} text-[#0a3d2e]`}>
+                              <span className={`w-6 h-6 flex-shrink-0 rounded text-xs font-bold flex items-center justify-center ${levelColors[level]} text-white`}>
                                 {level}
                               </span>
                               <div>
-                                <p className="text-white text-xs font-medium">{levelLabels[level]}</p>
+                                <p className="text-gray-800 text-xs font-medium">{levelLabels[level]}</p>
                                 {criteria.length > 0 ? (
-                                  <ul className="text-[#1a8a68] text-[10px] mt-0.5">
+                                  <ul className="text-[#6B7C6B] text-[10px] mt-0.5">
                                     {criteria.slice(0, 2).map((c, i) => (
                                       <li key={i}>• {c}</li>
                                     ))}
                                   </ul>
                                 ) : (
-                                  <p className="text-[#1a8a68] text-[10px] italic">Criteria not yet defined</p>
+                                  <p className="text-[#6B7C6B] text-[10px] italic">Criteria not yet defined</p>
                                 )}
                               </div>
                             </div>
@@ -1116,8 +1116,8 @@ const MatchDayAssessmentPage = () => {
                         onClick={() => handleTeamMetricChange(metric.id, level)}
                         className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
                           currentLevel === level
-                            ? `${levelColors[level]} text-[#0a3d2e]`
-                            : 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68] hover:border-[#22c55e] hover:text-[#22c55e]'
+                            ? `${levelColors[level]} text-white`
+                            : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] hover:border-[#00A651] hover:text-[#00A651]'
                         }`}
                       >
                         {level}
@@ -1133,14 +1133,14 @@ const MatchDayAssessmentPage = () => {
           <div className="mt-4">
             <button
               onClick={() => setShowTeamNotes(!showTeamNotes)}
-              className="w-full bg-[#0a3d2e] border border-[#1a8a68] rounded-lg p-3 flex items-center justify-between hover:border-[#22c55e] transition-colors"
+              className="w-full bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg p-3 flex items-center justify-between hover:border-[#00A651] transition-colors"
             >
               <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-[#4ade80]" />
-                <span className="text-white text-sm font-medium">Team Performance Notes</span>
-                {teamRatingNotes && <span className="text-xs text-[#4ade80] bg-[#22c55e]/20 px-2 py-0.5 rounded">Has notes</span>}
+                <MessageSquare className="w-4 h-4 text-[#00A651]" />
+                <span className="text-gray-800 text-sm font-medium">Team Performance Notes</span>
+                {teamRatingNotes && <span className="text-xs text-[#00A651] bg-[#005028]/20 px-2 py-0.5 rounded">Has notes</span>}
               </div>
-              <ChevronDown className={`w-4 h-4 text-[#1a8a68] transition-transform duration-200 ${showTeamNotes ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 text-[#6B7C6B] transition-transform duration-200 ${showTeamNotes ? 'rotate-180' : ''}`} />
             </button>
             <div className={`overflow-hidden transition-all duration-300 ${showTeamNotes ? 'max-h-[200px] mt-2' : 'max-h-0'}`}>
               <textarea
@@ -1148,7 +1148,7 @@ const MatchDayAssessmentPage = () => {
                 onChange={(e) => setTeamRatingNotes(e.target.value)}
                 placeholder="Notes about overall team performance... (optional)"
                 rows={3}
-                className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none resize-none"
+                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm placeholder-gray-400 focus:border-[#00A651] focus:outline-none resize-none"
               />
             </div>
           </div>
@@ -1158,25 +1158,25 @@ const MatchDayAssessmentPage = () => {
         <div className="mb-6">
           <button
             onClick={() => setShowGeneralNotes(!showGeneralNotes)}
-            className="w-full bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4 flex items-center justify-between hover:border-[#22c55e] transition-colors"
+            className="w-full bg-white border border-[#D4E4D4] rounded-xl p-4 flex items-center justify-between hover:border-[#00A651] transition-colors"
           >
             <div className="flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-[#4ade80]" />
-              <span className="text-white font-semibold">General Match Notes</span>
-              {gameNotes && <span className="text-xs text-[#4ade80] bg-[#22c55e]/20 px-2 py-0.5 rounded">Has notes</span>}
+              <MessageSquare className="w-4 h-4 text-[#00A651]" />
+              <span className="text-gray-800 font-semibold">General Match Notes</span>
+              {gameNotes && <span className="text-xs text-[#00A651] bg-[#005028]/20 px-2 py-0.5 rounded">Has notes</span>}
             </div>
-            <ChevronDown className={`w-5 h-5 text-[#1a8a68] transition-transform duration-200 ${showGeneralNotes ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-5 h-5 text-[#6B7C6B] transition-transform duration-200 ${showGeneralNotes ? 'rotate-180' : ''}`} />
           </button>
 
           <div className={`overflow-hidden transition-all duration-300 ${showGeneralNotes ? 'max-h-[300px] mt-2' : 'max-h-0'}`}>
-            <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-              <p className="text-[#1a8a68] text-xs mb-3">Overall observations, coaching notes, or anything else about the match</p>
+            <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
+              <p className="text-[#6B7C6B] text-xs mb-3">Overall observations, coaching notes, or anything else about the match</p>
               <textarea
                 value={gameNotes}
                 onChange={(e) => setGameNotes(e.target.value)}
                 placeholder="Add general notes about the game... (optional)"
                 rows={4}
-                className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none resize-none"
+                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none resize-none"
               />
             </div>
           </div>
@@ -1184,11 +1184,11 @@ const MatchDayAssessmentPage = () => {
 
         {/* Individual Player Assessments */}
         <div className="mb-6">
-          <h2 className="text-white font-semibold mb-1 flex items-center gap-2">
-            <User className="w-5 h-5 text-[#4ade80]" />
+          <h2 className="text-gray-800 font-semibold mb-1 flex items-center gap-2">
+            <User className="w-5 h-5 text-[#00A651]" />
             Individual Player Assessments
           </h2>
-          <p className="text-[#1a8a68] text-sm mb-4">Expand to rate each player (optional)</p>
+          <p className="text-[#6B7C6B] text-sm mb-4">Expand to rate each player (optional)</p>
 
           <div className="space-y-2">
             {teamPlayers.map((player) => {
@@ -1200,31 +1200,31 @@ const MatchDayAssessmentPage = () => {
               return (
                 <div
                   key={player.id}
-                  className="bg-[#0d5943] border border-[#1a8a68] rounded-xl overflow-hidden"
+                  className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden"
                 >
                   {/* Player Header - Collapsible */}
                   <button
                     onClick={() => togglePlayerExpansion(player.id)}
                     className="w-full px-4 py-3 flex items-center gap-3 hover:bg-[#0a4a38] transition-colors"
                   >
-                    <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">#{player.number}</span>
+                    <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center">
+                      <span className="text-gray-800 font-bold text-sm">#{player.number}</span>
                     </div>
                     <div className="flex-1 text-left">
-                      <h4 className="text-white font-medium text-sm">{player.name}</h4>
-                      <p className="text-[#1a8a68] text-xs">
+                      <h4 className="text-gray-800 font-medium text-sm">{player.name}</h4>
+                      <p className="text-[#6B7C6B] text-xs">
                         {assessedCount > 0 ? `${assessedCount}/${playerMetrics.length} rated` : 'Not assessed'}
                         {hasNotes && ' + notes'}
                         {Object.keys(assessment.metricNotes || {}).filter(k => assessment.metricNotes[k]).length > 0 &&
                           ` + ${Object.keys(assessment.metricNotes).filter(k => assessment.metricNotes[k]).length} metric notes`}
                       </p>
                     </div>
-                    <ChevronRight className={`w-5 h-5 text-[#1a8a68] transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
+                    <ChevronRight className={`w-5 h-5 text-[#6B7C6B] transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
                   </button>
 
                   {/* Expanded Content */}
                   <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-[2000px]' : 'max-h-0'}`}>
-                    <div className="px-4 pb-4 pt-2 border-t border-[#1a8a68]">
+                    <div className="px-4 pb-4 pt-2 border-t border-[#D4E4D4]">
                       {/* Player Metrics */}
                       <div className="space-y-3 mb-4">
                         {playerMetrics.map((metric) => {
@@ -1236,13 +1236,13 @@ const MatchDayAssessmentPage = () => {
                           return (
                             <div key={metric.id}>
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-white text-xs font-medium">{metric.name}</span>
+                                <span className="text-gray-800 text-xs font-medium">{metric.name}</span>
                                 <div className="flex items-center gap-2">
                                   {metricNote && !isMetricNoteOpen && (
-                                    <span className="text-[10px] text-[#4ade80] bg-[#22c55e]/20 px-1.5 py-0.5 rounded">notes</span>
+                                    <span className="text-[10px] text-[#00A651] bg-[#005028]/20 px-1.5 py-0.5 rounded">notes</span>
                                   )}
                                   {currentLevel > 0 && (
-                                    <span className="text-[#4ade80] text-xs">
+                                    <span className="text-[#00A651] text-xs">
                                       {levelLabels[currentLevel]}
                                     </span>
                                   )}
@@ -1255,8 +1255,8 @@ const MatchDayAssessmentPage = () => {
                                     onClick={() => handlePlayerMetricChange(player.id, metric.id, level)}
                                     className={`flex-1 py-1.5 rounded text-xs font-medium transition-all ${
                                       currentLevel === level
-                                        ? `${levelColors[level]} text-[#0a3d2e]`
-                                        : 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68] hover:border-[#22c55e]'
+                                        ? `${levelColors[level]} text-white`
+                                        : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] hover:border-[#00A651]'
                                     }`}
                                   >
                                     {level}
@@ -1266,7 +1266,7 @@ const MatchDayAssessmentPage = () => {
                               {/* Per-metric note toggle */}
                               <button
                                 onClick={() => toggleMetricNote(player.id, metric.id)}
-                                className="mt-1.5 flex items-center gap-1 text-[10px] text-[#1a8a68] hover:text-[#4ade80] transition-colors"
+                                className="mt-1.5 flex items-center gap-1 text-[10px] text-[#6B7C6B] hover:text-[#00A651] transition-colors"
                               >
                                 <MessageSquare className="w-3 h-3" />
                                 <span>{isMetricNoteOpen ? 'Hide note' : metricNote ? 'Edit note' : 'Add note'}</span>
@@ -1278,7 +1278,7 @@ const MatchDayAssessmentPage = () => {
                                   onChange={(e) => handlePlayerMetricNoteChange(player.id, metric.id, e.target.value)}
                                   placeholder={`${metric.name} notes for ${player.name}...`}
                                   rows={2}
-                                  className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-xs placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none resize-none"
+                                  className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-xs placeholder-gray-400 focus:border-[#00A651] focus:outline-none resize-none"
                                 />
                               </div>
                             </div>
@@ -1287,18 +1287,18 @@ const MatchDayAssessmentPage = () => {
                       </div>
 
                       {/* Player Notes - Collapsible */}
-                      <div className="border-t border-[#1a8a68] pt-3">
+                      <div className="border-t border-[#D4E4D4] pt-3">
                         <button
                           onClick={() => setExpandedPlayerNotes(prev => ({ ...prev, [player.id]: !prev[player.id] }))}
-                          className="w-full flex items-center justify-between py-2 hover:bg-[#0a3d2e]/50 rounded transition-colors"
+                          className="w-full flex items-center justify-between py-2 hover:bg-[#F5F9F5]/50 rounded transition-colors"
                         >
                           <div className="flex items-center gap-2">
-                            <span className="text-white text-xs font-medium">Notes</span>
+                            <span className="text-gray-800 text-xs font-medium">Notes</span>
                             {assessment.notes?.length > 0 && (
-                              <span className="text-[10px] text-[#4ade80] bg-[#22c55e]/20 px-1.5 py-0.5 rounded">Has notes</span>
+                              <span className="text-[10px] text-[#00A651] bg-[#005028]/20 px-1.5 py-0.5 rounded">Has notes</span>
                             )}
                           </div>
-                          <ChevronDown className={`w-4 h-4 text-[#1a8a68] transition-transform duration-200 ${expandedPlayerNotes[player.id] ? 'rotate-180' : ''}`} />
+                          <ChevronDown className={`w-4 h-4 text-[#6B7C6B] transition-transform duration-200 ${expandedPlayerNotes[player.id] ? 'rotate-180' : ''}`} />
                         </button>
 
                         <div className={`overflow-hidden transition-all duration-200 ${expandedPlayerNotes[player.id] ? 'max-h-[200px] mt-2' : 'max-h-0'}`}>
@@ -1307,8 +1307,8 @@ const MatchDayAssessmentPage = () => {
                               onClick={() => togglePlayerNotesVisibility(player.id)}
                               className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors ${
                                 assessment.notesPrivate !== false
-                                  ? 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68]'
-                                  : 'bg-[#22c55e] text-[#0a3d2e]'
+                                  ? 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B]'
+                                  : 'bg-[#005028] text-white'
                               }`}
                             >
                               {assessment.notesPrivate !== false ? (
@@ -1329,9 +1329,9 @@ const MatchDayAssessmentPage = () => {
                             onChange={(e) => handlePlayerNotesChange(player.id, e.target.value)}
                             placeholder={`Notes for ${player.name}... (optional)`}
                             rows={2}
-                            className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none resize-none"
+                            className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm placeholder-gray-400 focus:border-[#00A651] focus:outline-none resize-none"
                           />
-                          <p className="text-[10px] text-[#1a8a68] mt-1">
+                          <p className="text-[10px] text-[#6B7C6B] mt-1">
                             {assessment.notesPrivate !== false
                               ? 'Private: Only visible to coaches'
                               : 'Public: Visible to player/parent'}
@@ -1347,12 +1347,12 @@ const MatchDayAssessmentPage = () => {
         </div>
 
         {/* MVP Voting (3-2-1 System) */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4 mb-6">
-          <h2 className="text-white font-semibold mb-3 flex items-center gap-2">
-            <Award className="w-5 h-5 text-[#4ade80]" />
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4 mb-6">
+          <h2 className="text-gray-800 font-semibold mb-3 flex items-center gap-2">
+            <Award className="w-5 h-5 text-[#00A651]" />
             MVP Voting (3-2-1)
           </h2>
-          <p className="text-[#1a8a68] text-xs mb-4">Award votes to top 3 performers</p>
+          <p className="text-[#6B7C6B] text-xs mb-4">Award votes to top 3 performers</p>
 
           <div className="space-y-3">
             {mvpVoteOptions.map((vote) => {
@@ -1361,17 +1361,17 @@ const MatchDayAssessmentPage = () => {
 
               return (
                 <div key={vote.id} className="mvp-dropdown-container relative">
-                  <label className="block text-[#4ade80] text-xs font-medium mb-2">
+                  <label className="block text-[#00A651] text-xs font-medium mb-2">
                     {vote.label} - {vote.description}
                   </label>
                   <button
                     onClick={() => setOpenMvpDropdown(openMvpDropdown === vote.id ? null : vote.id)}
-                    className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-left flex items-center justify-between hover:border-[#22c55e] transition-colors"
+                    className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-left flex items-center justify-between hover:border-[#00A651] transition-colors"
                   >
-                    <span className={selectedPlayer ? 'text-white' : 'text-[#1a8a68]'}>
+                    <span className={selectedPlayer ? 'text-gray-800' : 'text-[#6B7C6B]'}>
                       {selectedPlayer ? (
                         <span className="flex items-center gap-2">
-                          <span className="w-6 h-6 bg-[#1a8a68] rounded-full flex items-center justify-center text-xs font-bold text-white">
+                          <span className="w-6 h-6 bg-[#D4E4D4] rounded-full flex items-center justify-center text-xs font-bold text-gray-800">
                             #{selectedPlayer.number}
                           </span>
                           {selectedPlayer.name}
@@ -1380,17 +1380,17 @@ const MatchDayAssessmentPage = () => {
                         `Select player for ${vote.points} vote${vote.points > 1 ? 's' : ''}...`
                       )}
                     </span>
-                    <ChevronDown className={`w-5 h-5 text-[#1a8a68] transition-transform ${openMvpDropdown === vote.id ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-5 h-5 text-[#6B7C6B] transition-transform ${openMvpDropdown === vote.id ? 'rotate-180' : ''}`} />
                   </button>
 
                   {/* Dropdown */}
                   {openMvpDropdown === vote.id && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg shadow-xl z-30 max-h-48 overflow-y-auto">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[#D4E4D4] rounded-lg shadow-xl z-30 max-h-48 overflow-y-auto">
                       {/* Clear Option */}
                       {mvpVotes[vote.id] && (
                         <button
                           onClick={() => handleMvpVoteChange(vote.id, '')}
-                          className="w-full px-4 py-2 text-left text-[#1a8a68] hover:bg-[#0a3d2e] transition-colors border-b border-[#1a8a68] text-sm"
+                          className="w-full px-4 py-2 text-left text-[#6B7C6B] hover:bg-[#F5F9F5] transition-colors border-b border-[#D4E4D4] text-sm"
                         >
                           Clear selection
                         </button>
@@ -1401,21 +1401,21 @@ const MatchDayAssessmentPage = () => {
                         <button
                           key={player.id}
                           onClick={() => handleMvpVoteChange(vote.id, player.id)}
-                          className={`w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-[#0a3d2e] transition-colors ${
-                            mvpVotes[vote.id] === player.id ? 'bg-[#0a3d2e]' : ''
+                          className={`w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-[#F5F9F5] transition-colors ${
+                            mvpVotes[vote.id] === player.id ? 'bg-[#F5F9F5]' : ''
                           }`}
                         >
-                          <span className="w-7 h-7 bg-[#1a8a68] rounded-full flex items-center justify-center text-xs font-bold text-white">
+                          <span className="w-7 h-7 bg-[#D4E4D4] rounded-full flex items-center justify-center text-xs font-bold text-gray-800">
                             #{player.number}
                           </span>
-                          <span className={mvpVotes[vote.id] === player.id ? 'text-[#4ade80] font-medium' : 'text-white'}>
+                          <span className={mvpVotes[vote.id] === player.id ? 'text-[#00A651] font-medium' : 'text-gray-800'}>
                             {player.name}
                           </span>
                         </button>
                       ))}
 
                       {availablePlayers.length === 0 && (
-                        <p className="px-4 py-3 text-[#1a8a68] text-sm">No players available</p>
+                        <p className="px-4 py-3 text-[#6B7C6B] text-sm">No players available</p>
                       )}
                     </div>
                   )}
@@ -1444,10 +1444,10 @@ const MatchDayAssessmentPage = () => {
             disabled={!canSave || isSaving}
             className={`w-full py-4 rounded-xl font-semibold text-lg transition-all duration-200 flex items-center justify-center gap-2 ${
               isSaving
-                ? 'bg-[#1a8a68] text-white cursor-wait'
+                ? 'bg-[#D4E4D4] text-gray-800 cursor-wait'
                 : canSave
-                  ? 'bg-[#1a8a68] hover:bg-[#22c55e] text-white active:scale-[0.98]'
-                  : 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68] cursor-not-allowed'
+                  ? 'bg-[#D4E4D4] hover:bg-[#00A651] text-white active:scale-[0.98]'
+                  : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] cursor-not-allowed'
             }`}
           >
             {isSaving ? (
@@ -1469,8 +1469,8 @@ const MatchDayAssessmentPage = () => {
             disabled={isSavingDraft}
             className={`w-full py-3 rounded-xl font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
               isSavingDraft
-                ? 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68] cursor-not-allowed'
-                : 'bg-[#0a3d2e] border border-[#1a8a68] text-white hover:border-[#22c55e] hover:text-[#4ade80] active:scale-[0.98]'
+                ? 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] cursor-not-allowed'
+                : 'bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 hover:border-[#00A651] hover:text-[#00A651] active:scale-[0.98]'
             }`}
           >
             {isSavingDraft ? (
@@ -1480,7 +1480,7 @@ const MatchDayAssessmentPage = () => {
               </>
             ) : savedOffline && !showPostSaveModal ? (
               <>
-                <Check className="w-4 h-4 text-[#4ade80]" />
+                <Check className="w-4 h-4 text-[#00A651]" />
                 Draft Saved!
               </>
             ) : (
@@ -1493,7 +1493,7 @@ const MatchDayAssessmentPage = () => {
         </div>
 
         {!canSave && !isSaving && (
-          <p className="text-center text-[#1a8a68] text-xs mt-2">
+          <p className="text-center text-[#6B7C6B] text-xs mt-2">
             Please enter opponent name and select result to save
           </p>
         )}
@@ -1505,45 +1505,45 @@ const MatchDayAssessmentPage = () => {
         )}
 
         {/* Level Legend */}
-        <div className="mt-6 bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-          <h4 className="text-white font-medium text-sm mb-3">Rating Guide ({matchAgeGroup.name})</h4>
+        <div className="mt-6 bg-white border border-[#D4E4D4] rounded-xl p-4">
+          <h4 className="text-gray-800 font-medium text-sm mb-3">Rating Guide ({matchAgeGroup.name})</h4>
           <div className="grid grid-cols-5 gap-1 text-xs">
             {[1, 2, 3, 4, 5].map((level) => (
               <div key={level} className="flex flex-col items-center gap-1">
-                <div className={`w-8 h-8 rounded ${levelColors[level]} flex items-center justify-center text-[#0a3d2e] font-bold`}>
+                <div className={`w-8 h-8 rounded ${levelColors[level]} flex items-center justify-center text-white font-bold`}>
                   {level}
                 </div>
-                <span className="text-white text-center text-[10px] leading-tight">{levelLabels[level]}</span>
+                <span className="text-gray-800 text-center text-[10px] leading-tight">{levelLabels[level]}</span>
               </div>
             ))}
           </div>
-          <p className="text-[#1a8a68] text-[10px] mt-3 text-center">
+          <p className="text-[#6B7C6B] text-[10px] mt-3 text-center">
             Tap the info icon next to each metric to see age-specific criteria
           </p>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="py-4 text-center border-t border-[#1a8a68]">
-        <p className="text-[#1a8a68] text-xs">Emerald Lakers Match Day Assessment</p>
+      <footer className="py-4 text-center border-t border-[#D4E4D4]">
+        <p className="text-[#6B7C6B] text-xs">Emerald Lakers Match Day Assessment</p>
       </footer>
 
       {/* Post-Save Success Modal */}
       {showPostSaveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div
-            className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl w-full max-w-md p-6 shadow-2xl"
+            className="bg-white border-2 border-[#D4E4D4] rounded-2xl w-full max-w-md p-6 shadow-2xl"
             style={{ animation: 'fadeIn 0.2s ease-out, scaleIn 0.2s ease-out' }}
           >
             {/* Success Icon */}
-            <div className="w-16 h-16 bg-[#22c55e] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-10 h-10 text-white" />
+            <div className="w-16 h-16 bg-[#005028] rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="w-10 h-10 text-gray-800" />
             </div>
 
-            <h2 className="text-xl font-bold text-white text-center mb-2">
+            <h2 className="text-xl font-bold text-gray-800 text-center mb-2">
               Assessment Saved!
             </h2>
-            <p className="text-[#4ade80] text-center text-sm mb-2">
+            <p className="text-[#00A651] text-center text-sm mb-2">
               {activeTeam?.name} vs {opponentName} has been recorded.
             </p>
             {savedOffline && (
@@ -1556,14 +1556,14 @@ const MatchDayAssessmentPage = () => {
             <div className="space-y-3 mt-6">
               <button
                 onClick={handleSaveAndNew}
-                className="w-full py-3 bg-[#1a8a68] hover:bg-[#22c55e] text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 bg-[#D4E4D4] hover:bg-[#00A651] text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-5 h-5" />
                 Save & Start New Assessment
               </button>
               <button
                 onClick={handleReturnToDashboard}
-                className="w-full py-3 bg-[#0a3d2e] border border-[#1a8a68] hover:border-[#22c55e] text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 bg-[#F5F9F5] border border-[#D4E4D4] hover:border-[#00A651] text-gray-800 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
               >
                 <Home className="w-5 h-5" />
                 Return to Dashboard

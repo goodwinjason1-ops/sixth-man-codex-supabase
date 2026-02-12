@@ -87,7 +87,7 @@ const sampleRecentActivity = [
   { id: '8', type: 'assessment', description: 'Skills assessment for Noah Davis', date: '2026-01-25', team: 'U14 Lakers' }
 ];
 
-const CHART_COLORS = ['#22c55e', '#ef4444', '#eab308'];
+const CHART_COLORS = ['#00A651', '#ef4444', '#eab308'];
 
 const CoachProfilePage = () => {
   const navigate = useNavigate();
@@ -202,7 +202,7 @@ const CoachProfilePage = () => {
   // Get certification status color
   const getStatusColor = (status) => {
     switch (status) {
-      case 'active': return 'bg-[#22c55e]/20 text-[#4ade80] border-[#22c55e]';
+      case 'active': return 'bg-[#005028]/20 text-[#00A651] border-[#00A651]';
       case 'expiring': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500';
       case 'expired': return 'bg-red-500/20 text-red-400 border-red-500';
       default: return 'bg-gray-500/20 text-gray-400 border-gray-500';
@@ -341,10 +341,10 @@ const CoachProfilePage = () => {
   // Get activity icon
   const getActivityIcon = (type) => {
     switch (type) {
-      case 'assessment': return <ClipboardCheck className="w-4 h-4 text-[#4ade80]" />;
+      case 'assessment': return <ClipboardCheck className="w-4 h-4 text-[#00A651]" />;
       case 'match': return <Trophy className="w-4 h-4 text-yellow-400" />;
       case 'training': return <Dumbbell className="w-4 h-4 text-blue-400" />;
-      default: return <Clock className="w-4 h-4 text-[#1a8a68]" />;
+      default: return <Clock className="w-4 h-4 text-[#6B7C6B]" />;
     }
   };
 
@@ -364,19 +364,19 @@ const CoachProfilePage = () => {
     const isEditing = editingSection === key;
 
     return (
-      <div key={key} className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-4">
+      <div key={key} className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-              <Icon className="w-4 h-4 text-[#4ade80]" />
+            <div className="w-9 h-9 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+              <Icon className="w-4 h-4 text-[#00A651]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-white font-medium text-sm">{title}</h3>
-                <span className="text-[#1a8a68] text-xs">— {levelLabel}</span>
+                <h3 className="text-gray-800 font-medium text-sm">{title}</h3>
+                <span className="text-[#6B7C6B] text-xs">— {levelLabel}</span>
               </div>
               {data?.expiryDate && (
-                <p className="text-[#1a8a68] text-xs mt-0.5">
+                <p className="text-[#6B7C6B] text-xs mt-0.5">
                   {certLabel}: {certValue || 'N/A'} &bull; {data.issueDate ? formatDate(data.issueDate) : '?'} → {formatDate(data.expiryDate)}
                 </p>
               )}
@@ -389,7 +389,7 @@ const CoachProfilePage = () => {
             {!isEditing && (
               <button
                 onClick={() => startEditing(key)}
-                className="p-1.5 text-[#4ade80] hover:bg-[#0a3d2e] rounded-lg transition-colors"
+                className="p-1.5 text-[#00A651] hover:bg-[#F5F9F5] rounded-lg transition-colors"
               >
                 <Edit3 className="w-3.5 h-3.5" />
               </button>
@@ -399,14 +399,14 @@ const CoachProfilePage = () => {
 
         {/* Inline Edit Form */}
         {isEditing && (
-          <div className="mt-3 p-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl space-y-3">
+          <div className="mt-3 p-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl space-y-3">
             {key === 'coaching' && (
               <div>
-                <label className="text-[#1a8a68] text-xs block mb-1">Coaching Level</label>
+                <label className="text-[#6B7C6B] text-xs block mb-1">Coaching Level</label>
                 <select
                   value={editForm.level}
                   onChange={(e) => setEditForm(f => ({ ...f, level: e.target.value }))}
-                  className="w-full px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none"
                 >
                   <option value="">Select level...</option>
                   {COACHING_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
@@ -415,11 +415,11 @@ const CoachProfilePage = () => {
             )}
             {key === 'firstAid' && (
               <div>
-                <label className="text-[#1a8a68] text-xs block mb-1">First Aid Level</label>
+                <label className="text-[#6B7C6B] text-xs block mb-1">First Aid Level</label>
                 <select
                   value={editForm.level}
                   onChange={(e) => setEditForm(f => ({ ...f, level: e.target.value }))}
-                  className="w-full px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none"
                 >
                   <option value="">Select level...</option>
                   {FIRST_AID_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
@@ -428,43 +428,43 @@ const CoachProfilePage = () => {
             )}
             {key === 'wwcc' && (
               <div>
-                <label className="text-[#1a8a68] text-xs block mb-1">State</label>
+                <label className="text-[#6B7C6B] text-xs block mb-1">State</label>
                 <select
                   value={editForm.state}
                   onChange={(e) => setEditForm(f => ({ ...f, state: e.target.value }))}
-                  className="w-full px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none"
                 >
                   {AUSTRALIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
             )}
             <div>
-              <label className="text-[#1a8a68] text-xs block mb-1">{key === 'wwcc' ? 'Check Number' : 'Certificate Number'}</label>
+              <label className="text-[#6B7C6B] text-xs block mb-1">{key === 'wwcc' ? 'Check Number' : 'Certificate Number'}</label>
               <input
                 type="text"
                 value={editForm.certificateNumber}
                 onChange={(e) => setEditForm(f => ({ ...f, certificateNumber: e.target.value }))}
-                className="w-full px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+                className="w-full px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-sm placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
                 placeholder={key === 'wwcc' ? 'e.g. WWC12345678' : 'e.g. CERT-12345'}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[#1a8a68] text-xs block mb-1">Issue Date</label>
+                <label className="text-[#6B7C6B] text-xs block mb-1">Issue Date</label>
                 <input
                   type="date"
                   value={editForm.issueDate}
                   onChange={(e) => setEditForm(f => ({ ...f, issueDate: e.target.value }))}
-                  className="w-full px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none"
                 />
               </div>
               <div>
-                <label className="text-[#1a8a68] text-xs block mb-1">Expiry Date</label>
+                <label className="text-[#6B7C6B] text-xs block mb-1">Expiry Date</label>
                 <input
                   type="date"
                   value={editForm.expiryDate}
                   onChange={(e) => setEditForm(f => ({ ...f, expiryDate: e.target.value }))}
-                  className="w-full px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none"
                 />
               </div>
             </div>
@@ -472,14 +472,14 @@ const CoachProfilePage = () => {
               <button
                 onClick={handleSaveSection}
                 disabled={isSaving}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#22c55e] rounded-lg text-[#0a3d2e] text-sm font-medium hover:bg-[#4ade80] transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#005028] rounded-lg text-white text-sm font-medium hover:bg-[#00A651] transition-colors disabled:opacity-50"
               >
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 Save
               </button>
               <button
                 onClick={() => setEditingSection(null)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-transparent border border-[#1a8a68] rounded-lg text-white text-sm hover:bg-[#1a8a68]/20 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-transparent border border-[#D4E4D4] rounded-lg text-gray-800 text-sm hover:bg-gray-100/20 transition-colors"
               >
                 <X className="w-4 h-4" />
                 Cancel
@@ -504,9 +504,9 @@ const CoachProfilePage = () => {
       maxWidth="4xl"
     >
       {/* Profile Header */}
-      <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5 mb-6">
+      <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5 mb-6">
         <div className="flex items-center gap-4">
-          <div className="w-20 h-20 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-full flex items-center justify-center">
+          <div className="w-20 h-20 bg-[#F5F9F5] border-2 border-[#D4E4D4] rounded-full flex items-center justify-center">
             {userProfile?.photoURL ? (
               <img
                 src={userProfile.photoURL}
@@ -514,21 +514,21 @@ const CoachProfilePage = () => {
                 className="w-full h-full rounded-full object-cover"
               />
             ) : (
-              <User className="w-10 h-10 text-[#4ade80]" />
+              <User className="w-10 h-10 text-[#00A651]" />
             )}
           </div>
           <div className="flex-1">
-            <h2 className="text-2xl font-bold text-white">
+            <h2 className="text-2xl font-bold text-gray-800">
               {userProfile?.displayName || 'Coach'}
             </h2>
-            <p className="text-[#4ade80] text-sm mt-1">
+            <p className="text-[#00A651] text-sm mt-1">
               {yearsCoaching} Years Coaching &bull; Season {currentSeason}
             </p>
             <div className="flex items-center gap-2 mt-2">
-              <span className="px-2 py-1 bg-[#22c55e]/20 border border-[#22c55e] rounded-full text-[#4ade80] text-xs font-medium">
+              <span className="px-2 py-1 bg-[#005028]/20 border border-[#00A651] rounded-full text-[#00A651] text-xs font-medium">
                 Head Coach
               </span>
-              <span className="px-2 py-1 bg-[#1a8a68]/20 border border-[#1a8a68] rounded-full text-[#4ade80] text-xs font-medium">
+              <span className="px-2 py-1 bg-[#D4E4D4]/20 border border-[#D4E4D4] rounded-full text-[#00A651] text-xs font-medium">
                 {teamsCoached.filter(t => t.current).length} Active Teams
               </span>
             </div>
@@ -541,12 +541,12 @@ const CoachProfilePage = () => {
         <div className="space-y-3">
           {/* Section Header */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-              <Award className="w-5 h-5 text-[#4ade80]" />
+            <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+              <Award className="w-5 h-5 text-[#00A651]" />
             </div>
             <div>
-              <h2 className="text-white font-semibold">Accreditations & Certifications</h2>
-              <p className="text-[#1a8a68] text-xs">Coaching, First Aid & WWCC</p>
+              <h2 className="text-gray-800 font-semibold">Accreditations & Certifications</h2>
+              <p className="text-[#6B7C6B] text-xs">Coaching, First Aid & WWCC</p>
             </div>
           </div>
 
@@ -571,16 +571,16 @@ const CoachProfilePage = () => {
 
           {accredLoading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 text-[#4ade80] animate-spin" />
+              <Loader2 className="w-6 h-6 text-[#00A651] animate-spin" />
             </div>
           ) : !accreditation ? (
-            <div className="bg-[#0d5943] border-2 border-dashed border-[#1a8a68] rounded-2xl p-8 text-center">
-              <ShieldCheck className="w-10 h-10 text-[#1a8a68] mx-auto mb-3" />
-              <p className="text-white font-medium mb-1">No accreditations on file</p>
-              <p className="text-[#1a8a68] text-sm mb-4">Set up your coaching, first aid, and WWCC details.</p>
+            <div className="bg-white border-2 border-dashed border-[#D4E4D4] rounded-2xl p-8 text-center">
+              <ShieldCheck className="w-10 h-10 text-[#6B7C6B] mx-auto mb-3" />
+              <p className="text-gray-800 font-medium mb-1">No accreditations on file</p>
+              <p className="text-[#6B7C6B] text-sm mb-4">Set up your coaching, first aid, and WWCC details.</p>
               <button
                 onClick={() => startEditing('coaching')}
-                className="px-4 py-2 bg-[#22c55e] rounded-lg text-[#0a3d2e] text-sm font-medium hover:bg-[#4ade80] transition-colors"
+                className="px-4 py-2 bg-[#005028] rounded-lg text-white text-sm font-medium hover:bg-[#00A651] transition-colors"
               >
                 Set Up Accreditations
               </button>
@@ -624,42 +624,42 @@ const CoachProfilePage = () => {
         </div>
 
         {/* Coaching Record */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-              <Trophy className="w-5 h-5 text-[#4ade80]" />
+            <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+              <Trophy className="w-5 h-5 text-[#00A651]" />
             </div>
             <div>
-              <h2 className="text-white font-semibold">Coaching Record</h2>
-              <p className="text-[#1a8a68] text-xs">{coachingRecord.totalGames} games coached</p>
+              <h2 className="text-gray-800 font-semibold">Coaching Record</h2>
+              <p className="text-[#6B7C6B] text-xs">{coachingRecord.totalGames} games coached</p>
             </div>
           </div>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-4 gap-3 mb-6">
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-[#22c55e]">{coachingRecord.wins}</p>
-              <p className="text-[#1a8a68] text-xs">Wins</p>
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-[#00A651]">{coachingRecord.wins}</p>
+              <p className="text-[#6B7C6B] text-xs">Wins</p>
             </div>
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-3 text-center">
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-3 text-center">
               <p className="text-2xl font-bold text-red-400">{coachingRecord.losses}</p>
-              <p className="text-[#1a8a68] text-xs">Losses</p>
+              <p className="text-[#6B7C6B] text-xs">Losses</p>
             </div>
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-3 text-center">
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-3 text-center">
               <p className="text-2xl font-bold text-yellow-400">{coachingRecord.draws}</p>
-              <p className="text-[#1a8a68] text-xs">Draws</p>
+              <p className="text-[#6B7C6B] text-xs">Draws</p>
             </div>
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-white">{winPercentage}%</p>
-              <p className="text-[#1a8a68] text-xs">Win Rate</p>
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-gray-800">{winPercentage}%</p>
+              <p className="text-[#6B7C6B] text-xs">Win Rate</p>
             </div>
           </div>
 
           {/* Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Pie Chart */}
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4">
-              <h3 className="text-white text-sm font-medium mb-2">Overall Record</h3>
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4">
+              <h3 className="text-gray-800 text-sm font-medium mb-2">Overall Record</h3>
               <div className="h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -678,14 +678,14 @@ const CoachProfilePage = () => {
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#0d5943',
-                        border: '1px solid #1a8a68',
+                        backgroundColor: '#FFFFFF',
+                        border: '1px solid #D4E4D4',
                         borderRadius: '8px',
                         color: 'white'
                       }}
                     />
                     <Legend
-                      wrapperStyle={{ color: '#4ade80', fontSize: '12px' }}
+                      wrapperStyle={{ color: '#6B7C6B', fontSize: '12px' }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -693,22 +693,22 @@ const CoachProfilePage = () => {
             </div>
 
             {/* Bar Chart - Season Breakdown */}
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4">
-              <h3 className="text-white text-sm font-medium mb-2">By Season</h3>
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4">
+              <h3 className="text-gray-800 text-sm font-medium mb-2">By Season</h3>
               <div className="h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={coachingRecord.seasonBreakdown}>
-                    <XAxis dataKey="season" tick={{ fill: '#4ade80', fontSize: 12 }} />
-                    <YAxis tick={{ fill: '#4ade80', fontSize: 12 }} />
+                    <XAxis dataKey="season" tick={{ fill: '#00A651', fontSize: 12 }} />
+                    <YAxis tick={{ fill: '#00A651', fontSize: 12 }} />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#0d5943',
-                        border: '1px solid #1a8a68',
+                        backgroundColor: '#FFFFFF',
+                        border: '1px solid #D4E4D4',
                         borderRadius: '8px',
                         color: 'white'
                       }}
                     />
-                    <Bar dataKey="wins" fill="#22c55e" name="Wins" />
+                    <Bar dataKey="wins" fill="#00A651" name="Wins" />
                     <Bar dataKey="losses" fill="#ef4444" name="Losses" />
                   </BarChart>
                 </ResponsiveContainer>
@@ -718,14 +718,14 @@ const CoachProfilePage = () => {
         </div>
 
         {/* Teams Coached */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-              <Users className="w-5 h-5 text-[#4ade80]" />
+            <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+              <Users className="w-5 h-5 text-[#00A651]" />
             </div>
             <div>
-              <h2 className="text-white font-semibold">Teams Coached</h2>
-              <p className="text-[#1a8a68] text-xs">
+              <h2 className="text-gray-800 font-semibold">Teams Coached</h2>
+              <p className="text-[#6B7C6B] text-xs">
                 {teamsCoached.filter(t => t.current).length} current, {teamsCoached.filter(t => !t.current).length} historical
               </p>
             </div>
@@ -733,25 +733,25 @@ const CoachProfilePage = () => {
 
           {/* Current Teams */}
           <div className="mb-4">
-            <h3 className="text-[#4ade80] text-xs font-medium mb-2 uppercase tracking-wider">Current Teams</h3>
+            <h3 className="text-[#00A651] text-xs font-medium mb-2 uppercase tracking-wider">Current Teams</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {teamsCoached.filter(t => t.current).map((team) => (
                 <button
                   key={team.id}
                   onClick={() => navigate(`/team?teamId=${team.id}`)}
                   title="Click to view team details"
-                  className="group flex items-center justify-between p-3 bg-[#0a3d2e] border border-[#22c55e] rounded-xl cursor-pointer text-left transition-all duration-200 hover:bg-[#0d5943] hover:border-[#4ade80] hover:scale-[1.02] hover:shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98]"
+                  className="group flex items-center justify-between p-3 bg-[#F5F9F5] border border-[#00A651] rounded-xl cursor-pointer text-left transition-all duration-200 hover:bg-gray-50 hover:border-[#00A651] hover:scale-[1.02] hover:shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#22c55e]/20 rounded-lg flex items-center justify-center group-hover:bg-[#22c55e]/30 transition-colors">
-                      <Shield className="w-5 h-5 text-[#22c55e]" />
+                    <div className="w-10 h-10 bg-[#005028]/20 rounded-lg flex items-center justify-center group-hover:bg-[#00A651]/30 transition-colors">
+                      <Shield className="w-5 h-5 text-[#00A651]" />
                     </div>
                     <div>
-                      <h4 className="text-white font-medium text-sm group-hover:text-[#4ade80] transition-colors">{team.name}</h4>
-                      <p className="text-[#4ade80] text-xs">{team.ageGroup} • Season {team.season}</p>
+                      <h4 className="text-gray-800 font-medium text-sm group-hover:text-[#00A651] transition-colors">{team.name}</h4>
+                      <p className="text-[#00A651] text-xs">{team.ageGroup} • Season {team.season}</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-[#1a8a68] group-hover:text-[#4ade80] group-hover:translate-x-1 transition-all" />
+                  <ChevronRight className="w-4 h-4 text-[#6B7C6B] group-hover:text-[#00A651] group-hover:translate-x-1 transition-all" />
                 </button>
               ))}
             </div>
@@ -759,25 +759,25 @@ const CoachProfilePage = () => {
 
           {/* Historical Teams */}
           <div>
-            <h3 className="text-[#1a8a68] text-xs font-medium mb-2 uppercase tracking-wider">Historical Teams</h3>
+            <h3 className="text-[#6B7C6B] text-xs font-medium mb-2 uppercase tracking-wider">Historical Teams</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {teamsCoached.filter(t => !t.current).map((team) => (
                 <button
                   key={team.id}
                   onClick={() => navigate(`/team?teamId=${team.id}&season=${team.season}`)}
                   title="Click to view team history"
-                  className="group flex items-center justify-between p-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl opacity-75 cursor-pointer text-left transition-all duration-200 hover:opacity-100 hover:bg-[#0d5943] hover:border-[#22c55e] hover:scale-[1.02] active:scale-[0.98]"
+                  className="group flex items-center justify-between p-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl opacity-75 cursor-pointer text-left transition-all duration-200 hover:opacity-100 hover:bg-gray-50 hover:border-[#00A651] hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#1a8a68]/20 rounded-lg flex items-center justify-center group-hover:bg-[#1a8a68]/30 transition-colors">
-                      <Shield className="w-5 h-5 text-[#1a8a68] group-hover:text-[#4ade80] transition-colors" />
+                    <div className="w-10 h-10 bg-[#D4E4D4]/20 rounded-lg flex items-center justify-center group-hover:bg-gray-100/30 transition-colors">
+                      <Shield className="w-5 h-5 text-[#6B7C6B] group-hover:text-[#00A651] transition-colors" />
                     </div>
                     <div>
-                      <h4 className="text-white font-medium text-sm group-hover:text-[#4ade80] transition-colors">{team.name}</h4>
-                      <p className="text-[#1a8a68] text-xs">{team.ageGroup} • Season {team.season}</p>
+                      <h4 className="text-gray-800 font-medium text-sm group-hover:text-[#00A651] transition-colors">{team.name}</h4>
+                      <p className="text-[#6B7C6B] text-xs">{team.ageGroup} • Season {team.season}</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-[#1a8a68] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                  <ChevronRight className="w-4 h-4 text-[#6B7C6B] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                 </button>
               ))}
             </div>
@@ -785,40 +785,40 @@ const CoachProfilePage = () => {
         </div>
 
         {/* Player Development Stats */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-[#4ade80]" />
+            <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-[#00A651]" />
             </div>
             <div>
-              <h2 className="text-white font-semibold">Player Development Stats</h2>
-              <p className="text-[#1a8a68] text-xs">Impact on player growth</p>
+              <h2 className="text-gray-800 font-semibold">Player Development Stats</h2>
+              <p className="text-[#6B7C6B] text-xs">Impact on player growth</p>
             </div>
           </div>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-white">{playerDevStats.totalPlayersCoached}</p>
-              <p className="text-[#1a8a68] text-xs">Total Players</p>
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-gray-800">{playerDevStats.totalPlayersCoached}</p>
+              <p className="text-[#6B7C6B] text-xs">Total Players</p>
             </div>
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-[#22c55e]">{playerDevStats.playersImproved2Plus}</p>
-              <p className="text-[#1a8a68] text-xs">Improved 2+ Levels</p>
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-[#00A651]">{playerDevStats.playersImproved2Plus}</p>
+              <p className="text-[#6B7C6B] text-xs">Improved 2+ Levels</p>
             </div>
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-[#4ade80]">+{playerDevStats.avgSkillProgression}</p>
-              <p className="text-[#1a8a68] text-xs">Avg Progression</p>
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-[#00A651]">+{playerDevStats.avgSkillProgression}</p>
+              <p className="text-[#6B7C6B] text-xs">Avg Progression</p>
             </div>
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-3 text-center">
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-3 text-center">
               <p className="text-2xl font-bold text-yellow-400">{playerDevStats.starPerformers.length}</p>
-              <p className="text-[#1a8a68] text-xs">Star Performers</p>
+              <p className="text-[#6B7C6B] text-xs">Star Performers</p>
             </div>
           </div>
 
           {/* Star Performers */}
-          <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4">
-            <h3 className="text-white text-sm font-medium mb-3 flex items-center gap-2">
+          <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4">
+            <h3 className="text-gray-800 text-sm font-medium mb-3 flex items-center gap-2">
               <Star className="w-4 h-4 text-yellow-400" />
               Top Performers This Season
             </h3>
@@ -828,24 +828,24 @@ const CoachProfilePage = () => {
                   key={player.id}
                   onClick={() => navigate(`/skills-passport?playerId=${player.id}`)}
                   title="Click to view player profile"
-                  className="group w-full flex items-center justify-between p-3 rounded-xl cursor-pointer text-left transition-all duration-200 hover:bg-[#0d5943] hover:scale-[1.02] hover:shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] border border-transparent hover:border-[#1a8a68]"
+                  className="group w-full flex items-center justify-between p-3 rounded-xl cursor-pointer text-left transition-all duration-200 hover:bg-gray-50 hover:scale-[1.02] hover:shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] border border-transparent hover:border-[#D4E4D4]"
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-transform group-hover:scale-110 ${
-                      index === 0 ? 'bg-yellow-500 text-[#0a3d2e] shadow-lg shadow-yellow-500/30' :
-                      index === 1 ? 'bg-gray-400 text-[#0a3d2e] shadow-lg shadow-gray-400/30' :
+                      index === 0 ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-500/30' :
+                      index === 1 ? 'bg-gray-400 text-white shadow-lg shadow-gray-400/30' :
                       'bg-orange-600 text-white shadow-lg shadow-orange-600/30'
                     }`}>
                       {index + 1}
                     </div>
                     <div>
-                      <p className="text-white text-sm font-medium group-hover:text-[#4ade80] transition-colors">{player.name}</p>
-                      <p className="text-[#1a8a68] text-xs">{player.team}</p>
+                      <p className="text-gray-800 text-sm font-medium group-hover:text-[#00A651] transition-colors">{player.name}</p>
+                      <p className="text-[#6B7C6B] text-xs">{player.team}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[#22c55e] font-semibold text-sm">+{player.improvement} levels</span>
-                    <ChevronRight className="w-4 h-4 text-[#1a8a68] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                    <span className="text-[#00A651] font-semibold text-sm">+{player.improvement} levels</span>
+                    <ChevronRight className="w-4 h-4 text-[#6B7C6B] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                   </div>
                 </button>
               ))}
@@ -854,7 +854,7 @@ const CoachProfilePage = () => {
             {/* View All Players Link */}
             <button
               onClick={() => navigate('/coach-assessment')}
-              className="w-full mt-4 py-2 text-center text-[#4ade80] text-sm hover:text-white transition-colors border-t border-[#1a8a68] pt-4"
+              className="w-full mt-4 py-2 text-center text-[#00A651] text-sm hover:text-gray-800 transition-colors border-t border-[#D4E4D4] pt-4"
             >
               View All Players & Assessments →
             </button>
@@ -862,14 +862,14 @@ const CoachProfilePage = () => {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-              <Clock className="w-5 h-5 text-[#4ade80]" />
+            <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+              <Clock className="w-5 h-5 text-[#00A651]" />
             </div>
             <div>
-              <h2 className="text-white font-semibold">Recent Activity</h2>
-              <p className="text-[#1a8a68] text-xs">Your latest coaching activities</p>
+              <h2 className="text-gray-800 font-semibold">Recent Activity</h2>
+              <p className="text-[#6B7C6B] text-xs">Your latest coaching activities</p>
             </div>
           </div>
 
@@ -882,26 +882,26 @@ const CoachProfilePage = () => {
               >
                 {/* Timeline line */}
                 {index < sampleRecentActivity.length - 1 && (
-                  <div className="absolute left-[15px] top-8 bottom-0 w-px bg-[#1a8a68]" />
+                  <div className="absolute left-[15px] top-8 bottom-0 w-px bg-[#D4E4D4]" />
                 )}
 
                 {/* Icon */}
-                <div className="w-8 h-8 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center flex-shrink-0 z-10">
+                <div className="w-8 h-8 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center flex-shrink-0 z-10">
                   {getActivityIcon(activity.type)}
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm">{activity.description}</p>
+                  <p className="text-gray-800 text-sm">{activity.description}</p>
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <span className="text-[#1a8a68] text-xs">{formatDate(activity.date)}</span>
-                    <span className="text-[#1a8a68] text-xs">•</span>
-                    <span className="text-[#4ade80] text-xs">{activity.team}</span>
+                    <span className="text-[#6B7C6B] text-xs">{formatDate(activity.date)}</span>
+                    <span className="text-[#6B7C6B] text-xs">•</span>
+                    <span className="text-[#00A651] text-xs">{activity.team}</span>
                     {activity.result && (
                       <>
-                        <span className="text-[#1a8a68] text-xs">•</span>
+                        <span className="text-[#6B7C6B] text-xs">•</span>
                         <span className={`text-xs font-medium ${
-                          activity.result.startsWith('W') ? 'text-[#22c55e]' : 'text-red-400'
+                          activity.result.startsWith('W') ? 'text-[#00A651]' : 'text-red-400'
                         }`}>
                           {activity.result}
                         </span>
@@ -916,7 +916,7 @@ const CoachProfilePage = () => {
           {/* View All Link */}
           <button
             onClick={() => navigate('/dashboard')}
-            className="w-full mt-2 py-2 text-center text-[#4ade80] text-sm hover:text-white transition-colors"
+            className="w-full mt-2 py-2 text-center text-[#00A651] text-sm hover:text-gray-800 transition-colors"
           >
             View All Activity →
           </button>

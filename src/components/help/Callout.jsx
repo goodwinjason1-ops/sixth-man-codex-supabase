@@ -31,12 +31,12 @@ const VARIANTS = {
     textColor: 'text-amber-200/80',
   },
   success: {
-    bg: 'bg-[#22c55e]/10',
-    border: 'border-[#22c55e]/30',
+    bg: 'bg-[#005028]/10',
+    border: 'border-[#00A651]/30',
     icon: CheckCircle2,
-    iconColor: 'text-[#4ade80]',
-    titleColor: 'text-[#4ade80]',
-    textColor: 'text-[#4ade80]/80',
+    iconColor: 'text-[#00A651]',
+    titleColor: 'text-[#00A651]',
+    textColor: 'text-[#00A651]/80',
   },
 };
 

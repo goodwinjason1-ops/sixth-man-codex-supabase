@@ -292,9 +292,9 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
+    <div className="min-h-screen bg-[#F5F9F5]">
       {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68]/30">
+      <div className="bg-white border-b border-[#D4E4D4]/30">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <Breadcrumb
             path={[
@@ -303,8 +303,8 @@ const AdminDashboard = () => {
             ]}
             className="mb-3"
           />
-          <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
-          <p className="text-sm text-white/60 mt-1">Emerald Lakers Club Management</p>
+          <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-1">Emerald Lakers Club Management</p>
         </div>
       </div>
 
@@ -313,13 +313,13 @@ const AdminDashboard = () => {
         <TutorialPromptCard tutorialId="admin" />
 
         {/* Club Analytics Overview Card */}
-        <div className="bg-gradient-to-br from-[#0d5943] to-[#1a8a68] rounded-2xl p-6 mb-6 border border-[#22c55e]/20">
+        <div className="bg-gradient-to-br from-[#005028] to-[#003018] rounded-2xl p-6 mb-6 border border-[#00A651]/20">
           <div className="flex items-center justify-between mb-6">
             <div>
               <HelpTooltip text="Live statistics pulled from all club data. Updates automatically as new data comes in.">
                 <h2 className="text-xl font-bold text-white">Club Overview</h2>
               </HelpTooltip>
-              <p className="text-white/60 text-sm">Real-time club statistics</p>
+              <p className="text-green-300 text-sm">Real-time club statistics</p>
             </div>
             <button
               onClick={() => navigate('/admin/analytics')}
@@ -399,41 +399,41 @@ const AdminDashboard = () => {
         </div>
 
         {/* Scoring Roster Quick View */}
-        <div className="bg-[#0d5943] rounded-xl border border-[#1a8a68]/30 p-4 mb-6">
+        <div className="bg-white rounded-xl border border-[#D4E4D4]/30 p-4 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-white flex items-center gap-2">
-              <Calendar size={18} className="text-[#4ade80]" />
+            <h3 className="font-bold text-gray-800 flex items-center gap-2">
+              <Calendar size={18} className="text-[#00A651]" />
               Scoring Roster
             </h3>
             <button
               onClick={() => navigate('/admin/notifications')}
-              className="text-sm text-[#4ade80] hover:text-white flex items-center gap-1"
+              className="text-sm text-[#00A651] hover:text-gray-800 flex items-center gap-1"
             >
               Manage <ChevronRight size={14} />
             </button>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white/5 rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold text-white">0</p>
-              <p className="text-xs text-white/60">Unassigned</p>
+            <div className="bg-gray-100 rounded-lg p-3 text-center">
+              <p className="text-2xl font-bold text-gray-800">0</p>
+              <p className="text-xs text-gray-500">Unassigned</p>
             </div>
             <div className="bg-yellow-500/10 rounded-lg p-3 text-center">
               <p className="text-2xl font-bold text-yellow-400">0</p>
-              <p className="text-xs text-white/60">Pending</p>
+              <p className="text-xs text-gray-500">Pending</p>
             </div>
             <div className="bg-blue-500/10 rounded-lg p-3 text-center cursor-pointer hover:bg-blue-500/20" onClick={() => navigate('/admin/notifications')}>
               <p className="text-2xl font-bold text-blue-400 flex items-center justify-center gap-1">
                 0
                 <ArrowRightLeft size={14} />
               </p>
-              <p className="text-xs text-white/60">Swap Requests</p>
+              <p className="text-xs text-gray-500">Swap Requests</p>
             </div>
           </div>
 
           <button
             onClick={() => navigate('/admin/notifications')}
-            className="w-full mt-4 py-2 bg-[#22c55e]/20 text-[#4ade80] rounded-lg text-sm font-medium hover:bg-[#22c55e]/30 transition-colors flex items-center justify-center gap-2"
+            className="w-full mt-4 py-2 bg-[#005028]/20 text-[#00A651] rounded-lg text-sm font-medium hover:bg-[#00A651]/30 transition-colors flex items-center justify-center gap-2"
           >
             <Bell size={14} />
             Send Scoring Notifications
@@ -441,7 +441,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Navigation Tiles */}
-        <h2 className="text-lg font-bold text-white mb-4">Management Tools</h2>
+        <h2 className="text-lg font-bold text-gray-800 mb-4">Management Tools</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {navigationTiles.map(tile => (
             <NavigationTile
@@ -457,8 +457,8 @@ const AdminDashboard = () => {
 
         {/* Recent Activity Section */}
         <div className="mt-8">
-          <h2 className="text-lg font-bold text-white mb-4">Recent Activity</h2>
-          <div className="bg-[#0d5943] rounded-xl border border-[#1a8a68]/30 p-6">
+          <h2 className="text-lg font-bold text-gray-800 mb-4">Recent Activity</h2>
+          <div className="bg-white rounded-xl border border-[#D4E4D4]/30 p-6">
             <div className="space-y-4">
               {recentActivity.length > 0 ? (
                 recentActivity.map(log => {
@@ -484,7 +484,7 @@ const AdminDashboard = () => {
             </div>
             <button
               onClick={() => navigate('/admin/activity')}
-              className="w-full mt-4 py-2 text-center text-white/60 hover:text-white text-sm font-medium transition-colors"
+              className="w-full mt-4 py-2 text-center text-gray-500 hover:text-gray-800 text-sm font-medium transition-colors"
             >
               View All Activity →
             </button>
@@ -497,13 +497,13 @@ const AdminDashboard = () => {
 
 // Overview Stat Component
 const OverviewStat = ({ icon: Icon, label, value, subtext, color }) => (
-  <div className="bg-white/5 rounded-xl p-4">
+  <div className="bg-white/10 rounded-xl p-4">
     <div className="flex items-center gap-2 mb-2">
       <Icon className={color} size={18} />
-      <span className="text-white/60 text-xs">{label}</span>
+      <span className="text-green-200 text-xs">{label}</span>
     </div>
     <p className="text-2xl font-bold text-white">{value}</p>
-    {subtext && <p className="text-xs text-white/40 mt-1">{subtext}</p>}
+    {subtext && <p className="text-xs text-green-300 mt-1">{subtext}</p>}
   </div>
 );
 
@@ -511,12 +511,12 @@ const OverviewStat = ({ icon: Icon, label, value, subtext, color }) => (
 const QuickAction = ({ icon: Icon, label, onClick }) => (
   <button
     onClick={onClick}
-    className="flex items-center gap-3 p-4 bg-[#0d5943] hover:bg-[#1a8a68] border border-[#1a8a68]/30 rounded-xl transition-colors"
+    className="flex items-center gap-3 p-4 bg-white hover:bg-gray-100 border border-[#D4E4D4]/30 rounded-xl transition-colors"
   >
-    <div className="w-10 h-10 bg-[#22c55e]/20 rounded-lg flex items-center justify-center">
-      <Icon className="text-[#4ade80]" size={20} />
+    <div className="w-10 h-10 bg-[#005028]/20 rounded-lg flex items-center justify-center">
+      <Icon className="text-[#00A651]" size={20} />
     </div>
-    <span className="text-white font-medium text-sm">{label}</span>
+    <span className="text-gray-800 font-medium text-sm">{label}</span>
   </button>
 );
 
@@ -524,17 +524,17 @@ const QuickAction = ({ icon: Icon, label, onClick }) => (
 const NavigationTile = ({ title, description, icon: Icon, color, onClick }) => (
   <button
     onClick={onClick}
-    className="group flex items-start gap-4 p-5 bg-[#0d5943] hover:bg-[#0d5943]/80 border border-[#1a8a68]/30 hover:border-[#22c55e]/50 rounded-xl transition-all text-left"
+    className="group flex items-start gap-4 p-5 bg-white hover:bg-gray-50/80 border border-[#D4E4D4]/30 hover:border-[#00A651]/50 hover:ring-2 hover:ring-[#FFD700]/20 rounded-xl transition-all text-left"
   >
     <div className={`w-12 h-12 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg`}>
       <Icon className="text-white" size={24} />
     </div>
     <div className="flex-1 min-w-0">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-white group-hover:text-[#4ade80] transition-colors">{title}</h3>
-        <ChevronRight className="text-white/30 group-hover:text-[#4ade80] transition-colors" size={18} />
+        <h3 className="font-bold text-gray-800 group-hover:text-[#00A651] transition-colors">{title}</h3>
+        <ChevronRight className="text-gray-800/30 group-hover:text-[#00A651] transition-colors" size={18} />
       </div>
-      <p className="text-sm text-white/60 mt-1">{description}</p>
+      <p className="text-sm text-gray-500 mt-1">{description}</p>
     </div>
   </button>
 );
@@ -571,12 +571,12 @@ const ActivityItem = ({ type, message, time }) => {
 
   return (
     <div className="flex items-center gap-4">
-      <div className="w-10 h-10 bg-[#22c55e]/10 rounded-full flex items-center justify-center flex-shrink-0">
-        <Icon className="text-[#4ade80]" size={18} />
+      <div className="w-10 h-10 bg-[#005028]/10 rounded-full flex items-center justify-center flex-shrink-0">
+        <Icon className="text-[#00A651]" size={18} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-white text-sm">{message}</p>
-        <p className="text-white/40 text-xs">{time}</p>
+        <p className="text-gray-800 text-sm">{message}</p>
+        <p className="text-gray-400 text-xs">{time}</p>
       </div>
     </div>
   );

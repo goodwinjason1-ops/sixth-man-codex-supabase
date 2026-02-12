@@ -8,8 +8,8 @@ const TutorialProgressBar = ({ current, total }) => {
           key={i}
           className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
             i <= current
-              ? 'bg-[#4ade80]'
-              : 'bg-white/20'
+              ? 'bg-[#00A651]'
+              : 'bg-gray-200'
           }`}
         />
       ))}

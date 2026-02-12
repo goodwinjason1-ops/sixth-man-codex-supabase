@@ -27,19 +27,19 @@ const HelpTooltip = ({ text, children }) => {
       {children}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="ml-1 w-5 h-5 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+        className="ml-1 w-5 h-5 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
         aria-label="Show help"
       >
-        <HelpCircle className="w-3 h-3 text-white/60" />
+        <HelpCircle className="w-3 h-3 text-gray-500" />
       </button>
 
       {open && (
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 animate-scaleIn">
-          <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-lg p-3 shadow-xl max-w-[200px]">
-            <p className="text-white/80 text-xs leading-relaxed">{text}</p>
+          <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg p-3 shadow-xl max-w-[200px]">
+            <p className="text-gray-700 text-xs leading-relaxed">{text}</p>
           </div>
           {/* Arrow */}
-          <div className="w-2 h-2 bg-[#0a3d2e] border-b border-r border-[#1a8a68] rotate-45 absolute left-1/2 -translate-x-1/2 -bottom-1" />
+          <div className="w-2 h-2 bg-[#F5F9F5] border-b border-r border-[#D4E4D4] rotate-45 absolute left-1/2 -translate-x-1/2 -bottom-1" />
         </div>
       )}
     </span>

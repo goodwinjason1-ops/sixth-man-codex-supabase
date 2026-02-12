@@ -249,14 +249,14 @@ const ParentInvitationsPage = () => {
       <button
         onClick={handleBulkGenerate}
         disabled={bulkLoading}
-        className="flex items-center gap-2 px-4 py-2 bg-[#22c55e]/20 text-[#4ade80] border border-[#22c55e] rounded-lg text-sm font-medium hover:bg-[#22c55e]/30 transition-colors disabled:opacity-50"
+        className="flex items-center gap-2 px-4 py-2 bg-[#005028]/20 text-[#00A651] border border-[#00A651] rounded-lg text-sm font-medium hover:bg-[#00A651]/30 transition-colors disabled:opacity-50"
       >
         {bulkLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UsersIcon className="w-4 h-4" />}
         Bulk Generate
       </button>
       <button
         onClick={fetchInvitations}
-        className="flex items-center gap-2 px-4 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm font-medium hover:border-[#22c55e] transition-colors"
+        className="flex items-center gap-2 px-4 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm font-medium hover:border-[#00A651] transition-colors"
       >
         <RefreshCw className="w-4 h-4" />
         Refresh
@@ -302,7 +302,7 @@ const ParentInvitationsPage = () => {
               </button>
               <button
                 onClick={() => setConfirmRevokeAll(false)}
-                className="px-4 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg text-sm font-medium hover:border-white transition-colors"
+                className="px-4 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg text-sm font-medium hover:border-white transition-colors"
               >
                 Cancel
               </button>
@@ -321,8 +321,8 @@ const ParentInvitationsPage = () => {
 
         {/* Bulk Result */}
         {bulkResult && (
-          <div className="bg-[#22c55e]/10 border border-[#22c55e] rounded-xl p-4">
-            <p className="text-[#4ade80] text-sm">
+          <div className="bg-[#005028]/10 border border-[#00A651] rounded-xl p-4">
+            <p className="text-[#00A651] text-sm">
               Bulk generation complete: {bulkResult.created} of {bulkResult.total} invitations created.
             </p>
           </div>
@@ -331,11 +331,11 @@ const ParentInvitationsPage = () => {
         {/* Invite Player Search */}
         <div className="relative">
           <div className="flex items-center gap-2 mb-2">
-            <UserPlus className="w-4 h-4 text-[#4ade80]" />
-            <label className="text-[#4ade80] text-sm font-medium">Invite a Parent</label>
+            <UserPlus className="w-4 h-4 text-[#00A651]" />
+            <label className="text-[#00A651] text-sm font-medium">Invite a Parent</label>
           </div>
           <div className="relative" ref={playerSearchRef}>
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1a8a68]" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#6B7C6B]" />
             <input
               type="text"
               placeholder="Search player by name, email, or number..."
@@ -347,12 +347,12 @@ const ParentInvitationsPage = () => {
               }}
               onFocus={() => playerSearch.trim() && setPlayerDropdownOpen(true)}
               onKeyDown={handlePlayerSearchKeyDown}
-              className="w-full pl-10 pr-4 py-3 bg-[#0a3d2e] border border-[#22c55e]/50 rounded-xl text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+              className="w-full pl-10 pr-4 py-3 bg-[#F5F9F5] border border-[#00A651]/50 rounded-xl text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
             />
             {playerSearch && (
               <button
                 onClick={() => { setPlayerSearch(''); setPlayerDropdownOpen(false); }}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#1a8a68] hover:text-white"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#6B7C6B] hover:text-gray-800"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -363,10 +363,10 @@ const ParentInvitationsPage = () => {
           {playerDropdownOpen && playerSearch.trim() && (
             <div
               ref={dropdownRef}
-              className="absolute z-30 w-full mt-1 bg-[#0d5943] border border-[#1a8a68] rounded-xl shadow-2xl overflow-hidden max-h-72 overflow-y-auto"
+              className="absolute z-30 w-full mt-1 bg-white border border-[#D4E4D4] rounded-xl shadow-2xl overflow-hidden max-h-72 overflow-y-auto"
             >
               {playerResults.length === 0 ? (
-                <div className="px-4 py-3 text-[#1a8a68] text-sm text-center">No players found</div>
+                <div className="px-4 py-3 text-[#6B7C6B] text-sm text-center">No players found</div>
               ) : (
                 playerResults.map((p, idx) => (
                   <button
@@ -376,20 +376,20 @@ const ParentInvitationsPage = () => {
                     onMouseEnter={() => setHighlightedIdx(idx)}
                     className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-colors cursor-pointer ${
                       idx === highlightedIdx
-                        ? 'bg-[#22c55e]/20 border-l-2 border-[#22c55e]'
-                        : 'hover:bg-[#0a3d2e] border-l-2 border-transparent'
+                        ? 'bg-[#005028]/20 border-l-2 border-[#00A651]'
+                        : 'hover:bg-[#F5F9F5] border-l-2 border-transparent'
                     }`}
                   >
-                    <div className="w-8 h-8 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center flex-shrink-0">
-                      <User className="w-4 h-4 text-[#4ade80]" />
+                    <div className="w-8 h-8 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center flex-shrink-0">
+                      <User className="w-4 h-4 text-[#00A651]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm font-medium truncate">{p.name}</p>
-                      <p className="text-[#1a8a68] text-xs truncate">
+                      <p className="text-gray-800 text-sm font-medium truncate">{p.name}</p>
+                      <p className="text-[#6B7C6B] text-xs truncate">
                         {p.playerNumber ? `#${p.playerNumber}` : ''}{p.ageGroup ? ` · ${p.ageGroup}` : ''}{p.parentEmail ? ` · ${p.parentEmail}` : ''}
                       </p>
                     </div>
-                    <UserPlus className="w-4 h-4 text-[#4ade80] flex-shrink-0" />
+                    <UserPlus className="w-4 h-4 text-[#00A651] flex-shrink-0" />
                   </button>
                 ))
               )}
@@ -400,20 +400,20 @@ const ParentInvitationsPage = () => {
         {/* Filter Existing Invitations */}
         <div className="relative">
           <div className="flex items-center gap-2 mb-2">
-            <Search className="w-4 h-4 text-white/60" />
-            <label className="text-white/60 text-sm font-medium">Filter Invitations</label>
+            <Search className="w-4 h-4 text-gray-500" />
+            <label className="text-gray-500 text-sm font-medium">Filter Invitations</label>
           </div>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1a8a68]" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#6B7C6B]" />
             <input
               type="text"
               placeholder="Filter by email or code..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+              className="w-full pl-10 pr-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#1a8a68] hover:text-white">
+              <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#6B7C6B] hover:text-gray-800">
                 <X className="w-5 h-5" />
               </button>
             )}
@@ -430,21 +430,21 @@ const ParentInvitationsPage = () => {
         {/* Loading */}
         {loading ? (
           <div className="text-center py-12">
-            <Loader2 className="w-8 h-8 text-[#4ade80] animate-spin mx-auto mb-2" />
-            <p className="text-white/60">Loading invitations...</p>
+            <Loader2 className="w-8 h-8 text-[#00A651] animate-spin mx-auto mb-2" />
+            <p className="text-gray-500">Loading invitations...</p>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-8 text-center">
-            <AlertCircle className="w-12 h-12 text-[#1a8a68] mx-auto mb-3" />
-            <h3 className="text-white font-semibold mb-2">No Invitations Found</h3>
-            <p className="text-[#1a8a68] text-sm">
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
+            <AlertCircle className="w-12 h-12 text-[#6B7C6B] mx-auto mb-3" />
+            <h3 className="text-gray-800 font-semibold mb-2">No Invitations Found</h3>
+            <p className="text-[#6B7C6B] text-sm">
               {searchQuery ? 'Try a different search term' : 'Create invitations from the Roster Management page'}
             </p>
           </div>
         ) : (
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl overflow-hidden">
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl overflow-hidden">
             {/* Table Header (desktop) */}
-            <div className="hidden md:grid md:grid-cols-6 gap-4 p-4 bg-[#0a3d2e] border-b border-[#1a8a68] text-[#4ade80] text-sm font-medium">
+            <div className="hidden md:grid md:grid-cols-6 gap-4 p-4 bg-[#F5F9F5] border-b border-[#D4E4D4] text-[#00A651] text-sm font-medium">
               <div>Code</div>
               <div>Parent</div>
               <div>Player(s)</div>
@@ -453,29 +453,29 @@ const ParentInvitationsPage = () => {
               <div className="text-right">Actions</div>
             </div>
 
-            <div className="divide-y divide-[#1a8a68]">
+            <div className="divide-y divide-[#D4E4D4]">
               {filtered.map(inv => {
                 const status = getStatusDisplay(inv);
                 const StatusIcon = status.icon;
 
                 return (
-                  <div key={inv.id} className="p-4 hover:bg-[#0a3d2e]/50 transition-colors">
+                  <div key={inv.id} className="p-4 hover:bg-[#F5F9F5]/50 transition-colors">
                     {/* Mobile */}
                     <div className="md:hidden space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-white font-mono font-bold">{inv.invitationCode}</span>
+                        <span className="text-gray-800 font-mono font-bold">{inv.invitationCode}</span>
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border ${status.color}`}>
                           <StatusIcon className="w-3 h-3" />
                           {status.label}
                         </span>
                       </div>
-                      <p className="text-white text-sm">{inv.parentEmail || 'No email'}</p>
-                      <p className="text-[#1a8a68] text-xs">
+                      <p className="text-gray-800 text-sm">{inv.parentEmail || 'No email'}</p>
+                      <p className="text-[#6B7C6B] text-xs">
                         {inv.playerIds?.length || 0} player(s) &bull; Expires {inv.expiresAt ? new Date(inv.expiresAt).toLocaleDateString() : 'N/A'}
                       </p>
                       <div className="flex gap-2">
-                        <button onClick={() => handleCopyLink(inv.invitationCode)} className="flex-1 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-xs flex items-center justify-center gap-1">
-                          {copiedCode === inv.invitationCode ? <Check className="w-3 h-3 text-[#4ade80]" /> : <Copy className="w-3 h-3" />}
+                        <button onClick={() => handleCopyLink(inv.invitationCode)} className="flex-1 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-xs flex items-center justify-center gap-1">
+                          {copiedCode === inv.invitationCode ? <Check className="w-3 h-3 text-[#00A651]" /> : <Copy className="w-3 h-3" />}
                           {copiedCode === inv.invitationCode ? 'Copied' : 'Copy Link'}
                         </button>
                         {inv.status === 'pending' && (
@@ -488,25 +488,25 @@ const ParentInvitationsPage = () => {
 
                     {/* Desktop */}
                     <div className="hidden md:grid md:grid-cols-6 gap-4 items-center">
-                      <div className="text-white font-mono font-bold text-sm">{inv.invitationCode}</div>
+                      <div className="text-gray-800 font-mono font-bold text-sm">{inv.invitationCode}</div>
                       <div>
-                        <p className="text-white text-sm truncate">{inv.parentEmail || '-'}</p>
-                        <p className="text-[#1a8a68] text-xs truncate">{inv.parentName || ''}</p>
+                        <p className="text-gray-800 text-sm truncate">{inv.parentEmail || '-'}</p>
+                        <p className="text-[#6B7C6B] text-xs truncate">{inv.parentName || ''}</p>
                       </div>
-                      <div className="text-white text-sm">{inv.playerIds?.length || 0} player(s)</div>
+                      <div className="text-gray-800 text-sm">{inv.playerIds?.length || 0} player(s)</div>
                       <div>
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border ${status.color}`}>
                           <StatusIcon className="w-3 h-3" />
                           {status.label}
                         </span>
                       </div>
-                      <div className="text-[#1a8a68] text-sm">
+                      <div className="text-[#6B7C6B] text-sm">
                         {inv.expiresAt ? new Date(inv.expiresAt).toLocaleDateString() : 'N/A'}
                       </div>
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => handleCopyLink(inv.invitationCode)}
-                          className="p-2 text-[#4ade80] hover:bg-[#22c55e]/20 rounded-lg transition-colors"
+                          className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors"
                           title="Copy signup link"
                         >
                           {copiedCode === inv.invitationCode ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -545,7 +545,7 @@ const ParentInvitationsPage = () => {
 const SummaryCard = ({ label, count, color, bgColor }) => (
   <div className={`${bgColor} rounded-xl p-4`}>
     <p className={`text-2xl font-bold ${color}`}>{count}</p>
-    <p className="text-white/60 text-sm">{label}</p>
+    <p className="text-gray-500 text-sm">{label}</p>
   </div>
 );
 

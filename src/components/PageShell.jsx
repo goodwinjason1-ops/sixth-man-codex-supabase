@@ -25,23 +25,23 @@ const PageShell = ({
   const mwClass = maxWidthClasses[maxWidth] || 'max-w-7xl';
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e] text-white pb-20">
+    <div className="min-h-screen bg-[#F5F9F5] text-gray-800 pb-20">
       {/* Sticky header */}
-      <div className="bg-[#0d5943] px-4 py-4 sticky top-0 z-10">
+      <div className="bg-[#005028] px-4 py-4 sticky top-0 z-10">
         <div className="flex items-center gap-3">
           {backTo && (
             <button
               onClick={() => navigate(backTo)}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center text-white"
               aria-label="Go back"
             >
               <ArrowLeft size={24} />
             </button>
           )}
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold truncate">{title}</h1>
+            <h1 className="text-xl font-bold truncate text-white">{title}</h1>
             {subtitle && (
-              <p className="text-white/60 text-sm truncate">{subtitle}</p>
+              <p className="text-green-200 text-sm truncate">{subtitle}</p>
             )}
           </div>
           {headerActions && (

@@ -243,7 +243,7 @@ const TrainingPlansListPage = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'active':
-        return 'bg-[#22c55e]/20 text-[#4ade80] border-[#22c55e]';
+        return 'bg-[#005028]/20 text-[#00A651] border-[#00A651]';
       case 'draft':
         return 'bg-yellow-500/20 text-yellow-400 border-yellow-500';
       case 'completed':
@@ -297,8 +297,8 @@ const TrainingPlansListPage = () => {
       >
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
-            <div className="w-12 h-12 border-4 border-[#1a8a68] border-t-[#22c55e] rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-white font-medium">Loading training plans...</p>
+            <div className="w-12 h-12 border-4 border-[#D4E4D4] border-t-[#00A651] rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-gray-800 font-medium">Loading training plans...</p>
           </div>
         </div>
       </PageShell>
@@ -319,7 +319,7 @@ const TrainingPlansListPage = () => {
       headerActions={
         <button
           onClick={() => navigate('/coach/training-plans/new')}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#22c55e] text-[#0a3d2e] rounded-xl font-semibold hover:bg-[#4ade80] transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#005028] text-white rounded-xl font-semibold hover:bg-[#00A651] transition-colors"
         >
           <Plus className="w-5 h-5" />
           <span className="hidden sm:inline">New Plan</span>
@@ -329,64 +329,64 @@ const TrainingPlansListPage = () => {
       <div className="space-y-6">
         {/* Quick Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4">
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[#1a8a68] text-xs">Active Plans</p>
-                <p className="text-2xl font-bold text-white">{stats.active}</p>
+                <p className="text-[#6B7C6B] text-xs">Active Plans</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.active}</p>
               </div>
-              <Play className="w-8 h-8 text-[#22c55e]" />
+              <Play className="w-8 h-8 text-[#00A651]" />
             </div>
           </div>
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4">
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[#1a8a68] text-xs">Draft Plans</p>
-                <p className="text-2xl font-bold text-white">{stats.draft}</p>
+                <p className="text-[#6B7C6B] text-xs">Draft Plans</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.draft}</p>
               </div>
               <Edit3 className="w-8 h-8 text-yellow-400" />
             </div>
           </div>
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4">
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[#1a8a68] text-xs">Completed</p>
-                <p className="text-2xl font-bold text-white">{stats.completed}</p>
+                <p className="text-[#6B7C6B] text-xs">Completed</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.completed}</p>
               </div>
               <CheckCircle2 className="w-8 h-8 text-blue-400" />
             </div>
           </div>
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4 sm:col-span-1">
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4 sm:col-span-1">
             <div>
-              <p className="text-[#1a8a68] text-xs">Next Session</p>
+              <p className="text-[#6B7C6B] text-xs">Next Session</p>
               {stats.nextSession ? (
                 <>
-                  <p className="text-white font-semibold text-sm truncate">{stats.nextSession.planName}</p>
-                  <p className="text-[#4ade80] text-xs">{formatDate(stats.nextSession.date)}</p>
+                  <p className="text-gray-800 font-semibold text-sm truncate">{stats.nextSession.planName}</p>
+                  <p className="text-[#00A651] text-xs">{formatDate(stats.nextSession.date)}</p>
                 </>
               ) : (
-                <p className="text-[#1a8a68] text-sm">No upcoming</p>
+                <p className="text-[#6B7C6B] text-sm">No upcoming</p>
               )}
             </div>
           </div>
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-4">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-4">
           {/* Search Bar */}
           <div className="relative mb-3">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1a8a68]" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#6B7C6B]" />
             <input
               type="text"
               placeholder="Search plans..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+              className="w-full pl-10 pr-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#1a8a68] hover:text-white"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#6B7C6B] hover:text-gray-800"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -396,7 +396,7 @@ const TrainingPlansListPage = () => {
           {/* Filter Toggle */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 text-[#4ade80] text-sm hover:text-white transition-colors"
+            className="flex items-center gap-2 text-[#00A651] text-sm hover:text-gray-800 transition-colors"
           >
             <Filter className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
@@ -404,17 +404,17 @@ const TrainingPlansListPage = () => {
 
           {/* Expanded Filters */}
           {showFilters && (
-            <div className="mt-4 pt-4 border-t border-[#1a8a68] grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="mt-4 pt-4 border-t border-[#D4E4D4] grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Team Filter */}
               <div>
-                <label className="block text-[#1a8a68] text-xs font-medium mb-2">Team</label>
+                <label className="block text-[#6B7C6B] text-xs font-medium mb-2">Team</label>
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => setSelectedTeam('all')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                       selectedTeam === 'all'
-                        ? 'bg-[#22c55e] text-[#0a3d2e]'
-                        : 'bg-[#0a3d2e] border border-[#1a8a68] text-white hover:border-[#22c55e]'
+                        ? 'bg-[#005028] text-white'
+                        : 'bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 hover:border-[#00A651]'
                     }`}
                   >
                     All Teams
@@ -425,8 +425,8 @@ const TrainingPlansListPage = () => {
                       onClick={() => setSelectedTeam(team.id)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                         selectedTeam === team.id
-                          ? 'bg-[#22c55e] text-[#0a3d2e]'
-                          : 'bg-[#0a3d2e] border border-[#1a8a68] text-white hover:border-[#22c55e]'
+                          ? 'bg-[#005028] text-white'
+                          : 'bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 hover:border-[#00A651]'
                       }`}
                     >
                       {team.name}
@@ -437,7 +437,7 @@ const TrainingPlansListPage = () => {
 
               {/* Status Filter */}
               <div>
-                <label className="block text-[#1a8a68] text-xs font-medium mb-2">Status</label>
+                <label className="block text-[#6B7C6B] text-xs font-medium mb-2">Status</label>
                 <div className="flex flex-wrap gap-2">
                   {['all', 'active', 'draft', 'completed'].map(status => (
                     <button
@@ -445,8 +445,8 @@ const TrainingPlansListPage = () => {
                       onClick={() => setSelectedStatus(status)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize ${
                         selectedStatus === status
-                          ? 'bg-[#22c55e] text-[#0a3d2e]'
-                          : 'bg-[#0a3d2e] border border-[#1a8a68] text-white hover:border-[#22c55e]'
+                          ? 'bg-[#005028] text-white'
+                          : 'bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 hover:border-[#00A651]'
                       }`}
                     >
                       {status === 'all' ? 'All Status' : status}
@@ -460,17 +460,17 @@ const TrainingPlansListPage = () => {
 
         {/* Plans List */}
         {filteredPlans.length === 0 ? (
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-8 text-center">
-            <AlertCircle className="w-12 h-12 text-[#1a8a68] mx-auto mb-3" />
-            <h3 className="text-white font-semibold mb-2">No Training Plans Found</h3>
-            <p className="text-[#1a8a68] text-sm mb-4">
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
+            <AlertCircle className="w-12 h-12 text-[#6B7C6B] mx-auto mb-3" />
+            <h3 className="text-gray-800 font-semibold mb-2">No Training Plans Found</h3>
+            <p className="text-[#6B7C6B] text-sm mb-4">
               {searchQuery || selectedTeam !== 'all' || selectedStatus !== 'all'
                 ? 'Try adjusting your filters'
                 : 'Create your first training plan to get started'}
             </p>
             <button
               onClick={() => navigate('/coach/training-plans/new')}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#22c55e] text-[#0a3d2e] rounded-lg font-medium hover:bg-[#4ade80] transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#005028] text-white rounded-lg font-medium hover:bg-[#00A651] transition-colors"
             >
               <Plus className="w-4 h-4" />
               Create Plan
@@ -481,24 +481,24 @@ const TrainingPlansListPage = () => {
             {filteredPlans.map(plan => (
               <div
                 key={plan.id}
-                className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-4 hover:border-[#22c55e] transition-colors group"
+                className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-4 hover:border-[#00A651] transition-colors group"
               >
                 <div className="flex items-start gap-4">
                   {/* Plan Icon */}
-                  <div className="w-12 h-12 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:border-[#22c55e] transition-colors">
-                    <Dumbbell className="w-6 h-6 text-[#4ade80]" />
+                  <div className="w-12 h-12 bg-[#F5F9F5] border-2 border-[#D4E4D4] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:border-[#00A651] transition-colors">
+                    <Dumbbell className="w-6 h-6 text-[#00A651]" />
                   </div>
 
                   {/* Plan Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <h3 className="text-white font-semibold truncate">{plan.name}</h3>
+                      <h3 className="text-gray-800 font-semibold truncate">{plan.name}</h3>
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${getStatusColor(plan.status)}`}>
                         {plan.status}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-3 text-sm text-[#1a8a68] mb-2 flex-wrap">
+                    <div className="flex items-center gap-3 text-sm text-[#6B7C6B] mb-2 flex-wrap">
                       <span className="flex items-center gap-1">
                         <Users className="w-3 h-3" />
                         {plan.teamName}
@@ -521,7 +521,7 @@ const TrainingPlansListPage = () => {
                         return skill ? (
                           <span
                             key={skillId}
-                            className="px-2 py-0.5 bg-[#22c55e]/20 text-[#4ade80] text-[10px] rounded-full"
+                            className="px-2 py-0.5 bg-[#005028]/20 text-[#00A651] text-[10px] rounded-full"
                           >
                             {skill.name}
                           </span>
@@ -534,7 +534,7 @@ const TrainingPlansListPage = () => {
                   <div className="flex items-center gap-2 relative">
                     <button
                       onClick={() => handleEdit(plan.id)}
-                      className="p-2 text-[#4ade80] hover:bg-[#22c55e]/20 rounded-lg transition-colors"
+                      className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors"
                       title="Edit"
                     >
                       <Edit3 className="w-5 h-5" />
@@ -542,17 +542,17 @@ const TrainingPlansListPage = () => {
 
                     <button
                       onClick={() => setActionMenuPlan(actionMenuPlan === plan.id ? null : plan.id)}
-                      className="p-2 text-[#1a8a68] hover:text-white hover:bg-[#1a8a68]/20 rounded-lg transition-colors"
+                      className="p-2 text-[#6B7C6B] hover:text-gray-800 hover:bg-gray-100/20 rounded-lg transition-colors"
                     >
                       <MoreVertical className="w-5 h-5" />
                     </button>
 
                     {/* Action Menu Dropdown */}
                     {actionMenuPlan === plan.id && (
-                      <div className="absolute right-0 top-12 z-20 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl shadow-xl overflow-hidden min-w-[160px]">
+                      <div className="absolute right-0 top-12 z-20 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl shadow-xl overflow-hidden min-w-[160px]">
                         <button
                           onClick={() => handleDuplicate(plan.id)}
-                          className="w-full flex items-center gap-2 px-4 py-3 text-white text-sm hover:bg-[#1a8a68]/30 transition-colors"
+                          className="w-full flex items-center gap-2 px-4 py-3 text-gray-800 text-sm hover:bg-gray-100/30 transition-colors"
                         >
                           <Copy className="w-4 h-4" />
                           Duplicate
@@ -560,7 +560,7 @@ const TrainingPlansListPage = () => {
                         {plan.status === 'draft' && (
                           <button
                             onClick={() => handleStatusChange(plan.id, 'active')}
-                            className="w-full flex items-center gap-2 px-4 py-3 text-[#4ade80] text-sm hover:bg-[#1a8a68]/30 transition-colors"
+                            className="w-full flex items-center gap-2 px-4 py-3 text-[#00A651] text-sm hover:bg-gray-100/30 transition-colors"
                           >
                             <Play className="w-4 h-4" />
                             Activate
@@ -569,7 +569,7 @@ const TrainingPlansListPage = () => {
                         {plan.status === 'active' && (
                           <button
                             onClick={() => handleStatusChange(plan.id, 'completed')}
-                            className="w-full flex items-center gap-2 px-4 py-3 text-blue-400 text-sm hover:bg-[#1a8a68]/30 transition-colors"
+                            className="w-full flex items-center gap-2 px-4 py-3 text-blue-400 text-sm hover:bg-gray-100/30 transition-colors"
                           >
                             <CheckCircle2 className="w-4 h-4" />
                             Mark Complete
@@ -578,7 +578,7 @@ const TrainingPlansListPage = () => {
                         {plan.status === 'completed' && (
                           <button
                             onClick={() => handleStatusChange(plan.id, 'active')}
-                            className="w-full flex items-center gap-2 px-4 py-3 text-[#4ade80] text-sm hover:bg-[#1a8a68]/30 transition-colors"
+                            className="w-full flex items-center gap-2 px-4 py-3 text-[#00A651] text-sm hover:bg-gray-100/30 transition-colors"
                           >
                             <Play className="w-4 h-4" />
                             Reactivate
@@ -600,7 +600,7 @@ const TrainingPlansListPage = () => {
                 </div>
 
                 {/* Updated timestamp */}
-                <div className="mt-3 pt-3 border-t border-[#1a8a68]/50 text-[10px] text-[#1a8a68]">
+                <div className="mt-3 pt-3 border-t border-[#D4E4D4]/50 text-[10px] text-[#6B7C6B]">
                   Last updated {formatRelativeDate(plan.updatedAt)}
                 </div>
               </div>
@@ -614,21 +614,21 @@ const TrainingPlansListPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setConfirmDelete(null)}>
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
           <div
-            className="relative bg-[#0d5943] border-2 border-red-500 rounded-2xl p-6 max-w-sm w-full"
+            className="relative bg-white border-2 border-red-500 rounded-2xl p-6 max-w-sm w-full"
             onClick={e => e.stopPropagation()}
           >
             <div className="text-center">
               <div className="w-16 h-16 bg-red-500/20 border border-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Trash2 className="w-8 h-8 text-red-400" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Delete Training Plan?</h3>
-              <p className="text-[#1a8a68] text-sm mb-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Delete Training Plan?</h3>
+              <p className="text-[#6B7C6B] text-sm mb-6">
                 This action cannot be undone. The plan and all its sessions will be permanently removed.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setConfirmDelete(null)}
-                  className="flex-1 py-3 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-xl font-medium hover:border-[#22c55e] transition-colors"
+                  className="flex-1 py-3 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-xl font-medium hover:border-[#00A651] transition-colors"
                 >
                   Cancel
                 </button>

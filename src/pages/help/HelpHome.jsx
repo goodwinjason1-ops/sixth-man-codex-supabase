@@ -40,14 +40,14 @@ const PracticeAreaCard = ({ area, onStart }) => {
   return (
     <button
       onClick={() => onStart(area.id)}
-      className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4 text-left hover:border-[#22c55e] transition-all active:scale-[0.98] group"
+      className="bg-white border border-[#D4E4D4] rounded-xl p-4 text-left hover:border-[#00A651] transition-all active:scale-[0.98] group"
     >
-      <div className="w-9 h-9 rounded-lg bg-[#1a8a68]/40 flex items-center justify-center mb-2">
-        <IconComponent className="w-4.5 h-4.5 text-[#4ade80]" />
+      <div className="w-9 h-9 rounded-lg bg-[#D4E4D4]/40 flex items-center justify-center mb-2">
+        <IconComponent className="w-4.5 h-4.5 text-[#00A651]" />
       </div>
-      <h4 className="text-white font-semibold text-xs">{area.title}</h4>
-      <p className="text-white/50 text-[10px] mt-0.5">{area.description}</p>
-      <span className="inline-block mt-2 text-[10px] text-[#4ade80] font-medium">
+      <h4 className="text-gray-800 font-semibold text-xs">{area.title}</h4>
+      <p className="text-gray-400 text-[10px] mt-0.5">{area.description}</p>
+      <span className="inline-block mt-2 text-[10px] text-[#00A651] font-medium">
         Try it &rarr;
       </span>
     </button>
@@ -59,14 +59,14 @@ const InfographicCard = ({ infographic, onClick }) => {
   return (
     <button
       onClick={() => onClick(infographic)}
-      className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4 text-left hover:border-[#22c55e] transition-all active:scale-[0.98] group w-full"
+      className="bg-white border border-[#D4E4D4] rounded-xl p-4 text-left hover:border-[#00A651] transition-all active:scale-[0.98] group w-full"
     >
       <div className="flex items-center gap-2 mb-2">
-        <IconComponent className="w-4 h-4 text-[#4ade80]" />
-        <h4 className="text-white font-semibold text-xs">{infographic.title}</h4>
+        <IconComponent className="w-4 h-4 text-[#00A651]" />
+        <h4 className="text-gray-800 font-semibold text-xs">{infographic.title}</h4>
       </div>
-      <p className="text-white/50 text-[10px]">{infographic.description}</p>
-      <span className="inline-block mt-2 text-[10px] text-[#4ade80] font-medium group-hover:text-white">
+      <p className="text-gray-400 text-[10px]">{infographic.description}</p>
+      <span className="inline-block mt-2 text-[10px] text-[#00A651] font-medium group-hover:text-gray-800">
         View guide &rarr;
       </span>
     </button>
@@ -112,11 +112,11 @@ const HelpHome = () => {
         {/* 2. Practice Areas grid */}
         {availablePractice.length > 0 && (
           <div>
-            <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
-              <Dumbbell className="w-4 h-4 text-[#4ade80]" />
+            <h2 className="text-gray-800 font-bold text-base mb-3 flex items-center gap-2">
+              <Dumbbell className="w-4 h-4 text-[#00A651]" />
               Practice Areas
             </h2>
-            <p className="text-white/40 text-xs mb-3">
+            <p className="text-gray-400 text-xs mb-3">
               Try features without affecting real data
             </p>
             <div className="grid grid-cols-2 gap-3">
@@ -134,8 +134,8 @@ const HelpHome = () => {
         {/* 3. Infographics section */}
         {infographicList.length > 0 && (
           <div>
-            <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#4ade80]" />
+            <h2 className="text-gray-800 font-bold text-base mb-3 flex items-center gap-2">
+              <Layers className="w-4 h-4 text-[#00A651]" />
               Visual Guides
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -151,15 +151,15 @@ const HelpHome = () => {
 
         {/* 5. All Guides — 2-col icon grid */}
         <div>
-          <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-[#4ade80]" />
+          <h2 className="text-gray-800 font-bold text-base mb-3 flex items-center gap-2">
+            <BookOpen className="w-4 h-4 text-[#00A651]" />
             All Guides
           </h2>
 
           {/* Recommended highlight */}
           {recommendedPage && (
             <div className="mb-3">
-              <span className="text-[10px] font-bold uppercase tracking-wide text-[#4ade80] mb-1 block">
+              <span className="text-[10px] font-bold uppercase tracking-wide text-[#00A651] mb-1 block">
                 Recommended for your role
               </span>
               <HelpRoleCard {...recommendedPage} />
@@ -178,8 +178,8 @@ const HelpHome = () => {
 
         {/* 6. Global FAQs */}
         <div>
-          <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
-            <HelpCircle className="w-4 h-4 text-[#4ade80]" />
+          <h2 className="text-gray-800 font-bold text-base mb-3 flex items-center gap-2">
+            <HelpCircle className="w-4 h-4 text-[#00A651]" />
             Frequently Asked Questions
           </h2>
           <FAQAccordion faqs={GLOBAL_FAQS} />
@@ -187,22 +187,22 @@ const HelpHome = () => {
 
         {/* 7. Contact Support */}
         <div>
-          <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
-            <Mail className="w-4 h-4 text-[#4ade80]" />
+          <h2 className="text-gray-800 font-bold text-base mb-3 flex items-center gap-2">
+            <Mail className="w-4 h-4 text-[#00A651]" />
             Contact Support
           </h2>
-          <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-            <p className="text-white/80 text-sm">
+          <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
+            <p className="text-gray-700 text-sm">
               If you cannot find the answer you need, reach out to the club:
             </p>
             <div className="mt-3 space-y-2">
-              <div className="flex items-center gap-3 bg-[#0a3d2e] rounded-lg p-3 border border-[#1a8a68]/50">
-                <Mail className="w-4 h-4 text-[#4ade80]" />
-                <span className="text-white text-sm">admin@emeraldlakers.com</span>
+              <div className="flex items-center gap-3 bg-[#F5F9F5] rounded-lg p-3 border border-[#D4E4D4]/50">
+                <Mail className="w-4 h-4 text-[#00A651]" />
+                <span className="text-gray-800 text-sm">admin@emeraldlakers.com</span>
               </div>
-              <div className="flex items-center gap-3 bg-[#0a3d2e] rounded-lg p-3 border border-[#1a8a68]/50">
-                <Calendar className="w-4 h-4 text-[#4ade80]" />
-                <span className="text-white/70 text-sm">Response within 24-48 hours</span>
+              <div className="flex items-center gap-3 bg-[#F5F9F5] rounded-lg p-3 border border-[#D4E4D4]/50">
+                <Calendar className="w-4 h-4 text-[#00A651]" />
+                <span className="text-gray-600 text-sm">Response within 24-48 hours</span>
               </div>
             </div>
           </div>
@@ -212,16 +212,16 @@ const HelpHome = () => {
       {/* Infographic Detail Modal */}
       {activeInfographic && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={() => setActiveInfographic(null)}>
-          <div className="bg-[#0d5943] rounded-2xl border border-[#1a8a68]/30 w-full max-w-lg max-h-[85vh] overflow-y-auto shadow-2xl"
+          <div className="bg-white rounded-2xl border border-[#D4E4D4]/30 w-full max-w-lg max-h-[85vh] overflow-y-auto shadow-2xl"
             onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#1a8a68]/30">
-              <h3 className="text-white font-bold">{activeInfographic.title}</h3>
-              <button onClick={() => setActiveInfographic(null)} className="p-1 hover:bg-white/10 rounded-lg">
-                <X size={18} className="text-white/60" />
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#D4E4D4]/30">
+              <h3 className="text-gray-800 font-bold">{activeInfographic.title}</h3>
+              <button onClick={() => setActiveInfographic(null)} className="p-1 hover:bg-gray-100 rounded-lg">
+                <X size={18} className="text-gray-500" />
               </button>
             </div>
             <div className="px-5 py-4">
-              <p className="text-white/60 text-sm mb-4">{activeInfographic.description}</p>
+              <p className="text-gray-500 text-sm mb-4">{activeInfographic.description}</p>
               {activeInfographic.type === 'flowchart' && activeInfographic.nodes && (
                 <FlowChart nodes={activeInfographic.nodes} edges={activeInfographic.edges} />
               )}
@@ -235,16 +235,16 @@ const HelpHome = () => {
 
       {/* Practice Area Full-Screen Modal */}
       {activePractice && (
-        <div className="fixed inset-0 z-50 bg-[#0a3d2e] overflow-y-auto">
-          <div className="sticky top-0 z-10 bg-[#0d5943] border-b border-[#1a8a68]/30 px-4 py-3 flex items-center justify-between">
-            <h3 className="text-white font-bold text-sm">
+        <div className="fixed inset-0 z-50 bg-[#F5F9F5] overflow-y-auto">
+          <div className="sticky top-0 z-10 bg-white border-b border-[#D4E4D4]/30 px-4 py-3 flex items-center justify-between">
+            <h3 className="text-gray-800 font-bold text-sm">
               {PRACTICE_AREAS.find(a => a.id === activePractice)?.title || 'Practice'}
             </h3>
             <button
               onClick={() => setActivePractice(null)}
-              className="p-2 hover:bg-white/10 rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="p-2 hover:bg-gray-100 rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
-              <X size={20} className="text-white/60" />
+              <X size={20} className="text-gray-500" />
             </button>
           </div>
           <PracticeArea practiceId={activePractice} />

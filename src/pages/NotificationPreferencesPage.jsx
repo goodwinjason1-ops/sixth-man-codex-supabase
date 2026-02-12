@@ -228,30 +228,30 @@ const NotificationPreferencesPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e] text-white pb-20">
+    <div className="min-h-screen bg-[#F5F9F5] text-gray-800 pb-20">
       {/* Header */}
-      <div className="bg-[#0d5943] px-4 py-4 sticky top-0 z-10">
+      <div className="bg-white px-4 py-4 sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/notifications')}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
             <ArrowLeft size={24} />
           </button>
           <div>
             <h1 className="text-xl font-bold">Notification Settings</h1>
-            <p className="text-white/60 text-sm">Manage how you receive notifications</p>
+            <p className="text-gray-500 text-sm">Manage how you receive notifications</p>
           </div>
         </div>
       </div>
 
       {/* Breadcrumbs */}
-      <div className="px-4 py-2 text-sm text-white/60 flex items-center gap-2">
-        <span className="hover:text-white cursor-pointer" onClick={() => navigate('/welcome')}>Home</span>
+      <div className="px-4 py-2 text-sm text-gray-500 flex items-center gap-2">
+        <span className="hover:text-gray-800 cursor-pointer" onClick={() => navigate('/welcome')}>Home</span>
         <ChevronRight size={14} />
-        <span className="hover:text-white cursor-pointer" onClick={() => navigate('/notifications')}>Notifications</span>
+        <span className="hover:text-gray-800 cursor-pointer" onClick={() => navigate('/notifications')}>Notifications</span>
         <ChevronRight size={14} />
-        <span className="text-white">Settings</span>
+        <span className="text-gray-800">Settings</span>
       </div>
 
       <div className="px-4 space-y-4">
@@ -262,7 +262,7 @@ const NotificationPreferencesPage = () => {
               <Smartphone className="text-blue-400 flex-shrink-0" size={20} />
               <div className="flex-1">
                 <h3 className="font-medium text-blue-400 mb-1">Enable Push Notifications</h3>
-                <p className="text-sm text-white/70 mb-3">
+                <p className="text-sm text-gray-600 mb-3">
                   Get instant alerts for urgent messages, scoring reminders, and training changes.
                 </p>
                 <button
@@ -283,12 +283,12 @@ const NotificationPreferencesPage = () => {
         )}
 
         {/* Delivery Channels Section */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <div className="flex items-center gap-2 mb-4">
-            <Settings size={18} className="text-[#4ade80]" />
+            <Settings size={18} className="text-[#00A651]" />
             <h2 className="font-bold">Delivery Channels</h2>
           </div>
-          <p className="text-sm text-white/60 mb-4">
+          <p className="text-sm text-gray-500 mb-4">
             Choose how you want to receive notifications
           </p>
 
@@ -300,17 +300,17 @@ const NotificationPreferencesPage = () => {
               return (
                 <div
                   key={channel.id}
-                  className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-gray-100 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
-                      <Icon size={20} className="text-white/70" />
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <Icon size={20} className="text-gray-600" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm">{channel.label}</span>
                         {channel.alwaysOn && (
-                          <span className="text-xs text-[#4ade80] bg-[#22c55e]/20 px-2 py-0.5 rounded">
+                          <span className="text-xs text-[#00A651] bg-[#005028]/20 px-2 py-0.5 rounded">
                             Always on
                           </span>
                         )}
@@ -320,7 +320,7 @@ const NotificationPreferencesPage = () => {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-white/50">{channel.description}</p>
+                      <p className="text-xs text-gray-400">{channel.description}</p>
                     </div>
                   </div>
                   <button
@@ -328,8 +328,8 @@ const NotificationPreferencesPage = () => {
                     disabled={channel.alwaysOn}
                     className={`w-12 h-6 rounded-full transition-colors relative ${
                       isEnabled
-                        ? channel.alwaysOn ? 'bg-[#22c55e]/50' : 'bg-[#22c55e]'
-                        : 'bg-white/20'
+                        ? channel.alwaysOn ? 'bg-[#005028]/50' : 'bg-[#005028]'
+                        : 'bg-gray-200'
                     } ${channel.alwaysOn ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                   >
                     <div
@@ -345,20 +345,20 @@ const NotificationPreferencesPage = () => {
         </div>
 
         {/* Notification Types Section */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Bell size={18} className="text-[#4ade80]" />
+              <Bell size={18} className="text-[#00A651]" />
               <h2 className="font-bold">Notification Types</h2>
             </div>
             <button
               onClick={handleEnableAllTypes}
-              className="text-xs text-[#4ade80] hover:underline"
+              className="text-xs text-[#00A651] hover:underline"
             >
               Enable All
             </button>
           </div>
-          <p className="text-sm text-white/60 mb-4">
+          <p className="text-sm text-gray-500 mb-4">
             Choose which types of notifications you want to receive
           </p>
 
@@ -370,13 +370,13 @@ const NotificationPreferencesPage = () => {
               return (
                 <div
                   key={type.id}
-                  className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-gray-100 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      type.critical ? 'bg-orange-500/20' : 'bg-white/10'
+                      type.critical ? 'bg-orange-500/20' : 'bg-gray-100'
                     }`}>
-                      <Icon size={20} className={type.critical ? 'text-orange-400' : 'text-white/70'} />
+                      <Icon size={20} className={type.critical ? 'text-orange-400' : 'text-gray-600'} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
@@ -387,13 +387,13 @@ const NotificationPreferencesPage = () => {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-white/50">{type.description}</p>
+                      <p className="text-xs text-gray-400">{type.description}</p>
                     </div>
                   </div>
                   <button
                     onClick={() => handleTypeToggle(type.id)}
                     className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${
-                      isEnabled ? 'bg-[#22c55e]' : 'bg-white/20'
+                      isEnabled ? 'bg-[#005028]' : 'bg-gray-200'
                     }`}
                   >
                     <div
@@ -409,7 +409,7 @@ const NotificationPreferencesPage = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-medium mb-3">Quick Actions</h3>
           <div className="grid grid-cols-2 gap-3">
             <button
@@ -421,14 +421,14 @@ const NotificationPreferencesPage = () => {
                 }));
                 setSaved(false);
               }}
-              className="py-3 px-3 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
+              className="py-3 px-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
             >
               <Mail size={16} />
               Email Only
             </button>
             <button
               onClick={handleQuietMode}
-              className="py-3 px-3 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
+              className="py-3 px-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
             >
               <VolumeX size={16} />
               Quiet Mode
@@ -442,14 +442,14 @@ const NotificationPreferencesPage = () => {
                 }));
                 setSaved(false);
               }}
-              className="py-3 px-3 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
+              className="py-3 px-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
             >
               <Volume2 size={16} />
               All Channels
             </button>
             <button
               onClick={handleEnableAllTypes}
-              className="py-3 px-3 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
+              className="py-3 px-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
             >
               <Bell size={16} />
               All Types
@@ -458,15 +458,15 @@ const NotificationPreferencesPage = () => {
         </div>
 
         {/* Info Card */}
-        <div className="bg-white/5 rounded-xl p-4">
+        <div className="bg-gray-100 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <Info className="text-[#4ade80] flex-shrink-0" size={20} />
+            <Info className="text-[#00A651] flex-shrink-0" size={20} />
             <div>
-              <p className="text-sm text-white/70">
+              <p className="text-sm text-gray-600">
                 <strong>Important:</strong> Notifications marked as "Important" are recommended to keep enabled
                 as they contain time-sensitive information about games, scoring duties, and training changes.
               </p>
-              <p className="text-sm text-white/50 mt-2">
+              <p className="text-sm text-gray-400 mt-2">
                 SMS notifications are only sent for urgent alerts like training cancellations.
               </p>
             </div>
@@ -474,28 +474,28 @@ const NotificationPreferencesPage = () => {
         </div>
 
         {/* Preview */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-medium mb-3">Your Current Settings</h3>
-          <div className="bg-white/5 rounded-lg p-3 space-y-2 text-sm">
+          <div className="bg-gray-100 rounded-lg p-3 space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-white/60">In-App:</span>
-              <span className="text-[#4ade80]">Always On</span>
+              <span className="text-gray-500">In-App:</span>
+              <span className="text-[#00A651]">Always On</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/60">Email:</span>
-              <span className={preferences.email ? 'text-[#4ade80]' : 'text-white/50'}>
+              <span className="text-gray-500">Email:</span>
+              <span className={preferences.email ? 'text-[#00A651]' : 'text-gray-400'}>
                 {preferences.email ? 'Enabled' : 'Disabled'}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/60">SMS:</span>
-              <span className={preferences.sms ? 'text-[#4ade80]' : 'text-white/50'}>
+              <span className="text-gray-500">SMS:</span>
+              <span className={preferences.sms ? 'text-[#00A651]' : 'text-gray-400'}>
                 {preferences.sms ? 'Enabled' : 'Disabled'}
               </span>
             </div>
             <div className="border-t border-white/10 pt-2 mt-2">
-              <span className="text-white/60">Active notification types: </span>
-              <span className="text-white">
+              <span className="text-gray-500">Active notification types: </span>
+              <span className="text-gray-800">
                 {Object.entries(preferences.types || {}).filter(([, v]) => v).length} / {notificationTypes.length}
               </span>
             </div>
@@ -508,8 +508,8 @@ const NotificationPreferencesPage = () => {
           disabled={isSaving || saved}
           className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors ${
             saved
-              ? 'bg-[#22c55e] text-white'
-              : 'bg-[#22c55e] hover:bg-[#1a8a68] text-white'
+              ? 'bg-[#005028] text-white'
+              : 'bg-[#005028] hover:bg-gray-100 text-white'
           }`}
         >
           {saved ? (

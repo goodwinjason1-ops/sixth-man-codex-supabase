@@ -30,23 +30,23 @@ const formatTime = (s) => {
 
 /** Placeholder shown when no video URL is provided */
 const VideoPlaceholder = ({ title }) => (
-  <div className="relative bg-[#0a3d2e] border-2 border-dashed border-[#1a8a68] rounded-xl min-h-[180px] flex flex-col items-center justify-center gap-3 p-6">
-    <div className="w-14 h-14 rounded-full bg-[#1a8a68]/40 border-2 border-[#4ade80]/50 flex items-center justify-center">
-      <Play className="w-7 h-7 text-[#4ade80] ml-0.5" />
+  <div className="relative bg-[#F5F9F5] border-2 border-dashed border-[#D4E4D4] rounded-xl min-h-[180px] flex flex-col items-center justify-center gap-3 p-6">
+    <div className="w-14 h-14 rounded-full bg-[#D4E4D4]/40 border-2 border-[#00A651]/50 flex items-center justify-center">
+      <Play className="w-7 h-7 text-[#00A651] ml-0.5" />
     </div>
     {title && (
-      <p className="text-white/70 text-sm font-medium text-center">{title}</p>
+      <p className="text-gray-600 text-sm font-medium text-center">{title}</p>
     )}
-    <p className="text-white/40 text-xs">Video coming soon</p>
+    <p className="text-gray-400 text-xs">Video coming soon</p>
   </div>
 );
 
 /** Embed player for YouTube/Vimeo URLs (backward compatibility) */
 const EmbedPlayer = ({ url, title }) => (
-  <div className="bg-[#0a3d2e] border border-[#1a8a68]/50 rounded-xl overflow-hidden">
+  <div className="bg-[#F5F9F5] border border-[#D4E4D4]/50 rounded-xl overflow-hidden">
     {title && (
-      <div className="px-3 py-2 border-b border-[#1a8a68]/30">
-        <p className="text-white text-xs font-medium">{title}</p>
+      <div className="px-3 py-2 border-b border-[#D4E4D4]/30">
+        <p className="text-gray-800 text-xs font-medium">{title}</p>
       </div>
     )}
     <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
@@ -174,7 +174,7 @@ const VideoPlayer = ({
   return (
     <div className="space-y-2">
       {title && (
-        <p className="text-xs text-[#4ade80] font-semibold">{title}</p>
+        <p className="text-xs text-[#00A651] font-semibold">{title}</p>
       )}
 
       {/* Video container */}
@@ -193,15 +193,15 @@ const VideoPlayer = ({
           {/* Progress bar */}
           <div
             ref={progressRef}
-            className="w-full h-2 bg-white/20 rounded-full cursor-pointer mb-2 relative group"
+            className="w-full h-2 bg-gray-200 rounded-full cursor-pointer mb-2 relative group"
             onClick={handleProgressClick}
           >
             {/* Played progress */}
             <div
-              className="h-full bg-[#4ade80] rounded-full transition-all relative animate-progress-fill"
+              className="h-full bg-[#00A651] rounded-full transition-all relative animate-progress-fill"
               style={{ width: `${progress}%` }}
             >
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-[#4ade80] rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-[#00A651] rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
 
             {/* Chapter markers */}
@@ -224,7 +224,7 @@ const VideoPlayer = ({
           <div className="flex items-center gap-2">
             <button
               onClick={togglePlay}
-              className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center text-white hover:text-[#4ade80] transition-colors"
+              className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-800 hover:text-[#00A651] transition-colors"
               aria-label={isPlaying ? 'Pause' : 'Play'}
             >
               {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
@@ -232,14 +232,14 @@ const VideoPlayer = ({
 
             <button
               onClick={toggleMute}
-              className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center text-white hover:text-[#4ade80] transition-colors"
+              className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-800 hover:text-[#00A651] transition-colors"
               aria-label={isMuted ? 'Unmute' : 'Mute'}
             >
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
 
             {/* Time display */}
-            <span className="text-[10px] text-white/70 font-mono">
+            <span className="text-[10px] text-gray-600 font-mono">
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
 
@@ -250,7 +250,7 @@ const VideoPlayer = ({
               <button
                 onClick={() => setShowTranscript((prev) => !prev)}
                 className={`w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors ${
-                  showTranscript ? 'text-[#4ade80]' : 'text-white hover:text-[#4ade80]'
+                  showTranscript ? 'text-[#00A651]' : 'text-gray-800 hover:text-[#00A651]'
                 }`}
                 aria-label="Toggle transcript"
               >
@@ -260,7 +260,7 @@ const VideoPlayer = ({
 
             <button
               onClick={goFullscreen}
-              className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center text-white hover:text-[#4ade80] transition-colors"
+              className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-800 hover:text-[#00A651] transition-colors"
               aria-label="Fullscreen"
             >
               <Maximize className="w-4 h-4" />
@@ -276,10 +276,10 @@ const VideoPlayer = ({
             <button
               key={i}
               onClick={() => seekTo(ch.time)}
-              className="inline-flex items-center gap-1 px-2 py-1 min-h-[44px] rounded-md bg-[#0d5943]/60 hover:bg-[#1a8a68]/50 text-white/70 hover:text-white text-[10px] transition-colors"
+              className="inline-flex items-center gap-1 px-2 py-1 min-h-[44px] rounded-md bg-white/60 hover:bg-gray-100/50 text-gray-600 hover:text-gray-800 text-[10px] transition-colors"
             >
-              <SkipForward className="w-3 h-3 text-[#4ade80]" />
-              <span className="font-mono text-[#4ade80]">{formatTime(ch.time)}</span>
+              <SkipForward className="w-3 h-3 text-[#00A651]" />
+              <span className="font-mono text-[#00A651]">{formatTime(ch.time)}</span>
               <span>{ch.label}</span>
             </button>
           ))}
@@ -288,8 +288,8 @@ const VideoPlayer = ({
 
       {/* Transcript panel */}
       {showTranscript && transcript && (
-        <div className="bg-[#0d5943]/40 border border-[#1a8a68]/50 rounded-lg p-3 max-h-[200px] overflow-y-auto custom-scrollbar">
-          <p className="text-xs text-white/70 leading-relaxed whitespace-pre-wrap">{transcript}</p>
+        <div className="bg-white/40 border border-[#D4E4D4]/50 rounded-lg p-3 max-h-[200px] overflow-y-auto custom-scrollbar">
+          <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">{transcript}</p>
         </div>
       )}
     </div>

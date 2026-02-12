@@ -5,20 +5,20 @@ const FAQItem = ({ question, answer, id, forceOpen }) => {
   const [open, setOpen] = useState(forceOpen || false);
 
   return (
-    <div id={id} className="border-b border-[#1a8a68]/50 last:border-b-0">
+    <div id={id} className="border-b border-[#D4E4D4]/50 last:border-b-0">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between py-3 text-left"
       >
-        <span className="text-white text-sm font-medium pr-4">{question}</span>
+        <span className="text-gray-800 text-sm font-medium pr-4">{question}</span>
         {open ? (
-          <ChevronUp className="w-4 h-4 text-[#4ade80] flex-shrink-0" />
+          <ChevronUp className="w-4 h-4 text-[#00A651] flex-shrink-0" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-[#4ade80] flex-shrink-0" />
+          <ChevronDown className="w-4 h-4 text-[#00A651] flex-shrink-0" />
         )}
       </button>
       {open && (
-        <div className="pb-3 text-white/70 text-sm leading-relaxed">
+        <div className="pb-3 text-gray-600 text-sm leading-relaxed">
           {answer}
         </div>
       )}
@@ -27,7 +27,7 @@ const FAQItem = ({ question, answer, id, forceOpen }) => {
 };
 
 const FAQAccordion = ({ faqs, forceOpenId }) => (
-  <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl px-4">
+  <div className="bg-white border border-[#D4E4D4] rounded-xl px-4">
     {faqs.map((faq) => (
       <FAQItem
         key={faq.id}

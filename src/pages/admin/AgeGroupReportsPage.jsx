@@ -124,7 +124,7 @@ const AgeGroupReportsPage = () => {
     >
       <div className="space-y-6">
         {/* Comparison Chart */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-bold mb-4 flex items-center gap-2">
             <BarChart3 size={18} />
             Age Group Comparison
@@ -132,14 +132,14 @@ const AgeGroupReportsPage = () => {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={comparisonData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1a8a68" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#D4E4D4" />
                 <XAxis dataKey="name" stroke="#fff" fontSize={10} />
                 <YAxis stroke="#fff" fontSize={12} domain={[0, 5]} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#0d5943', border: '1px solid #1a8a68', borderRadius: '8px' }}
+                  contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #D4E4D4', borderRadius: '8px' }}
                   labelStyle={{ color: '#fff' }}
                 />
-                <Bar dataKey="avgLevel" name="Avg Level" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="avgLevel" name="Avg Level" fill="#00A651" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -152,28 +152,28 @@ const AgeGroupReportsPage = () => {
             const isExpanded = expandedGroup === group.id;
 
             return (
-              <div key={group.id} className="bg-[#0d5943] rounded-xl overflow-hidden">
+              <div key={group.id} className="bg-white rounded-xl overflow-hidden">
                 <button
                   onClick={() => setExpandedGroup(isExpanded ? null : group.id)}
                   className="w-full p-4 flex items-center justify-between"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[#22c55e]/20 rounded-xl flex items-center justify-center">
-                      <span className="font-bold text-[#4ade80]">{group.id.toUpperCase()}</span>
+                    <div className="w-12 h-12 bg-[#005028]/20 rounded-xl flex items-center justify-center">
+                      <span className="font-bold text-[#00A651]">{group.id.toUpperCase()}</span>
                     </div>
                     <div className="text-left">
                       <h3 className="font-bold">{group.name}</h3>
-                      <p className="text-sm text-white/60">{stats.playerCount} players</p>
+                      <p className="text-sm text-gray-500">{stats.playerCount} players</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-[#4ade80]">{stats.avgLevel}</p>
-                      <p className="text-xs text-white/50">avg level</p>
+                      <p className="text-2xl font-bold text-[#00A651]">{stats.avgLevel}</p>
+                      <p className="text-xs text-gray-400">avg level</p>
                     </div>
                     <ChevronDown
                       size={20}
-                      className={`text-white/50 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      className={`text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                     />
                   </div>
                 </button>
@@ -182,20 +182,20 @@ const AgeGroupReportsPage = () => {
                   <div className="px-4 pb-4 border-t border-white/10 pt-4">
                     {/* Quick Stats */}
                     <div className="grid grid-cols-3 gap-3 mb-4">
-                      <div className="bg-white/5 rounded-lg p-3 text-center">
-                        <Users className="mx-auto mb-1 text-[#4ade80]" size={18} />
+                      <div className="bg-gray-100 rounded-lg p-3 text-center">
+                        <Users className="mx-auto mb-1 text-[#00A651]" size={18} />
                         <p className="text-lg font-bold">{stats.playersAssessed}</p>
-                        <p className="text-xs text-white/50">Assessed</p>
+                        <p className="text-xs text-gray-400">Assessed</p>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3 text-center">
-                        <Target className="mx-auto mb-1 text-[#4ade80]" size={18} />
+                      <div className="bg-gray-100 rounded-lg p-3 text-center">
+                        <Target className="mx-auto mb-1 text-[#00A651]" size={18} />
                         <p className="text-lg font-bold">{stats.assessmentCount}</p>
-                        <p className="text-xs text-white/50">Assessments</p>
+                        <p className="text-xs text-gray-400">Assessments</p>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3 text-center">
-                        <Award className="mx-auto mb-1 text-[#4ade80]" size={18} />
+                      <div className="bg-gray-100 rounded-lg p-3 text-center">
+                        <Award className="mx-auto mb-1 text-[#00A651]" size={18} />
                         <p className="text-lg font-bold">{stats.avgLevel}</p>
-                        <p className="text-xs text-white/50">Avg Level</p>
+                        <p className="text-xs text-gray-400">Avg Level</p>
                       </div>
                     </div>
 
@@ -211,20 +211,20 @@ const AgeGroupReportsPage = () => {
                             1: 'bg-red-500',
                             2: 'bg-orange-500',
                             3: 'bg-yellow-500',
-                            4: 'bg-[#22c55e]',
+                            4: 'bg-[#005028]',
                             5: 'bg-[#86efac]'
                           };
 
                           return (
                             <div key={level} className="flex-1">
-                              <div className="h-16 bg-white/5 rounded-lg relative overflow-hidden">
+                              <div className="h-16 bg-gray-100 rounded-lg relative overflow-hidden">
                                 <div
                                   className={`absolute bottom-0 left-0 right-0 ${colors[level]} transition-all`}
                                   style={{ height: `${percentage}%` }}
                                 />
                               </div>
-                              <p className="text-center text-xs mt-1 text-white/50">L{level}</p>
-                              <p className="text-center text-xs text-white/70">{count}</p>
+                              <p className="text-center text-xs mt-1 text-gray-400">L{level}</p>
+                              <p className="text-center text-xs text-gray-600">{count}</p>
                             </div>
                           );
                         })}
@@ -238,10 +238,10 @@ const AgeGroupReportsPage = () => {
                         <div className="space-y-2">
                           {stats.skillAverages.slice(0, 8).map(skill => (
                             <div key={skill.skill} className="flex items-center gap-2">
-                              <span className="text-xs text-white/60 w-24 truncate">{skill.skill}</span>
-                              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                              <span className="text-xs text-gray-500 w-24 truncate">{skill.skill}</span>
+                              <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                                 <div
-                                  className="h-full bg-gradient-to-r from-[#22c55e] to-[#4ade80] rounded-full"
+                                  className="h-full bg-gradient-to-r from-[#00A651] to-[#00A651] rounded-full"
                                   style={{ width: `${(skill.avg / 5) * 100}%` }}
                                 />
                               </div>
@@ -254,7 +254,7 @@ const AgeGroupReportsPage = () => {
 
                     <button
                       onClick={() => navigate(`/admin/age-groups/${group.id}`)}
-                      className="w-full mt-4 py-2 bg-[#22c55e] hover:bg-[#1a8a68] rounded-lg font-medium text-sm transition-colors"
+                      className="w-full mt-4 py-2 bg-[#005028] hover:bg-gray-100 rounded-lg font-medium text-sm transition-colors"
                     >
                       View Full Report
                     </button>

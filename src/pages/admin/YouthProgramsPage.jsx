@@ -112,7 +112,7 @@ const YouthProgramsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a3d2e] p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-[#F5F9F5] p-4 flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -160,13 +160,13 @@ const YouthProgramsPage = () => {
                     {config.id === PROGRAM_TYPES.LITTLE_LAKERS ? '🏀' : '🌟'}
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white">{config.name}</h3>
+                    <h3 className="text-lg font-bold text-gray-800">{config.name}</h3>
                     <p className="text-xs text-gray-400">Ages {config.ageRange} | {config.sessionDuration} min sessions | {config.totalWeeks} weeks</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-gray-900/50 rounded-lg p-3 text-center">
-                    <p className="text-xl font-bold text-white">{programsOfType.length}</p>
+                    <p className="text-xl font-bold text-gray-800">{programsOfType.length}</p>
                     <p className="text-xs text-gray-400">Total Terms</p>
                   </div>
                   <div className="bg-gray-900/50 rounded-lg p-3 text-center">
@@ -187,7 +187,7 @@ const YouthProgramsPage = () => {
         {programs.length === 0 ? (
           <div className="bg-gray-800 border border-gray-700 rounded-xl p-12 text-center">
             <Baby className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-            <h3 className="text-xl font-bold text-white mb-2">No Programs Yet</h3>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">No Programs Yet</h3>
             <p className="text-gray-400 mb-4">Create your first youth program to get started</p>
             <button
               onClick={() => { setEditingProgram(null); setShowCreateModal(true); }}
@@ -212,7 +212,7 @@ const YouthProgramsPage = () => {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-white font-semibold">{program.name}</h3>
+                        <h3 className="text-gray-800 font-semibold">{program.name}</h3>
                         <span className={`text-xs px-2 py-0.5 rounded-full border ${
                           program.status === 'active' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500' :
                           program.status === 'completed' ? 'bg-blue-500/20 text-blue-300 border-blue-500' :
@@ -248,7 +248,7 @@ const YouthProgramsPage = () => {
                       )}
                       <button
                         onClick={() => { setEditingProgram(program); setShowCreateModal(true); }}
-                        className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg"
+                        className="p-2 text-gray-400 hover:text-gray-800 hover:bg-gray-700 rounded-lg"
                         title="Edit"
                       >
                         <Edit2 className="w-4 h-4" />
@@ -262,7 +262,7 @@ const YouthProgramsPage = () => {
                       </button>
                       <button
                         onClick={() => handleToggleExpand(program.id)}
-                        className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg"
+                        className="p-2 text-gray-400 hover:text-gray-800 hover:bg-gray-700 rounded-lg"
                       >
                         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </button>
@@ -276,7 +276,7 @@ const YouthProgramsPage = () => {
                       {programStats && (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                           <div className="bg-gray-900/50 rounded-lg p-3 text-center">
-                            <p className="text-lg font-bold text-white">{programStats.totalEnrolled}</p>
+                            <p className="text-lg font-bold text-gray-800">{programStats.totalEnrolled}</p>
                             <p className="text-xs text-gray-400">Enrolled</p>
                           </div>
                           <div className="bg-gray-900/50 rounded-lg p-3 text-center">
@@ -296,7 +296,7 @@ const YouthProgramsPage = () => {
 
                       {/* Enrollments */}
                       <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-white font-semibold text-sm">Enrolled Children</h4>
+                        <h4 className="text-gray-800 font-semibold text-sm">Enrolled Children</h4>
                         <button
                           onClick={() => { setSelectedProgram(program); setShowEnrollModal(true); }}
                           className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600/20 text-emerald-400 border border-emerald-600 rounded-lg text-xs font-medium hover:bg-emerald-600/30"
@@ -315,11 +315,11 @@ const YouthProgramsPage = () => {
                           {enrollments.map(enrollment => (
                             <div key={enrollment.id} className="flex items-center justify-between bg-gray-900/50 rounded-lg p-3">
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center text-gray-800 text-sm font-bold">
                                   {(enrollment.childName || '?')[0]}
                                 </div>
                                 <div>
-                                  <p className="text-white text-sm font-medium">{enrollment.childName}</p>
+                                  <p className="text-gray-800 text-sm font-medium">{enrollment.childName}</p>
                                   <p className="text-gray-400 text-xs">
                                     Age {enrollment.childAge} | {enrollment.parentName && `Parent: ${enrollment.parentName}`}
                                     {enrollment.parentEmail && ` | ${enrollment.parentEmail}`}
@@ -444,8 +444,8 @@ const ProgramModal = ({ program, onClose, onSave }) => {
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-gray-800 border border-gray-700 rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="p-5 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white">{program ? 'Edit Program' : 'Create New Program'}</h2>
-          <button onClick={onClose} className="p-1 text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+          <h2 className="text-lg font-bold text-gray-800">{program ? 'Edit Program' : 'Create New Program'}</h2>
+          <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-800"><X className="w-5 h-5" /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
@@ -467,7 +467,7 @@ const ProgramModal = ({ program, onClose, onSave }) => {
                   <div className="flex items-center gap-2">
                     <span className="text-lg">{cfg.id === PROGRAM_TYPES.LITTLE_LAKERS ? '🏀' : '🌟'}</span>
                     <div>
-                      <p className="text-white text-sm font-medium">{cfg.name}</p>
+                      <p className="text-gray-800 text-sm font-medium">{cfg.name}</p>
                       <p className="text-gray-400 text-xs">Ages {cfg.ageRange} | {cfg.totalWeeks} weeks</p>
                     </div>
                   </div>
@@ -484,7 +484,7 @@ const ProgramModal = ({ program, onClose, onSave }) => {
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               placeholder={`e.g. ${config.name} Term 1 2026`}
-              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
+              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
               required
             />
           </div>
@@ -498,7 +498,7 @@ const ProgramModal = ({ program, onClose, onSave }) => {
                 const coach = coaches.find(c => c.id === e.target.value);
                 setForm(f => ({ ...f, coachId: e.target.value, coachName: coach?.displayName || '' }));
               }}
-              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 focus:border-emerald-500 focus:outline-none"
             >
               <option value="">Select a coach...</option>
               {coaches.map(c => (
@@ -515,7 +515,7 @@ const ProgramModal = ({ program, onClose, onSave }) => {
                 type="date"
                 value={form.startDate}
                 onChange={e => setForm(f => ({ ...f, startDate: e.target.value }))}
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 focus:border-emerald-500 focus:outline-none"
               />
             </div>
             <div>
@@ -523,7 +523,7 @@ const ProgramModal = ({ program, onClose, onSave }) => {
               <select
                 value={form.day}
                 onChange={e => setForm(f => ({ ...f, day: e.target.value }))}
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 focus:border-emerald-500 focus:outline-none"
               >
                 <option value="">Select...</option>
                 {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(d => (
@@ -540,7 +540,7 @@ const ProgramModal = ({ program, onClose, onSave }) => {
                 type="time"
                 value={form.time}
                 onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 focus:border-emerald-500 focus:outline-none"
               />
             </div>
             <div>
@@ -551,7 +551,7 @@ const ProgramModal = ({ program, onClose, onSave }) => {
                 onChange={e => setForm(f => ({ ...f, maxCapacity: parseInt(e.target.value) || 20 }))}
                 min="1"
                 max="50"
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 focus:border-emerald-500 focus:outline-none"
               />
             </div>
           </div>
@@ -563,7 +563,7 @@ const ProgramModal = ({ program, onClose, onSave }) => {
               value={form.venue}
               onChange={e => setForm(f => ({ ...f, venue: e.target.value }))}
               placeholder="e.g. Main Stadium Court 2"
-              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
+              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
             />
           </div>
 
@@ -574,7 +574,7 @@ const ProgramModal = ({ program, onClose, onSave }) => {
               onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               placeholder="Any additional notes..."
               rows={2}
-              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
+              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
             />
           </div>
 
@@ -636,10 +636,10 @@ const EnrollModal = ({ program, onClose, onSave }) => {
       <div className="bg-gray-800 border border-gray-700 rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="p-5 border-b border-gray-700 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-white">Enroll Child</h2>
+            <h2 className="text-lg font-bold text-gray-800">Enroll Child</h2>
             <p className="text-xs text-gray-400">{program.name}</p>
           </div>
-          <button onClick={onClose} className="p-1 text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-800"><X className="w-5 h-5" /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
@@ -650,7 +650,7 @@ const EnrollModal = ({ program, onClose, onSave }) => {
               value={form.childName}
               onChange={e => setForm(f => ({ ...f, childName: e.target.value }))}
               placeholder="Full name"
-              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
+              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
               required
             />
           </div>
@@ -660,7 +660,7 @@ const EnrollModal = ({ program, onClose, onSave }) => {
             <select
               value={form.childAge}
               onChange={e => setForm(f => ({ ...f, childAge: e.target.value }))}
-              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 focus:border-emerald-500 focus:outline-none"
               required
             >
               <option value="">Select age...</option>
@@ -682,7 +682,7 @@ const EnrollModal = ({ program, onClose, onSave }) => {
               value={form.parentName}
               onChange={e => setForm(f => ({ ...f, parentName: e.target.value }))}
               placeholder="Parent name"
-              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
+              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
             />
           </div>
 
@@ -693,7 +693,7 @@ const EnrollModal = ({ program, onClose, onSave }) => {
               value={form.parentEmail}
               onChange={e => setForm(f => ({ ...f, parentEmail: e.target.value }))}
               placeholder="parent@email.com"
-              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
+              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
             />
           </div>
 
@@ -704,7 +704,7 @@ const EnrollModal = ({ program, onClose, onSave }) => {
               value={form.parentPhone}
               onChange={e => setForm(f => ({ ...f, parentPhone: e.target.value }))}
               placeholder="04XX XXX XXX"
-              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
+              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
             />
           </div>
 
@@ -715,7 +715,7 @@ const EnrollModal = ({ program, onClose, onSave }) => {
               onChange={e => setForm(f => ({ ...f, medicalNotes: e.target.value }))}
               placeholder="Any medical conditions, allergies, or special needs..."
               rows={2}
-              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
+              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
             />
           </div>
 
@@ -726,7 +726,7 @@ const EnrollModal = ({ program, onClose, onSave }) => {
               value={form.emergencyContact}
               onChange={e => setForm(f => ({ ...f, emergencyContact: e.target.value }))}
               placeholder="Name & phone number"
-              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
+              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
             />
           </div>
 

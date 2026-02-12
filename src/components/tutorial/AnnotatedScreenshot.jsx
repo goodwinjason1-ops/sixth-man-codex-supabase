@@ -28,11 +28,11 @@ const getPercentStyle = (ann) => {
 /** Numbered circle annotation (green circle with number) */
 const NumberedAnnotation = ({ index, label }) => (
   <div className="flex items-center gap-1.5">
-    <span className="inline-flex items-center justify-center w-6 h-6 min-w-[24px] rounded-full bg-[#4ade80] text-[#0a3d2e] text-xs font-bold shadow-lg">
+    <span className="inline-flex items-center justify-center w-6 h-6 min-w-[24px] rounded-full bg-[#00A651] text-white text-xs font-bold shadow-lg">
       {index}
     </span>
     {label && (
-      <span className="bg-[#0d5943] text-white px-2 py-0.5 rounded text-xs font-medium shadow whitespace-nowrap">
+      <span className="bg-white text-gray-800 px-2 py-0.5 rounded text-xs font-medium shadow whitespace-nowrap">
         {label}
       </span>
     )}
@@ -42,17 +42,17 @@ const NumberedAnnotation = ({ index, label }) => (
 /** Callout speech bubble annotation */
 const CalloutAnnotation = ({ label }) => (
   <div className="relative">
-    <div className="bg-[#4ade80] text-[#0a3d2e] px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg whitespace-nowrap">
+    <div className="bg-[#00A651] text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg whitespace-nowrap">
       {label}
     </div>
-    <div className="absolute left-1/2 -translate-x-1/2 -bottom-1.5 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-[#4ade80]" />
+    <div className="absolute left-1/2 -translate-x-1/2 -bottom-1.5 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-[#00A651]" />
   </div>
 );
 
 /** Highlight glow rectangle annotation */
 const HighlightAnnotation = ({ label, width, height }) => (
   <div
-    className="animate-highlight-glow rounded-lg border-2 border-[#4ade80] flex items-center justify-center"
+    className="animate-highlight-glow rounded-lg border-2 border-[#00A651] flex items-center justify-center"
     style={{
       width: width || 80,
       height: height || 40,
@@ -60,7 +60,7 @@ const HighlightAnnotation = ({ label, width, height }) => (
     }}
   >
     {label && (
-      <span className="text-[#4ade80] text-[10px] font-bold whitespace-nowrap">{label}</span>
+      <span className="text-[#00A651] text-[10px] font-bold whitespace-nowrap">{label}</span>
     )}
   </div>
 );
@@ -81,7 +81,7 @@ const BlurAnnotation = ({ width, height }) => (
 
 /** Default label annotation (backward-compatible) */
 const DefaultAnnotation = ({ label }) => (
-  <div className="bg-[#4ade80] text-[#0a3d2e] px-2 py-1 rounded-md text-xs font-bold shadow-lg animate-bounce-arrow whitespace-nowrap">
+  <div className="bg-[#00A651] text-white px-2 py-1 rounded-md text-xs font-bold shadow-lg animate-bounce-arrow whitespace-nowrap">
     {label}
   </div>
 );
@@ -158,13 +158,13 @@ const AnnotatedScreenshot = ({
   return (
     <div
       ref={containerRef}
-      className="relative bg-[#0a3d2e] border-2 border-dashed border-[#1a8a68] rounded-xl p-6 min-h-[140px] overflow-hidden"
+      className="relative bg-[#F5F9F5] border-2 border-dashed border-[#D4E4D4] rounded-xl p-6 min-h-[140px] overflow-hidden"
     >
       {/* Placeholder content (shown when no children) */}
       {!children && (
         <div className="flex flex-col items-center justify-center text-center opacity-40">
-          <Monitor className="w-10 h-10 text-[#4ade80] mb-2" />
-          <p className="text-white/60 text-xs">{placeholderLabel || 'Screenshot coming soon'}</p>
+          <Monitor className="w-10 h-10 text-[#00A651] mb-2" />
+          <p className="text-gray-500 text-xs">{placeholderLabel || 'Screenshot coming soon'}</p>
         </div>
       )}
 

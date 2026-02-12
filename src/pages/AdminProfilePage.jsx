@@ -143,7 +143,7 @@ const AdminProfilePage = () => {
       sync: <RefreshCw className="w-4 h-4 text-cyan-400" />,
       coach: <UserCheck className="w-4 h-4 text-yellow-400" />
     };
-    return icons[type] || <Activity className="w-4 h-4 text-[#4ade80]" />;
+    return icons[type] || <Activity className="w-4 h-4 text-[#00A651]" />;
   };
 
   // Format date for display
@@ -174,14 +174,14 @@ const AdminProfilePage = () => {
       case 'healthy':
       case 'connected':
       case 'active':
-        return 'text-[#22c55e]';
+        return 'text-[#00A651]';
       case 'warning':
         return 'text-yellow-400';
       case 'error':
       case 'disconnected':
         return 'text-red-400';
       default:
-        return 'text-white/60';
+        return 'text-gray-500';
     }
   };
 
@@ -194,9 +194,9 @@ const AdminProfilePage = () => {
   })();
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
+    <div className="min-h-screen bg-[#F5F9F5]">
       {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68]">
+      <div className="bg-white border-b border-[#D4E4D4]">
         <div className="max-w-4xl mx-auto px-4 py-6">
           {/* Breadcrumb */}
           <Breadcrumb
@@ -218,12 +218,12 @@ const AdminProfilePage = () => {
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
-                <Shield className="w-10 h-10 text-white" />
+                <Shield className="w-10 h-10 text-gray-800" />
               )}
             </div>
 
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className="text-2xl font-bold text-gray-800">
                 {userProfile?.displayName || 'Administrator'}
               </h1>
               <p className="text-purple-300 text-sm mt-1">
@@ -233,7 +233,7 @@ const AdminProfilePage = () => {
                 <span className="px-2 py-1 bg-purple-500/20 border border-purple-500 rounded-full text-purple-300 text-xs font-medium">
                   Full Access
                 </span>
-                <span className="px-2 py-1 bg-[#22c55e]/20 border border-[#22c55e] rounded-full text-[#4ade80] text-xs font-medium">
+                <span className="px-2 py-1 bg-[#005028]/20 border border-[#00A651] rounded-full text-[#00A651] text-xs font-medium">
                   Emerald Lakers
                 </span>
               </div>
@@ -244,56 +244,56 @@ const AdminProfilePage = () => {
 
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Club Management Overview */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-              <BarChart3 className="w-5 h-5 text-[#4ade80]" />
+            <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+              <BarChart3 className="w-5 h-5 text-[#00A651]" />
             </div>
             <div>
-              <h2 className="text-white font-semibold">Club Overview</h2>
-              <p className="text-[#1a8a68] text-xs">Current club statistics</p>
+              <h2 className="text-gray-800 font-semibold">Club Overview</h2>
+              <p className="text-[#6B7C6B] text-xs">Current club statistics</p>
             </div>
           </div>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4 text-center">
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4 text-center">
               <Users className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{clubStats.totalPlayers}</p>
-              <p className="text-[#1a8a68] text-xs">Players</p>
+              <p className="text-2xl font-bold text-gray-800">{clubStats.totalPlayers}</p>
+              <p className="text-[#6B7C6B] text-xs">Players</p>
             </div>
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4 text-center">
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4 text-center">
               <Shield className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{clubStats.totalTeams}</p>
-              <p className="text-[#1a8a68] text-xs">Teams</p>
+              <p className="text-2xl font-bold text-gray-800">{clubStats.totalTeams}</p>
+              <p className="text-[#6B7C6B] text-xs">Teams</p>
             </div>
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4 text-center">
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4 text-center">
               <UserCheck className="w-6 h-6 text-green-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{clubStats.totalCoaches}</p>
-              <p className="text-[#1a8a68] text-xs">Coaches</p>
+              <p className="text-2xl font-bold text-gray-800">{clubStats.totalCoaches}</p>
+              <p className="text-[#6B7C6B] text-xs">Coaches</p>
             </div>
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4 text-center">
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4 text-center">
               <Target className="w-6 h-6 text-orange-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{clubStats.totalEvaluations}</p>
-              <p className="text-[#1a8a68] text-xs">Assessments</p>
+              <p className="text-2xl font-bold text-gray-800">{clubStats.totalEvaluations}</p>
+              <p className="text-[#6B7C6B] text-xs">Assessments</p>
             </div>
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4 text-center">
-              <Activity className="w-6 h-6 text-[#4ade80] mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{clubStats.activeThisWeek}</p>
-              <p className="text-[#1a8a68] text-xs">Active This Week</p>
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4 text-center">
+              <Activity className="w-6 h-6 text-[#00A651] mx-auto mb-2" />
+              <p className="text-2xl font-bold text-gray-800">{clubStats.activeThisWeek}</p>
+              <p className="text-[#6B7C6B] text-xs">Active This Week</p>
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-              <Settings className="w-5 h-5 text-[#4ade80]" />
+            <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+              <Settings className="w-5 h-5 text-[#00A651]" />
             </div>
             <div>
-              <h2 className="text-white font-semibold">Quick Actions</h2>
-              <p className="text-[#1a8a68] text-xs">Common admin tasks</p>
+              <h2 className="text-gray-800 font-semibold">Quick Actions</h2>
+              <p className="text-[#6B7C6B] text-xs">Common admin tasks</p>
             </div>
           </div>
 
@@ -302,12 +302,12 @@ const AdminProfilePage = () => {
               <button
                 key={action.id}
                 onClick={() => navigate(action.path)}
-                className="group flex items-center gap-3 p-4 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl hover:border-[#22c55e] hover:bg-[#0d5943] transition-all hover:scale-[1.02]"
+                className="group flex items-center gap-3 p-4 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl hover:border-[#00A651] hover:bg-gray-50 transition-all hover:scale-[1.02]"
               >
                 <div className={`w-10 h-10 bg-gradient-to-br ${action.color} rounded-lg flex items-center justify-center shadow-lg`}>
-                  <action.icon className="w-5 h-5 text-white" />
+                  <action.icon className="w-5 h-5 text-gray-800" />
                 </div>
-                <span className="text-white text-sm font-medium group-hover:text-[#4ade80] transition-colors">
+                <span className="text-gray-800 text-sm font-medium group-hover:text-[#00A651] transition-colors">
                   {action.label}
                 </span>
               </button>
@@ -316,26 +316,26 @@ const AdminProfilePage = () => {
         </div>
 
         {/* System Status */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-              <Server className="w-5 h-5 text-[#4ade80]" />
+            <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+              <Server className="w-5 h-5 text-[#00A651]" />
             </div>
             <div>
-              <h2 className="text-white font-semibold">System Status</h2>
-              <p className="text-[#1a8a68] text-xs">Service health overview</p>
+              <h2 className="text-gray-800 font-semibold">System Status</h2>
+              <p className="text-[#6B7C6B] text-xs">Service health overview</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Database Status */}
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4">
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Database className="w-5 h-5 text-[#4ade80]" />
+                  <Database className="w-5 h-5 text-[#00A651]" />
                   <div>
-                    <p className="text-white text-sm font-medium">Database</p>
-                    <p className="text-[#1a8a68] text-xs">Last sync: {systemStatus.database.lastSync}</p>
+                    <p className="text-gray-800 text-sm font-medium">Database</p>
+                    <p className="text-[#6B7C6B] text-xs">Last sync: {systemStatus.database.lastSync}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -348,13 +348,13 @@ const AdminProfilePage = () => {
             </div>
 
             {/* PlayerHQ Integration */}
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4">
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Link2 className="w-5 h-5 text-blue-400" />
                   <div>
-                    <p className="text-white text-sm font-medium">PlayerHQ</p>
-                    <p className="text-[#1a8a68] text-xs">Last sync: {systemStatus.playerHQ.lastSync}</p>
+                    <p className="text-gray-800 text-sm font-medium">PlayerHQ</p>
+                    <p className="text-[#6B7C6B] text-xs">Last sync: {systemStatus.playerHQ.lastSync}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -367,13 +367,13 @@ const AdminProfilePage = () => {
             </div>
 
             {/* Notifications */}
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4">
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Bell className="w-5 h-5 text-yellow-400" />
                   <div>
-                    <p className="text-white text-sm font-medium">Notifications</p>
-                    <p className="text-[#1a8a68] text-xs">{systemStatus.notifications.pending} pending</p>
+                    <p className="text-gray-800 text-sm font-medium">Notifications</p>
+                    <p className="text-[#6B7C6B] text-xs">{systemStatus.notifications.pending} pending</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -386,13 +386,13 @@ const AdminProfilePage = () => {
             </div>
 
             {/* Storage */}
-            <div className="bg-[#0a3d2e] border border-[#1a8a68] rounded-xl p-4">
+            <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Database className="w-5 h-5 text-purple-400" />
                   <div>
-                    <p className="text-white text-sm font-medium">Data</p>
-                    <p className="text-[#1a8a68] text-xs">
+                    <p className="text-gray-800 text-sm font-medium">Data</p>
+                    <p className="text-[#6B7C6B] text-xs">
                       {players?.length || 0} players, {teams?.length || 0} teams
                     </p>
                   </div>
@@ -408,7 +408,7 @@ const AdminProfilePage = () => {
           {/* System Management Link */}
           <button
             onClick={() => navigate('/admin/system')}
-            className="w-full mt-4 py-2 text-center text-[#4ade80] text-sm hover:text-white transition-colors flex items-center justify-center gap-2"
+            className="w-full mt-4 py-2 text-center text-[#00A651] text-sm hover:text-gray-800 transition-colors flex items-center justify-center gap-2"
           >
             View Full System Status
             <ChevronRight className="w-4 h-4" />
@@ -416,14 +416,14 @@ const AdminProfilePage = () => {
         </div>
 
         {/* Recent Admin Activity */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-              <Clock className="w-5 h-5 text-[#4ade80]" />
+            <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+              <Clock className="w-5 h-5 text-[#00A651]" />
             </div>
             <div>
-              <h2 className="text-white font-semibold">Recent Activity</h2>
-              <p className="text-[#1a8a68] text-xs">Admin actions log</p>
+              <h2 className="text-gray-800 font-semibold">Recent Activity</h2>
+              <p className="text-[#6B7C6B] text-xs">Admin actions log</p>
             </div>
           </div>
 
@@ -436,21 +436,21 @@ const AdminProfilePage = () => {
               >
                 {/* Timeline line */}
                 {index < recentActivity.length - 1 && (
-                  <div className="absolute left-[15px] top-8 bottom-0 w-px bg-[#1a8a68]" />
+                  <div className="absolute left-[15px] top-8 bottom-0 w-px bg-[#D4E4D4]" />
                 )}
 
                 {/* Icon */}
-                <div className="w-8 h-8 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center flex-shrink-0 z-10">
+                <div className="w-8 h-8 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center flex-shrink-0 z-10">
                   {getActivityIcon(activity.type)}
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm">{activity.action}</p>
+                  <p className="text-gray-800 text-sm">{activity.action}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[#1a8a68] text-xs">{formatDate(activity.date)}</span>
-                    <span className="text-[#1a8a68] text-xs">•</span>
-                    <span className="text-[#4ade80] text-xs">{activity.user}</span>
+                    <span className="text-[#6B7C6B] text-xs">{formatDate(activity.date)}</span>
+                    <span className="text-[#6B7C6B] text-xs">•</span>
+                    <span className="text-[#00A651] text-xs">{activity.user}</span>
                   </div>
                 </div>
               </div>
@@ -460,50 +460,50 @@ const AdminProfilePage = () => {
           {/* View All Link */}
           <button
             onClick={() => navigate('/admin/activity')}
-            className="w-full mt-2 py-2 text-center text-[#4ade80] text-sm hover:text-white transition-colors"
+            className="w-full mt-2 py-2 text-center text-[#00A651] text-sm hover:text-gray-800 transition-colors"
           >
             View All Activity
           </button>
         </div>
 
         {/* Account Settings */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-              <User className="w-5 h-5 text-[#4ade80]" />
+            <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+              <User className="w-5 h-5 text-[#00A651]" />
             </div>
             <div>
-              <h2 className="text-white font-semibold">Account Details</h2>
-              <p className="text-[#1a8a68] text-xs">Your administrator account</p>
+              <h2 className="text-gray-800 font-semibold">Account Details</h2>
+              <p className="text-[#6B7C6B] text-xs">Your administrator account</p>
             </div>
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl">
+            <div className="flex items-center justify-between p-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl">
               <div>
-                <p className="text-white/60 text-xs">Email</p>
-                <p className="text-white text-sm">{currentUser?.email || 'admin@emeraldlakers.com'}</p>
+                <p className="text-gray-500 text-xs">Email</p>
+                <p className="text-gray-800 text-sm">{currentUser?.email || 'admin@emeraldlakers.com'}</p>
               </div>
             </div>
-            <div className="flex items-center justify-between p-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl">
+            <div className="flex items-center justify-between p-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl">
               <div>
-                <p className="text-white/60 text-xs">Role</p>
-                <p className="text-white text-sm">Administrator</p>
+                <p className="text-gray-500 text-xs">Role</p>
+                <p className="text-gray-800 text-sm">Administrator</p>
               </div>
               <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full">
                 Full Access
               </span>
             </div>
-            <div className="flex items-center justify-between p-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl">
+            <div className="flex items-center justify-between p-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl">
               <div>
-                <p className="text-white/60 text-xs">Club</p>
-                <p className="text-white text-sm">Emerald Lakers Basketball Club</p>
+                <p className="text-gray-500 text-xs">Club</p>
+                <p className="text-gray-800 text-sm">Emerald Lakers Basketball Club</p>
               </div>
             </div>
-            <div className="flex items-center justify-between p-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl">
+            <div className="flex items-center justify-between p-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl">
               <div>
-                <p className="text-white/60 text-xs">Last Login</p>
-                <p className="text-white text-sm">Today at {new Date().toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' })}</p>
+                <p className="text-gray-500 text-xs">Last Login</p>
+                <p className="text-gray-800 text-sm">Today at {new Date().toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' })}</p>
               </div>
             </div>
           </div>
@@ -511,8 +511,8 @@ const AdminProfilePage = () => {
       </div>
 
       {/* Footer */}
-      <footer className="py-4 text-center border-t border-[#1a8a68]">
-        <p className="text-[#1a8a68] text-xs">Emerald Lakers Administrator</p>
+      <footer className="py-4 text-center border-t border-[#D4E4D4]">
+        <p className="text-[#6B7C6B] text-xs">Emerald Lakers Administrator</p>
       </footer>
     </div>
   );

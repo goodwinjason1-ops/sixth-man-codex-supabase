@@ -216,9 +216,9 @@ const SkillsPassportPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
+    <div className="min-h-screen bg-[#F5F9F5]">
       {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68]">
+      <div className="bg-white border-b border-[#D4E4D4]">
         <div className="max-w-4xl mx-auto px-4 py-6">
           {/* Breadcrumb Navigation */}
           <Breadcrumb
@@ -230,12 +230,12 @@ const SkillsPassportPage = () => {
           />
 
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-full flex items-center justify-center">
-              <Award className="w-8 h-8 text-[#4ade80]" />
+            <div className="w-16 h-16 bg-[#F5F9F5] border-2 border-[#D4E4D4] rounded-full flex items-center justify-center">
+              <Award className="w-8 h-8 text-[#00A651]" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">Skills Passport</h1>
-              <p className="text-[#4ade80] mt-1">
+              <h1 className="text-2xl font-bold text-gray-800">Skills Passport</h1>
+              <p className="text-[#00A651] mt-1">
                 {userProfile?.displayName || 'Player'} • {userProfile?.ageGroup || 'U12'}
               </p>
             </div>
@@ -245,22 +245,22 @@ const SkillsPassportPage = () => {
 
       {/* Overall Progress Section */}
       <div className="max-w-4xl mx-auto px-4 py-6">
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5 mb-6">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-white font-semibold">Overall Progress</h2>
-              <p className="text-[#4ade80] text-sm">Average Level: {levelLabels[averageLevel]}</p>
+              <h2 className="text-gray-800 font-semibold">Overall Progress</h2>
+              <p className="text-[#00A651] text-sm">Average Level: {levelLabels[averageLevel]}</p>
             </div>
             <div className="text-right">
-              <span className="text-3xl font-bold text-white">{overallProgress}%</span>
-              <p className="text-[#1a8a68] text-xs">Complete</p>
+              <span className="text-3xl font-bold text-gray-800">{overallProgress}%</span>
+              <p className="text-[#6B7C6B] text-xs">Complete</p>
             </div>
           </div>
 
           {/* Overall Progress Bar */}
-          <div className="h-4 bg-[#0a3d2e] rounded-full border border-[#1a8a68] overflow-hidden">
+          <div className="h-4 bg-[#F5F9F5] rounded-full border border-[#D4E4D4] overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#1a8a68] via-[#22c55e] to-[#4ade80] rounded-full transition-all duration-500"
+              className="h-full bg-gradient-to-r from-[#005028] via-[#00A651] to-[#00A651] rounded-full transition-all duration-500"
               style={{ width: `${overallProgress}%` }}
             />
           </div>
@@ -270,12 +270,12 @@ const SkillsPassportPage = () => {
             {[1, 2, 3, 4].map((level) => (
               <div key={level} className="flex-1 text-center">
                 <div className={`h-2 rounded-full mb-1 ${
-                  level === 1 ? 'bg-[#1a8a68]' :
-                  level === 2 ? 'bg-[#22c55e]' :
-                  level === 3 ? 'bg-[#4ade80]' :
+                  level === 1 ? 'bg-[#D4E4D4]' :
+                  level === 2 ? 'bg-[#005028]' :
+                  level === 3 ? 'bg-[#00A651]' :
                   'bg-[#86efac]'
                 }`} />
-                <p className="text-[10px] text-[#1a8a68]">{levelLabels[level]}</p>
+                <p className="text-[10px] text-[#6B7C6B]">{levelLabels[level]}</p>
               </div>
             ))}
           </div>
@@ -283,8 +283,8 @@ const SkillsPassportPage = () => {
 
         {/* Skills Grid */}
         <div className="mb-4">
-          <h2 className="text-white font-semibold mb-1">Skill Categories</h2>
-          <p className="text-[#1a8a68] text-sm">Tap a skill to view details</p>
+          <h2 className="text-gray-800 font-semibold mb-1">Skill Categories</h2>
+          <p className="text-[#6B7C6B] text-sm">Tap a skill to view details</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-8">
@@ -298,36 +298,36 @@ const SkillsPassportPage = () => {
         </div>
 
         {/* Info Footer */}
-        <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4 mb-8">
-          <h3 className="text-white font-medium text-sm mb-2">About Skill Levels</h3>
+        <div className="bg-white border border-[#D4E4D4] rounded-xl p-4 mb-8">
+          <h3 className="text-gray-800 font-medium text-sm mb-2">About Skill Levels</h3>
           <div className="space-y-2 text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[#1a8a68]" />
-              <span className="text-[#1a8a68] font-medium w-28">Emerging (1)</span>
-              <span className="text-white opacity-80">Just starting to learn the skill</span>
+              <div className="w-3 h-3 rounded-full bg-[#D4E4D4]" />
+              <span className="text-[#6B7C6B] font-medium w-28">Emerging (1)</span>
+              <span className="text-gray-800 opacity-80">Just starting to learn the skill</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[#22c55e]" />
-              <span className="text-[#22c55e] font-medium w-28">Developing (2)</span>
-              <span className="text-white opacity-80">Building consistency</span>
+              <div className="w-3 h-3 rounded-full bg-[#005028]" />
+              <span className="text-[#00A651] font-medium w-28">Developing (2)</span>
+              <span className="text-gray-800 opacity-80">Building consistency</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[#4ade80]" />
-              <span className="text-[#4ade80] font-medium w-28">Competent (3)</span>
-              <span className="text-white opacity-80">Reliable in game situations</span>
+              <div className="w-3 h-3 rounded-full bg-[#00A651]" />
+              <span className="text-[#00A651] font-medium w-28">Competent (3)</span>
+              <span className="text-gray-800 opacity-80">Reliable in game situations</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-[#86efac]" />
               <span className="text-[#86efac] font-medium w-28">Confident Leader (4)</span>
-              <span className="text-white opacity-80">Can teach others</span>
+              <span className="text-gray-800 opacity-80">Can teach others</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="py-4 text-center border-t border-[#1a8a68]">
-        <p className="text-[#1a8a68] text-xs">Emerald Lakers Skills Passport</p>
+      <footer className="py-4 text-center border-t border-[#D4E4D4]">
+        <p className="text-[#6B7C6B] text-xs">Emerald Lakers Skills Passport</p>
       </footer>
 
       {/* Skill Detail Modal */}

@@ -13,10 +13,10 @@ const IconHero = ({ icon, label }) => {
   const IconComponent = Icons[icon] || Icons.HelpCircle;
   return (
     <div className="flex flex-col items-center justify-center py-4">
-      <div className="w-20 h-20 bg-[#1a8a68]/40 border-2 border-[#4ade80]/50 rounded-full flex items-center justify-center mb-3">
-        <IconComponent className="w-10 h-10 text-[#4ade80]" />
+      <div className="w-20 h-20 bg-[#D4E4D4]/40 border-2 border-[#00A651]/50 rounded-full flex items-center justify-center mb-3">
+        <IconComponent className="w-10 h-10 text-[#00A651]" />
       </div>
-      {label && <p className="text-[#4ade80] text-sm font-medium">{label}</p>}
+      {label && <p className="text-[#00A651] text-sm font-medium">{label}</p>}
     </div>
   );
 };
@@ -29,18 +29,18 @@ const TutorialCard = ({ step, stepIndex, totalSteps }) => {
   const metricBlocks = step.content.filter((b) => b.type === 'metric-scale');
 
   return (
-    <div className="text-white/90 text-sm space-y-4">
+    <div className="text-gray-800 text-sm space-y-4">
       {/* Step counter */}
       <div className="flex items-center justify-between">
-        <span className="text-white/40 text-xs">
+        <span className="text-gray-400 text-xs">
           Step {stepIndex + 1} of {totalSteps}
         </span>
       </div>
 
       {/* Title with icon */}
       <div className="flex items-center gap-2">
-        <StepIcon className="w-5 h-5 text-[#4ade80] flex-shrink-0" />
-        <h3 className="text-white font-bold text-lg">{step.title}</h3>
+        <StepIcon className="w-5 h-5 text-[#00A651] flex-shrink-0" />
+        <h3 className="text-gray-800 font-bold text-lg">{step.title}</h3>
       </div>
 
       {/* Visual area */}

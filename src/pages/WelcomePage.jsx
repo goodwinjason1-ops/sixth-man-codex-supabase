@@ -464,11 +464,11 @@ const WelcomePage = () => {
   // Show loading state while waiting for essential data
   if (authLoading || (isCoach && !dataReady)) {
     return (
-      <div className="min-h-screen bg-[#0a3d2e] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F5F9F5] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#1a8a68] border-t-[#22c55e] rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white font-medium">Loading...</p>
-          <p className="text-[#4ade80] text-sm mt-1">
+          <div className="w-16 h-16 border-4 border-[#D4E4D4] border-t-[#00A651] rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-800 font-medium">Loading...</p>
+          <p className="text-[#00A651] text-sm mt-1">
             {authLoading ? 'Checking authentication...' :
              isCoach && !dataReady ? 'Checking for games today...' : ''}
           </p>
@@ -478,7 +478,7 @@ const WelcomePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
+    <div className="min-h-screen bg-[#F5F9F5]">
       {/* Header with Logo and Club Name */}
       <header className="pt-8 pb-6 px-4 relative">
         {/* Connection Status */}
@@ -489,31 +489,34 @@ const WelcomePage = () => {
         {/* Logout Button */}
         <button
           onClick={handleLogout}
-          className="absolute top-4 right-4 flex items-center gap-2 px-3 py-2 bg-transparent border border-[#1a8a68] rounded-lg text-white text-sm hover:bg-[#1a8a68] hover:border-[#22c55e] transition-all duration-200 active:scale-95"
+          className="absolute top-4 right-4 flex items-center gap-2 px-3 py-2 bg-transparent border border-[#D4E4D4] rounded-lg text-gray-800 text-sm hover:bg-gray-100 hover:border-[#00A651] transition-all duration-200 active:scale-95"
         >
           <LogOut className="w-4 h-4" />
           <span className="hidden sm:inline">Logout</span>
         </button>
 
         <div className="flex flex-col items-center justify-center">
-          {/* Text Logo */}
-          <div className="text-center mb-2">
-            <p className="text-white text-lg font-semibold tracking-widest">EMERALD</p>
-            <h1 className="text-5xl font-bold text-white tracking-wider leading-tight">LAKERS</h1>
-          </div>
+          {/* Club Logo */}
+          <img
+            src="/images/logo_login.png"
+            alt="Emerald Lakers"
+            className="w-24 h-24 mb-2 drop-shadow-md"
+          />
 
-          {/* Dragon Mascot Placeholder */}
-          <div className="w-20 h-20 bg-[#0d5943] border-2 border-[#1a8a68] rounded-full flex items-center justify-center my-3">
-            <span className="text-[#4ade80] text-3xl">🐉</span>
-          </div>
+          {/* Dragon Mascot */}
+          <img
+            src="/images/dragon_login.png"
+            alt="Lakers Dragon"
+            className="w-16 h-16 my-2"
+          />
 
           {/* Subtitle */}
-          <p className="text-[#4ade80] text-sm tracking-wide">Basketball Club</p>
+          <p className="text-[#00A651] text-sm tracking-wide">Basketball Club</p>
 
           {/* Welcome Message */}
           {userProfile?.displayName && (
             <div className="mt-4 text-center">
-              <p className="text-white text-lg opacity-90">
+              <p className="text-gray-800 text-lg opacity-90">
                 Welcome, {userProfile.displayName}!
               </p>
               {userProfile.role && (
@@ -534,7 +537,7 @@ const WelcomePage = () => {
           <div className="max-w-lg mx-auto">
             <div
               onClick={handleGameDayClick}
-              className="bg-gradient-to-r from-[#22c55e]/30 to-[#4ade80]/20 border-2 border-[#22c55e] rounded-xl p-4 cursor-pointer hover:border-[#4ade80] transition-all relative overflow-hidden"
+              className="bg-gradient-to-r from-[#00A651]/30 to-[#00A651]/20 border-2 border-[#00A651] rounded-xl p-4 cursor-pointer hover:border-[#00A651] transition-all relative overflow-hidden"
             >
               {/* Animated shimmer */}
               <div
@@ -552,17 +555,17 @@ const WelcomePage = () => {
               `}</style>
 
               <div className="relative z-10 flex items-center gap-3">
-                <div className="w-14 h-14 bg-[#22c55e] rounded-xl flex items-center justify-center shadow-lg shadow-[#22c55e]/30 flex-shrink-0">
+                <div className="w-14 h-14 bg-[#005028] rounded-xl flex items-center justify-center shadow-lg shadow-[#00A651]/30 flex-shrink-0">
                   <Zap className="w-7 h-7 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[#4ade80] text-xs font-bold uppercase tracking-wider">🏀 Game Day!</span>
+                    <span className="text-[#00A651] text-xs font-bold uppercase tracking-wider">🏀 Game Day!</span>
                   </div>
-                  <h3 className="text-white font-bold text-base truncate">
+                  <h3 className="text-gray-800 font-bold text-base truncate">
                     {primaryGame.teamName} vs {primaryGame.opponent}
                   </h3>
-                  <div className="flex items-center gap-2 text-xs text-[#4ade80] mt-1">
+                  <div className="flex items-center gap-2 text-xs text-[#00A651] mt-1">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {primaryGame.time}
@@ -575,12 +578,12 @@ const WelcomePage = () => {
                     )}
                   </div>
                 </div>
-                <ChevronRight className="w-6 h-6 text-[#4ade80] flex-shrink-0" />
+                <ChevronRight className="w-6 h-6 text-[#00A651] flex-shrink-0" />
               </div>
 
               {hasMultipleGames && (
-                <div className="relative z-10 mt-2 pt-2 border-t border-[#22c55e]/30">
-                  <p className="text-xs text-[#4ade80]/80">
+                <div className="relative z-10 mt-2 pt-2 border-t border-[#00A651]/30">
+                  <p className="text-xs text-[#00A651]/80">
                     +{todaysGames.length - 1} more game{todaysGames.length > 2 ? 's' : ''} today
                   </p>
                 </div>
@@ -609,10 +612,10 @@ const WelcomePage = () => {
                       <IconComponent className="w-7 h-7 text-white" />
                     </div>
                     <div className="text-left flex-1">
-                      <span className="text-white font-bold text-base">{tile.title}</span>
-                      <p className="text-violet-300 text-xs mt-0.5">{tile.description}</p>
+                      <span className="text-gray-800 font-bold text-base">{tile.title}</span>
+                      <p className="text-violet-500 text-xs mt-0.5">{tile.description}</p>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-violet-300 flex-shrink-0" />
+                    <ChevronRight className="w-5 h-5 text-violet-500 flex-shrink-0" />
                   </button>
                 );
               }
@@ -621,7 +624,7 @@ const WelcomePage = () => {
                 <button
                   key={tile.id}
                   onClick={() => handleTileClick(tile.path)}
-                  className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-6 flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:bg-[#0f6b52] hover:border-[#22c55e] hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/30 active:scale-95 relative"
+                  className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-6 flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:bg-[#E8F0E8] hover:border-[#00A651] hover:scale-105 hover:shadow-lg hover:ring-2 hover:ring-[#FFD700]/30 active:scale-95 relative"
                 >
                   {/* Notification Badge */}
                   {tile.badge > 0 && (
@@ -629,10 +632,10 @@ const WelcomePage = () => {
                       <span className="text-white text-xs font-bold">{tile.badge > 9 ? '9+' : tile.badge}</span>
                     </div>
                   )}
-                  <div className="w-14 h-14 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl flex items-center justify-center">
-                    <IconComponent className="w-7 h-7 text-white" />
+                  <div className="w-14 h-14 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl flex items-center justify-center">
+                    <IconComponent className="w-7 h-7 text-[#005028]" />
                   </div>
-                  <span className="text-white font-medium text-sm text-center leading-tight">
+                  <span className="text-gray-800 font-medium text-sm text-center leading-tight">
                     {tile.title}
                   </span>
                 </button>
@@ -647,7 +650,7 @@ const WelcomePage = () => {
         <div className="max-w-lg mx-auto">
           <button
             onClick={() => navigate('/help')}
-            className="w-full flex items-center justify-center gap-2 py-3 text-[#4ade80]/60 hover:text-[#4ade80] text-sm transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-3 text-[#00A651]/60 hover:text-[#00A651] text-sm transition-colors"
           >
             <HelpCircle className="w-4 h-4" />
             Help Center

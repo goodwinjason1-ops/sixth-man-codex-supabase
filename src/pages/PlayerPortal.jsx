@@ -124,9 +124,9 @@ const PlayerPortal = () => {
 
   const LEVEL_LABELS = {
     1: { label: "Emerging", color: "bg-lakers-700 text-white border-lakers-600" },
-    2: { label: "Developing", color: "bg-lakers-600 text-white border-lakers-500" },
-    3: { label: "Competent", color: "bg-lakers-500 text-white border-lakers-400" },
-    4: { label: "Leader", color: "bg-lakers-400 text-white border-lakers-300" }
+    2: { label: "Developing", color: "bg-lakers-600 text-gray-800 border-lakers-500" },
+    3: { label: "Competent", color: "bg-lakers-500 text-gray-800 border-lakers-400" },
+    4: { label: "Leader", color: "bg-lakers-400 text-gray-800 border-lakers-300" }
   };
 
   return (
@@ -137,7 +137,7 @@ const PlayerPortal = () => {
           {/* Back Button */}
           <button
             onClick={() => navigate('/welcome')}
-            className="flex items-center gap-2 text-lakers-300 hover:text-white mb-4 transition-colors"
+            className="flex items-center gap-2 text-lakers-300 hover:text-gray-800 mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Back to Home</span>
@@ -145,17 +145,17 @@ const PlayerPortal = () => {
 
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">{playerData.name}</h1>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">{playerData.name}</h1>
               <p className="text-lakers-300 text-lg">{playerData.team}</p>
             </div>
 
             {/* MVP Badge */}
             {mvpStats.rank && mvpStats.rank <= 3 && (
               <div className="bg-lakers-700 border border-lakers-600 px-4 py-2 rounded-lg flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-white" />
+                <Trophy className="w-5 h-5 text-gray-800" />
                 <div className="text-right">
                   <p className="text-xs text-lakers-300">MVP Rank</p>
-                  <p className="text-lg font-bold text-white">#{mvpStats.rank}</p>
+                  <p className="text-lg font-bold text-gray-800">#{mvpStats.rank}</p>
                 </div>
               </div>
             )}
@@ -179,7 +179,7 @@ const PlayerPortal = () => {
             <div className="bg-lakers-800 rounded-xl border border-lakers-700 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <TrendingUp className="w-5 h-5 text-lakers-400" />
-                <h2 className="text-lg font-bold text-white">Skill Progression</h2>
+                <h2 className="text-lg font-bold text-gray-800">Skill Progression</h2>
               </div>
 
               {playerEvaluations.length > 0 ? (
@@ -219,7 +219,7 @@ const PlayerPortal = () => {
 
             {/* Skill Assessments */}
             <div className="bg-lakers-800 rounded-xl border border-lakers-700 p-6">
-              <h2 className="text-lg font-bold text-white mb-4">Recent Skill Assessments</h2>
+              <h2 className="text-lg font-bold text-gray-800 mb-4">Recent Skill Assessments</h2>
 
               {playerEvaluations.length > 0 ? (
                 <div className="space-y-3">
@@ -230,7 +230,7 @@ const PlayerPortal = () => {
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-white">{evaluation.skill?.name || 'Unknown Skill'}</h3>
+                          <h3 className="font-semibold text-gray-800">{evaluation.skill?.name || 'Unknown Skill'}</h3>
                           <p className="text-xs text-lakers-400 mt-1">
                             {new Date(evaluation.date).toLocaleDateString('en-AU', {
                               year: 'numeric',
@@ -261,7 +261,7 @@ const PlayerPortal = () => {
 
             {/* Recent Games */}
             <div className="bg-lakers-800 rounded-xl border border-lakers-700 p-6">
-              <h2 className="text-lg font-bold text-white mb-4">Recent Games</h2>
+              <h2 className="text-lg font-bold text-gray-800 mb-4">Recent Games</h2>
 
               {recentGames.length > 0 ? (
                 <div className="space-y-3">
@@ -272,16 +272,16 @@ const PlayerPortal = () => {
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div>
-                          <p className="font-semibold text-white">vs {game.opponent}</p>
+                          <p className="font-semibold text-gray-800">vs {game.opponent}</p>
                           <p className="text-xs text-lakers-400">
                             {new Date(game.date).toLocaleDateString('en-AU')}
                           </p>
                         </div>
                         <div className="text-right">
                           <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            game.result === 'win' ? 'bg-lakers-500 text-white' :
+                            game.result === 'win' ? 'bg-lakers-500 text-gray-800' :
                             game.result === 'loss' ? 'bg-lakers-900 text-lakers-300' :
-                            'bg-lakers-600 text-white'
+                            'bg-lakers-600 text-gray-800'
                           }`}>
                             {game.result?.toUpperCase() || 'N/A'}
                           </span>
@@ -290,8 +290,8 @@ const PlayerPortal = () => {
 
                       {game.mvp === playerData.id && (
                         <div className="mt-2 flex items-center gap-2 bg-lakers-600 px-3 py-2 rounded-lg border border-lakers-500">
-                          <Award className="w-4 h-4 text-white" />
-                          <span className="text-sm font-semibold text-white">MVP of the Game!</span>
+                          <Award className="w-4 h-4 text-gray-800" />
+                          <span className="text-sm font-semibold text-gray-800">MVP of the Game!</span>
                         </div>
                       )}
                     </div>
@@ -309,7 +309,7 @@ const PlayerPortal = () => {
             <div className="bg-lakers-800 rounded-xl border border-lakers-700 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <BarChart2 className="w-5 h-5 text-lakers-400" />
-                <h2 className="text-lg font-bold text-white">Skill Levels</h2>
+                <h2 className="text-lg font-bold text-gray-800">Skill Levels</h2>
               </div>
 
               <div className="space-y-3">
@@ -318,7 +318,7 @@ const PlayerPortal = () => {
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${config.color}`}>
                       {config.label}
                     </span>
-                    <span className="text-lg font-bold text-white">
+                    <span className="text-lg font-bold text-gray-800">
                       {skillDistribution[level] || 0}
                     </span>
                   </div>
@@ -330,17 +330,17 @@ const PlayerPortal = () => {
             <div className="bg-lakers-700 rounded-xl border-2 border-lakers-600 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Trophy className="w-6 h-6 text-lakers-300" />
-                <h2 className="text-lg font-bold text-white">MVP Standing</h2>
+                <h2 className="text-lg font-bold text-gray-800">MVP Standing</h2>
               </div>
 
               <div className="text-center">
-                <p className="text-5xl font-bold text-white mb-2">{mvpStats.votes}</p>
+                <p className="text-5xl font-bold text-gray-800 mb-2">{mvpStats.votes}</p>
                 <p className="text-sm text-lakers-300 mb-4">Total MVP Votes</p>
 
                 {mvpStats.rank && (
                   <div className="bg-lakers-800 rounded-lg p-3 border border-lakers-600">
                     <p className="text-xs text-lakers-400 mb-1">Current Rank</p>
-                    <p className="text-2xl font-bold text-white">
+                    <p className="text-2xl font-bold text-gray-800">
                       #{mvpStats.rank}
                       <span className="text-sm text-lakers-400 ml-1">of {mvpStats.totalPlayers}</span>
                     </p>
@@ -353,7 +353,7 @@ const PlayerPortal = () => {
             <div className="bg-lakers-800 rounded-xl border border-lakers-700 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <MessageSquare className="w-5 h-5 text-lakers-400" />
-                <h2 className="text-lg font-bold text-white">Coach Notes</h2>
+                <h2 className="text-lg font-bold text-gray-800">Coach Notes</h2>
               </div>
 
               {playerTrainingNotes.length > 0 ? (
@@ -385,7 +385,7 @@ const QuickStat = ({ icon: Icon, label, value }) => (
       <Icon className="w-4 h-4 text-lakers-300" />
       <p className="text-xs text-lakers-300">{label}</p>
     </div>
-    <p className="text-2xl font-bold text-white">{value}</p>
+    <p className="text-2xl font-bold text-gray-800">{value}</p>
   </div>
 );
 

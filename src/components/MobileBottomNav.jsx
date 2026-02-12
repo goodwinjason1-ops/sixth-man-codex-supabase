@@ -108,7 +108,7 @@ const MobileBottomNav = () => {
   const items = roleNavItems[role] || roleNavItems.default;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#0d5943] border-t border-[#1a8a68] lg:hidden safe-area-pb">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[#D4E4D4] shadow-lg lg:hidden safe-area-pb">
       <div className="flex items-center justify-around px-1">
         {items.map((item) => {
           const isActive =
@@ -122,7 +122,7 @@ const MobileBottomNav = () => {
               key={item.path}
               onClick={() => navigate(item.path)}
               className={`flex flex-col items-center justify-center min-w-[44px] min-h-[44px] py-2 px-1 flex-1 transition-colors ${
-                isActive ? 'text-[#4ade80]' : 'text-white/50'
+                isActive ? 'text-[#005028] font-bold' : 'text-gray-400'
               }`}
               aria-label={item.label}
               aria-current={isActive ? 'page' : undefined}

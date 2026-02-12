@@ -165,8 +165,8 @@ const ParentSignupPage = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-lakers-900 via-lakers-800 to-lakers-700 flex items-center justify-center p-4">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-[#4ade80] animate-spin mx-auto mb-4" />
-          <p className="text-white font-medium">Validating invitation code...</p>
+          <Loader2 className="w-12 h-12 text-[#00A651] animate-spin mx-auto mb-4" />
+          <p className="text-gray-800 font-medium">Validating invitation code...</p>
           <p className="text-lakers-200 text-sm mt-2">Code: {invitationCode}</p>
         </div>
       </div>
@@ -182,7 +182,7 @@ const ParentSignupPage = () => {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-yellow-400 rounded-full mb-4 shadow-lg">
               <span className="text-4xl font-bold text-lakers-900">L</span>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Emerald Lakers</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Emerald Lakers</h1>
             <p className="text-lakers-200">Parent Registration</p>
           </div>
 
@@ -238,7 +238,7 @@ const ParentSignupPage = () => {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-yellow-400 rounded-full mb-4 shadow-lg">
               <span className="text-4xl font-bold text-lakers-900">L</span>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Emerald Lakers</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Emerald Lakers</h1>
             <p className="text-lakers-200">Basketball Club Portal</p>
           </div>
 
@@ -269,7 +269,7 @@ const ParentSignupPage = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-yellow-400 rounded-full mb-4 shadow-lg">
             <span className="text-4xl font-bold text-lakers-900">L</span>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Emerald Lakers</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Emerald Lakers</h1>
           <p className="text-lakers-200">Parent Registration</p>
         </div>
 

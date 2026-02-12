@@ -410,14 +410,14 @@ const ScheduleManagementPage = () => {
         <div className="flex gap-2 flex-wrap">
           <button
             onClick={downloadTemplate}
-            className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg hover:border-[#00A651] transition-colors"
           >
             <Download className="w-4 h-4" />
             <span className="hidden sm:inline">Template</span>
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg hover:border-[#00A651] transition-colors"
           >
             <Upload className="w-4 h-4" />
             <span className="hidden sm:inline">Import</span>
@@ -431,21 +431,21 @@ const ScheduleManagementPage = () => {
           />
           <button
             onClick={exportSchedule}
-            className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg hover:border-[#00A651] transition-colors"
           >
             <FileText className="w-4 h-4" />
             <span className="hidden sm:inline">Export</span>
           </button>
           <button
             onClick={() => { setEditingTraining(null); setShowTrainingModal(true); }}
-            className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-[#0a3d2e] rounded-lg font-semibold hover:bg-amber-400 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-400 transition-colors"
           >
             <Dumbbell className="w-5 h-5" />
             <span className="hidden sm:inline">Add Training</span>
           </button>
           <button
             onClick={() => { setEditingGame(null); setShowAddModal(true); }}
-            className="flex items-center gap-2 px-4 py-2 bg-[#22c55e] text-[#0a3d2e] rounded-lg font-semibold hover:bg-[#4ade80] transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-[#005028] text-white rounded-lg font-semibold hover:bg-[#00A651] transition-colors"
           >
             <Plus className="w-5 h-5" />
             Add Game
@@ -455,20 +455,20 @@ const ScheduleManagementPage = () => {
     >
       <div className="space-y-6">
         {importSuccess && (
-          <div className="bg-[#22c55e]/20 border border-[#22c55e] rounded-xl p-4 flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-[#4ade80]" />
-            <p className="text-[#4ade80]">{importSuccess}</p>
+          <div className="bg-[#005028]/20 border border-[#00A651] rounded-xl p-4 flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-[#00A651]" />
+            <p className="text-[#00A651]">{importSuccess}</p>
           </div>
         )}
 
         {/* View Toggle & Filters */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-4">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-4">
           <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
-            <div className="flex bg-[#0a3d2e] rounded-lg p-1">
+            <div className="flex bg-[#F5F9F5] rounded-lg p-1">
               <button
                 onClick={() => setViewMode('list')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  viewMode === 'list' ? 'bg-[#22c55e] text-[#0a3d2e]' : 'text-white'
+                  viewMode === 'list' ? 'bg-[#005028] text-white' : 'text-white'
                 }`}
               >
                 List View
@@ -476,7 +476,7 @@ const ScheduleManagementPage = () => {
               <button
                 onClick={() => setViewMode('calendar')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  viewMode === 'calendar' ? 'bg-[#22c55e] text-[#0a3d2e]' : 'text-white'
+                  viewMode === 'calendar' ? 'bg-[#005028] text-white' : 'text-white'
                 }`}
               >
                 Calendar
@@ -485,7 +485,7 @@ const ScheduleManagementPage = () => {
             <select
               value={selectedTeam}
               onChange={(e) => setSelectedTeam(e.target.value)}
-              className="px-4 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+              className="px-4 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
             >
               <option value="all">All Teams</option>
               {sampleTeams.map(team => (
@@ -506,8 +506,8 @@ const ScheduleManagementPage = () => {
                 onClick={() => setEventTypeFilter(tab.id)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   eventTypeFilter === tab.id
-                    ? 'bg-[#22c55e] text-[#0a3d2e]'
-                    : 'bg-[#0a3d2e] border border-[#1a8a68] text-white hover:border-[#22c55e]'
+                    ? 'bg-[#005028] text-white'
+                    : 'bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 hover:border-[#00A651]'
                 }`}
               >
                 {tab.label}
@@ -516,13 +516,13 @@ const ScheduleManagementPage = () => {
           </div>
 
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1a8a68]" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#6B7C6B]" />
             <input
               type="text"
               placeholder="Search by opponent, venue, or team..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+              className="w-full pl-10 pr-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
             />
           </div>
 
@@ -533,8 +533,8 @@ const ScheduleManagementPage = () => {
                 onClick={() => setFilterStatus(status)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
                   filterStatus === status
-                    ? 'bg-[#22c55e] text-[#0a3d2e]'
-                    : 'bg-[#0a3d2e] border border-[#1a8a68] text-white hover:border-[#22c55e]'
+                    ? 'bg-[#005028] text-white'
+                    : 'bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 hover:border-[#00A651]'
                 }`}
               >
                 {status}
@@ -545,34 +545,34 @@ const ScheduleManagementPage = () => {
 
         {/* Calendar View */}
         {viewMode === 'calendar' && (
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-[#1a8a68]">
-              <button onClick={prevMonth} className="p-2 hover:bg-[#0a3d2e] rounded-lg transition-colors">
-                <ChevronLeft className="w-5 h-5 text-white" />
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-[#D4E4D4]">
+              <button onClick={prevMonth} className="p-2 hover:bg-[#F5F9F5] rounded-lg transition-colors">
+                <ChevronLeft className="w-5 h-5 text-gray-800" />
               </button>
-              <h3 className="text-xl font-bold text-white">
+              <h3 className="text-xl font-bold text-gray-800">
                 {currentMonth.toLocaleDateString('en-AU', { month: 'long', year: 'numeric' })}
               </h3>
-              <button onClick={nextMonth} className="p-2 hover:bg-[#0a3d2e] rounded-lg transition-colors">
-                <ChevronRight className="w-5 h-5 text-white" />
+              <button onClick={nextMonth} className="p-2 hover:bg-[#F5F9F5] rounded-lg transition-colors">
+                <ChevronRight className="w-5 h-5 text-gray-800" />
               </button>
             </div>
             <div className="grid grid-cols-7 text-center">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                <div key={day} className="p-2 text-[#4ade80] text-sm font-medium border-b border-[#1a8a68]">
+                <div key={day} className="p-2 text-[#00A651] text-sm font-medium border-b border-[#D4E4D4]">
                   {day}
                 </div>
               ))}
               {calendarDays.map((day, index) => (
                 <div
                   key={index}
-                  className={`min-h-[100px] p-2 border-b border-r border-[#1a8a68] ${
-                    day.date ? 'bg-[#0a3d2e]/30' : 'bg-[#0a3d2e]/10'
+                  className={`min-h-[100px] p-2 border-b border-r border-[#D4E4D4] ${
+                    day.date ? 'bg-[#F5F9F5]/30' : 'bg-[#F5F9F5]/10'
                   }`}
                 >
                   {day.date && (
                     <>
-                      <p className="text-white text-sm mb-1">{day.date}</p>
+                      <p className="text-gray-800 text-sm mb-1">{day.date}</p>
                       {day.games.slice(0, 2).map(event => (
                         <button
                           key={event.id}
@@ -581,7 +581,7 @@ const ScheduleManagementPage = () => {
                             event.type === 'training'
                               ? 'bg-amber-500/30 text-amber-300'
                               : event.homeAway === 'home'
-                                ? 'bg-[#22c55e]/30 text-[#4ade80]'
+                                ? 'bg-[#005028]/30 text-[#00A651]'
                                 : 'bg-blue-500/30 text-blue-300'
                           }`}
                         >
@@ -592,7 +592,7 @@ const ScheduleManagementPage = () => {
                         </button>
                       ))}
                       {day.games.length > 2 && (
-                        <p className="text-[#1a8a68] text-xs">+{day.games.length - 2} more</p>
+                        <p className="text-[#6B7C6B] text-xs">+{day.games.length - 2} more</p>
                       )}
                     </>
                   )}
@@ -606,10 +606,10 @@ const ScheduleManagementPage = () => {
         {viewMode === 'list' && (
           <>
             {filteredGames.length === 0 ? (
-              <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-8 text-center">
-                <AlertCircle className="w-12 h-12 text-[#1a8a68] mx-auto mb-3" />
-                <h3 className="text-white font-semibold mb-2">No Events Found</h3>
-                <p className="text-[#1a8a68] text-sm">
+              <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
+                <AlertCircle className="w-12 h-12 text-[#6B7C6B] mx-auto mb-3" />
+                <h3 className="text-gray-800 font-semibold mb-2">No Events Found</h3>
+                <p className="text-[#6B7C6B] text-sm">
                   {searchQuery ? 'Try a different search term' : 'Add games or training sessions to get started'}
                 </p>
               </div>
@@ -620,18 +620,18 @@ const ScheduleManagementPage = () => {
                   return (
                     <div
                       key={event.id}
-                      className={`bg-[#0d5943] border-2 rounded-2xl p-4 transition-colors ${
+                      className={`bg-white border-2 rounded-2xl p-4 transition-colors ${
                         isTraining
                           ? 'border-amber-500/50 hover:border-amber-400'
-                          : event.result ? 'border-[#1a8a68] opacity-80' : 'border-[#1a8a68] hover:border-[#22c55e]'
+                          : event.result ? 'border-[#D4E4D4] opacity-80' : 'border-[#D4E4D4] hover:border-[#00A651]'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex items-start gap-4 flex-1">
                           <div className="text-center min-w-[70px]">
-                            <p className={`font-bold ${isTraining ? 'text-amber-400' : 'text-[#4ade80]'}`}>{formatDate(event.date)}</p>
-                            <p className="text-white text-sm">{event.time}</p>
-                            {event.endTime && <p className="text-[#1a8a68] text-xs">to {event.endTime}</p>}
+                            <p className={`font-bold ${isTraining ? 'text-amber-400' : 'text-[#00A651]'}`}>{formatDate(event.date)}</p>
+                            <p className="text-gray-800 text-sm">{event.time}</p>
+                            {event.endTime && <p className="text-[#6B7C6B] text-xs">to {event.endTime}</p>}
                           </div>
 
                           <div className="flex-1">
@@ -639,27 +639,27 @@ const ScheduleManagementPage = () => {
                               <>
                                 <div className="flex items-center gap-2 mb-1">
                                   <Dumbbell className="w-4 h-4 text-amber-400" />
-                                  <span className="text-white font-semibold">{event.teamName}</span>
+                                  <span className="text-gray-800 font-semibold">{event.teamName}</span>
                                   <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 text-xs rounded-full capitalize">
                                     {event.trainingType || 'Training'}
                                   </span>
                                 </div>
-                                <p className="text-[#1a8a68] text-sm flex items-center gap-1">
+                                <p className="text-[#6B7C6B] text-sm flex items-center gap-1">
                                   <MapPin className="w-3 h-3" />
                                   {event.venue}
                                 </p>
                                 {event.notes && (
-                                  <p className="text-[#1a8a68] text-xs mt-1 italic">{event.notes}</p>
+                                  <p className="text-[#6B7C6B] text-xs mt-1 italic">{event.notes}</p>
                                 )}
                               </>
                             ) : (
                               <>
                                 <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-white font-semibold">{event.teamName}</span>
-                                  <span className="text-[#1a8a68]">vs</span>
-                                  <span className="text-white font-semibold">{event.opponent}</span>
+                                  <span className="text-gray-800 font-semibold">{event.teamName}</span>
+                                  <span className="text-[#6B7C6B]">vs</span>
+                                  <span className="text-gray-800 font-semibold">{event.opponent}</span>
                                   {event.homeAway === 'home' ? (
-                                    <span className="px-2 py-0.5 bg-[#22c55e]/20 text-[#4ade80] text-xs rounded-full flex items-center gap-1">
+                                    <span className="px-2 py-0.5 bg-[#005028]/20 text-[#00A651] text-xs rounded-full flex items-center gap-1">
                                       <Home className="w-3 h-3" /> Home
                                     </span>
                                   ) : (
@@ -668,13 +668,13 @@ const ScheduleManagementPage = () => {
                                     </span>
                                   )}
                                 </div>
-                                <p className="text-[#1a8a68] text-sm flex items-center gap-1">
+                                <p className="text-[#6B7C6B] text-sm flex items-center gap-1">
                                   <MapPin className="w-3 h-3" />
                                   {event.venue}
                                 </p>
                                 {event.result && (
                                   <p className={`mt-2 text-sm font-medium ${
-                                    event.result === 'win' ? 'text-[#4ade80]' : 'text-red-400'
+                                    event.result === 'win' ? 'text-[#00A651]' : 'text-red-400'
                                   }`}>
                                     {event.result === 'win' ? 'Won' : 'Lost'} {event.finalScore?.home} - {event.finalScore?.away}
                                   </p>
@@ -687,7 +687,7 @@ const ScheduleManagementPage = () => {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleEditEvent(event)}
-                            className="p-2 text-[#4ade80] hover:bg-[#22c55e]/20 rounded-lg transition-colors"
+                            className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors"
                           >
                             <Edit3 className="w-4 h-4" />
                           </button>
@@ -708,8 +708,8 @@ const ScheduleManagementPage = () => {
         )}
       </div>
 
-      <footer className="py-4 text-center border-t border-[#1a8a68]">
-        <p className="text-[#1a8a68] text-xs">Emerald Lakers Schedule Management</p>
+      <footer className="py-4 text-center border-t border-[#D4E4D4]">
+        <p className="text-[#6B7C6B] text-xs">Emerald Lakers Schedule Management</p>
       </footer>
 
       {/* Game Form Modal */}
@@ -737,13 +737,13 @@ const ScheduleManagementPage = () => {
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setConfirmDelete(null)}>
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-          <div className="relative bg-[#0d5943] border-2 border-red-500 rounded-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+          <div className="relative bg-white border-2 border-red-500 rounded-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
             <div className="text-center">
               <Trash2 className="w-12 h-12 text-red-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">Delete Event?</h3>
-              <p className="text-[#1a8a68] text-sm mb-6">This action cannot be undone.</p>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Delete Event?</h3>
+              <p className="text-[#6B7C6B] text-sm mb-6">This action cannot be undone.</p>
               <div className="flex gap-3">
-                <button onClick={() => setConfirmDelete(null)} className="flex-1 py-3 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-xl">Cancel</button>
+                <button onClick={() => setConfirmDelete(null)} className="flex-1 py-3 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-xl">Cancel</button>
                 <button onClick={() => handleDelete(confirmDelete)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-semibold">Delete</button>
               </div>
             </div>
@@ -804,53 +804,53 @@ const GameFormModal = ({ game, teams, onSave, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-      <div className="relative w-full sm:max-w-lg max-h-[90vh] bg-[#0d5943] border-2 border-[#1a8a68] rounded-t-3xl sm:rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
-        <div className="p-4 border-b border-[#1a8a68] flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">{game ? 'Edit Game' : 'Add Game'}</h2>
-          <button onClick={onClose} className="w-8 h-8 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center hover:border-[#22c55e]">
-            <X className="w-4 h-4 text-white" />
+      <div className="relative w-full sm:max-w-lg max-h-[90vh] bg-white border-2 border-[#D4E4D4] rounded-t-3xl sm:rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="p-4 border-b border-[#D4E4D4] flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-800">{game ? 'Edit Game' : 'Add Game'}</h2>
+          <button onClick={onClose} className="w-8 h-8 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center hover:border-[#00A651]">
+            <X className="w-4 h-4 text-gray-800" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-4 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
           <div>
-            <label className="block text-[#4ade80] text-sm font-medium mb-1">Team *</label>
+            <label className="block text-[#00A651] text-sm font-medium mb-1">Team *</label>
             <select required value={formData.teamId} onChange={(e) => setFormData({ ...formData, teamId: e.target.value })}
-              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none">
+              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none">
               <option value="">Select Team</option>
               {teams.map(team => <option key={team.id} value={team.id}>{team.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-[#4ade80] text-sm font-medium mb-1">Opponent *</label>
+            <label className="block text-[#00A651] text-sm font-medium mb-1">Opponent *</label>
             <input type="text" required value={formData.opponent} onChange={(e) => setFormData({ ...formData, opponent: e.target.value })}
-              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none" placeholder="e.g., Bankstown Thunder" />
+              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none" placeholder="e.g., Bankstown Thunder" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-1">Date *</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-1">Date *</label>
               <input type="date" required value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none" />
+                className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none" />
             </div>
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-1">Time *</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-1">Time *</label>
               <input type="time" required value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none" />
+                className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none" />
             </div>
           </div>
           <div>
-            <label className="block text-[#4ade80] text-sm font-medium mb-1">Venue *</label>
+            <label className="block text-[#00A651] text-sm font-medium mb-1">Venue *</label>
             <input type="text" required value={formData.venue} onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
-              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none" placeholder="e.g., Emerald Stadium Court 1" />
+              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none" placeholder="e.g., Emerald Stadium Court 1" />
           </div>
           <div>
-            <label className="block text-[#4ade80] text-sm font-medium mb-1">Home/Away</label>
+            <label className="block text-[#00A651] text-sm font-medium mb-1">Home/Away</label>
             <div className="flex gap-3">
               <button type="button" onClick={() => setFormData({ ...formData, homeAway: 'home' })}
-                className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${formData.homeAway === 'home' ? 'bg-[#22c55e] text-[#0a3d2e]' : 'bg-[#0a3d2e] border border-[#1a8a68] text-white'}`}>
+                className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${formData.homeAway === 'home' ? 'bg-[#005028] text-white' : 'bg-[#F5F9F5] border border-[#D4E4D4] text-white'}`}>
                 <Home className="w-4 h-4" /> Home
               </button>
               <button type="button" onClick={() => setFormData({ ...formData, homeAway: 'away' })}
-                className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${formData.homeAway === 'away' ? 'bg-blue-500 text-white' : 'bg-[#0a3d2e] border border-[#1a8a68] text-white'}`}>
+                className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${formData.homeAway === 'away' ? 'bg-blue-500 text-white' : 'bg-[#F5F9F5] border border-[#D4E4D4] text-white'}`}>
                 <Plane className="w-4 h-4" /> Away
               </button>
             </div>
@@ -858,14 +858,14 @@ const GameFormModal = ({ game, teams, onSave, onClose }) => {
           {game && (
             <>
               <div>
-                <label className="block text-[#4ade80] text-sm font-medium mb-1">Result (Optional)</label>
+                <label className="block text-[#00A651] text-sm font-medium mb-1">Result (Optional)</label>
                 <div className="flex gap-3">
                   {['', 'win', 'loss', 'draw'].map(result => (
                     <button key={result} type="button" onClick={() => setFormData({ ...formData, result })}
                       className={`flex-1 py-2 rounded-lg text-sm capitalize transition-all ${
                         formData.result === result
-                          ? result === 'win' ? 'bg-[#22c55e] text-[#0a3d2e]' : result === 'loss' ? 'bg-red-500 text-white' : result === 'draw' ? 'bg-yellow-500 text-[#0a3d2e]' : 'bg-[#1a8a68] text-white'
-                          : 'bg-[#0a3d2e] border border-[#1a8a68] text-white'
+                          ? result === 'win' ? 'bg-[#005028] text-white' : result === 'loss' ? 'bg-red-500 text-white' : result === 'draw' ? 'bg-yellow-500 text-white' : 'bg-[#D4E4D4] text-white'
+                          : 'bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800'
                       }`}>
                       {result || 'None'}
                     </button>
@@ -875,23 +875,23 @@ const GameFormModal = ({ game, teams, onSave, onClose }) => {
               {formData.result && (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[#4ade80] text-sm font-medium mb-1">Our Score</label>
+                    <label className="block text-[#00A651] text-sm font-medium mb-1">Our Score</label>
                     <input type="number" min="0" value={formData.homeScore} onChange={(e) => setFormData({ ...formData, homeScore: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none" />
+                      className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none" />
                   </div>
                   <div>
-                    <label className="block text-[#4ade80] text-sm font-medium mb-1">Opponent Score</label>
+                    <label className="block text-[#00A651] text-sm font-medium mb-1">Opponent Score</label>
                     <input type="number" min="0" value={formData.awayScore} onChange={(e) => setFormData({ ...formData, awayScore: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none" />
+                      className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none" />
                   </div>
                 </div>
               )}
             </>
           )}
         </form>
-        <div className="p-4 border-t border-[#1a8a68]">
+        <div className="p-4 border-t border-[#D4E4D4]">
           <button type="submit" onClick={handleSubmit}
-            className="w-full py-3 bg-[#22c55e] text-[#0a3d2e] rounded-xl font-semibold hover:bg-[#4ade80] transition-colors flex items-center justify-center gap-2">
+            className="w-full py-3 bg-[#005028] text-white rounded-xl font-semibold hover:bg-[#00A651] transition-colors flex items-center justify-center gap-2">
             <Save className="w-5 h-5" />
             {game ? 'Save Changes' : 'Add Game'}
           </button>
@@ -939,21 +939,21 @@ const TrainingFormModal = ({ training, teams, allEvents, onSave, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-      <div className="relative w-full sm:max-w-lg max-h-[90vh] bg-[#0d5943] border-2 border-amber-500/50 rounded-t-3xl sm:rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
-        <div className="p-4 border-b border-[#1a8a68] flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+      <div className="relative w-full sm:max-w-lg max-h-[90vh] bg-white border-2 border-amber-500/50 rounded-t-3xl sm:rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="p-4 border-b border-[#D4E4D4] flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
             <Dumbbell className="w-5 h-5 text-amber-400" />
             {training ? 'Edit Training' : 'Add Training Session'}
           </h2>
-          <button onClick={onClose} className="w-8 h-8 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center hover:border-[#22c55e]">
-            <X className="w-4 h-4 text-white" />
+          <button onClick={onClose} className="w-8 h-8 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center hover:border-[#00A651]">
+            <X className="w-4 h-4 text-gray-800" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-4 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
           <div>
             <label className="block text-amber-400 text-sm font-medium mb-1">Team *</label>
             <select required value={formData.teamId} onChange={(e) => setFormData({ ...formData, teamId: e.target.value })}
-              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-amber-400 focus:outline-none">
+              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-amber-400 focus:outline-none">
               <option value="">Select Team</option>
               {teams.map(team => <option key={team.id} value={team.id}>{team.name}</option>)}
             </select>
@@ -961,7 +961,7 @@ const TrainingFormModal = ({ training, teams, allEvents, onSave, onClose }) => {
           <div>
             <label className="block text-amber-400 text-sm font-medium mb-1">Training Type *</label>
             <select required value={formData.trainingType} onChange={(e) => setFormData({ ...formData, trainingType: e.target.value })}
-              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-amber-400 focus:outline-none">
+              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-amber-400 focus:outline-none">
               {TRAINING_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
             </select>
           </div>
@@ -969,31 +969,31 @@ const TrainingFormModal = ({ training, teams, allEvents, onSave, onClose }) => {
             <div>
               <label className="block text-amber-400 text-sm font-medium mb-1">Date *</label>
               <input type="date" required value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-amber-400 focus:outline-none" />
+                className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-amber-400 focus:outline-none" />
             </div>
             <div>
               <label className="block text-amber-400 text-sm font-medium mb-1">Start Time *</label>
               <input type="time" required value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-amber-400 focus:outline-none" />
+                className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-amber-400 focus:outline-none" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-amber-400 text-sm font-medium mb-1">End Time</label>
               <input type="time" value={formData.endTime} onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-amber-400 focus:outline-none" />
+                className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-amber-400 focus:outline-none" />
             </div>
             <div>
               <label className="block text-amber-400 text-sm font-medium mb-1">Venue *</label>
               <input type="text" required value={formData.venue} onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
-                className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-amber-400 focus:outline-none" placeholder="e.g., Emerald Indoor Courts" />
+                className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-amber-400 focus:outline-none" placeholder="e.g., Emerald Indoor Courts" />
             </div>
           </div>
           <div>
             <label className="block text-amber-400 text-sm font-medium mb-1">Notes</label>
             <textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               rows={3} placeholder="Optional session notes..."
-              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white placeholder-[#1a8a68] focus:border-amber-400 focus:outline-none resize-none" />
+              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 focus:border-amber-400 focus:outline-none resize-none" />
           </div>
 
           {conflict && (
@@ -1003,9 +1003,9 @@ const TrainingFormModal = ({ training, teams, allEvents, onSave, onClose }) => {
             </div>
           )}
         </form>
-        <div className="p-4 border-t border-[#1a8a68]">
+        <div className="p-4 border-t border-[#D4E4D4]">
           <button type="submit" onClick={handleSubmit}
-            className="w-full py-3 bg-amber-500 text-[#0a3d2e] rounded-xl font-semibold hover:bg-amber-400 transition-colors flex items-center justify-center gap-2">
+            className="w-full py-3 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-400 transition-colors flex items-center justify-center gap-2">
             <Save className="w-5 h-5" />
             {training ? 'Save Changes' : 'Add Training Session'}
           </button>

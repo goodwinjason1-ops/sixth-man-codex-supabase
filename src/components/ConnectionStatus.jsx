@@ -8,9 +8,9 @@ const ConnectionStatus = ({ className = '' }) => {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {isOnline ? (
-        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#065f46] border border-[#22c55e] rounded-full">
-          <div className="w-2 h-2 rounded-full bg-[#4ade80] animate-pulse" />
-          <span className="text-[#4ade80] text-xs font-medium hidden sm:inline">Online</span>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#005028] border border-[#00A651] rounded-full">
+          <div className="w-2 h-2 rounded-full bg-[#00A651] animate-pulse" />
+          <span className="text-[#00A651] text-xs font-medium hidden sm:inline">Online</span>
         </div>
       ) : (
         <>

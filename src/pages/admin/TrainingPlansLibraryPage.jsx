@@ -258,7 +258,7 @@ const TrainingPlansLibraryPage = () => {
   const getApprovalBadge = (status) => {
     switch (status) {
       case 'approved':
-        return 'bg-[#22c55e]/20 text-[#4ade80] border-[#22c55e]';
+        return 'bg-[#005028]/20 text-[#00A651] border-[#00A651]';
       case 'pending':
         return 'bg-yellow-500/20 text-yellow-400 border-yellow-500';
       case 'rejected':
@@ -323,25 +323,25 @@ const TrainingPlansLibraryPage = () => {
       <div className="space-y-6">
         {/* Stats Overview */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-white">{stats.total}</p>
-            <p className="text-[#1a8a68] text-xs">Total Plans</p>
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
+            <p className="text-[#6B7C6B] text-xs">Total Plans</p>
           </div>
-          <div className="bg-[#0d5943] border-2 border-yellow-500/30 rounded-xl p-4 text-center">
+          <div className="bg-white border-2 border-yellow-500/30 rounded-xl p-4 text-center">
             <p className="text-2xl font-bold text-yellow-400">{stats.pending}</p>
-            <p className="text-[#1a8a68] text-xs">Pending Review</p>
+            <p className="text-[#6B7C6B] text-xs">Pending Review</p>
           </div>
-          <div className="bg-[#0d5943] border-2 border-[#22c55e]/30 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-[#4ade80]">{stats.approved}</p>
-            <p className="text-[#1a8a68] text-xs">Approved</p>
+          <div className="bg-white border-2 border-[#00A651]/30 rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-[#00A651]">{stats.approved}</p>
+            <p className="text-[#6B7C6B] text-xs">Approved</p>
           </div>
-          <div className="bg-[#0d5943] border-2 border-red-500/30 rounded-xl p-4 text-center">
+          <div className="bg-white border-2 border-red-500/30 rounded-xl p-4 text-center">
             <p className="text-2xl font-bold text-red-400">{stats.rejected}</p>
-            <p className="text-[#1a8a68] text-xs">Needs Revision</p>
+            <p className="text-[#6B7C6B] text-xs">Needs Revision</p>
           </div>
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-white">{stats.totalCoaches}</p>
-            <p className="text-[#1a8a68] text-xs">Active Coaches</p>
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-gray-800">{stats.totalCoaches}</p>
+            <p className="text-[#6B7C6B] text-xs">Active Coaches</p>
           </div>
         </div>
 
@@ -353,7 +353,7 @@ const TrainingPlansLibraryPage = () => {
               <p className="text-yellow-400 font-medium">
                 {stats.pending} training plan{stats.pending !== 1 ? 's' : ''} awaiting review
               </p>
-              <p className="text-white/60 text-sm">
+              <p className="text-gray-500 text-sm">
                 Please review and approve or request revisions for pending plans.
               </p>
             </div>
@@ -361,21 +361,21 @@ const TrainingPlansLibraryPage = () => {
         )}
 
         {/* Search and Filters */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-4">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-4">
           <div className="relative mb-3">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1a8a68]" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#6B7C6B]" />
             <input
               type="text"
               placeholder="Search plans by name, coach, or team..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+              className="w-full pl-10 pr-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
             />
           </div>
 
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 text-[#4ade80] text-sm hover:text-white transition-colors"
+            className="flex items-center gap-2 text-[#00A651] text-sm hover:text-gray-800 transition-colors"
           >
             <Filter className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
@@ -383,14 +383,14 @@ const TrainingPlansLibraryPage = () => {
           </button>
 
           {showFilters && (
-            <div className="mt-4 pt-4 border-t border-[#1a8a68] grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="mt-4 pt-4 border-t border-[#D4E4D4] grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Coach Filter */}
               <div>
-                <label className="block text-[#1a8a68] text-xs font-medium mb-2">Coach</label>
+                <label className="block text-[#6B7C6B] text-xs font-medium mb-2">Coach</label>
                 <select
                   value={selectedCoach}
                   onChange={(e) => setSelectedCoach(e.target.value)}
-                  className="w-full bg-[#0a3d2e] border border-[#1a8a68] rounded-lg px-3 py-2 text-white focus:border-[#22c55e] focus:outline-none"
+                  className="w-full bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg px-3 py-2 text-gray-800 focus:border-[#00A651] focus:outline-none"
                 >
                   <option value="all">All Coaches</option>
                   {sampleCoaches.map(coach => (
@@ -401,11 +401,11 @@ const TrainingPlansLibraryPage = () => {
 
               {/* Age Group Filter */}
               <div>
-                <label className="block text-[#1a8a68] text-xs font-medium mb-2">Age Group</label>
+                <label className="block text-[#6B7C6B] text-xs font-medium mb-2">Age Group</label>
                 <select
                   value={selectedAgeGroup}
                   onChange={(e) => setSelectedAgeGroup(e.target.value)}
-                  className="w-full bg-[#0a3d2e] border border-[#1a8a68] rounded-lg px-3 py-2 text-white focus:border-[#22c55e] focus:outline-none"
+                  className="w-full bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg px-3 py-2 text-gray-800 focus:border-[#00A651] focus:outline-none"
                 >
                   <option value="all">All Age Groups</option>
                   {ageGroups.map(ag => (
@@ -416,11 +416,11 @@ const TrainingPlansLibraryPage = () => {
 
               {/* Approval Status Filter */}
               <div>
-                <label className="block text-[#1a8a68] text-xs font-medium mb-2">Approval Status</label>
+                <label className="block text-[#6B7C6B] text-xs font-medium mb-2">Approval Status</label>
                 <select
                   value={selectedApprovalStatus}
                   onChange={(e) => setSelectedApprovalStatus(e.target.value)}
-                  className="w-full bg-[#0a3d2e] border border-[#1a8a68] rounded-lg px-3 py-2 text-white focus:border-[#22c55e] focus:outline-none"
+                  className="w-full bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg px-3 py-2 text-gray-800 focus:border-[#00A651] focus:outline-none"
                 >
                   <option value="all">All Status</option>
                   <option value="pending">Pending Review</option>
@@ -434,27 +434,27 @@ const TrainingPlansLibraryPage = () => {
 
         {/* Plans List */}
         {filteredPlans.length === 0 ? (
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-8 text-center">
-            <BookOpen className="w-12 h-12 text-[#1a8a68] mx-auto mb-3" />
-            <h3 className="text-white font-semibold mb-2">No Training Plans Found</h3>
-            <p className="text-[#1a8a68] text-sm">Try adjusting your filters</p>
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
+            <BookOpen className="w-12 h-12 text-[#6B7C6B] mx-auto mb-3" />
+            <h3 className="text-gray-800 font-semibold mb-2">No Training Plans Found</h3>
+            <p className="text-[#6B7C6B] text-sm">Try adjusting your filters</p>
           </div>
         ) : (
           <div className="space-y-4">
             {filteredPlans.map(plan => (
               <div
                 key={plan.id}
-                className={`bg-[#0d5943] border-2 rounded-2xl p-5 transition-all hover:shadow-lg ${
+                className={`bg-white border-2 rounded-2xl p-5 transition-all hover:shadow-lg ${
                   plan.approvalStatus === 'pending'
                     ? 'border-yellow-500/50'
-                    : 'border-[#1a8a68] hover:border-[#22c55e]'
+                    : 'border-[#D4E4D4] hover:border-[#00A651]'
                 }`}
               >
                 <div className="flex flex-col lg:flex-row lg:items-start gap-4">
                   {/* Plan Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
-                      <h3 className="text-white font-bold text-lg">{plan.name}</h3>
+                      <h3 className="text-gray-800 font-bold text-lg">{plan.name}</h3>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${getApprovalBadge(plan.approvalStatus)}`}>
                         {plan.approvalStatus === 'pending' ? 'Pending Review' :
                          plan.approvalStatus === 'approved' ? 'Approved' : 'Needs Revision'}
@@ -467,9 +467,9 @@ const TrainingPlansLibraryPage = () => {
                       )}
                     </div>
 
-                    <p className="text-white/70 text-sm mb-3 line-clamp-2">{plan.description}</p>
+                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">{plan.description}</p>
 
-                    <div className="flex items-center gap-4 text-sm text-[#1a8a68] mb-3 flex-wrap">
+                    <div className="flex items-center gap-4 text-sm text-[#6B7C6B] mb-3 flex-wrap">
                       <span className="flex items-center gap-1">
                         <User className="w-4 h-4" />
                         {plan.coachName}
@@ -493,7 +493,7 @@ const TrainingPlansLibraryPage = () => {
                       {plan.focusAreas.map((area, idx) => (
                         <span
                           key={idx}
-                          className="px-2 py-1 bg-[#22c55e]/20 text-[#4ade80] text-xs rounded-full"
+                          className="px-2 py-1 bg-[#005028]/20 text-[#00A651] text-xs rounded-full"
                         >
                           {area}
                         </span>
@@ -514,7 +514,7 @@ const TrainingPlansLibraryPage = () => {
                   <div className="flex lg:flex-col gap-2 flex-shrink-0">
                     <button
                       onClick={() => setSelectedPlan(plan)}
-                      className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-800 text-sm transition-colors"
                     >
                       <Eye className="w-4 h-4" />
                       View
@@ -524,7 +524,7 @@ const TrainingPlansLibraryPage = () => {
                       <>
                         <button
                           onClick={() => handleApprove(plan.id)}
-                          className="flex items-center gap-2 px-4 py-2 bg-[#22c55e] hover:bg-[#1a8a68] rounded-lg text-white text-sm font-medium transition-colors"
+                          className="flex items-center gap-2 px-4 py-2 bg-[#005028] hover:bg-gray-100 rounded-lg text-white text-sm font-medium transition-colors"
                         >
                           <CheckCircle className="w-4 h-4" />
                           Approve
@@ -552,7 +552,7 @@ const TrainingPlansLibraryPage = () => {
                 </div>
 
                 {/* Footer */}
-                <div className="mt-4 pt-3 border-t border-[#1a8a68]/50 flex items-center justify-between text-xs text-[#1a8a68]">
+                <div className="mt-4 pt-3 border-t border-[#D4E4D4]/50 flex items-center justify-between text-xs text-[#6B7C6B]">
                   <span>Created {formatDate(plan.createdAt)}</span>
                   {plan.usageCount > 0 && (
                     <span className="flex items-center gap-1">
@@ -572,41 +572,41 @@ const TrainingPlansLibraryPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelectedPlan(null)}>
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
           <div
-            className="relative bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            className="relative bg-white border-2 border-[#D4E4D4] rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
-            <h2 className="text-xl font-bold text-white mb-4">{selectedPlan.name}</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">{selectedPlan.name}</h2>
 
             <div className="space-y-4">
               <div>
-                <p className="text-[#1a8a68] text-sm mb-1">Description</p>
-                <p className="text-white">{selectedPlan.description}</p>
+                <p className="text-[#6B7C6B] text-sm mb-1">Description</p>
+                <p className="text-gray-800">{selectedPlan.description}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-[#1a8a68] text-sm mb-1">Coach</p>
-                  <p className="text-white">{selectedPlan.coachName}</p>
+                  <p className="text-[#6B7C6B] text-sm mb-1">Coach</p>
+                  <p className="text-gray-800">{selectedPlan.coachName}</p>
                 </div>
                 <div>
-                  <p className="text-[#1a8a68] text-sm mb-1">Team</p>
-                  <p className="text-white">{selectedPlan.teamName}</p>
+                  <p className="text-[#6B7C6B] text-sm mb-1">Team</p>
+                  <p className="text-gray-800">{selectedPlan.teamName}</p>
                 </div>
                 <div>
-                  <p className="text-[#1a8a68] text-sm mb-1">Duration</p>
-                  <p className="text-white">{formatDate(selectedPlan.dateRange.start)} - {formatDate(selectedPlan.dateRange.end)}</p>
+                  <p className="text-[#6B7C6B] text-sm mb-1">Duration</p>
+                  <p className="text-gray-800">{formatDate(selectedPlan.dateRange.start)} - {formatDate(selectedPlan.dateRange.end)}</p>
                 </div>
                 <div>
-                  <p className="text-[#1a8a68] text-sm mb-1">Sessions & Drills</p>
-                  <p className="text-white">{selectedPlan.sessions} sessions • {selectedPlan.totalDrills} drills</p>
+                  <p className="text-[#6B7C6B] text-sm mb-1">Sessions & Drills</p>
+                  <p className="text-gray-800">{selectedPlan.sessions} sessions • {selectedPlan.totalDrills} drills</p>
                 </div>
               </div>
 
               <div>
-                <p className="text-[#1a8a68] text-sm mb-2">Focus Areas</p>
+                <p className="text-[#6B7C6B] text-sm mb-2">Focus Areas</p>
                 <div className="flex flex-wrap gap-2">
                   {selectedPlan.focusAreas.map((area, idx) => (
-                    <span key={idx} className="px-3 py-1 bg-[#22c55e]/20 text-[#4ade80] rounded-full text-sm">
+                    <span key={idx} className="px-3 py-1 bg-[#005028]/20 text-[#00A651] rounded-full text-sm">
                       {area}
                     </span>
                   ))}
@@ -614,8 +614,8 @@ const TrainingPlansLibraryPage = () => {
               </div>
 
               {selectedPlan.approvalStatus === 'approved' && selectedPlan.approvedAt && (
-                <div className="p-3 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-lg">
-                  <p className="text-[#4ade80] text-sm">
+                <div className="p-3 bg-[#005028]/10 border border-[#00A651]/30 rounded-lg">
+                  <p className="text-[#00A651] text-sm">
                     Approved by {selectedPlan.approvedBy} on {formatDate(selectedPlan.approvedAt)}
                   </p>
                 </div>
@@ -625,7 +625,7 @@ const TrainingPlansLibraryPage = () => {
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setSelectedPlan(null)}
-                className="flex-1 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-white font-medium transition-colors"
+                className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-800 font-medium transition-colors"
               >
                 Close
               </button>
@@ -635,7 +635,7 @@ const TrainingPlansLibraryPage = () => {
                     handleApprove(selectedPlan.id);
                     setSelectedPlan(null);
                   }}
-                  className="flex-1 py-3 bg-[#22c55e] hover:bg-[#1a8a68] rounded-xl text-white font-medium transition-colors"
+                  className="flex-1 py-3 bg-[#005028] hover:bg-gray-100 rounded-xl text-white font-medium transition-colors"
                 >
                   Approve Plan
                 </button>
@@ -650,11 +650,11 @@ const TrainingPlansLibraryPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowApprovalModal(null)}>
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
           <div
-            className="relative bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-6 max-w-md w-full"
+            className="relative bg-white border-2 border-[#D4E4D4] rounded-2xl p-6 max-w-md w-full"
             onClick={e => e.stopPropagation()}
           >
-            <h3 className="text-xl font-bold text-white mb-4">Request Revision</h3>
-            <p className="text-white/70 text-sm mb-4">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Request Revision</h3>
+            <p className="text-gray-600 text-sm mb-4">
               Please provide feedback for Coach {showApprovalModal.coachName} on what needs to be revised:
             </p>
 
@@ -663,7 +663,7 @@ const TrainingPlansLibraryPage = () => {
               onChange={(e) => setRejectionReason(e.target.value)}
               placeholder="Enter revision feedback..."
               rows={4}
-              className="w-full bg-[#0a3d2e] border border-[#1a8a68] rounded-xl px-4 py-3 text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none resize-none mb-4"
+              className="w-full bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl px-4 py-3 text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none resize-none mb-4"
             />
 
             <div className="flex gap-3">
@@ -672,7 +672,7 @@ const TrainingPlansLibraryPage = () => {
                   setShowApprovalModal(null);
                   setRejectionReason('');
                 }}
-                className="flex-1 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-white font-medium transition-colors"
+                className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-800 font-medium transition-colors"
               >
                 Cancel
               </button>

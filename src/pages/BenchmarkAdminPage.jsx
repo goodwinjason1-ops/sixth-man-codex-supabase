@@ -26,9 +26,9 @@ import {
 import PageShell from '../components/PageShell';
 
 const levelColors = {
-  1: 'bg-[#1a8a68]',
-  2: 'bg-[#22c55e]',
-  3: 'bg-[#4ade80]',
+  1: 'bg-[#D4E4D4]',
+  2: 'bg-[#005028]',
+  3: 'bg-[#00A651]',
   4: 'bg-[#86efac]'
 };
 
@@ -260,7 +260,7 @@ const BenchmarkAdminPage = () => {
       headerActions={
         <div className={`px-3 py-1.5 rounded-full text-xs font-medium ${
           isOnline
-            ? 'bg-[#065f46] text-[#4ade80] border border-[#22c55e]'
+            ? 'bg-[#005028] text-[#00A651] border border-[#00A651]'
             : 'bg-yellow-900/50 text-yellow-400 border border-yellow-600'
         }`}>
           {isOnline ? 'Online' : 'Offline'}
@@ -272,14 +272,14 @@ const BenchmarkAdminPage = () => {
         <div className="grid grid-cols-2 gap-4 mb-6">
           {/* Age Group Selector */}
           <div>
-            <label className="block text-white font-medium text-sm mb-2">Age Group</label>
+            <label className="block text-gray-800 font-medium text-sm mb-2">Age Group</label>
             <select
               value={selectedAgeGroup}
               onChange={(e) => setSelectedAgeGroup(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0d5943] border border-[#1a8a68] rounded-xl text-white focus:border-[#22c55e] focus:outline-none appearance-none cursor-pointer"
+              className="w-full px-4 py-3 bg-white border border-[#D4E4D4] rounded-xl text-gray-800 focus:border-[#00A651] focus:outline-none appearance-none cursor-pointer"
             >
               {AGE_GROUPS.map(group => (
-                <option key={group.id} value={group.id} className="bg-[#0d5943]">
+                <option key={group.id} value={group.id} className="bg-white">
                   {group.name}
                 </option>
               ))}
@@ -288,14 +288,14 @@ const BenchmarkAdminPage = () => {
 
           {/* Skill Selector */}
           <div>
-            <label className="block text-white font-medium text-sm mb-2">Skill Category</label>
+            <label className="block text-gray-800 font-medium text-sm mb-2">Skill Category</label>
             <select
               value={selectedSkill}
               onChange={(e) => setSelectedSkill(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0d5943] border border-[#1a8a68] rounded-xl text-white focus:border-[#22c55e] focus:outline-none appearance-none cursor-pointer"
+              className="w-full px-4 py-3 bg-white border border-[#D4E4D4] rounded-xl text-gray-800 focus:border-[#00A651] focus:outline-none appearance-none cursor-pointer"
             >
               {SKILL_CATEGORIES.map(skill => (
-                <option key={skill.id} value={skill.id} className="bg-[#0d5943]">
+                <option key={skill.id} value={skill.id} className="bg-white">
                   {skill.name}
                 </option>
               ))}
@@ -304,11 +304,11 @@ const BenchmarkAdminPage = () => {
         </div>
 
         {/* Current Selection Display */}
-        <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4 mb-6">
-          <h2 className="text-white font-semibold">
+        <div className="bg-white border border-[#D4E4D4] rounded-xl p-4 mb-6">
+          <h2 className="text-gray-800 font-semibold">
             Editing: {currentSkillName}
           </h2>
-          <p className="text-[#4ade80] text-sm">
+          <p className="text-[#00A651] text-sm">
             {currentAgeGroupName} ({selectedAgeGroup.toUpperCase()})
           </p>
         </div>
@@ -324,7 +324,7 @@ const BenchmarkAdminPage = () => {
         {/* Loading State */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-[#4ade80] animate-spin" />
+            <Loader2 className="w-8 h-8 text-[#00A651] animate-spin" />
           </div>
         ) : (
           /* Level Editors */
@@ -340,7 +340,7 @@ const BenchmarkAdminPage = () => {
               return (
                 <div
                   key={level}
-                  className="bg-[#0d5943] border border-[#1a8a68] rounded-xl overflow-hidden"
+                  className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden"
                 >
                   {/* Level Header */}
                   <button
@@ -349,29 +349,29 @@ const BenchmarkAdminPage = () => {
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-lg ${levelColors[level]} flex items-center justify-center`}>
-                        <span className="text-[#0a3d2e] font-bold">{level}</span>
+                        <span className="text-white font-bold">{level}</span>
                       </div>
                       <div className="text-left">
-                        <span className="text-white font-medium">
+                        <span className="text-gray-800 font-medium">
                           Level {level}: {levelData.label}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-[#1a8a68] text-sm">
+                      <span className="text-[#6B7C6B] text-sm">
                         {criteriaCount} {criteriaCount === 1 ? 'criterion' : 'criteria'}
                       </span>
                       {isExpanded ? (
-                        <ChevronDown className="w-5 h-5 text-[#4ade80]" />
+                        <ChevronDown className="w-5 h-5 text-[#00A651]" />
                       ) : (
-                        <ChevronRight className="w-5 h-5 text-[#1a8a68]" />
+                        <ChevronRight className="w-5 h-5 text-[#6B7C6B]" />
                       )}
                     </div>
                   </button>
 
                   {/* Criteria Editor */}
                   {isExpanded && (
-                    <div className="px-4 pb-4 space-y-3 border-t border-[#1a8a68] pt-4">
+                    <div className="px-4 pb-4 space-y-3 border-t border-[#D4E4D4] pt-4">
                       {levelData.criteria?.map((criterion, idx) => (
                         <div key={idx} className="flex items-start gap-2">
                           <div className="flex-1">
@@ -380,7 +380,7 @@ const BenchmarkAdminPage = () => {
                               value={criterion}
                               onChange={(e) => handleCriterionChange(level, idx, e.target.value)}
                               placeholder={`Criterion ${idx + 1}...`}
-                              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+                              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
                             />
                           </div>
                           <button
@@ -395,7 +395,7 @@ const BenchmarkAdminPage = () => {
                       {/* Add Criterion Button */}
                       <button
                         onClick={() => handleAddCriterion(level)}
-                        className="w-full py-2 border-2 border-dashed border-[#1a8a68] rounded-lg text-[#4ade80] text-sm font-medium hover:border-[#22c55e] hover:bg-[#0a3d2e] transition-colors flex items-center justify-center gap-2"
+                        className="w-full py-2 border-2 border-dashed border-[#D4E4D4] rounded-lg text-[#00A651] text-sm font-medium hover:border-[#00A651] hover:bg-[#F5F9F5] transition-colors flex items-center justify-center gap-2"
                       >
                         <Plus className="w-4 h-4" />
                         Add Criterion
@@ -416,10 +416,10 @@ const BenchmarkAdminPage = () => {
             disabled={saving || !hasChanges}
             className={`w-full py-4 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
               saving
-                ? 'bg-[#1a8a68] text-white opacity-75 cursor-not-allowed'
+                ? 'bg-[#D4E4D4] text-gray-800 opacity-75 cursor-not-allowed'
                 : hasChanges
-                  ? 'bg-[#1a8a68] hover:bg-[#22c55e] text-white'
-                  : 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68] cursor-not-allowed'
+                  ? 'bg-[#D4E4D4] hover:bg-[#00A651] text-white'
+                  : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] cursor-not-allowed'
             }`}
           >
             {saving ? (
@@ -444,7 +444,7 @@ const BenchmarkAdminPage = () => {
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={handleResetToDefaults}
-              className="py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl text-white font-medium text-sm hover:border-[#22c55e] transition-colors flex items-center justify-center gap-2"
+              className="py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl text-gray-800 font-medium text-sm hover:border-[#00A651] transition-colors flex items-center justify-center gap-2"
             >
               <RefreshCw className="w-4 h-4" />
               Reset to Defaults
@@ -452,7 +452,7 @@ const BenchmarkAdminPage = () => {
             <button
               onClick={loadBenchmark}
               disabled={loading}
-              className="py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl text-white font-medium text-sm hover:border-[#22c55e] transition-colors flex items-center justify-center gap-2"
+              className="py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl text-gray-800 font-medium text-sm hover:border-[#00A651] transition-colors flex items-center justify-center gap-2"
             >
               <Download className="w-4 h-4" />
               Reload Data
@@ -471,7 +471,7 @@ const BenchmarkAdminPage = () => {
 
         {/* Quick Navigation */}
         <div className="mt-8">
-          <h3 className="text-white font-medium mb-3">Quick Navigation</h3>
+          <h3 className="text-gray-800 font-medium mb-3">Quick Navigation</h3>
           <div className="flex flex-wrap gap-2">
             {AGE_GROUPS.map(group => (
               <button
@@ -479,8 +479,8 @@ const BenchmarkAdminPage = () => {
                 onClick={() => setSelectedAgeGroup(group.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   selectedAgeGroup === group.id
-                    ? 'bg-[#22c55e] text-[#0a3d2e]'
-                    : 'bg-[#0a3d2e] border border-[#1a8a68] text-[#4ade80] hover:border-[#22c55e]'
+                    ? 'bg-[#005028] text-white'
+                    : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#00A651] hover:border-[#00A651]'
                 }`}
               >
                 {group.id.toUpperCase()}
@@ -490,26 +490,26 @@ const BenchmarkAdminPage = () => {
         </div>
 
         {/* Seed All Benchmarks Section */}
-        <div className="mt-8 p-4 bg-[#0d5943] border border-[#1a8a68] rounded-xl">
+        <div className="mt-8 p-4 bg-white border border-[#D4E4D4] rounded-xl">
           <div className="flex items-center gap-3 mb-3">
-            <Database className="w-5 h-5 text-[#4ade80]" />
-            <h3 className="text-white font-medium">Initialize All Benchmarks</h3>
+            <Database className="w-5 h-5 text-[#00A651]" />
+            <h3 className="text-gray-800 font-medium">Initialize All Benchmarks</h3>
           </div>
-          <p className="text-[#1a8a68] text-sm mb-4">
+          <p className="text-[#6B7C6B] text-sm mb-4">
             Seed all {Object.keys(DEFAULT_BENCHMARKS).length} benchmark documents to Firestore with default criteria.
             This will create/update all age group × skill combinations.
           </p>
           {seeding ? (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-white">Seeding benchmarks...</span>
-                <span className="text-[#4ade80]">
+                <span className="text-gray-800">Seeding benchmarks...</span>
+                <span className="text-[#00A651]">
                   {seedProgress.current} / {seedProgress.total}
                 </span>
               </div>
-              <div className="w-full bg-[#0a3d2e] rounded-full h-2">
+              <div className="w-full bg-[#F5F9F5] rounded-full h-2">
                 <div
-                  className="bg-[#4ade80] h-2 rounded-full transition-all duration-300"
+                  className="bg-[#00A651] h-2 rounded-full transition-all duration-300"
                   style={{ width: `${(seedProgress.current / seedProgress.total) * 100}%` }}
                 />
               </div>
@@ -520,8 +520,8 @@ const BenchmarkAdminPage = () => {
               disabled={!isOnline}
               className={`w-full py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
                 isOnline
-                  ? 'bg-[#0a3d2e] border border-[#1a8a68] text-white hover:border-[#22c55e] hover:text-[#4ade80]'
-                  : 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68] cursor-not-allowed'
+                  ? 'bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 hover:border-[#00A651] hover:text-[#00A651]'
+                  : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] cursor-not-allowed'
               }`}
             >
               <Upload className="w-4 h-4" />
@@ -537,39 +537,39 @@ const BenchmarkAdminPage = () => {
       </div>
 
       {/* Footer */}
-      <footer className="py-4 text-center border-t border-[#1a8a68]">
-        <p className="text-[#1a8a68] text-xs">Emerald Lakers Benchmark Administration</p>
+      <footer className="py-4 text-center border-t border-[#D4E4D4]">
+        <p className="text-[#6B7C6B] text-xs">Emerald Lakers Benchmark Administration</p>
       </footer>
 
       {/* Seed Confirmation Modal */}
       {showSeedConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl w-full max-w-md p-6">
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl w-full max-w-md p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-yellow-500/20 border border-yellow-500 rounded-xl flex items-center justify-center">
                 <AlertCircle className="w-6 h-6 text-yellow-400" />
               </div>
               <div>
-                <h3 className="text-white font-semibold">Confirm Seed Operation</h3>
-                <p className="text-[#1a8a68] text-sm">This will overwrite existing data</p>
+                <h3 className="text-gray-800 font-semibold">Confirm Seed Operation</h3>
+                <p className="text-[#6B7C6B] text-sm">This will overwrite existing data</p>
               </div>
             </div>
 
-            <p className="text-white/80 text-sm mb-6">
-              This will create or update <strong className="text-[#4ade80]">{Object.keys(DEFAULT_BENCHMARKS).length} benchmark documents</strong> in
+            <p className="text-gray-700 text-sm mb-6">
+              This will create or update <strong className="text-[#00A651]">{Object.keys(DEFAULT_BENCHMARKS).length} benchmark documents</strong> in
               Firestore with the default criteria. Any custom criteria you've added will be replaced with defaults.
             </p>
 
             <div className="flex gap-3">
               <button
                 onClick={() => setShowSeedConfirm(false)}
-                className="flex-1 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl text-white font-medium hover:border-[#22c55e] transition-colors"
+                className="flex-1 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl text-gray-800 font-medium hover:border-[#00A651] transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSeedAllBenchmarks}
-                className="flex-1 py-3 bg-[#22c55e] rounded-xl text-[#0a3d2e] font-semibold hover:bg-[#4ade80] transition-colors"
+                className="flex-1 py-3 bg-[#005028] rounded-xl text-white font-semibold hover:bg-[#00A651] transition-colors"
               >
                 Seed All
               </button>

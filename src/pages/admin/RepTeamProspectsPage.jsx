@@ -178,13 +178,13 @@ const RepTeamProspectsPage = () => {
       <div className="mb-4 space-y-3">
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           <input
             type="text"
             placeholder="Search players..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[#0d5943] border border-white/20 rounded-lg pl-10 pr-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-[#22c55e]"
+            className="w-full bg-white border border-white/20 rounded-lg pl-10 pr-4 py-2 text-gray-800 placeholder-white/40 focus:outline-none focus:border-[#00A651]"
           />
         </div>
 
@@ -196,8 +196,8 @@ const RepTeamProspectsPage = () => {
               onClick={() => setSelectedAgeGroup(group.id)}
               className={`px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-colors ${
                 selectedAgeGroup === group.id
-                  ? 'bg-[#22c55e] text-white'
-                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  ? 'bg-[#005028] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               {group.name}
@@ -207,12 +207,12 @@ const RepTeamProspectsPage = () => {
 
         {/* Sort Options */}
         <div className="flex items-center gap-2">
-          <Filter size={16} className="text-white/50" />
-          <span className="text-sm text-white/50">Sort by:</span>
+          <Filter size={16} className="text-gray-400" />
+          <span className="text-sm text-gray-400">Sort by:</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="bg-[#0d5943] border border-white/20 rounded-lg px-3 py-1 text-sm text-white focus:outline-none focus:border-[#22c55e]"
+            className="bg-white border border-white/20 rounded-lg px-3 py-1 text-sm text-gray-800 focus:outline-none focus:border-[#00A651]"
           >
             <option value="overall">Prospect Score</option>
             <option value="avgLevel">Average Level</option>
@@ -225,7 +225,7 @@ const RepTeamProspectsPage = () => {
       <div className="space-y-6">
         {/* Top Prospects Highlight */}
         {topProspects.length > 0 && (
-          <div className="bg-gradient-to-br from-[#0d5943] to-[#1a8a68] rounded-xl p-4 border border-[#22c55e]/30">
+          <div className="bg-gradient-to-br from-[#005028] to-[#00A651] rounded-xl p-4 border border-[#00A651]/30">
             <h3 className="font-bold mb-4 flex items-center gap-2">
               <Star className="text-yellow-400" size={18} />
               Top Prospects
@@ -236,22 +236,22 @@ const RepTeamProspectsPage = () => {
                 return (
                   <div
                     key={player.id}
-                    className="flex items-center gap-3 bg-white/5 rounded-lg p-3"
+                    className="flex items-center gap-3 bg-gray-100 rounded-lg p-3"
                   >
-                    <div className={`w-8 h-8 ${badge?.color || 'bg-white/20'} rounded-full flex items-center justify-center`}>
+                    <div className={`w-8 h-8 ${badge?.color || 'bg-gray-200'} rounded-full flex items-center justify-center`}>
                       {badge ? (
-                        <badge.icon className="text-white" size={16} />
+                        <badge.icon className="text-gray-800" size={16} />
                       ) : (
-                        <span className="text-white font-bold text-sm">{index + 1}</span>
+                        <span className="text-gray-800 font-bold text-sm">{index + 1}</span>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{player.name}</p>
-                      <p className="text-xs text-white/50">{player.team || 'Unassigned'}</p>
+                      <p className="text-xs text-gray-400">{player.team || 'Unassigned'}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-[#4ade80]">{player.prospectScore}</p>
-                      <p className="text-xs text-white/50">score</p>
+                      <p className="text-lg font-bold text-[#00A651]">{player.prospectScore}</p>
+                      <p className="text-xs text-gray-400">score</p>
                     </div>
                   </div>
                 );
@@ -264,10 +264,10 @@ const RepTeamProspectsPage = () => {
         <div>
           <h3 className="font-bold mb-4">All Prospects ({prospects.length})</h3>
           {prospects.length === 0 ? (
-            <div className="bg-[#0d5943] rounded-xl p-8 text-center">
-              <User className="mx-auto mb-2 text-white/30" size={32} />
-              <p className="text-white/50">No prospects found</p>
-              <p className="text-sm text-white/30">Adjust filters or add assessments</p>
+            <div className="bg-white rounded-xl p-8 text-center">
+              <User className="mx-auto mb-2 text-gray-800/30" size={32} />
+              <p className="text-gray-400">No prospects found</p>
+              <p className="text-sm text-gray-800/30">Adjust filters or add assessments</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -275,29 +275,29 @@ const RepTeamProspectsPage = () => {
                 const isExpanded = expandedPlayer === player.id;
 
                 return (
-                  <div key={player.id} className="bg-[#0d5943] rounded-xl overflow-hidden">
+                  <div key={player.id} className="bg-white rounded-xl overflow-hidden">
                     <button
                       onClick={() => setExpandedPlayer(isExpanded ? null : player.id)}
                       className="w-full p-4 flex items-center justify-between"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="w-6 text-center text-white/50 text-sm">{index + 1}</span>
-                        <div className="w-10 h-10 bg-[#22c55e]/20 rounded-full flex items-center justify-center">
-                          <User className="text-[#4ade80]" size={20} />
+                        <span className="w-6 text-center text-gray-400 text-sm">{index + 1}</span>
+                        <div className="w-10 h-10 bg-[#005028]/20 rounded-full flex items-center justify-center">
+                          <User className="text-[#00A651]" size={20} />
                         </div>
                         <div className="text-left">
                           <p className="font-medium">{player.name}</p>
-                          <p className="text-xs text-white/50">{player.team || 'Unassigned'}</p>
+                          <p className="text-xs text-gray-400">{player.team || 'Unassigned'}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="text-right">
-                          <p className="text-lg font-bold text-[#4ade80]">{player.prospectScore}</p>
-                          <p className="text-xs text-white/50">score</p>
+                          <p className="text-lg font-bold text-[#00A651]">{player.prospectScore}</p>
+                          <p className="text-xs text-gray-400">score</p>
                         </div>
                         <ChevronDown
                           size={20}
-                          className={`text-white/50 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                          className={`text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                         />
                       </div>
                     </button>
@@ -306,22 +306,22 @@ const RepTeamProspectsPage = () => {
                       <div className="px-4 pb-4 border-t border-white/10 pt-4">
                         {/* Metrics */}
                         <div className="grid grid-cols-3 gap-3 mb-4">
-                          <div className="bg-white/5 rounded-lg p-3 text-center">
-                            <Award className="mx-auto mb-1 text-[#4ade80]" size={16} />
+                          <div className="bg-gray-100 rounded-lg p-3 text-center">
+                            <Award className="mx-auto mb-1 text-[#00A651]" size={16} />
                             <p className="text-lg font-bold">{player.avgLevel}</p>
-                            <p className="text-xs text-white/50">Avg Level</p>
+                            <p className="text-xs text-gray-400">Avg Level</p>
                           </div>
-                          <div className="bg-white/5 rounded-lg p-3 text-center">
-                            <TrendingUp className={`mx-auto mb-1 ${player.improvement > 0 ? 'text-[#4ade80]' : 'text-yellow-400'}`} size={16} />
+                          <div className="bg-gray-100 rounded-lg p-3 text-center">
+                            <TrendingUp className={`mx-auto mb-1 ${player.improvement > 0 ? 'text-[#00A651]' : 'text-yellow-400'}`} size={16} />
                             <p className="text-lg font-bold">
                               {player.improvement > 0 ? '+' : ''}{player.improvement}
                             </p>
-                            <p className="text-xs text-white/50">Improvement</p>
+                            <p className="text-xs text-gray-400">Improvement</p>
                           </div>
-                          <div className="bg-white/5 rounded-lg p-3 text-center">
-                            <Zap className="mx-auto mb-1 text-[#4ade80]" size={16} />
+                          <div className="bg-gray-100 rounded-lg p-3 text-center">
+                            <Zap className="mx-auto mb-1 text-[#00A651]" size={16} />
                             <p className="text-lg font-bold">{Math.round(player.consistency * 100)}%</p>
-                            <p className="text-xs text-white/50">Consistency</p>
+                            <p className="text-xs text-gray-400">Consistency</p>
                           </div>
                         </div>
 
@@ -330,13 +330,13 @@ const RepTeamProspectsPage = () => {
                           <div className="h-48 mb-4">
                             <ResponsiveContainer width="100%" height="100%">
                               <RadarChart data={player.skillBreakdown}>
-                                <PolarGrid stroke="#1a8a68" />
+                                <PolarGrid stroke="#D4E4D4" />
                                 <PolarAngleAxis dataKey="category" tick={{ fill: '#fff', fontSize: 9 }} />
                                 <PolarRadiusAxis domain={[0, 5]} tick={{ fill: '#fff', fontSize: 10 }} />
                                 <Radar
                                   dataKey="avg"
-                                  stroke="#22c55e"
-                                  fill="#22c55e"
+                                  stroke="#00A651"
+                                  fill="#00A651"
                                   fillOpacity={0.5}
                                 />
                               </RadarChart>
@@ -348,11 +348,11 @@ const RepTeamProspectsPage = () => {
                         <div className="flex gap-2">
                           <button
                             onClick={() => navigate(`/player/${player.id}`)}
-                            className="flex-1 py-2 bg-[#22c55e] hover:bg-[#1a8a68] rounded-lg font-medium text-sm transition-colors"
+                            className="flex-1 py-2 bg-[#005028] hover:bg-gray-100 rounded-lg font-medium text-sm transition-colors"
                           >
                             View Profile
                           </button>
-                          <button className="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-medium text-sm transition-colors">
+                          <button className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium text-sm transition-colors">
                             Add to Watchlist
                           </button>
                         </div>

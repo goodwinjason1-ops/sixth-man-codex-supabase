@@ -17,18 +17,18 @@ const MetricScale = ({ metrics }) => {
       {metrics.map((metric, mi) => {
         const IconComponent = Icons[metric.icon] || Icons.Circle;
         return (
-          <div key={mi} className="bg-[#0a3d2e] rounded-lg p-3 border border-[#1a8a68]/50">
+          <div key={mi} className="bg-[#F5F9F5] rounded-lg p-3 border border-[#D4E4D4]/50">
             <div className="flex items-center gap-2 mb-2">
-              <IconComponent className="w-4 h-4 text-[#4ade80]" />
-              <h4 className="text-[#4ade80] font-semibold text-sm">{metric.name}</h4>
+              <IconComponent className="w-4 h-4 text-[#00A651]" />
+              <h4 className="text-[#00A651] font-semibold text-sm">{metric.name}</h4>
             </div>
             <div className="space-y-1.5">
               {metric.levels.map((level, li) => (
                 <div key={li} className="flex items-center gap-2">
                   <div className={`w-5 h-5 rounded-full ${LEVEL_COLORS[li]} flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-white text-[10px] font-bold">{li + 1}</span>
+                    <span className="text-gray-800 text-[10px] font-bold">{li + 1}</span>
                   </div>
-                  <span className="text-white/70 text-xs">{level}</span>
+                  <span className="text-gray-600 text-xs">{level}</span>
                 </div>
               ))}
             </div>

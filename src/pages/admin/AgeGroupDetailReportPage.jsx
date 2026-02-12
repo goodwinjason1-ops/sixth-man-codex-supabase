@@ -239,14 +239,14 @@ const AgeGroupDetailReportPage = () => {
 
   if (!ageGroupId || !AGE_GROUP_CONFIG[ageGroupId]) {
     return (
-      <div className="min-h-screen bg-[#0a3d2e] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#F5F9F5] text-gray-800 flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="mx-auto mb-4 text-yellow-400" size={48} />
           <h2 className="text-xl font-bold mb-2">Age Group Not Found</h2>
-          <p className="text-white/60 mb-4">The requested age group report does not exist.</p>
+          <p className="text-gray-500 mb-4">The requested age group report does not exist.</p>
           <button
             onClick={() => navigate('/admin/age-groups')}
-            className="px-4 py-2 bg-[#22c55e] rounded-lg font-medium"
+            className="px-4 py-2 bg-[#005028] rounded-lg font-medium"
           >
             Back to Age Groups
           </button>
@@ -270,14 +270,14 @@ const AgeGroupDetailReportPage = () => {
           <button
             onClick={exportToCSV}
             disabled={exporting}
-            className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition-colors"
           >
             <Download size={16} />
             {exporting ? 'Exporting...' : 'CSV'}
           </button>
           <button
             onClick={printReport}
-            className="flex items-center gap-2 px-3 py-2 bg-[#22c55e] hover:bg-[#1a8a68] rounded-lg text-sm transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-[#005028] hover:bg-gray-100 rounded-lg text-sm transition-colors"
           >
             <FileText size={16} />
             Print/PDF
@@ -288,61 +288,61 @@ const AgeGroupDetailReportPage = () => {
       <div className="space-y-6 print:bg-white print:text-black">
         {/* Overview Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <div className="bg-[#0d5943] rounded-xl p-4 text-center print:border print:border-gray-300 print:bg-white">
+          <div className="bg-white rounded-xl p-4 text-center print:border print:border-gray-300 print:bg-white">
             <Users className="mx-auto mb-2 text-blue-400 print:text-blue-600" size={24} />
             <p className="text-2xl font-bold">{stats.playerCount}</p>
-            <p className="text-xs text-white/60 print:text-gray-600">Total Players</p>
+            <p className="text-xs text-gray-500 print:text-gray-600">Total Players</p>
           </div>
-          <div className="bg-[#0d5943] rounded-xl p-4 text-center print:border print:border-gray-300 print:bg-white">
+          <div className="bg-white rounded-xl p-4 text-center print:border print:border-gray-300 print:bg-white">
             <Trophy className="mx-auto mb-2 text-purple-400 print:text-purple-600" size={24} />
             <p className="text-2xl font-bold">{stats.teamCount}</p>
-            <p className="text-xs text-white/60 print:text-gray-600">Teams</p>
+            <p className="text-xs text-gray-500 print:text-gray-600">Teams</p>
           </div>
-          <div className="bg-[#0d5943] rounded-xl p-4 text-center print:border print:border-gray-300 print:bg-white">
+          <div className="bg-white rounded-xl p-4 text-center print:border print:border-gray-300 print:bg-white">
             <Target className="mx-auto mb-2 text-green-400 print:text-green-600" size={24} />
             <p className="text-2xl font-bold">{stats.assessmentCount}</p>
-            <p className="text-xs text-white/60 print:text-gray-600">Assessments</p>
+            <p className="text-xs text-gray-500 print:text-gray-600">Assessments</p>
           </div>
-          <div className="bg-[#0d5943] rounded-xl p-4 text-center print:border print:border-gray-300 print:bg-white">
+          <div className="bg-white rounded-xl p-4 text-center print:border print:border-gray-300 print:bg-white">
             <Users className="mx-auto mb-2 text-yellow-400 print:text-yellow-600" size={24} />
             <p className="text-2xl font-bold">{stats.playersAssessed}</p>
-            <p className="text-xs text-white/60 print:text-gray-600">Players Assessed</p>
+            <p className="text-xs text-gray-500 print:text-gray-600">Players Assessed</p>
           </div>
-          <div className="bg-[#0d5943] rounded-xl p-4 text-center print:border print:border-gray-300 print:bg-white">
-            <Award className="mx-auto mb-2 text-[#4ade80] print:text-green-600" size={24} />
-            <p className="text-2xl font-bold text-[#4ade80] print:text-green-600">{stats.avgLevel}</p>
-            <p className="text-xs text-white/60 print:text-gray-600">Avg Level</p>
+          <div className="bg-white rounded-xl p-4 text-center print:border print:border-gray-300 print:bg-white">
+            <Award className="mx-auto mb-2 text-[#00A651] print:text-green-600" size={24} />
+            <p className="text-2xl font-bold text-[#00A651] print:text-green-600">{stats.avgLevel}</p>
+            <p className="text-xs text-gray-500 print:text-gray-600">Avg Level</p>
           </div>
-          <div className="bg-[#0d5943] rounded-xl p-4 text-center print:border print:border-gray-300 print:bg-white">
+          <div className="bg-white rounded-xl p-4 text-center print:border print:border-gray-300 print:bg-white">
             <BarChart3 className="mx-auto mb-2 text-orange-400 print:text-orange-600" size={24} />
             <p className="text-2xl font-bold">{stats.skillAverages.length}</p>
-            <p className="text-xs text-white/60 print:text-gray-600">Skills Tracked</p>
+            <p className="text-xs text-gray-500 print:text-gray-600">Skills Tracked</p>
           </div>
         </div>
 
         {/* Team Comparison */}
-        <div className="bg-[#0d5943] rounded-xl p-4 print:border print:border-gray-300 print:bg-white">
+        <div className="bg-white rounded-xl p-4 print:border print:border-gray-300 print:bg-white">
           <h3 className="font-bold mb-4 flex items-center gap-2">
-            <Trophy size={18} className="text-[#4ade80] print:text-green-600" />
+            <Trophy size={18} className="text-[#00A651] print:text-green-600" />
             Team Comparison
           </h3>
           {teamComparisonData.length > 0 ? (
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={teamComparisonData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1a8a68" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#D4E4D4" />
                   <XAxis type="number" domain={[0, 5]} tick={{ fill: '#fff', fontSize: 12 }} />
                   <YAxis dataKey="name" type="category" width={100} tick={{ fill: '#fff', fontSize: 10 }} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#0d5943', border: '1px solid #1a8a68', borderRadius: '8px' }}
+                    contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #D4E4D4', borderRadius: '8px' }}
                     labelStyle={{ color: '#fff' }}
                   />
-                  <Bar dataKey="avgLevel" name="Avg Level" fill="#22c55e" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="avgLevel" name="Avg Level" fill="#00A651" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <p className="text-white/60 text-center py-8">No team data available</p>
+            <p className="text-gray-500 text-center py-8">No team data available</p>
           )}
 
           {/* Teams Table */}
@@ -350,10 +350,10 @@ const AgeGroupDetailReportPage = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/20 print:border-gray-300">
-                  <th className="text-left py-2 text-white/60 print:text-gray-600">Team</th>
-                  <th className="text-center py-2 text-white/60 print:text-gray-600">Players</th>
-                  <th className="text-center py-2 text-white/60 print:text-gray-600">Assessments</th>
-                  <th className="text-center py-2 text-white/60 print:text-gray-600">Avg Level</th>
+                  <th className="text-left py-2 text-gray-500 print:text-gray-600">Team</th>
+                  <th className="text-center py-2 text-gray-500 print:text-gray-600">Players</th>
+                  <th className="text-center py-2 text-gray-500 print:text-gray-600">Assessments</th>
+                  <th className="text-center py-2 text-gray-500 print:text-gray-600">Avg Level</th>
                 </tr>
               </thead>
               <tbody>
@@ -362,7 +362,7 @@ const AgeGroupDetailReportPage = () => {
                     <td className="py-2 font-medium">{team.name}</td>
                     <td className="py-2 text-center">{team.playerCount}</td>
                     <td className="py-2 text-center">{team.assessmentCount}</td>
-                    <td className="py-2 text-center text-[#4ade80] print:text-green-600 font-bold">{team.avgLevel}</td>
+                    <td className="py-2 text-center text-[#00A651] print:text-green-600 font-bold">{team.avgLevel}</td>
                   </tr>
                 ))}
               </tbody>
@@ -373,38 +373,38 @@ const AgeGroupDetailReportPage = () => {
         {/* Skills Analysis */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Skills Radar */}
-          <div className="bg-[#0d5943] rounded-xl p-4 print:border print:border-gray-300 print:bg-white">
+          <div className="bg-white rounded-xl p-4 print:border print:border-gray-300 print:bg-white">
             <h3 className="font-bold mb-4 flex items-center gap-2">
-              <Target size={18} className="text-[#4ade80] print:text-green-600" />
+              <Target size={18} className="text-[#00A651] print:text-green-600" />
               Skills Overview
             </h3>
             {radarData.length > 0 ? (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart data={radarData}>
-                    <PolarGrid stroke="#1a8a68" />
+                    <PolarGrid stroke="#D4E4D4" />
                     <PolarAngleAxis dataKey="skill" tick={{ fill: '#fff', fontSize: 10 }} />
                     <PolarRadiusAxis angle={30} domain={[0, 5]} tick={{ fill: '#fff', fontSize: 10 }} />
                     <Radar
                       name="Avg Level"
                       dataKey="level"
-                      stroke="#22c55e"
-                      fill="#22c55e"
+                      stroke="#00A651"
+                      fill="#00A651"
                       fillOpacity={0.5}
                     />
                     <Tooltip
-                      contentStyle={{ backgroundColor: '#0d5943', border: '1px solid #1a8a68', borderRadius: '8px' }}
+                      contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #D4E4D4', borderRadius: '8px' }}
                     />
                   </RadarChart>
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className="text-white/60 text-center py-8">No skills data available</p>
+              <p className="text-gray-500 text-center py-8">No skills data available</p>
             )}
           </div>
 
           {/* Skills Gaps */}
-          <div className="bg-[#0d5943] rounded-xl p-4 print:border print:border-gray-300 print:bg-white">
+          <div className="bg-white rounded-xl p-4 print:border print:border-gray-300 print:bg-white">
             <h3 className="font-bold mb-4 flex items-center gap-2">
               <TrendingDown size={18} className="text-red-400 print:text-red-600" />
               Skills Gaps Analysis
@@ -412,35 +412,35 @@ const AgeGroupDetailReportPage = () => {
             {skillsGaps.length > 0 ? (
               <div className="space-y-3 max-h-64 overflow-y-auto">
                 {skillsGaps.map(gap => (
-                  <div key={gap.skillId} className="bg-white/5 rounded-lg p-3 print:border print:border-gray-200 print:bg-gray-50">
+                  <div key={gap.skillId} className="bg-gray-100 rounded-lg p-3 print:border print:border-gray-200 print:bg-gray-50">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-medium">{gap.skill}</span>
                       <span className={`text-sm font-bold ${gap.avg < 2 ? 'text-red-400' : 'text-yellow-400'} print:text-red-600`}>
                         {gap.avg.toFixed(1)}/5
                       </span>
                     </div>
-                    <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden print:bg-gray-200">
+                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden print:bg-gray-200">
                       <div
                         className={`h-full rounded-full ${gap.avg < 2 ? 'bg-red-500' : 'bg-yellow-500'}`}
                         style={{ width: `${(gap.avg / 5) * 100}%` }}
                       />
                     </div>
-                    <p className="text-xs text-white/60 mt-1 print:text-gray-600">{gap.recommendation}</p>
+                    <p className="text-xs text-gray-500 mt-1 print:text-gray-600">{gap.recommendation}</p>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="text-center py-8">
-                <TrendingUp className="mx-auto mb-2 text-[#4ade80]" size={32} />
-                <p className="text-[#4ade80] font-medium">No significant skill gaps!</p>
-                <p className="text-white/60 text-sm">All skills are at or above target levels.</p>
+                <TrendingUp className="mx-auto mb-2 text-[#00A651]" size={32} />
+                <p className="text-[#00A651] font-medium">No significant skill gaps!</p>
+                <p className="text-gray-500 text-sm">All skills are at or above target levels.</p>
               </div>
             )}
           </div>
         </div>
 
         {/* Top Performers */}
-        <div className="bg-[#0d5943] rounded-xl p-4 print:border print:border-gray-300 print:bg-white">
+        <div className="bg-white rounded-xl p-4 print:border print:border-gray-300 print:bg-white">
           <h3 className="font-bold mb-4 flex items-center gap-2">
             <Star size={18} className="text-yellow-400 print:text-yellow-600" />
             Top Performers
@@ -450,11 +450,11 @@ const AgeGroupDetailReportPage = () => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/20 print:border-gray-300">
-                    <th className="text-left py-2 text-white/60 print:text-gray-600">Rank</th>
-                    <th className="text-left py-2 text-white/60 print:text-gray-600">Player</th>
-                    <th className="text-left py-2 text-white/60 print:text-gray-600">Team</th>
-                    <th className="text-center py-2 text-white/60 print:text-gray-600">Avg Level</th>
-                    <th className="text-center py-2 text-white/60 print:text-gray-600">Assessments</th>
+                    <th className="text-left py-2 text-gray-500 print:text-gray-600">Rank</th>
+                    <th className="text-left py-2 text-gray-500 print:text-gray-600">Player</th>
+                    <th className="text-left py-2 text-gray-500 print:text-gray-600">Team</th>
+                    <th className="text-center py-2 text-gray-500 print:text-gray-600">Avg Level</th>
+                    <th className="text-center py-2 text-gray-500 print:text-gray-600">Assessments</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -465,14 +465,14 @@ const AgeGroupDetailReportPage = () => {
                           index === 0 ? 'bg-yellow-500 text-black' :
                           index === 1 ? 'bg-gray-400 text-black' :
                           index === 2 ? 'bg-orange-600 text-white' :
-                          'bg-white/10 text-white/70'
+                          'bg-gray-100 text-gray-600'
                         }`}>
                           {index + 1}
                         </div>
                       </td>
                       <td className="py-2 font-medium">{player.name}</td>
-                      <td className="py-2 text-white/70 print:text-gray-600">{player.team}</td>
-                      <td className="py-2 text-center text-[#4ade80] print:text-green-600 font-bold">{player.avgLevel}</td>
+                      <td className="py-2 text-gray-600 print:text-gray-600">{player.team}</td>
+                      <td className="py-2 text-center text-[#00A651] print:text-green-600 font-bold">{player.avgLevel}</td>
                       <td className="py-2 text-center">{player.assessments}</td>
                     </tr>
                   ))}
@@ -480,14 +480,14 @@ const AgeGroupDetailReportPage = () => {
               </table>
             </div>
           ) : (
-            <p className="text-white/60 text-center py-8">No performer data available</p>
+            <p className="text-gray-500 text-center py-8">No performer data available</p>
           )}
         </div>
 
         {/* Level Distribution */}
-        <div className="bg-[#0d5943] rounded-xl p-4 print:border print:border-gray-300 print:bg-white">
+        <div className="bg-white rounded-xl p-4 print:border print:border-gray-300 print:bg-white">
           <h3 className="font-bold mb-4 flex items-center gap-2">
-            <BarChart3 size={18} className="text-[#4ade80] print:text-green-600" />
+            <BarChart3 size={18} className="text-[#00A651] print:text-green-600" />
             Level Distribution
           </h3>
           <div className="flex gap-4 items-end h-32">
@@ -499,21 +499,21 @@ const AgeGroupDetailReportPage = () => {
                 1: 'bg-red-500',
                 2: 'bg-orange-500',
                 3: 'bg-yellow-500',
-                4: 'bg-[#22c55e]',
+                4: 'bg-[#005028]',
                 5: 'bg-[#86efac]'
               };
 
               return (
                 <div key={level} className="flex-1 flex flex-col items-center">
                   <span className="text-sm font-bold mb-1">{count}</span>
-                  <div className="w-full bg-white/10 rounded-t-lg relative print:bg-gray-200" style={{ height: '80px' }}>
+                  <div className="w-full bg-gray-100 rounded-t-lg relative print:bg-gray-200" style={{ height: '80px' }}>
                     <div
                       className={`absolute bottom-0 left-0 right-0 ${colors[level]} rounded-t-lg transition-all`}
                       style={{ height: `${percentage}%` }}
                     />
                   </div>
-                  <span className="text-xs mt-2 text-white/60 print:text-gray-600">Level {level}</span>
-                  <span className="text-xs text-white/40 print:text-gray-500">{percentage.toFixed(0)}%</span>
+                  <span className="text-xs mt-2 text-gray-500 print:text-gray-600">Level {level}</span>
+                  <span className="text-xs text-gray-400 print:text-gray-500">{percentage.toFixed(0)}%</span>
                 </div>
               );
             })}
@@ -524,7 +524,7 @@ const AgeGroupDetailReportPage = () => {
         <div className="flex justify-center print:hidden">
           <button
             onClick={() => navigate('/admin/age-groups')}
-            className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl font-medium transition-colors"
+            className="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors"
           >
             Back to Age Group Reports
           </button>

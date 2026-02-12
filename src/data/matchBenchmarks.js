@@ -31,7 +31,7 @@ export const MATCH_LEVEL_COLORS = {
   1: { bg: 'bg-red-500', text: 'text-red-400', border: 'border-red-500' },
   2: { bg: 'bg-orange-500', text: 'text-orange-400', border: 'border-orange-500' },
   3: { bg: 'bg-yellow-500', text: 'text-yellow-400', border: 'border-yellow-500' },
-  4: { bg: 'bg-[#22c55e]', text: 'text-[#4ade80]', border: 'border-[#22c55e]' },
+  4: { bg: 'bg-[#005028]', text: 'text-[#00A651]', border: 'border-[#00A651]' },
   5: { bg: 'bg-[#86efac]', text: 'text-[#86efac]', border: 'border-[#86efac]' }
 };
 

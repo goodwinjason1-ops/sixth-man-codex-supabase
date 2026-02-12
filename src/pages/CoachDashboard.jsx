@@ -346,8 +346,8 @@ const CoachDashboard = () => {
     return (
       <div className="min-h-screen bg-lakers-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-lakers-600 border-t-[#22c55e] rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white font-medium">Loading Dashboard...</p>
+          <div className="w-16 h-16 border-4 border-lakers-600 border-t-[#00A651] rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-800 font-medium">Loading Dashboard...</p>
           <p className="text-lakers-400 text-sm mt-1">
             {authLoading ? 'Checking authentication...' :
              dataLoading ? 'Loading data...' :
@@ -374,7 +374,7 @@ const CoachDashboard = () => {
 
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-white">Coach Dashboard</h1>
+              <h1 className="text-2xl font-bold text-gray-800">Coach Dashboard</h1>
               <p className="text-sm text-lakers-300 mt-1">
                 Welcome back, {userProfile?.displayName || 'Coach'}
               </p>
@@ -384,7 +384,7 @@ const CoachDashboard = () => {
               {/* Training Plans Button */}
               <button
                 onClick={() => navigate('/coach/training-plans')}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-white rounded-lg transition-colors"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-gray-800 rounded-lg transition-colors"
               >
                 <Dumbbell className="w-5 h-5" />
                 <span className="hidden sm:inline">Plans</span>
@@ -394,7 +394,7 @@ const CoachDashboard = () => {
               <FirstTimeHint hintKey="coach_assess_skills">
                 <button
                   onClick={() => navigate('/coach-assessment')}
-                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-white rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-gray-800 rounded-lg transition-colors"
                 >
                   <ClipboardCheck className="w-5 h-5" />
                   <span className="hidden sm:inline">Skills</span>
@@ -405,7 +405,7 @@ const CoachDashboard = () => {
               <HelpTooltip text="Record live game performance observations for your players during match day.">
                 <button
                   onClick={() => navigate('/coach/match-assessment')}
-                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-white rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-gray-800 rounded-lg transition-colors"
                 >
                   <Trophy className="w-5 h-5" />
                   <span className="hidden sm:inline">Match Day</span>
@@ -416,7 +416,7 @@ const CoachDashboard = () => {
               <HelpTooltip text="Track player rotations and playing time during live games.">
                 <button
                   onClick={() => navigate('/coach/rotation-tracker')}
-                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-white rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-gray-800 rounded-lg transition-colors"
                 >
                   <Clock className="w-5 h-5" />
                   <span className="hidden sm:inline">Rotations</span>
@@ -447,20 +447,20 @@ const CoachDashboard = () => {
 
         {/* Game Day Banner - Shows when there's a game today but user stayed on dashboard */}
         {isGameDay && gameDayDismissed && primaryGame && (
-          <div className="bg-gradient-to-r from-[#22c55e]/20 to-[#4ade80]/10 border-2 border-[#22c55e] rounded-xl p-4 mb-6">
+          <div className="bg-gradient-to-r from-[#00A651]/20 to-[#00A651]/10 border-2 border-[#00A651] rounded-xl p-4 mb-6">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-[#22c55e] rounded-xl flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 bg-[#005028] rounded-xl flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-gray-800" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[#4ade80] text-xs font-bold uppercase tracking-wide">🏀 Game Day!</span>
+                    <span className="text-[#00A651] text-xs font-bold uppercase tracking-wide">🏀 Game Day!</span>
                   </div>
-                  <h3 className="text-white font-bold text-lg">
+                  <h3 className="text-gray-800 font-bold text-lg">
                     {primaryGame.teamName || primaryGame.team} vs {primaryGame.opponent}
                   </h3>
-                  <p className="text-[#4ade80] text-sm">
+                  <p className="text-[#00A651] text-sm">
                     @ {primaryGame.time} • {primaryGame.venue}
                     {hasMultipleGames && ` (+${todaysGames.length - 1} more game${todaysGames.length > 2 ? 's' : ''})`}
                   </p>
@@ -468,7 +468,7 @@ const CoachDashboard = () => {
               </div>
               <button
                 onClick={() => handleGoToMatchDay()}
-                className="flex items-center gap-2 px-5 py-3 bg-[#22c55e] hover:bg-[#4ade80] text-[#0a3d2e] rounded-xl font-bold transition-colors"
+                className="flex items-center gap-2 px-5 py-3 bg-[#005028] hover:bg-[#00A651] text-white rounded-xl font-bold transition-colors"
               >
                 <Trophy className="w-5 h-5" />
                 Start Assessment
@@ -492,11 +492,11 @@ const CoachDashboard = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-yellow-600 rounded-lg flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-white" />
+                  <FileText className="w-5 h-5 text-gray-800" />
                 </div>
                 <div>
                   <HelpTooltip text="Draft assessments saved on this device. Resume them anytime before submission.">
-                    <h2 className="text-lg font-bold text-white">Pending Assessments</h2>
+                    <h2 className="text-lg font-bold text-gray-800">Pending Assessments</h2>
                   </HelpTooltip>
                   <p className="text-yellow-400 text-sm">
                     {pendingDrafts.length} draft{pendingDrafts.length !== 1 ? 's' : ''} awaiting completion
@@ -528,26 +528,26 @@ const CoachDashboard = () => {
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-3 flex-1">
                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          isSkillsDraft ? 'bg-[#1a8a68]' : 'bg-[#0d5943]'
+                          isSkillsDraft ? 'bg-[#D4E4D4]' : 'bg-white'
                         }`}>
                           {isSkillsDraft ? (
-                            <ClipboardCheck className="w-5 h-5 text-white" />
+                            <ClipboardCheck className="w-5 h-5 text-gray-800" />
                           ) : (
-                            <Trophy className="w-5 h-5 text-[#4ade80]" />
+                            <Trophy className="w-5 h-5 text-[#00A651]" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className={`text-xs px-2 py-0.5 rounded font-medium ${
                               isSkillsDraft
-                                ? 'bg-[#1a8a68] text-white'
-                                : 'bg-[#0d5943] border border-[#1a8a68] text-[#4ade80]'
+                                ? 'bg-[#D4E4D4] text-gray-800'
+                                : 'bg-white border border-[#D4E4D4] text-[#00A651]'
                             }`}>
                               {isSkillsDraft ? 'Skills Assessment' : 'Match Day'}
                             </span>
                             <span className="text-lakers-400 text-xs">{draft.teamName || 'Unknown Team'}</span>
                           </div>
-                          <h4 className="text-white font-semibold mt-1 truncate">
+                          <h4 className="text-gray-800 font-semibold mt-1 truncate">
                             {isSkillsDraft ? draft.playerName : (draft.opponentName || 'vs TBD')}
                           </h4>
                           <div className="flex items-center gap-3 mt-1.5 text-xs text-lakers-400">
@@ -575,7 +575,7 @@ const CoachDashboard = () => {
                       <div className="flex items-center gap-2 ml-3">
                         <button
                           onClick={() => handleResumeDraft(draft)}
-                          className="flex items-center gap-1.5 px-3 py-2 bg-[#1a8a68] hover:bg-[#22c55e] text-white rounded-lg text-sm font-medium transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-2 bg-[#D4E4D4] hover:bg-[#00A651] text-white rounded-lg text-sm font-medium transition-colors"
                         >
                           <Play className="w-4 h-4" />
                           <span className="hidden sm:inline">Resume</span>
@@ -599,17 +599,17 @@ const CoachDashboard = () => {
         {/* Training Plans Quick Card */}
         <div
           onClick={() => navigate('/coach/training-plans')}
-          className="bg-gradient-to-r from-[#0d5943] to-[#0a3d2e] border-2 border-[#1a8a68] rounded-xl p-6 mb-6 cursor-pointer hover:border-[#22c55e] transition-all group"
+          className="bg-gradient-to-r from-[#005028] to-[#003018] border-2 border-[#D4E4D4] rounded-xl p-6 mb-6 cursor-pointer hover:border-[#00A651] transition-all group"
         >
           {coachPlansData.total === 0 ? (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-[#22c55e]/20 border-2 border-[#1a8a68] rounded-xl flex items-center justify-center">
-                  <Dumbbell className="w-7 h-7 text-[#4ade80]" />
+                <div className="w-14 h-14 bg-[#005028]/20 border-2 border-[#D4E4D4] rounded-xl flex items-center justify-center">
+                  <Dumbbell className="w-7 h-7 text-[#00A651]" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-white">Training Plans</h2>
-                  <p className="text-[#1a8a68] text-sm">No training plans yet</p>
+                  <h2 className="text-lg font-bold text-gray-800">Training Plans</h2>
+                  <p className="text-[#6B7C6B] text-sm">No training plans yet</p>
                 </div>
               </div>
               <button
@@ -617,7 +617,7 @@ const CoachDashboard = () => {
                   e.stopPropagation();
                   navigate('/coach/training-plans/new');
                 }}
-                className="flex items-center gap-2 px-4 py-2 bg-[#22c55e] text-[#0a3d2e] rounded-lg font-medium hover:bg-[#4ade80] transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-[#005028] text-white rounded-lg font-medium hover:bg-[#00A651] transition-colors"
               >
                 Create Your First Plan
               </button>
@@ -625,12 +625,12 @@ const CoachDashboard = () => {
           ) : (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-[#22c55e]/20 border-2 border-[#22c55e] rounded-xl flex items-center justify-center">
-                  <Dumbbell className="w-7 h-7 text-[#4ade80]" />
+                <div className="w-14 h-14 bg-[#005028]/20 border-2 border-[#00A651] rounded-xl flex items-center justify-center">
+                  <Dumbbell className="w-7 h-7 text-[#00A651]" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-white">Training Plans</h2>
-                  <p className="text-[#4ade80] text-sm">
+                  <h2 className="text-lg font-bold text-gray-800">Training Plans</h2>
+                  <p className="text-[#00A651] text-sm">
                     {coachPlansData.active} active plan{coachPlansData.active !== 1 ? 's' : ''}
                     {coachPlansData.nextSession && (
                       <> &bull; Next: {new Date(coachPlansData.nextSession.date).toLocaleDateString('en-AU', { month: 'short', day: 'numeric' })}</>
@@ -644,11 +644,11 @@ const CoachDashboard = () => {
                     e.stopPropagation();
                     navigate('/coach/training-plans/new');
                   }}
-                  className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[#22c55e] text-[#0a3d2e] rounded-lg font-medium hover:bg-[#4ade80] transition-colors"
+                  className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[#005028] text-white rounded-lg font-medium hover:bg-[#00A651] transition-colors"
                 >
                   New Plan
                 </button>
-                <ChevronRight className="w-6 h-6 text-[#4ade80] group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-6 h-6 text-[#00A651] group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
           )}
@@ -660,7 +660,7 @@ const CoachDashboard = () => {
           <div className="lg:col-span-1 bg-lakers-800 rounded-xl border border-lakers-700 p-6">
             <div className="flex items-center gap-2 mb-4">
               <Award className="w-5 h-5 text-lakers-400" />
-              <h2 className="text-lg font-bold text-white">MVP Leaderboard</h2>
+              <h2 className="text-lg font-bold text-gray-800">MVP Leaderboard</h2>
             </div>
 
             {mvpLeaderboard.length > 0 ? (
@@ -672,20 +672,20 @@ const CoachDashboard = () => {
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                        index === 0 ? 'bg-lakers-500 text-white' :
-                        index === 1 ? 'bg-lakers-600 text-white' :
-                        index === 2 ? 'bg-lakers-600 text-white' :
+                        index === 0 ? 'bg-lakers-500 text-gray-800' :
+                        index === 1 ? 'bg-lakers-600 text-gray-800' :
+                        index === 2 ? 'bg-lakers-600 text-gray-800' :
                         'bg-lakers-700 text-white'
                       }`}>
                         {index + 1}
                       </div>
                       <div>
-                        <p className="font-semibold text-sm text-white">{item.player.name}</p>
+                        <p className="font-semibold text-sm text-gray-800">{item.player.name}</p>
                         <p className="text-xs text-lakers-400">{item.player.team}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-white">{item.count}</p>
+                      <p className="text-lg font-bold text-gray-800">{item.count}</p>
                       <p className="text-xs text-lakers-400">MVP{item.count > 1 ? 's' : ''}</p>
                     </div>
                   </div>
@@ -700,7 +700,7 @@ const CoachDashboard = () => {
           <div className="lg:col-span-2 bg-lakers-800 rounded-xl border border-lakers-700 p-6">
             <div className="flex items-center gap-2 mb-4">
               <BarChart3 className="w-5 h-5 text-lakers-400" />
-              <h2 className="text-lg font-bold text-white">Attendance Trend</h2>
+              <h2 className="text-lg font-bold text-gray-800">Attendance Trend</h2>
             </div>
             {attendanceTrendData.labels.length > 0 ? (
               <Bar
@@ -736,14 +736,14 @@ const CoachDashboard = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5 text-lakers-400" />
-              <h2 className="text-lg font-bold text-white">My Teams</h2>
+              <h2 className="text-lg font-bold text-gray-800">My Teams</h2>
               <span className="text-sm text-lakers-400">
                 {coachTeamObjects.reduce((sum, t) => sum + t.playerCount, 0)} players
               </span>
             </div>
             <button
               onClick={() => navigate('/coach/players')}
-              className="text-sm text-lakers-300 hover:text-white transition-colors flex items-center gap-1"
+              className="text-sm text-lakers-300 hover:text-gray-800 transition-colors flex items-center gap-1"
             >
               View All <ChevronRight className="w-4 h-4" />
             </button>
@@ -765,7 +765,7 @@ const CoachDashboard = () => {
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <h3 className="font-semibold text-white group-hover:text-lakers-200 transition-colors">
+                      <h3 className="font-semibold text-gray-800 group-hover:text-lakers-200 transition-colors">
                         {team.displayName || team.name}
                       </h3>
                       {team.ageGroup && (
@@ -795,7 +795,7 @@ const MetricCard = ({ icon: Icon, label, value }) => (
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm text-lakers-400 mb-1">{label}</p>
-        <p className="text-2xl font-bold text-white">{value}</p>
+        <p className="text-2xl font-bold text-gray-800">{value}</p>
       </div>
       <div className="w-12 h-12 bg-lakers-700 border border-lakers-600 rounded-lg flex items-center justify-center">
         <Icon className="w-6 h-6 text-lakers-300" />

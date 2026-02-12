@@ -104,9 +104,9 @@ const levelLabels = {
 };
 
 const levelColors = {
-  1: 'bg-[#1a8a68]',
-  2: 'bg-[#22c55e]',
-  3: 'bg-[#4ade80]',
+  1: 'bg-[#D4E4D4]',
+  2: 'bg-[#005028]',
+  3: 'bg-[#00A651]',
   4: 'bg-[#86efac]'
 };
 
@@ -444,9 +444,9 @@ const CoachAssessmentPage = () => {
   }, [draftIdFromUrl, currentUser, navigate]);
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
+    <div className="min-h-screen bg-[#F5F9F5]">
       {/* Header */}
-      <div className="bg-[#0d5943] border-b border-[#1a8a68] sticky top-0 z-20">
+      <div className="bg-white border-b border-[#D4E4D4] sticky top-0 z-20">
         <div className="max-w-4xl mx-auto px-4 py-4">
           {/* Breadcrumb Navigation */}
           <Breadcrumb
@@ -460,12 +460,12 @@ const CoachAssessmentPage = () => {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-xl flex items-center justify-center">
-                <ClipboardCheck className="w-6 h-6 text-[#4ade80]" />
+              <div className="w-12 h-12 bg-[#F5F9F5] border-2 border-[#D4E4D4] rounded-xl flex items-center justify-center">
+                <ClipboardCheck className="w-6 h-6 text-[#00A651]" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Skills Assessment</h1>
-                <p className="text-[#4ade80] text-sm">
+                <h1 className="text-xl font-bold text-gray-800">Skills Assessment</h1>
+                <p className="text-[#00A651] text-sm">
                   {userProfile?.displayName || 'Coach'}
                 </p>
               </div>
@@ -475,7 +475,7 @@ const CoachAssessmentPage = () => {
             <div className="flex flex-col items-end gap-1">
               <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
                 isOnline
-                  ? 'bg-[#065f46] text-[#4ade80] border border-[#22c55e]'
+                  ? 'bg-[#005028] text-[#00A651] border border-[#00A651]'
                   : 'bg-yellow-900/50 text-yellow-400 border border-yellow-600'
               }`}>
                 {isOnline ? (
@@ -502,7 +502,7 @@ const CoachAssessmentPage = () => {
 
         {/* Team Tabs - Only show if multiple teams */}
         {hasMultipleTeams ? (
-          <div className="border-t border-[#1a8a68]">
+          <div className="border-t border-[#D4E4D4]">
             <div
               ref={tabsContainerRef}
               className="flex overflow-x-auto hide-scrollbar"
@@ -515,8 +515,8 @@ const CoachAssessmentPage = () => {
                   onClick={() => handleTeamChange(team.id)}
                   className={`flex-shrink-0 px-6 py-3 font-medium text-sm transition-all duration-200 border-b-2 ${
                     activeTeamId === team.id
-                      ? 'bg-[#065f46] text-white border-[#4ade80]'
-                      : 'bg-[#0d5943] text-[#4ade80] border-transparent hover:bg-[#0a4a38] hover:text-white'
+                      ? 'bg-[#005028] text-white border-[#00A651]'
+                      : 'bg-white text-[#00A651] border-transparent hover:bg-[#0a4a38] hover:text-gray-800'
                   }`}
                 >
                   {team.name}
@@ -525,9 +525,9 @@ const CoachAssessmentPage = () => {
             </div>
           </div>
         ) : (
-          <div className="border-t border-[#1a8a68] px-4 py-3 bg-[#065f46]">
-            <p className="text-white font-medium">{activeTeam?.name || 'Team'}</p>
-            <p className="text-[#4ade80] text-xs">{activeTeam?.ageGroup} Division</p>
+          <div className="border-t border-[#D4E4D4] px-4 py-3 bg-[#005028]">
+            <p className="text-gray-800 font-medium">{activeTeam?.name || 'Team'}</p>
+            <p className="text-[#00A651] text-xs">{activeTeam?.ageGroup} Division</p>
           </div>
         )}
       </div>
@@ -537,8 +537,8 @@ const CoachAssessmentPage = () => {
           /* Player Selection */
           <div>
             <div className="mb-4">
-              <h2 className="text-white font-semibold mb-1">Select Player to Assess</h2>
-              <p className="text-[#1a8a68] text-sm">{teamPlayers.length} players in {activeTeam?.name}</p>
+              <h2 className="text-gray-800 font-semibold mb-1">Select Player to Assess</h2>
+              <p className="text-[#6B7C6B] text-sm">{teamPlayers.length} players in {activeTeam?.name}</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -551,16 +551,16 @@ const CoachAssessmentPage = () => {
                   <button
                     key={player.id}
                     onClick={() => handlePlayerSelect(player)}
-                    className="w-full text-left bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4 transition-all duration-200 hover:border-[#22c55e] hover:bg-[#0f6b52] active:scale-[0.98] group"
+                    className="w-full text-left bg-white border-2 border-[#D4E4D4] rounded-xl p-4 transition-all duration-200 hover:border-[#00A651] hover:bg-[#E8F0E8] active:scale-[0.98] group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center group-hover:border-[#22c55e] transition-colors">
-                        <span className="text-white font-bold text-lg">#{player.number}</span>
+                      <div className="w-12 h-12 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center group-hover:border-[#00A651] transition-colors">
+                        <span className="text-gray-800 font-bold text-lg">#{player.number}</span>
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-white font-semibold">{player.name}</h3>
+                        <h3 className="text-gray-800 font-semibold">{player.name}</h3>
                         <div className="flex items-center gap-2">
-                          <p className="text-[#4ade80] text-xs">Tap to assess</p>
+                          <p className="text-[#00A651] text-xs">Tap to assess</p>
                           {hasDraft && (
                             <span className="bg-yellow-500/20 text-yellow-400 text-[10px] px-1.5 py-0.5 rounded font-medium">
                               Draft
@@ -568,7 +568,7 @@ const CoachAssessmentPage = () => {
                           )}
                         </div>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-[#1a8a68] group-hover:text-[#4ade80] group-hover:translate-x-1 transition-all" />
+                      <ChevronRight className="w-5 h-5 text-[#6B7C6B] group-hover:text-[#00A651] group-hover:translate-x-1 transition-all" />
                     </div>
                   </button>
                 );
@@ -621,30 +621,30 @@ const CoachAssessmentPage = () => {
             )}
 
             {/* Player Header */}
-            <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-xl p-4 mb-6">
+            <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4 mb-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-14 h-14 bg-[#0a3d2e] border-2 border-[#1a8a68] rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-xl">#{selectedPlayer.number}</span>
+                  <div className="w-14 h-14 bg-[#F5F9F5] border-2 border-[#D4E4D4] rounded-full flex items-center justify-center">
+                    <span className="text-gray-800 font-bold text-xl">#{selectedPlayer.number}</span>
                   </div>
                   <div>
-                    <h2 className="text-white font-bold text-lg">{selectedPlayer.name}</h2>
-                    <p className="text-[#4ade80] text-sm">{activeTeam?.name}</p>
+                    <h2 className="text-gray-800 font-bold text-lg">{selectedPlayer.name}</h2>
+                    <p className="text-[#00A651] text-sm">{activeTeam?.name}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setSelectedPlayer(null)}
-                  className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center hover:bg-[#1a8a68] transition-colors"
+                  className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
                 >
-                  <X className="w-5 h-5 text-white" />
+                  <X className="w-5 h-5 text-gray-800" />
                 </button>
               </div>
             </div>
 
             {/* Assessment Type Selector */}
-            <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4 mb-6">
-              <label className="block text-white font-semibold mb-2 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-[#4ade80]" />
+            <div className="bg-white border border-[#D4E4D4] rounded-xl p-4 mb-6">
+              <label className="block text-gray-800 font-semibold mb-2 flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-[#00A651]" />
                 Assessment Type
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -654,12 +654,12 @@ const CoachAssessmentPage = () => {
                     onClick={() => setAssessmentType(type.id)}
                     className={`py-3 px-2 rounded-lg text-xs font-medium transition-all duration-200 ${
                       assessmentType === type.id
-                        ? 'bg-[#22c55e] text-[#0a3d2e]'
-                        : 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68] hover:border-[#22c55e] hover:text-[#22c55e]'
+                        ? 'bg-[#005028] text-white'
+                        : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] hover:border-[#00A651] hover:text-[#00A651]'
                     }`}
                   >
                     <div className="text-center">
-                      <div className={assessmentType === type.id ? 'text-[#0a3d2e]' : 'text-white'}>
+                      <div className={assessmentType === type.id ? 'text-white' : 'text-gray-800'}>
                         {type.label}
                       </div>
                     </div>
@@ -670,8 +670,8 @@ const CoachAssessmentPage = () => {
 
             {/* Skills Assessment */}
             <div className="mb-4">
-              <h3 className="text-white font-semibold mb-1">Skill Levels</h3>
-              <p className="text-[#1a8a68] text-sm">Tap to set level (1-4)</p>
+              <h3 className="text-gray-800 font-semibold mb-1">Skill Levels</h3>
+              <p className="text-[#6B7C6B] text-sm">Tap to set level (1-4)</p>
             </div>
 
             <div className="space-y-3 mb-6">
@@ -684,15 +684,15 @@ const CoachAssessmentPage = () => {
                 return (
                   <div
                     key={skill.id}
-                    className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4"
+                    className="bg-white border border-[#D4E4D4] rounded-xl p-4"
                   >
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-                        <Icon className="w-5 h-5 text-[#4ade80]" />
+                      <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+                        <Icon className="w-5 h-5 text-[#00A651]" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <h4 className="text-white font-medium text-sm">{skill.name}</h4>
+                          <h4 className="text-gray-800 font-medium text-sm">{skill.name}</h4>
                           <SkillBenchmarkButton
                             skillId={skill.id}
                             skillName={skill.name}
@@ -700,7 +700,7 @@ const CoachAssessmentPage = () => {
                             currentLevel={currentLevel}
                           />
                         </div>
-                        <p className="text-[#4ade80] text-xs">
+                        <p className="text-[#00A651] text-xs">
                           {currentLevel > 0 ? levelLabels[currentLevel] : 'Not assessed'}
                         </p>
                       </div>
@@ -714,8 +714,8 @@ const CoachAssessmentPage = () => {
                           onClick={() => handleSkillChange(skill.id, level)}
                           className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
                             currentLevel === level
-                              ? `${levelColors[level]} text-[#0a3d2e]`
-                              : 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68] hover:border-[#22c55e] hover:text-[#22c55e]'
+                              ? `${levelColors[level]} text-white`
+                              : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] hover:border-[#00A651] hover:text-[#00A651]'
                           }`}
                         >
                           {level}
@@ -728,8 +728,8 @@ const CoachAssessmentPage = () => {
                       onClick={() => toggleNoteExpansion(skill.id)}
                       className={`mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
                         hasNote
-                          ? 'bg-[#0a3d2e] border border-[#22c55e] text-[#4ade80]'
-                          : 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68] hover:border-[#22c55e] hover:text-[#22c55e]'
+                          ? 'bg-[#F5F9F5] border border-[#00A651] text-[#00A651]'
+                          : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] hover:border-[#00A651] hover:text-[#00A651]'
                       }`}
                     >
                       <MessageSquare className="w-3.5 h-3.5" />
@@ -746,7 +746,7 @@ const CoachAssessmentPage = () => {
                         onChange={(e) => handleSkillNoteChange(skill.id, e.target.value)}
                         placeholder={`Notes for ${skill.name}... (optional)`}
                         rows={2}
-                        className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white text-sm placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none resize-none"
+                        className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm placeholder-gray-400 focus:border-[#00A651] focus:outline-none resize-none"
                       />
                     </div>
                   </div>
@@ -755,18 +755,18 @@ const CoachAssessmentPage = () => {
             </div>
 
             {/* General Session Notes */}
-            <div className="mb-6 bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-              <label className="block text-white font-semibold mb-2 flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-[#4ade80]" />
+            <div className="mb-6 bg-white border border-[#D4E4D4] rounded-xl p-4">
+              <label className="block text-gray-800 font-semibold mb-2 flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-[#00A651]" />
                 General Session Notes
               </label>
-              <p className="text-[#1a8a68] text-xs mb-3">Overall observations for this assessment session</p>
+              <p className="text-[#6B7C6B] text-xs mb-3">Overall observations for this assessment session</p>
               <textarea
                 value={sessionNotes}
                 onChange={(e) => setSessionNotes(e.target.value)}
                 placeholder="Add general notes about this assessment session... (optional)"
                 rows={3}
-                className="w-full px-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none resize-none"
+                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none resize-none"
               />
             </div>
 
@@ -786,8 +786,8 @@ const CoachAssessmentPage = () => {
                 disabled={isSaving}
                 className={`w-full py-4 rounded-xl font-semibold text-lg transition-all duration-200 flex items-center justify-center gap-2 ${
                   isSaving
-                    ? 'bg-[#1a8a68] text-white opacity-75 cursor-not-allowed'
-                    : 'bg-[#1a8a68] hover:bg-[#22c55e] text-white active:scale-[0.98]'
+                    ? 'bg-[#D4E4D4] text-gray-800 opacity-75 cursor-not-allowed'
+                    : 'bg-[#D4E4D4] hover:bg-[#00A651] text-white active:scale-[0.98]'
                 }`}
               >
                 {isSaving ? (
@@ -809,8 +809,8 @@ const CoachAssessmentPage = () => {
                 disabled={isSavingDraft}
                 className={`w-full py-3 rounded-xl font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
                   isSavingDraft
-                    ? 'bg-[#0a3d2e] border border-[#1a8a68] text-[#1a8a68] cursor-not-allowed'
-                    : 'bg-[#0a3d2e] border border-[#1a8a68] text-white hover:border-[#22c55e] hover:text-[#4ade80] active:scale-[0.98]'
+                    ? 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] cursor-not-allowed'
+                    : 'bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 hover:border-[#00A651] hover:text-[#00A651] active:scale-[0.98]'
                 }`}
               >
                 {isSavingDraft ? (
@@ -820,7 +820,7 @@ const CoachAssessmentPage = () => {
                   </>
                 ) : savedOffline && !showPostSaveModal ? (
                   <>
-                    <Check className="w-4 h-4 text-[#4ade80]" />
+                    <Check className="w-4 h-4 text-[#00A651]" />
                     Draft Saved!
                   </>
                 ) : (
@@ -839,15 +839,15 @@ const CoachAssessmentPage = () => {
             )}
 
             {/* Level Legend */}
-            <div className="mt-6 bg-[#0d5943] border border-[#1a8a68] rounded-xl p-4">
-              <h4 className="text-white font-medium text-sm mb-3">Level Guide</h4>
+            <div className="mt-6 bg-white border border-[#D4E4D4] rounded-xl p-4">
+              <h4 className="text-gray-800 font-medium text-sm mb-3">Level Guide</h4>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 {[1, 2, 3, 4].map((level) => (
                   <div key={level} className="flex items-center gap-2">
-                    <div className={`w-6 h-6 rounded ${levelColors[level]} flex items-center justify-center text-[#0a3d2e] font-bold`}>
+                    <div className={`w-6 h-6 rounded ${levelColors[level]} flex items-center justify-center text-white font-bold`}>
                       {level}
                     </div>
-                    <span className="text-white">{levelLabels[level]}</span>
+                    <span className="text-gray-800">{levelLabels[level]}</span>
                   </div>
                 ))}
               </div>
@@ -857,26 +857,26 @@ const CoachAssessmentPage = () => {
       </div>
 
       {/* Footer */}
-      <footer className="py-4 text-center border-t border-[#1a8a68]">
-        <p className="text-[#1a8a68] text-xs">Emerald Lakers Skills Assessment</p>
+      <footer className="py-4 text-center border-t border-[#D4E4D4]">
+        <p className="text-[#6B7C6B] text-xs">Emerald Lakers Skills Assessment</p>
       </footer>
 
       {/* Post-Save Success Modal */}
       {showPostSaveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div
-            className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl w-full max-w-md p-6 shadow-2xl"
+            className="bg-white border-2 border-[#D4E4D4] rounded-2xl w-full max-w-md p-6 shadow-2xl"
             style={{ animation: 'fadeIn 0.2s ease-out, scaleIn 0.2s ease-out' }}
           >
             {/* Success Icon */}
-            <div className="w-16 h-16 bg-[#22c55e] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-10 h-10 text-white" />
+            <div className="w-16 h-16 bg-[#005028] rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="w-10 h-10 text-gray-800" />
             </div>
 
-            <h2 className="text-xl font-bold text-white text-center mb-2">
+            <h2 className="text-xl font-bold text-gray-800 text-center mb-2">
               Assessment Saved!
             </h2>
-            <p className="text-[#4ade80] text-center text-sm mb-2">
+            <p className="text-[#00A651] text-center text-sm mb-2">
               {selectedPlayer?.name}'s assessment has been recorded.
             </p>
             {savedOffline && (
@@ -889,14 +889,14 @@ const CoachAssessmentPage = () => {
             <div className="space-y-3 mt-6">
               <button
                 onClick={handleSaveAndNew}
-                className="w-full py-3 bg-[#1a8a68] hover:bg-[#22c55e] text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 bg-[#D4E4D4] hover:bg-[#00A651] text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-5 h-5" />
                 Assess Another Player
               </button>
               <button
                 onClick={handleReturnToDashboard}
-                className="w-full py-3 bg-[#0a3d2e] border border-[#1a8a68] hover:border-[#22c55e] text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 bg-[#F5F9F5] border border-[#D4E4D4] hover:border-[#00A651] text-gray-800 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
               >
                 <Home className="w-5 h-5" />
                 Return to Dashboard

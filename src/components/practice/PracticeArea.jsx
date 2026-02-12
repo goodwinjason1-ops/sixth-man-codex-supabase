@@ -26,11 +26,11 @@ const PracticeArea = ({ practiceId }) => {
 
   if (!PracticeComponent) {
     return (
-      <div className="min-h-screen bg-[#0a3d2e] flex items-center justify-center p-4">
-        <div className="bg-[#0d5943] border border-[#1a8a68] rounded-xl p-6 text-center max-w-md">
-          <ShieldAlert className="w-12 h-12 text-[#4ade80] mx-auto mb-4" />
-          <h2 className="text-white font-bold text-lg mb-2">Practice Area Not Found</h2>
-          <p className="text-white/60 text-sm">
+      <div className="min-h-screen bg-[#F5F9F5] flex items-center justify-center p-4">
+        <div className="bg-white border border-[#D4E4D4] rounded-xl p-6 text-center max-w-md">
+          <ShieldAlert className="w-12 h-12 text-[#00A651] mx-auto mb-4" />
+          <h2 className="text-gray-800 font-bold text-lg mb-2">Practice Area Not Found</h2>
+          <p className="text-gray-500 text-sm">
             No practice sandbox exists for "{practiceId}".
           </p>
         </div>
@@ -43,7 +43,7 @@ const PracticeArea = ({ practiceId }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a3d2e]">
+    <div className="min-h-screen bg-[#F5F9F5]">
       {/* Practice Mode Header Banner */}
       <div className="bg-amber-600/20 border-b border-amber-500/40 px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
@@ -56,7 +56,7 @@ const PracticeArea = ({ practiceId }) => {
                 <span className="px-2 py-0.5 bg-amber-500/30 text-amber-300 text-xs font-semibold rounded-full border border-amber-500/50">
                   Practice Mode
                 </span>
-                <span className="text-white/60 text-xs truncate hidden sm:inline">
+                <span className="text-gray-500 text-xs truncate hidden sm:inline">
                   {practiceLabels[practiceId] || 'Sandbox'}
                 </span>
               </div>

@@ -171,17 +171,17 @@ const CoachingEffectivenessPage = () => {
       <div className="space-y-6">
         {/* Summary Stats */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-[#0d5943] rounded-xl p-4">
+          <div className="bg-white rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
-              <GraduationCap className="text-[#4ade80]" size={18} />
-              <span className="text-white/60 text-sm">Total Coaches</span>
+              <GraduationCap className="text-[#00A651]" size={18} />
+              <span className="text-gray-500 text-sm">Total Coaches</span>
             </div>
             <p className="text-2xl font-bold">{coaches.length}</p>
           </div>
-          <div className="bg-[#0d5943] rounded-xl p-4">
+          <div className="bg-white rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="text-[#4ade80]" size={18} />
-              <span className="text-white/60 text-sm">Avg Improvement</span>
+              <TrendingUp className="text-[#00A651]" size={18} />
+              <span className="text-gray-500 text-sm">Avg Improvement</span>
             </div>
             <p className="text-2xl font-bold">
               {(Object.values(coachStats).reduce((sum, c) => sum + parseFloat(c.avgImprovement), 0) / coaches.length || 0).toFixed(2)}
@@ -190,18 +190,18 @@ const CoachingEffectivenessPage = () => {
         </div>
 
         {/* Coach Comparison Chart */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-bold mb-4">Coach Comparison - Average Player Level</h3>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={comparisonData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1a8a68" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#D4E4D4" />
                 <XAxis dataKey="name" stroke="#fff" fontSize={12} />
                 <YAxis stroke="#fff" fontSize={12} domain={[0, 5]} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#0d5943', border: '1px solid #1a8a68', borderRadius: '8px' }}
+                  contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #D4E4D4', borderRadius: '8px' }}
                 />
-                <Bar dataKey="avgLevel" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="avgLevel" fill="#00A651" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -215,28 +215,28 @@ const CoachingEffectivenessPage = () => {
             const isExpanded = expandedCoach === coach.id;
 
             return (
-              <div key={coach.id} className="bg-[#0d5943] rounded-xl overflow-hidden">
+              <div key={coach.id} className="bg-white rounded-xl overflow-hidden">
                 <button
                   onClick={() => setExpandedCoach(isExpanded ? null : coach.id)}
                   className="w-full p-4 flex items-center justify-between"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[#22c55e]/20 rounded-full flex items-center justify-center">
-                      <GraduationCap className="text-[#4ade80]" size={24} />
+                    <div className="w-12 h-12 bg-[#005028]/20 rounded-full flex items-center justify-center">
+                      <GraduationCap className="text-[#00A651]" size={24} />
                     </div>
                     <div className="text-left">
                       <h3 className="font-bold">{coach.name}</h3>
-                      <p className="text-sm text-white/60">{coach.teams.join(', ') || 'No teams assigned'}</p>
+                      <p className="text-sm text-gray-500">{coach.teams.join(', ') || 'No teams assigned'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className="text-xl font-bold text-[#4ade80]">{stats.avgLevel}</p>
-                      <p className="text-xs text-white/50">avg level</p>
+                      <p className="text-xl font-bold text-[#00A651]">{stats.avgLevel}</p>
+                      <p className="text-xs text-gray-400">avg level</p>
                     </div>
                     <ChevronDown
                       size={20}
-                      className={`text-white/50 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      className={`text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                     />
                   </div>
                 </button>
@@ -245,25 +245,25 @@ const CoachingEffectivenessPage = () => {
                   <div className="px-4 pb-4 border-t border-white/10 pt-4">
                     {/* Quick Stats */}
                     <div className="grid grid-cols-4 gap-2 mb-4">
-                      <div className="bg-white/5 rounded-lg p-3 text-center">
-                        <Users className="mx-auto mb-1 text-[#4ade80]" size={16} />
+                      <div className="bg-gray-100 rounded-lg p-3 text-center">
+                        <Users className="mx-auto mb-1 text-[#00A651]" size={16} />
                         <p className="text-lg font-bold">{stats.playerCount}</p>
-                        <p className="text-xs text-white/50">Players</p>
+                        <p className="text-xs text-gray-400">Players</p>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3 text-center">
-                        <Target className="mx-auto mb-1 text-[#4ade80]" size={16} />
+                      <div className="bg-gray-100 rounded-lg p-3 text-center">
+                        <Target className="mx-auto mb-1 text-[#00A651]" size={16} />
                         <p className="text-lg font-bold">{stats.assessmentCount}</p>
-                        <p className="text-xs text-white/50">Assessments</p>
+                        <p className="text-xs text-gray-400">Assessments</p>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3 text-center">
-                        <TrendingUp className="mx-auto mb-1 text-[#4ade80]" size={16} />
+                      <div className="bg-gray-100 rounded-lg p-3 text-center">
+                        <TrendingUp className="mx-auto mb-1 text-[#00A651]" size={16} />
                         <p className="text-lg font-bold">{stats.avgImprovement > 0 ? '+' : ''}{stats.avgImprovement}</p>
-                        <p className="text-xs text-white/50">Improvement</p>
+                        <p className="text-xs text-gray-400">Improvement</p>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3 text-center">
-                        <Clock className="mx-auto mb-1 text-[#4ade80]" size={16} />
+                      <div className="bg-gray-100 rounded-lg p-3 text-center">
+                        <Clock className="mx-auto mb-1 text-[#00A651]" size={16} />
                         <p className="text-lg font-bold">{stats.assessmentFrequency}</p>
-                        <p className="text-xs text-white/50">Freq/mo</p>
+                        <p className="text-xs text-gray-400">Freq/mo</p>
                       </div>
                     </div>
 
@@ -274,18 +274,18 @@ const CoachingEffectivenessPage = () => {
                         <div className="h-32">
                           <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={stats.monthlyTrend.filter(m => m.avgLevel !== null)}>
-                              <CartesianGrid strokeDasharray="3 3" stroke="#1a8a68" />
+                              <CartesianGrid strokeDasharray="3 3" stroke="#D4E4D4" />
                               <XAxis dataKey="month" stroke="#fff" fontSize={10} />
                               <YAxis stroke="#fff" fontSize={10} domain={[0, 5]} />
                               <Tooltip
-                                contentStyle={{ backgroundColor: '#0d5943', border: '1px solid #1a8a68', borderRadius: '8px' }}
+                                contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #D4E4D4', borderRadius: '8px' }}
                               />
                               <Line
                                 type="monotone"
                                 dataKey="avgLevel"
-                                stroke="#22c55e"
+                                stroke="#00A651"
                                 strokeWidth={2}
-                                dot={{ fill: '#22c55e' }}
+                                dot={{ fill: '#00A651' }}
                               />
                             </LineChart>
                           </ResponsiveContainer>
@@ -300,13 +300,13 @@ const CoachingEffectivenessPage = () => {
                         {coach.teams.map(team => (
                           <span
                             key={team}
-                            className="px-3 py-1 bg-[#22c55e]/20 text-[#4ade80] rounded-full text-sm"
+                            className="px-3 py-1 bg-[#005028]/20 text-[#00A651] rounded-full text-sm"
                           >
                             {team}
                           </span>
                         ))}
                         {coach.teams.length === 0 && (
-                          <span className="text-white/50 text-sm">No teams assigned</span>
+                          <span className="text-gray-400 text-sm">No teams assigned</span>
                         )}
                       </div>
                     </div>
@@ -318,11 +318,11 @@ const CoachingEffectivenessPage = () => {
         </div>
 
         {/* Insights */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-bold mb-4">Coaching Insights</h3>
           <div className="space-y-3">
-            <div className="p-3 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-lg">
-              <p className="text-sm text-[#4ade80]">
+            <div className="p-3 bg-[#005028]/10 border border-[#00A651]/30 rounded-lg">
+              <p className="text-sm text-[#00A651]">
                 Top performer: {coaches.length > 0 && Object.values(coachStats).sort((a, b) => parseFloat(b.avgLevel) - parseFloat(a.avgLevel))[0]?.name || 'N/A'}
               </p>
             </div>

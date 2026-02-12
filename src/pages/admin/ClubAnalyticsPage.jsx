@@ -102,7 +102,7 @@ const ClubAnalyticsPage = () => {
       { name: 'Emerging', value: skillCounts[1], color: '#ef4444' },
       { name: 'Developing', value: skillCounts[2], color: '#f97316' },
       { name: 'Competent', value: skillCounts[3], color: '#eab308' },
-      { name: 'Proficient', value: skillCounts[4], color: '#22c55e' },
+      { name: 'Proficient', value: skillCounts[4], color: '#00A651' },
       { name: 'Elite', value: skillCounts[5], color: '#86efac' }
     ];
 
@@ -155,9 +155,9 @@ const ClubAnalyticsPage = () => {
 
   const getChangeIndicator = (change) => {
     const num = parseFloat(change);
-    if (num > 0) return { icon: ArrowUpRight, color: 'text-[#4ade80]', text: `+${change}` };
+    if (num > 0) return { icon: ArrowUpRight, color: 'text-[#00A651]', text: `+${change}` };
     if (num < 0) return { icon: ArrowDownRight, color: 'text-red-400', text: change };
-    return { icon: Minus, color: 'text-white/50', text: '0' };
+    return { icon: Minus, color: 'text-gray-400', text: '0' };
   };
 
   return (
@@ -184,8 +184,8 @@ const ClubAnalyticsPage = () => {
               onClick={() => setTimeRange(range.id)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 timeRange === range.id
-                  ? 'bg-[#22c55e] text-white'
-                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  ? 'bg-[#005028] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               {range.label}
@@ -226,7 +226,7 @@ const ClubAnalyticsPage = () => {
         </div>
 
         {/* Assessment Trend Chart */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-bold mb-4 flex items-center gap-2">
             <BarChart3 size={18} />
             Assessment Activity
@@ -234,21 +234,21 @@ const ClubAnalyticsPage = () => {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={analytics.trendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1a8a68" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#D4E4D4" />
                 <XAxis dataKey="period" stroke="#fff" fontSize={12} />
                 <YAxis stroke="#fff" fontSize={12} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#0d5943', border: '1px solid #1a8a68', borderRadius: '8px' }}
+                  contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #D4E4D4', borderRadius: '8px' }}
                   labelStyle={{ color: '#fff' }}
                 />
-                <Bar dataKey="assessments" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="assessments" fill="#00A651" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Skill Level Distribution */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-bold mb-4 flex items-center gap-2">
             <PieChart size={18} />
             Skill Level Distribution
@@ -270,7 +270,7 @@ const ClubAnalyticsPage = () => {
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#0d5943', border: '1px solid #1a8a68', borderRadius: '8px' }}
+                  contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #D4E4D4', borderRadius: '8px' }}
                 />
                 <Legend />
               </RechartsPie>
@@ -279,7 +279,7 @@ const ClubAnalyticsPage = () => {
         </div>
 
         {/* Team Comparison */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-bold mb-4 flex items-center gap-2">
             <Users size={18} />
             Team Performance Comparison
@@ -288,19 +288,19 @@ const ClubAnalyticsPage = () => {
             <div className="space-y-3">
               {analytics.teamComparison.slice(0, 8).map((team, index) => (
                 <div key={team.name} className="flex items-center gap-3">
-                  <span className="w-6 text-center text-white/50 text-sm">{index + 1}</span>
+                  <span className="w-6 text-center text-gray-400 text-sm">{index + 1}</span>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-medium text-sm">{team.name}</span>
-                      <span className="text-[#4ade80] font-bold">{team.avgLevel}</span>
+                      <span className="text-[#00A651] font-bold">{team.avgLevel}</span>
                     </div>
-                    <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-[#22c55e] to-[#4ade80] rounded-full"
+                        className="h-full bg-gradient-to-r from-[#00A651] to-[#00A651] rounded-full"
                         style={{ width: `${(parseFloat(team.avgLevel) / 5) * 100}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-xs text-white/50 mt-1">
+                    <div className="flex justify-between text-xs text-gray-400 mt-1">
                       <span>{team.players} players</span>
                       <span>{team.assessments} assessments</span>
                     </div>
@@ -309,12 +309,12 @@ const ClubAnalyticsPage = () => {
               ))}
             </div>
           ) : (
-            <p className="text-center text-white/50 py-8">No team data available</p>
+            <p className="text-center text-gray-400 py-8">No team data available</p>
           )}
         </div>
 
         {/* Quick Insights */}
-        <div className="bg-[#0d5943] rounded-xl p-4">
+        <div className="bg-white rounded-xl p-4">
           <h3 className="font-bold mb-4">Quick Insights</h3>
           <div className="space-y-3">
             <InsightItem
@@ -348,10 +348,10 @@ const ClubAnalyticsPage = () => {
 
 // Metric Card Component
 const MetricCard = ({ icon: Icon, label, value, change, subtext }) => (
-  <div className="bg-[#0d5943] rounded-xl p-4">
+  <div className="bg-white rounded-xl p-4">
     <div className="flex items-center gap-2 mb-2">
-      <Icon className="text-[#4ade80]" size={18} />
-      <span className="text-white/60 text-sm">{label}</span>
+      <Icon className="text-[#00A651]" size={18} />
+      <span className="text-gray-500 text-sm">{label}</span>
     </div>
     <div className="flex items-end gap-2">
       <span className="text-2xl font-bold">{value}</span>
@@ -362,14 +362,14 @@ const MetricCard = ({ icon: Icon, label, value, change, subtext }) => (
         </div>
       )}
     </div>
-    {subtext && <p className="text-xs text-white/40 mt-1">{subtext}</p>}
+    {subtext && <p className="text-xs text-gray-400 mt-1">{subtext}</p>}
   </div>
 );
 
 // Insight Item Component
 const InsightItem = ({ type, text }) => {
   const styles = {
-    positive: 'bg-[#22c55e]/10 border-[#22c55e]/30 text-[#4ade80]',
+    positive: 'bg-[#005028]/10 border-[#00A651]/30 text-[#00A651]',
     warning: 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400',
     info: 'bg-blue-500/10 border-blue-500/30 text-blue-400'
   };

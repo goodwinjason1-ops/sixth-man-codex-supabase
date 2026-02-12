@@ -231,14 +231,14 @@ const RosterManagementPage = () => {
         <div className="flex gap-2 flex-wrap">
           <button
             onClick={downloadTemplate}
-            className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg hover:border-[#00A651] transition-colors"
           >
             <Download className="w-4 h-4" />
             <span className="hidden sm:inline">Template</span>
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg hover:border-[#00A651] transition-colors"
           >
             <Upload className="w-4 h-4" />
             <span className="hidden sm:inline">Import CSV</span>
@@ -252,7 +252,7 @@ const RosterManagementPage = () => {
           />
           <button
             onClick={exportRoster}
-            className="flex items-center gap-2 px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-lg hover:border-[#22c55e] transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg hover:border-[#00A651] transition-colors"
           >
             <FileText className="w-4 h-4" />
             <span className="hidden sm:inline">Export</span>
@@ -262,7 +262,7 @@ const RosterManagementPage = () => {
               setEditingPlayer(null);
               setShowAddModal(true);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-[#22c55e] text-[#0a3d2e] rounded-lg font-semibold hover:bg-[#4ade80] transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-[#005028] text-white rounded-lg font-semibold hover:bg-[#00A651] transition-colors"
           >
             <Plus className="w-5 h-5" />
             Add Player
@@ -273,9 +273,9 @@ const RosterManagementPage = () => {
       <div className="space-y-6">
         {/* Success Message */}
         {importSuccess && (
-          <div className="bg-[#22c55e]/20 border border-[#22c55e] rounded-xl p-4 flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-[#4ade80]" />
-            <p className="text-[#4ade80]">{importSuccess}</p>
+          <div className="bg-[#005028]/20 border border-[#00A651] rounded-xl p-4 flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-[#00A651]" />
+            <p className="text-[#00A651]">{importSuccess}</p>
           </div>
         )}
 
@@ -287,32 +287,32 @@ const RosterManagementPage = () => {
               onClick={() => setSelectedTeam(selectedTeam === team.id ? 'all' : team.id)}
               className={`p-4 rounded-xl border-2 transition-all ${
                 selectedTeam === team.id
-                  ? 'bg-[#22c55e]/20 border-[#22c55e]'
-                  : 'bg-[#0d5943] border-[#1a8a68] hover:border-[#22c55e]'
+                  ? 'bg-[#005028]/20 border-[#00A651]'
+                  : 'bg-white border-[#D4E4D4] hover:border-[#00A651]'
               }`}
             >
-              <p className="text-[#1a8a68] text-xs">{team.ageGroup}</p>
-              <p className="text-white font-semibold truncate">{team.name}</p>
-              <p className="text-[#4ade80] text-sm">{playersByTeam[team.id]?.length || 0} players</p>
+              <p className="text-[#6B7C6B] text-xs">{team.ageGroup}</p>
+              <p className="text-gray-800 font-semibold truncate">{team.name}</p>
+              <p className="text-[#00A651] text-sm">{playersByTeam[team.id]?.length || 0} players</p>
             </button>
           ))}
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-4">
+        <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1a8a68]" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#6B7C6B]" />
             <input
               type="text"
               placeholder="Search players by name, email, or number..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl text-white placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+              className="w-full pl-10 pr-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#1a8a68] hover:text-white"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#6B7C6B] hover:text-gray-800"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -322,17 +322,17 @@ const RosterManagementPage = () => {
 
         {/* Players List */}
         {filteredPlayers.length === 0 ? (
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-8 text-center">
-            <AlertCircle className="w-12 h-12 text-[#1a8a68] mx-auto mb-3" />
-            <h3 className="text-white font-semibold mb-2">No Players Found</h3>
-            <p className="text-[#1a8a68] text-sm">
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
+            <AlertCircle className="w-12 h-12 text-[#6B7C6B] mx-auto mb-3" />
+            <h3 className="text-gray-800 font-semibold mb-2">No Players Found</h3>
+            <p className="text-[#6B7C6B] text-sm">
               {searchQuery ? 'Try a different search term' : 'Add players to get started'}
             </p>
           </div>
         ) : (
-          <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl overflow-hidden">
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl overflow-hidden">
             {/* Table Header */}
-            <div className="hidden md:grid md:grid-cols-7 gap-4 p-4 bg-[#0a3d2e] border-b border-[#1a8a68] text-[#4ade80] text-sm font-medium">
+            <div className="hidden md:grid md:grid-cols-7 gap-4 p-4 bg-[#F5F9F5] border-b border-[#D4E4D4] text-[#00A651] text-sm font-medium">
               <div className="col-span-2">Player</div>
               <div>Team</div>
               <div>Age</div>
@@ -342,24 +342,24 @@ const RosterManagementPage = () => {
             </div>
 
             {/* Player Rows */}
-            <div className="divide-y divide-[#1a8a68]">
+            <div className="divide-y divide-[#D4E4D4]">
               {filteredPlayers.map(player => {
                 const team = sampleTeams.find(t => t.id === player.teamId);
                 return (
                   <div
                     key={player.id}
-                    className="p-4 hover:bg-[#0a3d2e]/50 transition-colors"
+                    className="p-4 hover:bg-[#F5F9F5]/50 transition-colors"
                   >
                     {/* Mobile Layout */}
                     <div className="md:hidden space-y-3">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center">
-                            <User className="w-5 h-5 text-[#4ade80]" />
+                          <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center">
+                            <User className="w-5 h-5 text-[#00A651]" />
                           </div>
                           <div>
-                            <p className="text-white font-semibold">{player.name}</p>
-                            <p className="text-[#1a8a68] text-sm">#{player.playerNumber} • {team?.name}</p>
+                            <p className="text-gray-800 font-semibold">{player.name}</p>
+                            <p className="text-[#6B7C6B] text-sm">#{player.playerNumber} • {team?.name}</p>
                           </div>
                         </div>
                         <div className="flex gap-2">
@@ -375,7 +375,7 @@ const RosterManagementPage = () => {
                               setEditingPlayer(player);
                               setShowAddModal(true);
                             }}
-                            className="p-2 text-[#4ade80] hover:bg-[#22c55e]/20 rounded-lg"
+                            className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg"
                           >
                             <Edit3 className="w-4 h-4" />
                           </button>
@@ -387,7 +387,7 @@ const RosterManagementPage = () => {
                           </button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-[#1a8a68]">
+                      <div className="flex items-center gap-4 text-sm text-[#6B7C6B]">
                         <span>Age: {calculateAge(player.dateOfBirth)}</span>
                         <span className="flex items-center gap-1">
                           <Mail className="w-3 h-3" />
@@ -399,27 +399,27 @@ const RosterManagementPage = () => {
                     {/* Desktop Layout */}
                     <div className="hidden md:grid md:grid-cols-7 gap-4 items-center">
                       <div className="col-span-2 flex items-center gap-3">
-                        <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-[#4ade80]" />
+                        <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center">
+                          <User className="w-5 h-5 text-[#00A651]" />
                         </div>
                         <div>
-                          <p className="text-white font-semibold">{player.name}</p>
-                          <p className="text-[#1a8a68] text-xs">{player.dateOfBirth}</p>
+                          <p className="text-gray-800 font-semibold">{player.name}</p>
+                          <p className="text-[#6B7C6B] text-xs">{player.dateOfBirth}</p>
                         </div>
                       </div>
                       <div>
-                        <p className="text-white text-sm">{team?.name || '-'}</p>
-                        <p className="text-[#1a8a68] text-xs">{team?.ageGroup}</p>
+                        <p className="text-gray-800 text-sm">{team?.name || '-'}</p>
+                        <p className="text-[#6B7C6B] text-xs">{team?.ageGroup}</p>
                       </div>
-                      <div className="text-white">{calculateAge(player.dateOfBirth)}</div>
+                      <div className="text-gray-800">{calculateAge(player.dateOfBirth)}</div>
                       <div>
-                        <span className="px-2 py-1 bg-[#22c55e]/20 text-[#4ade80] rounded-lg text-sm font-medium">
+                        <span className="px-2 py-1 bg-[#005028]/20 text-[#00A651] rounded-lg text-sm font-medium">
                           #{player.playerNumber}
                         </span>
                       </div>
                       <div>
-                        <p className="text-white text-sm truncate">{player.parentEmail || '-'}</p>
-                        <p className="text-[#1a8a68] text-xs">{player.parentPhone || '-'}</p>
+                        <p className="text-gray-800 text-sm truncate">{player.parentEmail || '-'}</p>
+                        <p className="text-[#6B7C6B] text-xs">{player.parentPhone || '-'}</p>
                       </div>
                       <div className="flex justify-end gap-2">
                         <button
@@ -434,7 +434,7 @@ const RosterManagementPage = () => {
                             setEditingPlayer(player);
                             setShowAddModal(true);
                           }}
-                          className="p-2 text-[#4ade80] hover:bg-[#22c55e]/20 rounded-lg transition-colors"
+                          className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors"
                         >
                           <Edit3 className="w-4 h-4" />
                         </button>
@@ -455,8 +455,8 @@ const RosterManagementPage = () => {
       </div>
 
       {/* Footer */}
-      <footer className="py-4 text-center border-t border-[#1a8a68]">
-        <p className="text-[#1a8a68] text-xs">Emerald Lakers Roster Management</p>
+      <footer className="py-4 text-center border-t border-[#D4E4D4]">
+        <p className="text-[#6B7C6B] text-xs">Emerald Lakers Roster Management</p>
       </footer>
 
       {/* Add/Edit Player Modal */}
@@ -499,15 +499,15 @@ const RosterManagementPage = () => {
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setConfirmDelete(null)}>
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-          <div className="relative bg-[#0d5943] border-2 border-red-500 rounded-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+          <div className="relative bg-white border-2 border-red-500 rounded-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
             <div className="text-center">
               <Trash2 className="w-12 h-12 text-red-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">Delete Player?</h3>
-              <p className="text-[#1a8a68] text-sm mb-6">This action cannot be undone.</p>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Delete Player?</h3>
+              <p className="text-[#6B7C6B] text-sm mb-6">This action cannot be undone.</p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setConfirmDelete(null)}
-                  className="flex-1 py-3 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-xl"
+                  className="flex-1 py-3 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-xl"
                 >
                   Cancel
                 </button>
@@ -554,41 +554,41 @@ const PlayerFormModal = ({ player, teams, onSave, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <div
-        className="relative w-full sm:max-w-lg max-h-[90vh] bg-[#0d5943] border-2 border-[#1a8a68] rounded-t-3xl sm:rounded-2xl overflow-hidden"
+        className="relative w-full sm:max-w-lg max-h-[90vh] bg-white border-2 border-[#D4E4D4] rounded-t-3xl sm:rounded-2xl overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
-        <div className="p-4 border-b border-[#1a8a68] flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">{player ? 'Edit Player' : 'Add Player'}</h2>
-          <button onClick={onClose} className="w-8 h-8 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center hover:border-[#22c55e]">
-            <X className="w-4 h-4 text-white" />
+        <div className="p-4 border-b border-[#D4E4D4] flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-800">{player ? 'Edit Player' : 'Add Player'}</h2>
+          <button onClick={onClose} className="w-8 h-8 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center hover:border-[#00A651]">
+            <X className="w-4 h-4 text-gray-800" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
           <div>
-            <label className="block text-[#4ade80] text-sm font-medium mb-1">Player Name *</label>
+            <label className="block text-[#00A651] text-sm font-medium mb-1">Player Name *</label>
             <input
               type="text"
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-1">Date of Birth *</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-1">Date of Birth *</label>
               <input
                 type="date"
                 required
                 value={formData.dateOfBirth}
                 onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-1">Player Number *</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-1">Player Number *</label>
               <input
                 type="number"
                 required
@@ -596,18 +596,18 @@ const PlayerFormModal = ({ player, teams, onSave, onClose }) => {
                 max="99"
                 value={formData.playerNumber}
                 onChange={(e) => setFormData({ ...formData, playerNumber: e.target.value })}
-                className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[#4ade80] text-sm font-medium mb-1">Team *</label>
+            <label className="block text-[#00A651] text-sm font-medium mb-1">Team *</label>
             <select
               required
               value={formData.teamId}
               onChange={(e) => setFormData({ ...formData, teamId: e.target.value })}
-              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
             >
               <option value="">Select Team</option>
               {teams.map(team => (
@@ -618,64 +618,64 @@ const PlayerFormModal = ({ player, teams, onSave, onClose }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-1">Parent Email</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-1">Parent Email</label>
               <input
                 type="email"
                 value={formData.parentEmail}
                 onChange={(e) => setFormData({ ...formData, parentEmail: e.target.value })}
-                className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-1">Parent Phone</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-1">Parent Phone</label>
               <input
                 type="tel"
                 value={formData.parentPhone}
                 onChange={(e) => setFormData({ ...formData, parentPhone: e.target.value })}
-                className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[#4ade80] text-sm font-medium mb-1">Medical Notes</label>
+            <label className="block text-[#00A651] text-sm font-medium mb-1">Medical Notes</label>
             <textarea
               value={formData.medicalNotes}
               onChange={(e) => setFormData({ ...formData, medicalNotes: e.target.value })}
               rows={2}
-              className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none resize-none"
+              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none resize-none"
               placeholder="Allergies, conditions, etc."
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-1">Emergency Contact</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-1">Emergency Contact</label>
               <input
                 type="text"
                 value={formData.emergencyContact}
                 onChange={(e) => setFormData({ ...formData, emergencyContact: e.target.value })}
-                className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
                 placeholder="Name"
               />
             </div>
             <div>
-              <label className="block text-[#4ade80] text-sm font-medium mb-1">Emergency Phone</label>
+              <label className="block text-[#00A651] text-sm font-medium mb-1">Emergency Phone</label>
               <input
                 type="tel"
                 value={formData.emergencyPhone}
                 onChange={(e) => setFormData({ ...formData, emergencyPhone: e.target.value })}
-                className="w-full px-3 py-2 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-white focus:border-[#22c55e] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
               />
             </div>
           </div>
         </form>
 
-        <div className="p-4 border-t border-[#1a8a68]">
+        <div className="p-4 border-t border-[#D4E4D4]">
           <button
             type="submit"
             onClick={handleSubmit}
-            className="w-full py-3 bg-[#22c55e] text-[#0a3d2e] rounded-xl font-semibold hover:bg-[#4ade80] transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 bg-[#005028] text-white rounded-xl font-semibold hover:bg-[#00A651] transition-colors flex items-center justify-center gap-2"
           >
             <Save className="w-5 h-5" />
             {player ? 'Save Changes' : 'Add Player'}
@@ -692,13 +692,13 @@ const ImportPreviewModal = ({ data, errors, onConfirm, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <div
-        className="relative w-full max-w-2xl max-h-[90vh] bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl overflow-hidden"
+        className="relative w-full max-w-2xl max-h-[90vh] bg-white border-2 border-[#D4E4D4] rounded-2xl overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
-        <div className="p-4 border-b border-[#1a8a68] flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">Import Preview</h2>
-          <button onClick={onClose} className="w-8 h-8 bg-[#0a3d2e] border border-[#1a8a68] rounded-full flex items-center justify-center hover:border-[#22c55e]">
-            <X className="w-4 h-4 text-white" />
+        <div className="p-4 border-b border-[#D4E4D4] flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-800">Import Preview</h2>
+          <button onClick={onClose} className="w-8 h-8 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center hover:border-[#00A651]">
+            <X className="w-4 h-4 text-gray-800" />
           </button>
         </div>
 
@@ -712,33 +712,33 @@ const ImportPreviewModal = ({ data, errors, onConfirm, onClose }) => {
             </div>
           )}
 
-          <p className="text-[#4ade80] mb-3">{data?.length || 0} players ready to import:</p>
+          <p className="text-[#00A651] mb-3">{data?.length || 0} players ready to import:</p>
 
           <div className="space-y-2">
             {data?.slice(0, 10).map((row, index) => (
-              <div key={index} className="p-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg">
-                <p className="text-white font-medium">{row.player_name || row.name || 'Unknown'}</p>
-                <p className="text-[#1a8a68] text-sm">
+              <div key={index} className="p-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg">
+                <p className="text-gray-800 font-medium">{row.player_name || row.name || 'Unknown'}</p>
+                <p className="text-[#6B7C6B] text-sm">
                   {row.team || '-'} • #{row.player_number || row.number || '-'}
                 </p>
               </div>
             ))}
             {data?.length > 10 && (
-              <p className="text-[#1a8a68] text-center text-sm">...and {data.length - 10} more</p>
+              <p className="text-[#6B7C6B] text-center text-sm">...and {data.length - 10} more</p>
             )}
           </div>
         </div>
 
-        <div className="p-4 border-t border-[#1a8a68] flex gap-3">
+        <div className="p-4 border-t border-[#D4E4D4] flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-3 bg-[#0a3d2e] border border-[#1a8a68] text-white rounded-xl"
+            className="flex-1 py-3 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-xl"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 py-3 bg-[#22c55e] text-[#0a3d2e] rounded-xl font-semibold"
+            className="flex-1 py-3 bg-[#005028] text-white rounded-xl font-semibold"
           >
             Import {data?.length} Players
           </button>

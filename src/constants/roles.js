@@ -89,7 +89,7 @@ export const ROLE_BADGE_STYLES = {
   girls_coordinator: 'bg-pink-500/20 text-pink-300 border border-pink-500',
   boys_coordinator: 'bg-sky-500/20 text-sky-300 border border-sky-500',
   youth_head_coach: 'bg-amber-500/20 text-amber-300 border border-amber-500',
-  coach: 'bg-[#22c55e]/20 text-[#4ade80] border border-[#22c55e]',
+  coach: 'bg-[#005028]/20 text-[#00A651] border border-[#00A651]',
   youth_coach: 'bg-lime-500/20 text-lime-300 border border-lime-500',
   tryout_assessor: 'bg-violet-500/20 text-violet-300 border border-violet-500',
   team_manager: 'bg-blue-500/20 text-blue-300 border border-blue-500',

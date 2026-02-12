@@ -44,27 +44,29 @@ const Layout = ({ children }) => {
   );
 
   return (
-    <div className="min-h-screen bg-lakers-900">
-      {/* Top Navigation Bar */}
-      <nav className="bg-lakers-800 border-b border-lakers-700 sticky top-0 z-50">
+    <div className="min-h-screen bg-[#F5F9F5]">
+      {/* Top Navigation Bar — stays dark */}
+      <nav className="bg-[#005028] border-b border-[#003018] sticky top-0 z-50">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Left Section */}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden p-2 rounded-lg hover:bg-lakers-700 text-white"
+                className="lg:hidden p-2 rounded-lg hover:bg-white/10 text-white"
               >
                 {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
 
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 bg-lakers-700 border border-lakers-600 rounded-full flex items-center justify-center">
-                  <span className="text-xl font-bold text-white">L</span>
-                </div>
+                <img
+                  src="/images/logo_header.png"
+                  alt="Emerald Lakers"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
                 <div className="hidden md:block">
                   <h1 className="font-bold text-white">Emerald Lakers</h1>
-                  <p className="text-xs text-lakers-300">Basketball Club</p>
+                  <p className="text-xs text-green-300">Basketball Club</p>
                 </div>
               </div>
             </div>
@@ -74,9 +76,9 @@ const Layout = ({ children }) => {
               {/* Online/Offline Status */}
               <div className="flex items-center gap-2">
                 {isOnline ? (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-[#065f46] border border-[#22c55e] rounded-full">
-                    <div className="w-2 h-2 rounded-full bg-[#4ade80] animate-pulse" />
-                    <span className="text-[#4ade80] text-xs font-medium">Online</span>
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-white/10 border border-green-400/30 rounded-full">
+                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                    <span className="text-green-300 text-xs font-medium">Online</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
@@ -96,7 +98,7 @@ const Layout = ({ children }) => {
               {/* Help */}
               <button
                 onClick={() => navigate('/help')}
-                className="p-2 rounded-lg hover:bg-lakers-700 text-lakers-300 hover:text-white"
+                className="p-2 rounded-lg hover:bg-white/10 text-green-300 hover:text-white"
                 title="Help Center"
               >
                 <HelpCircle className="w-5 h-5" />
@@ -105,25 +107,25 @@ const Layout = ({ children }) => {
               {/* Notifications */}
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 rounded-lg hover:bg-lakers-700"
+                className="relative p-2 rounded-lg hover:bg-white/10"
               >
                 <Bell className="w-5 h-5 text-white" />
                 {unreadNotifications > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-lakers-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
                     {unreadNotifications > 9 ? '9+' : unreadNotifications}
                   </span>
                 )}
               </button>
 
               {/* User Menu */}
-              <div className="flex items-center gap-2 pl-3 border-l border-lakers-700">
+              <div className="flex items-center gap-2 pl-3 border-l border-white/20">
                 <div className="hidden sm:block text-right">
                   <p className="text-sm font-semibold text-white">{userProfile?.displayName}</p>
-                  <p className="text-xs text-lakers-300 capitalize">{(userProfile?.role || '').replace('_', ' ')}</p>
+                  <p className="text-xs text-green-300 capitalize">{(userProfile?.role || '').replace('_', ' ')}</p>
                 </div>
                 <button
                   onClick={handleSignOut}
-                  className="p-2 rounded-lg hover:bg-lakers-700 text-lakers-300 hover:text-white"
+                  className="p-2 rounded-lg hover:bg-white/10 text-green-300 hover:text-white"
                   title="Sign Out"
                 >
                   <LogOut className="w-5 h-5" />
@@ -134,10 +136,10 @@ const Layout = ({ children }) => {
         </div>
       </nav>
 
-      {/* Sidebar for Mobile */}
+      {/* Sidebar for Mobile — stays dark */}
       {sidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-40 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)}>
-          <div className="bg-lakers-800 border-r border-lakers-700 w-64 h-full p-4" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-[#005028] border-r border-[#003018] w-64 h-full p-4" onClick={(e) => e.stopPropagation()}>
             <nav className="space-y-2">
               {visibleNavItems.map((item) => (
                 <button
@@ -146,7 +148,7 @@ const Layout = ({ children }) => {
                     navigate(item.path);
                     setSidebarOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-lakers-700 text-lakers-200 hover:text-white transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-green-200 hover:text-white transition-colors"
                 >
                   <item.icon className="w-5 h-5" />
                   <span className="font-medium">{item.label}</span>
@@ -157,29 +159,29 @@ const Layout = ({ children }) => {
         </div>
       )}
 
-      {/* Notifications Dropdown */}
+      {/* Notifications Dropdown — light theme */}
       {showNotifications && (
-        <div className="fixed top-16 right-4 w-80 max-h-96 bg-lakers-800 border border-lakers-700 rounded-lg shadow-2xl overflow-hidden z-50">
-          <div className="p-4 border-b border-lakers-700">
-            <h3 className="font-bold text-white">Notifications</h3>
+        <div className="fixed top-16 right-4 w-80 max-h-96 bg-white border border-[#D4E4D4] rounded-lg shadow-xl overflow-hidden z-50">
+          <div className="p-4 border-b border-[#D4E4D4]">
+            <h3 className="font-bold text-gray-800">Notifications</h3>
           </div>
           <div className="overflow-y-auto max-h-80">
             {notifications && notifications.length > 0 ? (
               notifications.slice(0, 10).map((notif) => (
                 <div
                   key={notif.id}
-                  className={`p-4 border-b border-lakers-700 hover:bg-lakers-700 ${!notif.read ? 'bg-lakers-700/50' : ''}`}
+                  className={`p-4 border-b border-gray-100 hover:bg-gray-50 ${!notif.read ? 'bg-[#F5F9F5]' : ''}`}
                 >
-                  <p className="font-semibold text-sm text-white">{notif.title}</p>
-                  <p className="text-sm text-lakers-300 mt-1">{notif.message}</p>
-                  <p className="text-xs text-lakers-400 mt-2">
+                  <p className="font-semibold text-sm text-gray-800">{notif.title}</p>
+                  <p className="text-sm text-gray-500 mt-1">{notif.message}</p>
+                  <p className="text-xs text-gray-400 mt-2">
                     {new Date(notif.date).toLocaleDateString('en-AU')}
                   </p>
                 </div>
               ))
             ) : (
-              <div className="p-8 text-center text-lakers-400">
-                <Bell className="w-12 h-12 mx-auto mb-2 text-lakers-600" />
+              <div className="p-8 text-center text-gray-400">
+                <Bell className="w-12 h-12 mx-auto mb-2 text-gray-300" />
                 <p className="text-sm">No notifications</p>
               </div>
             )}
