@@ -36,6 +36,7 @@ import {
 import { SkillBenchmarkButton } from '../components/SkillBenchmarkView';
 import { getAgeGroupFromTeam } from '../data/skillBenchmarks';
 import Breadcrumb from '../components/Breadcrumb';
+import { useAutoSave } from '../hooks/useAutoSave';
 
 // Sample teams data - will connect to Firestore later
 const sampleTeamsData = [
@@ -160,6 +161,26 @@ const CoachAssessmentPage = () => {
   const [skillNotes, setSkillNotes] = useState({});
   const [expandedNotes, setExpandedNotes] = useState({});
   const [sessionNotes, setSessionNotes] = useState('');
+
+  // Auto-save form data every 30 seconds as safety net
+  const autoSaveFormData = useMemo(() => {
+    if (!selectedPlayer) return null;
+    return {
+      playerId: selectedPlayer.id, playerName: selectedPlayer.name,
+      teamId: activeTeamId, assessmentType, assessments, skillNotes, sessionNotes
+    };
+  }, [selectedPlayer, activeTeamId, assessmentType, assessments, skillNotes, sessionNotes]);
+
+  const { savedData: autoSavedData, clearSaved: clearAutoSave, hasSavedData: hasAutoSave } = useAutoSave('coach-assessment', autoSaveFormData);
+
+  const handleLoadAutoSave = () => {
+    if (!autoSavedData) return;
+    setAssessments(autoSavedData.assessments || {});
+    setSkillNotes(autoSavedData.skillNotes || {});
+    setSessionNotes(autoSavedData.sessionNotes || '');
+    setAssessmentType(autoSavedData.assessmentType || 'mid_season');
+    clearAutoSave();
+  };
 
   // Save states
   const [isSaving, setIsSaving] = useState(false);
@@ -366,6 +387,7 @@ const CoachAssessmentPage = () => {
       // Delete draft if exists
       const draftKey = `assessment_draft_${currentUser.uid}_${selectedPlayer.id}`;
       localStorage.removeItem(draftKey);
+      clearAutoSave();
 
       // Track if saved offline
       setSavedOffline(!isOnline);
@@ -616,6 +638,37 @@ const CoachAssessmentPage = () => {
                   >
                     <X className="w-4 h-4" />
                   </button>
+                </div>
+              </div>
+            )}
+
+            {/* Auto-save Recovery Banner */}
+            {hasAutoSave && !showDraftBanner && !existingDraft && autoSavedData?.playerId === selectedPlayer?.id && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <RefreshCw className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h3 className="text-blue-700 font-semibold text-sm">Auto-saved Data Recovered</h3>
+                    <p className="text-blue-600 text-xs mt-1">
+                      We recovered unsaved assessment data from your last session.
+                    </p>
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        onClick={handleLoadAutoSave}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-medium transition-colors"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        Restore
+                      </button>
+                      <button
+                        onClick={clearAutoSave}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-transparent border border-blue-300 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-medium transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Discard
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

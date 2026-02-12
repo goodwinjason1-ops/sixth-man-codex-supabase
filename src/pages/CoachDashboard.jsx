@@ -28,6 +28,7 @@ import EmptyState from '../components/EmptyState';
 import HelpTooltip from '../components/tutorial/HelpTooltip';
 import FirstTimeHint from '../components/tutorial/FirstTimeHint';
 import TutorialPromptCard from '../components/tutorial/TutorialPromptCard';
+import CoachIDPDashboard from '../components/CoachIDPDashboard';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -663,6 +664,9 @@ const CoachDashboard = () => {
             </div>
           )}
         </div>
+
+        {/* Development Plans Dashboard */}
+        <CoachIDPDashboard />
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">

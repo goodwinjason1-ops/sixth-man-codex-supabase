@@ -73,6 +73,9 @@ import DrillLibraryPage from './pages/DrillLibraryPage';
 import DrillDetailPage from './pages/DrillDetailPage';
 import CreateDrillPage from './pages/CreateDrillPage';
 import EditDrillPage from './pages/EditDrillPage';
+import PlayerIDPPage from './pages/PlayerIDPPage';
+import CreateIDPPage from './pages/CreateIDPPage';
+import IDPReviewPage from './pages/IDPReviewPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import OfflineIndicator from './components/OfflineIndicator';
 import Layout from './components/Layout';
@@ -188,6 +191,38 @@ const AppRoutes = () => {
           <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load player overview. Please try again.">
               <CoachPlayerOverviewPage />
+            </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Individual Development Plan Routes */}
+      <Route
+        path="/players/:playerId/development-plan"
+        element={
+          <ProtectedRoute allowedRoles={[...STAFF_ROLES, 'parent']}>
+            <ErrorBoundary fallbackMessage="Unable to load development plan.">
+              <PlayerIDPPage />
+            </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/players/:playerId/development-plan/new"
+        element={
+          <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
+            <ErrorBoundary fallbackMessage="Unable to load plan builder.">
+              <CreateIDPPage />
+            </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/development-plans/:planId/review"
+        element={
+          <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
+            <ErrorBoundary fallbackMessage="Unable to load plan review.">
+              <IDPReviewPage />
             </ErrorBoundary>
           </ProtectedRoute>
         }

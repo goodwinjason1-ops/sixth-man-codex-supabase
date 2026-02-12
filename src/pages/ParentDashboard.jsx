@@ -15,8 +15,12 @@ import {
   Activity,
   MapPin,
   Clock,
-  Loader2
+  Loader2,
+  Target,
+  ChevronRight,
+  CheckCircle
 } from 'lucide-react';
+import { sampleIDPs } from '../data/sampleIDPs';
 import Breadcrumb from '../components/Breadcrumb';
 import FirstTimeHint from '../components/tutorial/FirstTimeHint';
 import TutorialPromptCard from '../components/tutorial/TutorialPromptCard';
@@ -59,6 +63,15 @@ const ParentDashboard = () => {
     const evals = Object.values(evaluations).filter(e => e.playerId === selectedChild.id);
     return evals.sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0)).slice(0, 5);
   }, [selectedChild, evaluations]);
+
+  // Get IDP for selected child (if shared with parents)
+  const childIDP = useMemo(() => {
+    if (!selectedChild) return null;
+    // Find active or completed IDP for this child that is visible to parents
+    return sampleIDPs.find(
+      plan => plan.playerId === selectedChild.id && plan.parentVisible
+    ) || null;
+  }, [selectedChild]);
 
   // Get upcoming schedule for selected child's team
   const upcomingSchedule = useMemo(() => {
@@ -310,6 +323,54 @@ const ParentDashboard = () => {
           )}
         </div>
         </FirstTimeHint>
+
+        {/* Development Plan (if shared by coach) */}
+        {childIDP && (
+          <div
+            onClick={() => navigate(`/players/${selectedChild.id}/development-plan`)}
+            className="bg-white border border-[#D4E4D4] rounded-xl p-4 cursor-pointer hover:border-[#00A651] transition-all group"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#005028] to-[#00A651] rounded-lg flex items-center justify-center">
+                  <Target className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-gray-800 font-semibold">Development Plan</h3>
+                  <p className="text-[#6B7C6B] text-xs capitalize">{childIDP.status} &middot; {childIDP.season}</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-[#00A651] group-hover:translate-x-1 transition-all" />
+            </div>
+
+            {/* Goal summary */}
+            <div className="space-y-2">
+              {childIDP.goals.slice(0, 3).map(goal => {
+                const isAchieved = goal.status === 'achieved';
+                const isInProgress = goal.status === 'in_progress';
+                return (
+                  <div key={goal.id} className="flex items-center justify-between bg-[#F5F9F5] rounded-lg px-3 py-2">
+                    <span className="text-sm text-gray-800 truncate flex-1 mr-2">{goal.specificTarget}</span>
+                    <span className={`flex items-center gap-1 text-xs font-medium whitespace-nowrap ${
+                      isAchieved ? 'text-[#00A651]' : isInProgress ? 'text-blue-600' : 'text-[#6B7C6B]'
+                    }`}>
+                      {isAchieved && <CheckCircle className="w-3.5 h-3.5" />}
+                      {isInProgress && <Clock className="w-3.5 h-3.5" />}
+                      {isAchieved ? 'Achieved' : isInProgress ? 'In Progress' : 'Not Started'}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Parent comments count */}
+            {childIDP.parentComments && childIDP.parentComments.length > 0 && (
+              <p className="text-xs text-[#6B7C6B] mt-3">
+                {childIDP.parentComments.length} parent comment{childIDP.parentComments.length !== 1 ? 's' : ''}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-4">

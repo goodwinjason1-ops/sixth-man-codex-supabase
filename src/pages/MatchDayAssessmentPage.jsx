@@ -40,6 +40,7 @@ import {
   ChevronUp
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
+import { useAutoSave } from '../hooks/useAutoSave';
 import {
   MATCH_METRICS,
   MATCH_LEVEL_LABELS,
@@ -195,6 +196,28 @@ const MatchDayAssessmentPage = () => {
   const [teamRatingNotes, setTeamRatingNotes] = useState('');
   const [gameNotes, setGameNotes] = useState('');
   const [showGeneralNotes, setShowGeneralNotes] = useState(false);
+
+  // Auto-save form data every 30 seconds as safety net
+  const autoSaveFormData = useMemo(() => ({
+    teamId: activeTeamId, matchDate, opponentName, gameResult,
+    teamRatings, teamRatingNotes, mvpVotes, gameNotes, playerAssessments
+  }), [activeTeamId, matchDate, opponentName, gameResult, teamRatings, teamRatingNotes, mvpVotes, gameNotes, playerAssessments]);
+
+  const { savedData: autoSavedData, clearSaved: clearAutoSave, hasSavedData: hasAutoSave } = useAutoSave('match-assessment', autoSaveFormData);
+
+  const handleLoadAutoSave = () => {
+    if (!autoSavedData) return;
+    if (autoSavedData.teamId) setActiveTeamId(autoSavedData.teamId);
+    if (autoSavedData.matchDate) setMatchDate(autoSavedData.matchDate);
+    setOpponentName(autoSavedData.opponentName || '');
+    setGameResult(autoSavedData.gameResult || '');
+    setTeamRatings(autoSavedData.teamRatings || {});
+    setTeamRatingNotes(autoSavedData.teamRatingNotes || '');
+    setMvpVotes(autoSavedData.mvpVotes || { vote3: '', vote2: '', vote1: '' });
+    setGameNotes(autoSavedData.gameNotes || '');
+    setPlayerAssessments(autoSavedData.playerAssessments || {});
+    clearAutoSave();
+  };
 
   // Save state
   const [isSaving, setIsSaving] = useState(false);
@@ -564,6 +587,7 @@ const MatchDayAssessmentPage = () => {
       // Delete draft if exists
       const draftKey = getDraftKey(activeTeamId, matchDate);
       localStorage.removeItem(draftKey);
+      clearAutoSave();
 
       // Track if saved offline
       setSavedOffline(!isOnline);
@@ -970,6 +994,37 @@ const MatchDayAssessmentPage = () => {
           </div>
         )}
 
+        {/* Auto-save Recovery Banner */}
+        {hasAutoSave && !showDraftBanner && !existingDraft && (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <RefreshCw className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-blue-700 font-semibold text-sm">Auto-saved Data Recovered</h3>
+                <p className="text-blue-600 text-xs mt-1">
+                  We recovered unsaved assessment data from your last session.
+                </p>
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={handleLoadAutoSave}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-medium transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    Restore
+                  </button>
+                  <button
+                    onClick={clearAutoSave}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-transparent border border-blue-300 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-medium transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Discard
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Match Details Section */}
         <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4 mb-6">
           <h2 className="text-gray-800 font-semibold mb-4 flex items-center gap-2">
@@ -1266,13 +1321,18 @@ const MatchDayAssessmentPage = () => {
                               {/* Per-metric note toggle */}
                               <button
                                 onClick={() => toggleMetricNote(player.id, metric.id)}
-                                className="mt-1.5 flex items-center gap-1 text-[10px] text-[#6B7C6B] hover:text-[#00A651] transition-colors"
+                                className={`mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                                  metricNote
+                                    ? 'bg-[#F5F9F5] border border-[#00A651] text-[#00A651]'
+                                    : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] hover:border-[#00A651] hover:text-[#00A651]'
+                                }`}
                               >
                                 <MessageSquare className="w-3 h-3" />
-                                <span>{isMetricNoteOpen ? 'Hide note' : metricNote ? 'Edit note' : 'Add note'}</span>
+                                <span>{isMetricNoteOpen ? 'Hide Note' : metricNote ? 'Edit Note' : 'Add Note'}</span>
+                                <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isMetricNoteOpen ? 'rotate-180' : ''}`} />
                               </button>
                               {/* Per-metric note textarea */}
-                              <div className={`overflow-hidden transition-all duration-200 ${isMetricNoteOpen ? 'max-h-[120px] mt-1.5' : 'max-h-0'}`}>
+                              <div className={`overflow-hidden transition-all duration-200 ${isMetricNoteOpen ? 'max-h-[120px] mt-2' : 'max-h-0'}`}>
                                 <textarea
                                   value={metricNote}
                                   onChange={(e) => handlePlayerMetricNoteChange(player.id, metric.id, e.target.value)}
