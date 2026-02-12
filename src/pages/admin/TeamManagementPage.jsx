@@ -541,17 +541,20 @@ const TeamFormModal = ({ team, coaches: initialCoaches, players, allTeams, coord
 
   const coachName = form.coachId ? (coaches.find(c => c.id === form.coachId)?.displayName || '') : '';
 
-  const availablePlayers = useMemo(() => {
-    const assignedElsewhere = new Set();
+  const assignedElsewhere = useMemo(() => {
+    const map = new Map();
     allTeams.forEach(t => {
-      if (t.id !== team?.id) (t.playerIds || []).forEach(pid => assignedElsewhere.add(pid));
+      if (t.id !== team?.id) (t.playerIds || []).forEach(pid => map.set(pid, t.name));
     });
+    return map;
+  }, [allTeams, team]);
+
+  const availablePlayers = useMemo(() => {
     return players.filter(p =>
-      !assignedElsewhere.has(p.id) &&
       !form.playerIds.includes(p.id) &&
       (playerSearch ? (p.displayName || p.email || '').toLowerCase().includes(playerSearch.toLowerCase()) : true)
     );
-  }, [players, allTeams, form.playerIds, playerSearch, team]);
+  }, [players, form.playerIds, playerSearch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -702,7 +705,12 @@ const TeamFormModal = ({ team, coaches: initialCoaches, players, allTeams, coord
                   }}
                   className="w-full text-left px-3 py-2 text-sm text-gray-800 hover:bg-gray-100 flex items-center gap-2">
                   <UserPlus size={12} className="text-[#00A651]" />
-                  {p.displayName || p.email}
+                  <span className="flex-1">{p.displayName || p.email}</span>
+                  {assignedElsewhere.has(p.id) && (
+                    <span className="text-[10px] text-[#6B7C6B] bg-[#D4E4D4]/50 px-1.5 py-0.5 rounded">
+                      {assignedElsewhere.get(p.id)}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>

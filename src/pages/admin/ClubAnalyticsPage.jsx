@@ -34,7 +34,7 @@ import {
 
 const ClubAnalyticsPage = () => {
   const navigate = useNavigate();
-  const { players, evaluations, teams } = useData();
+  const { players, evaluations, teams, games } = useData();
   const [timeRange, setTimeRange] = useState('month');
 
   // Calculate comprehensive club analytics
@@ -49,16 +49,37 @@ const ClubAnalyticsPage = () => {
     const daysBack = ranges[timeRange];
     const cutoffDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
 
+    // Parse date safely — handles Firestore Timestamps, ISO strings, and Date objects
+    const parseDate = (val) => {
+      if (!val) return null;
+      if (val.toDate) return val.toDate(); // Firestore Timestamp
+      const d = new Date(val);
+      return isNaN(d.getTime()) ? null : d;
+    };
+
     // Filter evaluations by time range
-    const recentEvals = Object.values(evaluations || {}).filter(e =>
-      new Date(e.date || e.createdAt) > cutoffDate
-    );
+    const allEvals = Object.values(evaluations || {});
+    const recentEvals = allEvals.filter(e => {
+      const d = parseDate(e.date || e.createdAt);
+      return d && d > cutoffDate;
+    });
 
     // Previous period for comparison
     const prevCutoff = new Date(cutoffDate.getTime() - daysBack * 24 * 60 * 60 * 1000);
-    const prevEvals = Object.values(evaluations || {}).filter(e => {
-      const date = new Date(e.date || e.createdAt);
-      return date > prevCutoff && date <= cutoffDate;
+    const prevEvals = allEvals.filter(e => {
+      const d = parseDate(e.date || e.createdAt);
+      return d && d > prevCutoff && d <= cutoffDate;
+    });
+
+    // Count match assessments (games collection)
+    const allGames = games || [];
+    const recentGames = allGames.filter(g => {
+      const d = parseDate(g.date || g.createdAt);
+      return d && d > cutoffDate;
+    });
+    const prevGames = allGames.filter(g => {
+      const d = parseDate(g.date || g.createdAt);
+      return d && d > prevCutoff && d <= cutoffDate;
     });
 
     // Assessment trend data
@@ -139,18 +160,23 @@ const ClubAnalyticsPage = () => {
 
     return {
       totalPlayers: players?.length || 0,
-      totalAssessments: new Set(recentEvals.map(e => e.id)).size,
-      prevAssessments: new Set(prevEvals.map(e => e.id)).size,
+      totalAssessments: new Set(recentEvals.map(e => e.id)).size + recentGames.length,
+      prevAssessments: new Set(prevEvals.map(e => e.id)).size + prevGames.length,
+      skillAssessments: new Set(recentEvals.map(e => e.id)).size,
+      matchAssessments: recentGames.length,
       avgLevel: currentAvg.toFixed(1),
       prevAvgLevel: prevAvg.toFixed(1),
       levelChange: (currentAvg - prevAvg).toFixed(2),
-      assessmentChange: recentEvals.length - prevEvals.length,
+      assessmentChange: (recentEvals.length + recentGames.length) - (prevEvals.length + prevGames.length),
       trendData,
       skillDistribution,
       teamComparison,
-      uniquePlayersAssessed: new Set(recentEvals.map(e => e.playerId)).size
+      uniquePlayersAssessed: new Set([
+        ...recentEvals.map(e => e.playerId),
+        ...recentGames.flatMap(g => Object.keys(g.playerRatings || {}))
+      ]).size
     };
-  }, [players, evaluations, teams, timeRange]);
+  }, [players, evaluations, teams, games, timeRange]);
 
   const getChangeIndicator = (change) => {
     const num = parseFloat(change);

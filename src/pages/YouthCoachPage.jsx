@@ -135,7 +135,7 @@ const YouthCoachPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-[#FFFDF7] p-4 flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -143,52 +143,52 @@ const YouthCoachPage = () => {
 
   if (!program) {
     return (
-      <div className="min-h-screen bg-gray-900 p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-[#FFFDF7] p-4 flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
           <p className="text-gray-800 font-semibold">Program not found</p>
-          <button onClick={() => navigate('/admin/youth-programs')} className="mt-3 text-emerald-400 hover:underline">Go back</button>
+          <button onClick={() => navigate('/admin/youth-programs')} className="mt-3 text-emerald-600 hover:underline">Go back</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 pb-20">
+    <div className="min-h-screen bg-[#FFFDF7] pb-20">
       {/* Header */}
       <div className={`bg-gradient-to-r ${config.color} p-4 pb-6`}>
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-3">
-            <button onClick={() => navigate('/admin/youth-programs')} className="p-2 rounded-lg bg-gray-200 hover:bg-white/30 text-gray-800">
+            <button onClick={() => navigate('/admin/youth-programs')} className="p-2 rounded-lg bg-white/20 hover:bg-white/30 text-white">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="flex-1">
-              <h1 className="text-xl font-bold text-gray-800">{program.name}</h1>
-              <p className="text-gray-700 text-sm">{config.name} | Ages {config.ageRange} | Week {currentWeek} of {config.totalWeeks}</p>
+              <h1 className="text-xl font-bold text-white">{program.name}</h1>
+              <p className="text-white/80 text-sm">{config.name} | Ages {config.ageRange} | Week {currentWeek} of {config.totalWeeks}</p>
             </div>
             <div className="text-3xl">{program.programType === PROGRAM_TYPES.LITTLE_LAKERS ? '🏀' : '🌟'}</div>
           </div>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="bg-gray-200 rounded-lg p-2 text-center">
-              <p className="text-gray-800 font-bold text-lg">{enrollments.filter(e => e.status === 'active').length}</p>
-              <p className="text-gray-600 text-xs">Enrolled</p>
+            <div className="bg-white/25 rounded-lg p-2 text-center">
+              <p className="text-white font-bold text-lg">{enrollments.filter(e => e.status === 'active').length}</p>
+              <p className="text-white/70 text-xs">Enrolled</p>
             </div>
-            <div className="bg-gray-200 rounded-lg p-2 text-center">
-              <p className="text-gray-800 font-bold text-lg">{sessions.filter(s => s.status === 'completed').length}</p>
-              <p className="text-gray-600 text-xs">Sessions Done</p>
+            <div className="bg-white/25 rounded-lg p-2 text-center">
+              <p className="text-white font-bold text-lg">{sessions.filter(s => s.status === 'completed').length}</p>
+              <p className="text-white/70 text-xs">Sessions Done</p>
             </div>
-            <div className="bg-gray-200 rounded-lg p-2 text-center">
-              <p className="text-gray-800 font-bold text-lg">{config.totalWeeks}</p>
-              <p className="text-gray-600 text-xs">Total Weeks</p>
+            <div className="bg-white/25 rounded-lg p-2 text-center">
+              <p className="text-white font-bold text-lg">{config.totalWeeks}</p>
+              <p className="text-white/70 text-xs">Total Weeks</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Tab Bar */}
-      <div className="bg-gray-800 border-b border-gray-700 sticky top-0 z-40">
+      <div className="bg-white border-b border-[#D4E4D4] sticky top-0 z-40">
         <div className="max-w-4xl mx-auto flex overflow-x-auto">
           {tabs.map(tab => (
             <button
@@ -196,8 +196,8 @@ const YouthCoachPage = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                 activeTab === tab.id
-                  ? 'border-emerald-500 text-emerald-400'
-                  : 'border-transparent text-gray-400 hover:text-gray-300'
+                  ? 'border-[#00A651] text-[#005028]'
+                  : 'border-transparent text-gray-500 hover:text-gray-600'
               }`}
             >
               <tab.icon className="w-4 h-4" />
@@ -210,7 +210,7 @@ const YouthCoachPage = () => {
       {/* Content */}
       <div className="max-w-4xl mx-auto p-4">
         {error && (
-          <div className="mb-4 p-3 bg-red-900/50 border border-red-500 rounded-lg text-red-300 flex items-center gap-2 text-sm">
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 flex items-center gap-2 text-sm">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <span>{error}</span>
             <button onClick={() => setError(null)} className="ml-auto"><X className="w-4 h-4" /></button>
@@ -256,7 +256,7 @@ const YouthCoachPage = () => {
                 >
                   Write Summary
                 </button>
-                <button onClick={() => setShowSummaryPrompt(false)} className="text-emerald-400 hover:text-emerald-600">
+                <button onClick={() => setShowSummaryPrompt(false)} className="text-emerald-600 hover:text-emerald-600">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -329,7 +329,7 @@ const YouthCoachPage = () => {
               </button>
               <button
                 onClick={() => navigate(`/youth-programs/${programId}/session-history`)}
-                className="px-4 py-3 bg-gray-800 text-gray-300 rounded-xl font-medium hover:bg-gray-700 text-sm"
+                className="px-4 py-3 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 text-sm"
               >
                 View All
               </button>
@@ -350,7 +350,7 @@ const YouthCoachPage = () => {
               <div className="text-center py-8 text-gray-500">
                 <FileText className="w-12 h-12 mx-auto mb-3 text-gray-600" />
                 <p className="text-sm">No session summaries yet</p>
-                <p className="text-xs text-gray-400 mt-1">Write a summary after your next session!</p>
+                <p className="text-xs text-gray-500 mt-1">Write a summary after your next session!</p>
               </div>
             )}
           </div>
@@ -379,7 +379,7 @@ const SessionPlanTab = ({ config, curriculum, activities, tips, currentWeek, set
 
   if (!weekPlan) {
     return (
-      <div className="text-center py-12 text-gray-400">
+      <div className="text-center py-12 text-gray-500">
         <BookOpen className="w-12 h-12 mx-auto mb-3 text-gray-600" />
         <p>No session plan for week {currentWeek}</p>
       </div>
@@ -389,22 +389,22 @@ const SessionPlanTab = ({ config, curriculum, activities, tips, currentWeek, set
   return (
     <div className="space-y-4">
       {/* Week Navigator */}
-      <div className="flex items-center justify-between bg-gray-800 rounded-xl p-3">
+      <div className="flex items-center justify-between bg-white rounded-xl p-3">
         <button
           onClick={() => setCurrentWeek(Math.max(1, currentWeek - 1))}
           disabled={currentWeek <= 1}
-          className="p-2 text-gray-400 hover:text-gray-800 disabled:opacity-30 rounded-lg hover:bg-gray-700"
+          className="p-2 text-gray-500 hover:text-gray-800 disabled:opacity-30 rounded-lg hover:bg-gray-100"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="text-center">
           <p className="text-gray-800 font-bold">Week {currentWeek}: {weekPlan.theme}</p>
-          <p className="text-gray-400 text-xs">Focus: {weekPlan.focus}</p>
+          <p className="text-gray-500 text-xs">Focus: {weekPlan.focus}</p>
         </div>
         <button
           onClick={() => setCurrentWeek(Math.min(config.totalWeeks, currentWeek + 1))}
           disabled={currentWeek >= config.totalWeeks}
-          className="p-2 text-gray-400 hover:text-gray-800 disabled:opacity-30 rounded-lg hover:bg-gray-700"
+          className="p-2 text-gray-500 hover:text-gray-800 disabled:opacity-30 rounded-lg hover:bg-gray-100"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
@@ -412,14 +412,14 @@ const SessionPlanTab = ({ config, curriculum, activities, tips, currentWeek, set
 
       {/* Coach Tip */}
       {showTip && randomTip && (
-        <div className="bg-amber-900/30 border border-amber-600/50 rounded-xl p-4">
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <div className="flex items-start gap-2">
-            <Lightbulb className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+            <Lightbulb className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-amber-300 text-sm font-medium">Coach Tip</p>
-              <p className="text-amber-100/80 text-sm mt-1">{randomTip}</p>
+              <p className="text-amber-700 text-sm font-medium">Coach Tip</p>
+              <p className="text-amber-600 text-sm mt-1">{randomTip}</p>
             </div>
-            <button onClick={() => setShowTip(false)} className="text-amber-500/50 hover:text-amber-400">
+            <button onClick={() => setShowTip(false)} className="text-amber-400 hover:text-amber-600">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -429,39 +429,39 @@ const SessionPlanTab = ({ config, curriculum, activities, tips, currentWeek, set
       {/* Session Flow */}
       <div className="space-y-3">
         {/* Warm-Up */}
-        <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+        <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
-              <Play className="w-4 h-4 text-orange-400" />
+            <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
+              <Play className="w-4 h-4 text-orange-500" />
             </div>
             <div>
               <h3 className="text-gray-800 font-semibold text-sm">Warm-Up</h3>
-              <p className="text-gray-400 text-xs">{config.id === PROGRAM_TYPES.LITTLE_LAKERS ? '5 min' : '7 min'}</p>
+              <p className="text-gray-500 text-xs">{config.id === PROGRAM_TYPES.LITTLE_LAKERS ? '5 min' : '7 min'}</p>
             </div>
           </div>
-          <p className="text-gray-300 text-sm ml-10">{weekPlan.warmUp}</p>
+          <p className="text-gray-600 text-sm ml-10">{weekPlan.warmUp}</p>
         </div>
 
         {/* Activities */}
         {weekActivities.map((activity, idx) => (
-          <div key={activity.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+          <div key={activity.id} className="bg-white border border-[#D4E4D4] rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className={`w-8 h-8 bg-gradient-to-br ${config.color} rounded-lg flex items-center justify-center text-white text-xs font-bold`}>
                 {idx + 1}
               </div>
               <div className="flex-1">
                 <h3 className="text-gray-800 font-semibold text-sm">{activity.name}</h3>
-                <p className="text-gray-400 text-xs">{activity.duration} min | {activity.category}</p>
+                <p className="text-gray-500 text-xs">{activity.duration} min | {activity.category}</p>
               </div>
               <div className="flex items-center gap-1">
                 {Array.from({ length: activity.funRating }, (_, i) => (
-                  <Star key={i} className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                  <Star key={i} className="w-3 h-3 text-yellow-500 fill-yellow-400" />
                 ))}
               </div>
             </div>
 
             <div className="ml-10 space-y-2">
-              <p className="text-gray-300 text-sm">{activity.instructions}</p>
+              <p className="text-gray-600 text-sm">{activity.instructions}</p>
 
               {activity.equipment?.length > 0 && (
                 <div className="flex items-start gap-1">
@@ -470,11 +470,11 @@ const SessionPlanTab = ({ config, curriculum, activities, tips, currentWeek, set
                 </div>
               )}
 
-              <div className="bg-gray-900/50 rounded-lg p-2">
-                <p className="text-emerald-400 text-xs font-medium mb-1">Key Points:</p>
+              <div className="bg-[#FFFDF7] rounded-lg p-2">
+                <p className="text-emerald-600 text-xs font-medium mb-1">Key Points:</p>
                 <ul className="space-y-0.5">
                   {activity.keyPoints.map((point, i) => (
-                    <li key={i} className="text-gray-400 text-xs flex items-start gap-1">
+                    <li key={i} className="text-gray-500 text-xs flex items-start gap-1">
                       <span className="text-emerald-500 mt-0.5">-</span> {point}
                     </li>
                   ))}
@@ -483,13 +483,13 @@ const SessionPlanTab = ({ config, curriculum, activities, tips, currentWeek, set
 
               {activity.variations && (
                 <div className="text-xs text-gray-500">
-                  <span className="text-gray-400 font-medium">Variations: </span>
+                  <span className="text-gray-500 font-medium">Variations: </span>
                   {activity.variations.join(' | ')}
                 </div>
               )}
 
               {activity.safetyNotes && (
-                <div className="text-xs text-red-400/70 flex items-start gap-1">
+                <div className="text-xs text-red-500 flex items-start gap-1">
                   <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
                   {activity.safetyNotes}
                 </div>
@@ -499,26 +499,26 @@ const SessionPlanTab = ({ config, curriculum, activities, tips, currentWeek, set
         ))}
 
         {/* Cool-Down */}
-        <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+        <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-              <Heart className="w-4 h-4 text-blue-400" />
+            <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+              <Heart className="w-4 h-4 text-blue-500" />
             </div>
             <div>
               <h3 className="text-gray-800 font-semibold text-sm">Cool-Down</h3>
-              <p className="text-gray-400 text-xs">5 min</p>
+              <p className="text-gray-500 text-xs">5 min</p>
             </div>
           </div>
-          <p className="text-gray-300 text-sm ml-10">{weekPlan.coolDown}</p>
+          <p className="text-gray-600 text-sm ml-10">{weekPlan.coolDown}</p>
         </div>
 
         {/* Parent Tip */}
-        <div className="bg-purple-900/30 border border-purple-600/50 rounded-xl p-4">
+        <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
           <div className="flex items-start gap-2">
-            <MessageCircle className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
+            <MessageCircle className="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-purple-300 text-sm font-medium">Parent Tip of the Week</p>
-              <p className="text-purple-100/80 text-sm mt-1">{weekPlan.parentTip}</p>
+              <p className="text-purple-700 text-sm font-medium">Parent Tip of the Week</p>
+              <p className="text-purple-600 text-sm mt-1">{weekPlan.parentTip}</p>
             </div>
           </div>
         </div>
@@ -544,8 +544,8 @@ const SessionPlanTab = ({ config, curriculum, activities, tips, currentWeek, set
         </button>
       )}
       {sessionExists && (
-        <div className="bg-emerald-900/30 border border-emerald-600/50 rounded-xl p-3 text-center">
-          <p className="text-emerald-400 text-sm font-medium flex items-center justify-center gap-2">
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
+          <p className="text-emerald-700 text-sm font-medium flex items-center justify-center gap-2">
             <CheckCircle className="w-4 h-4" />
             Week {currentWeek} session completed
           </p>
@@ -642,8 +642,8 @@ const AttendanceTab = ({ enrollments, sessions, programId, currentWeek, onRecord
                 selectedWeek === week
                   ? 'bg-emerald-600 text-white'
                   : hasSession
-                  ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-600'
-                  : 'bg-gray-800 text-gray-400 border border-gray-700'
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
+                  : 'bg-white text-gray-500 border border-[#D4E4D4]'
               }`}
             >
               <span className="text-[10px]">Wk</span>
@@ -654,10 +654,10 @@ const AttendanceTab = ({ enrollments, sessions, programId, currentWeek, onRecord
       </div>
 
       {/* Attendance Summary */}
-      <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+      <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-gray-800 font-semibold">Week {selectedWeek} Attendance</h3>
-          <span className="text-emerald-400 text-sm font-medium">{presentCount}/{activeEnrollments.length} present</span>
+          <span className="text-emerald-600 text-sm font-medium">{presentCount}/{activeEnrollments.length} present</span>
         </div>
 
         {activeEnrollments.length === 0 ? (
@@ -667,7 +667,7 @@ const AttendanceTab = ({ enrollments, sessions, programId, currentWeek, onRecord
             {activeEnrollments.map(enrollment => {
               const isPresent = attendance[enrollment.id]?.present ?? true;
               return (
-                <div key={enrollment.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-700/50">
+                <div key={enrollment.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100/50">
                   <button
                     onClick={() => setAttendance(a => ({
                       ...a,
@@ -675,8 +675,8 @@ const AttendanceTab = ({ enrollments, sessions, programId, currentWeek, onRecord
                     }))}
                     className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
                       isPresent
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500'
-                        : 'bg-red-500/20 text-red-400 border border-red-500'
+                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-300'
+                        : 'bg-red-50 text-red-500 border border-red-300'
                     }`}
                   >
                     {isPresent ? <CheckCircle className="w-4 h-4" /> : <X className="w-4 h-4" />}
@@ -757,9 +757,9 @@ const MilestonesTab = ({ enrollments, milestoneList, programId, programType, cur
   const getStatusIcon = (status) => {
     switch (status) {
       case MILESTONE_STATUS.ACHIEVED:
-        return <CheckCircle className="w-5 h-5 text-emerald-400" />;
+        return <CheckCircle className="w-5 h-5 text-emerald-600" />;
       case MILESTONE_STATUS.IMPROVING:
-        return <TrendingUp className="w-5 h-5 text-yellow-400" />;
+        return <TrendingUp className="w-5 h-5 text-yellow-500" />;
       default:
         return <Circle className="w-5 h-5 text-gray-600" />;
     }
@@ -785,12 +785,12 @@ const MilestonesTab = ({ enrollments, milestoneList, programId, programType, cur
               onClick={() => setSelectedChild(enrollment.id)}
               className={`p-3 rounded-xl text-left transition-colors ${
                 selectedChild === enrollment.id
-                  ? 'bg-emerald-600/20 border-emerald-500 border'
-                  : 'bg-gray-800 border-gray-700 border hover:border-gray-600'
+                  ? 'bg-emerald-50 border-emerald-500 border'
+                  : 'bg-white border-[#D4E4D4] border hover:border-gray-400'
               }`}
             >
               <p className="text-gray-800 text-sm font-medium truncate">{enrollment.childName}</p>
-              <p className="text-gray-400 text-xs">Age {enrollment.childAge}</p>
+              <p className="text-gray-500 text-xs">Age {enrollment.childAge}</p>
             </button>
           ))}
         </div>
@@ -798,9 +798,9 @@ const MilestonesTab = ({ enrollments, milestoneList, programId, programType, cur
 
       {/* Milestones */}
       {selectedChild && (
-        <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+        <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
           <h3 className="text-gray-800 font-semibold mb-3">Developmental Milestones</h3>
-          <p className="text-gray-400 text-xs mb-4">Tap to cycle: Not Started → Improving → Achieved</p>
+          <p className="text-gray-500 text-xs mb-4">Tap to cycle: Not Started → Improving → Achieved</p>
 
           <div className="space-y-2">
             {milestoneList.map(milestone => {
@@ -813,22 +813,22 @@ const MilestonesTab = ({ enrollments, milestoneList, programId, programType, cur
                   onClick={() => handleMilestoneToggle(milestone.id, status)}
                   disabled={isSaving}
                   className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-left ${
-                    status === MILESTONE_STATUS.ACHIEVED ? 'bg-emerald-900/20 border border-emerald-700' :
-                    status === MILESTONE_STATUS.IMPROVING ? 'bg-yellow-900/20 border border-yellow-700' :
-                    'bg-gray-900/50 border border-gray-700 hover:border-gray-600'
+                    status === MILESTONE_STATUS.ACHIEVED ? 'bg-emerald-50 border border-emerald-200' :
+                    status === MILESTONE_STATUS.IMPROVING ? 'bg-yellow-50 border border-yellow-200' :
+                    'bg-gray-50 border border-[#D4E4D4] hover:border-gray-400'
                   } ${isSaving ? 'opacity-50' : ''}`}
                 >
                   {getStatusIcon(status)}
                   <div className="flex-1">
-                    <p className={`text-sm ${status === MILESTONE_STATUS.ACHIEVED ? 'text-emerald-300' : status === MILESTONE_STATUS.IMPROVING ? 'text-yellow-300' : 'text-gray-300'}`}>
+                    <p className={`text-sm ${status === MILESTONE_STATUS.ACHIEVED ? 'text-emerald-700' : status === MILESTONE_STATUS.IMPROVING ? 'text-yellow-700' : 'text-gray-600'}`}>
                       {milestone.label}
                     </p>
                     <p className="text-gray-500 text-xs">{milestone.category}</p>
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    status === MILESTONE_STATUS.ACHIEVED ? 'bg-emerald-500/20 text-emerald-400' :
-                    status === MILESTONE_STATUS.IMPROVING ? 'bg-yellow-500/20 text-yellow-400' :
-                    'bg-gray-700 text-gray-500'
+                    status === MILESTONE_STATUS.ACHIEVED ? 'bg-emerald-100 text-emerald-700' :
+                    status === MILESTONE_STATUS.IMPROVING ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-gray-100 text-gray-500'
                   }`}>
                     {getStatusLabel(status)}
                   </span>
@@ -838,14 +838,14 @@ const MilestonesTab = ({ enrollments, milestoneList, programId, programType, cur
           </div>
 
           {/* Progress Summary */}
-          <div className="mt-4 pt-4 border-t border-gray-700">
+          <div className="mt-4 pt-4 border-t border-[#D4E4D4]">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">Progress</span>
+              <span className="text-gray-500">Progress</span>
               <span className="text-gray-800 font-medium">
                 {Object.values(childMilestones).filter(s => s === MILESTONE_STATUS.ACHIEVED).length}/{milestoneList.length} achieved
               </span>
             </div>
-            <div className="mt-2 h-2 bg-gray-700 rounded-full overflow-hidden">
+            <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="h-full bg-emerald-500 rounded-full transition-all"
                 style={{
@@ -903,7 +903,7 @@ const ActivitiesTab = ({ activities, config }) => {
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           placeholder="Search activities..."
-          className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2.5 text-gray-800 placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
+          className="w-full bg-white border border-[#D4E4D4] rounded-lg pl-10 pr-4 py-2.5 text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none"
         />
       </div>
 
@@ -916,7 +916,7 @@ const ActivitiesTab = ({ activities, config }) => {
             className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
               selectedCategory === cat
                 ? 'bg-emerald-600 text-white'
-                : 'bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-600'
+                : 'bg-white text-gray-500 border border-[#D4E4D4] hover:border-gray-400'
             }`}
           >
             {cat === 'all' ? 'All' : cat.replace('-', ' ')}
@@ -931,54 +931,54 @@ const ActivitiesTab = ({ activities, config }) => {
         {filtered.map(activity => {
           const isExpanded = expandedActivity === activity.id;
           return (
-            <div key={activity.id} className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+            <div key={activity.id} className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
               <button
                 onClick={() => setExpandedActivity(isExpanded ? null : activity.id)}
                 className="w-full flex items-center gap-3 p-4 text-left"
               >
                 <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${config.color} flex items-center justify-center flex-shrink-0`}>
-                  <Play className="w-5 h-5 text-gray-800" />
+                  <Play className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-gray-800 font-medium text-sm">{activity.name}</p>
-                  <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
+                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
                     <span>{activity.duration} min</span>
                     <span>|</span>
                     <span className="capitalize">{activity.category.replace('-', ' ')}</span>
                     <span>|</span>
                     <span className="flex items-center gap-0.5">
                       {Array.from({ length: activity.funRating }, (_, i) => (
-                        <Star key={i} className="w-2.5 h-2.5 text-yellow-400 fill-yellow-400" />
+                        <Star key={i} className="w-2.5 h-2.5 text-yellow-500 fill-yellow-400" />
                       ))}
                     </span>
                   </div>
                 </div>
-                {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
               </button>
 
               {isExpanded && (
-                <div className="px-4 pb-4 space-y-3 border-t border-gray-700 pt-3">
-                  <p className="text-gray-300 text-sm">{activity.instructions}</p>
+                <div className="px-4 pb-4 space-y-3 border-t border-[#D4E4D4] pt-3">
+                  <p className="text-gray-600 text-sm">{activity.instructions}</p>
 
                   {activity.equipment?.length > 0 && (
                     <div>
-                      <p className="text-gray-400 text-xs font-medium mb-1">Equipment:</p>
+                      <p className="text-gray-500 text-xs font-medium mb-1">Equipment:</p>
                       <p className="text-gray-500 text-xs">{activity.equipment.join(' | ')}</p>
                     </div>
                   )}
 
                   <div>
-                    <p className="text-emerald-400 text-xs font-medium mb-1">Key Points:</p>
+                    <p className="text-emerald-600 text-xs font-medium mb-1">Key Points:</p>
                     <ul className="space-y-0.5">
                       {activity.keyPoints.map((p, i) => (
-                        <li key={i} className="text-gray-400 text-xs">- {p}</li>
+                        <li key={i} className="text-gray-500 text-xs">- {p}</li>
                       ))}
                     </ul>
                   </div>
 
                   {activity.variations && (
                     <div>
-                      <p className="text-blue-400 text-xs font-medium mb-1">Variations:</p>
+                      <p className="text-blue-600 text-xs font-medium mb-1">Variations:</p>
                       {activity.variations.map((v, i) => (
                         <p key={i} className="text-gray-500 text-xs">- {v}</p>
                       ))}
@@ -986,8 +986,8 @@ const ActivitiesTab = ({ activities, config }) => {
                   )}
 
                   {activity.safetyNotes && (
-                    <div className="bg-red-900/20 border border-red-800 rounded-lg p-2">
-                      <p className="text-red-400 text-xs flex items-center gap-1">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-2">
+                      <p className="text-red-600 text-xs flex items-center gap-1">
                         <AlertCircle className="w-3 h-3" /> {activity.safetyNotes}
                       </p>
                     </div>
@@ -1053,9 +1053,9 @@ const ParentNotesTab = ({ enrollments, programId, currentWeek, coachName, curric
 
   return (
     <div className="space-y-4">
-      <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+      <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
         <h3 className="text-gray-800 font-semibold mb-1">Week {currentWeek} Parent Note</h3>
-        <p className="text-gray-400 text-xs mb-3">
+        <p className="text-gray-500 text-xs mb-3">
           This message will be saved for all {activeEnrollments.length} enrolled families
         </p>
 
@@ -1063,14 +1063,14 @@ const ParentNotesTab = ({ enrollments, programId, currentWeek, coachName, curric
           value={message}
           onChange={e => setMessage(e.target.value)}
           rows={10}
-          className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-500 focus:border-emerald-500 focus:outline-none text-sm"
+          className="w-full bg-[#FFFDF7] border border-[#D4E4D4] rounded-lg px-3 py-2 text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none text-sm"
           placeholder="Write a message to parents..."
         />
 
         <div className="flex items-center gap-3 mt-3">
           <button
             onClick={() => setMessage(generateDefaultMessage())}
-            className="px-3 py-2 bg-gray-700 text-gray-300 rounded-lg text-sm hover:bg-gray-600"
+            className="px-3 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200"
           >
             Reset Template
           </button>
@@ -1086,12 +1086,12 @@ const ParentNotesTab = ({ enrollments, programId, currentWeek, coachName, curric
       </div>
 
       {/* Recipients Preview */}
-      <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+      <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
         <h4 className="text-gray-800 font-semibold text-sm mb-2">Recipients ({activeEnrollments.length})</h4>
         <div className="space-y-1">
           {activeEnrollments.map(e => (
             <div key={e.id} className="flex items-center justify-between text-sm py-1">
-              <span className="text-gray-300">{e.childName}</span>
+              <span className="text-gray-600">{e.childName}</span>
               <span className="text-gray-500 text-xs">{e.parentEmail || 'No email'}</span>
             </div>
           ))}

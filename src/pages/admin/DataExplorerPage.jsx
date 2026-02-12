@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useData } from '../../contexts/DataContext';
 import {
   Search,
@@ -16,6 +17,7 @@ import {
 import PageShell from '../../components/PageShell';
 
 const DataExplorerPage = () => {
+  const navigate = useNavigate();
   const { players, evaluations, teams } = useData();
   const [selectedCollection, setSelectedCollection] = useState('players');
   const [searchTerm, setSearchTerm] = useState('');
@@ -274,10 +276,19 @@ const DataExplorerPage = () => {
                 <tbody className="divide-y divide-white/5">
                   {processedData.slice(0, 50).map((item, index) => (
                     <React.Fragment key={item.id || index}>
-                      <tr className="hover:bg-gray-100">
+                      <tr
+                        className="hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          if (selectedCollection === 'players' && item.id) {
+                            navigate(`/players/${item.id}`);
+                          } else {
+                            setExpandedRow(expandedRow === index ? null : index);
+                          }
+                        }}
+                      >
                         {currentCollection.columns.map(col => (
                           <td key={col} className="px-4 py-3 text-sm">
-                            <span className="truncate block max-w-[150px]">
+                            <span className="truncate block max-w-[200px]">
                               {typeof item[col] === 'object'
                                 ? JSON.stringify(item[col])
                                 : String(item[col] || '-')}
@@ -286,10 +297,10 @@ const DataExplorerPage = () => {
                         ))}
                         <td className="px-4 py-3">
                           <button
-                            onClick={() => setExpandedRow(expandedRow === index ? null : index)}
-                            className="p-1 hover:bg-gray-100 rounded transition-colors"
+                            onClick={(e) => { e.stopPropagation(); setExpandedRow(expandedRow === index ? null : index); }}
+                            className="p-1 hover:bg-gray-200 rounded transition-colors"
                           >
-                            <Eye size={16} className="text-gray-400" />
+                            <Eye size={16} className="text-[#6B7C6B]" />
                           </button>
                         </td>
                       </tr>

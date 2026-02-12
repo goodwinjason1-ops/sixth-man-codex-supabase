@@ -461,11 +461,11 @@ const TryoutAssessorPage = () => {
               </div>
               <h1 className="text-gray-800 font-bold text-sm">{session.name}</h1>
               {(session.startTime || session.endTime) && (
-                <p className="text-[#00A651] text-xs flex items-center justify-center gap-1 mt-1">
-                  <Clock className="w-3 h-3" />
+                <p className="text-[#005028] text-sm font-medium flex items-center justify-center gap-1.5 mt-1">
+                  <Clock className="w-4 h-4" />
                   {formatTime24to12(session.startTime)}{session.endTime && ` - ${formatTime24to12(session.endTime)}`}
                   {durationBetween(session.startTime, session.endTime) && (
-                    <span className="text-gray-400">
+                    <span className="text-[#6B7C6B]">
                       ({durationBetween(session.startTime, session.endTime)} min)
                     </span>
                   )}
@@ -475,10 +475,11 @@ const TryoutAssessorPage = () => {
 
             {/* Online/Offline indicator */}
             <HelpTooltip text={isOnline ? 'Connected — scores sync in real time.' : 'Offline — scores save locally and sync when you reconnect.'}>
-              <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
-                isOnline ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+              <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium ${
+                isOnline ? 'bg-green-500/20 text-green-600' : 'bg-yellow-500/20 text-yellow-600'
               }`}>
-                {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
+                {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
+                <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
               </div>
             </HelpTooltip>
           </div>
@@ -488,8 +489,8 @@ const TryoutAssessorPage = () => {
             <div className="flex-1 h-2 bg-[#F5F9F5] rounded-full overflow-hidden">
               <div
                 className={`h-full transition-all duration-300 ${
-                  session.sessionType === 'hour-1' ? 'bg-violet-500' :
-                  session.sessionType === 'hour-2' ? 'bg-orange-500' :
+                  session.sessionType === 'hour-1' ? 'bg-[#005028]' :
+                  session.sessionType === 'hour-2' ? 'bg-[#00A651]' :
                   'bg-[#005028]'
                 }`}
                 style={{ width: `${progress}%` }}
@@ -506,15 +507,15 @@ const TryoutAssessorPage = () => {
 
       {/* Player Card */}
       <div className="px-4 py-4">
-        <div className="bg-gradient-to-br from-[#005028] to-[#0a4a38] border-2 border-[#D4E4D4] rounded-2xl p-4 mb-4">
+        <div className="bg-gradient-to-br from-[#00A651] to-[#008c44] border-2 border-[#D4E4D4] rounded-2xl p-4 mb-4 transition-all duration-300">
           <div className="flex items-center justify-between">
             {/* Previous Button */}
             <button
               onClick={() => goToPlayer(currentPlayerIndex - 1)}
               disabled={currentPlayerIndex === 0}
-              className="p-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl disabled:opacity-30 hover:border-[#00A651] transition-colors"
+              className="p-3 bg-white/90 border border-white/50 rounded-xl disabled:opacity-30 hover:bg-white transition-colors active:scale-95"
             >
-              <ChevronLeft className="w-6 h-6 text-gray-800" />
+              <ChevronLeft className="w-6 h-6 text-[#005028]" />
             </button>
 
             {/* Player Info */}
@@ -522,22 +523,22 @@ const TryoutAssessorPage = () => {
               <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-2 shadow-lg ${
                 currentPlayer?.promotedFromHour1
                   ? 'bg-orange-500 shadow-orange-500/30'
-                  : 'bg-[#005028] shadow-[#00A651]/30'
+                  : 'bg-[#005028] shadow-[#005028]/30'
               }`}>
                 <span className="text-white text-3xl font-bold">
                   {currentPlayer?.number || '?'}
                 </span>
               </div>
-              <h2 className="text-gray-800 font-bold text-xl">{currentPlayer?.name}</h2>
+              <h2 className="text-white font-bold text-xl">{currentPlayer?.name}</h2>
               {currentPlayer?.promotedFromHour1 && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-500/20 text-orange-300 text-xs rounded-full mt-1">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-500/20 text-orange-200 text-xs rounded-full mt-1">
                   Promoted from Hour 1
                 </span>
               )}
               {currentPlayer?.age && (
-                <p className="text-[#00A651] text-sm">Age {currentPlayer.age}</p>
+                <p className="text-white/80 text-sm">Age {currentPlayer.age}</p>
               )}
-              <p className="text-[#6B7C6B] text-xs mt-1">
+              <p className="text-white/60 text-xs mt-1">
                 Player {currentPlayerIndex + 1} of {totalPlayers}
               </p>
               {/* Evaluation Status Badge */}
@@ -563,9 +564,9 @@ const TryoutAssessorPage = () => {
             <button
               onClick={() => goToPlayer(currentPlayerIndex + 1)}
               disabled={currentPlayerIndex === totalPlayers - 1}
-              className="p-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl disabled:opacity-30 hover:border-[#00A651] transition-colors"
+              className="p-3 bg-white/90 border border-white/50 rounded-xl disabled:opacity-30 hover:bg-white transition-colors active:scale-95"
             >
-              <ChevronRight className="w-6 h-6 text-gray-800" />
+              <ChevronRight className="w-6 h-6 text-[#005028]" />
             </button>
           </div>
         </div>

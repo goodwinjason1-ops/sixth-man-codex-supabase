@@ -139,13 +139,13 @@ const TryoutSessionsPage = () => {
   const getSessionTypeBadge = (sessionType) => {
     if (sessionType === 'hour-1') {
       return (
-        <span className="px-2 py-1 rounded-full text-xs font-medium bg-violet-500/20 text-violet-300 border border-violet-500">
+        <span className="px-2 py-1 rounded-full text-xs font-medium bg-[#005028]/15 text-[#005028] border border-[#005028]/40">
           Hour 1 - Dev
         </span>
       );
     } else if (sessionType === 'hour-2') {
       return (
-        <span className="px-2 py-1 rounded-full text-xs font-medium bg-orange-500/20 text-orange-300 border border-orange-500">
+        <span className="px-2 py-1 rounded-full text-xs font-medium bg-[#00A651]/15 text-[#005028] border border-[#00A651]/40">
           Hour 2 - Adv
         </span>
       );
@@ -200,24 +200,24 @@ const TryoutSessionsPage = () => {
     >
       {/* Info Banner */}
       <div className="pt-0">
-        <div className="bg-gradient-to-r from-violet-500/20 to-orange-500/20 border border-violet-500/30 rounded-xl p-4">
+        <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-violet-500/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Timer className="w-4 h-4 text-violet-300" />
+              <div className="w-8 h-8 bg-[#005028]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Timer className="w-4 h-4 text-[#005028]" />
               </div>
               <div>
-                <p className="text-violet-300 font-medium">Hour 1 (60 min)</p>
-                <p className="text-gray-500 text-xs">Team 3 + newcomers. Identify 2-3 top players to promote.</p>
+                <p className="text-[#005028] font-medium">Hour 1 (60 min)</p>
+                <p className="text-[#6B7C6B] text-xs">Team 3 + newcomers. Identify 2-3 top players to promote.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-orange-500/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Zap className="w-4 h-4 text-orange-300" />
+              <div className="w-8 h-8 bg-[#00A651]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Zap className="w-4 h-4 text-[#00A651]" />
               </div>
               <div>
-                <p className="text-orange-300 font-medium">Hour 2 (60 min)</p>
-                <p className="text-gray-500 text-xs">Team 1 & 2 + promoted players. Select final teams.</p>
+                <p className="text-[#00A651] font-medium">Hour 2 (60 min)</p>
+                <p className="text-[#6B7C6B] text-xs">Team 1 & 2 + promoted players. Select final teams.</p>
               </div>
             </div>
           </div>
@@ -361,8 +361,8 @@ const SessionCard = ({
 
   return (
     <div className={`bg-white border rounded-xl p-5 hover:border-[#00A651] transition-colors ${
-      session.sessionType === 'hour-1' ? 'border-violet-500/30' :
-      session.sessionType === 'hour-2' ? 'border-orange-500/30' :
+      session.sessionType === 'hour-1' ? 'border-[#005028]/20' :
+      session.sessionType === 'hour-2' ? 'border-[#00A651]/30' :
       'border-[#D4E4D4]'
     }`}>
       <div className="flex items-start justify-between gap-4">
@@ -395,7 +395,7 @@ const SessionCard = ({
               <Users className="w-4 h-4" />
               {session.players?.length || 0} players
               {promotedCount > 0 && (
-                <span className="text-orange-400">({promotedCount} promoted)</span>
+                <span className="text-[#00A651]">({promotedCount} promoted)</span>
               )}
             </span>
             <span className="flex items-center gap-1">
@@ -411,13 +411,13 @@ const SessionCard = ({
               </span>
             )}
             {linkedHour1 && (
-              <span className="flex items-center gap-1 px-2 py-1 bg-violet-500/20 text-violet-300 text-xs rounded">
+              <span className="flex items-center gap-1 px-2 py-1 bg-[#005028]/10 text-[#005028] text-xs rounded">
                 <Link2 className="w-3 h-3" />
                 Linked to: {linkedHour1.name}
               </span>
             )}
             {linkedHour2Sessions.length > 0 && (
-              <span className="flex items-center gap-1 px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded">
+              <span className="flex items-center gap-1 px-2 py-1 bg-[#00A651]/10 text-[#00A651] text-xs rounded">
                 <Link2 className="w-3 h-3" />
                 {linkedHour2Sessions.length} Hour 2 session{linkedHour2Sessions.length > 1 ? 's' : ''} linked
               </span>
@@ -449,7 +449,7 @@ const SessionCard = ({
           {session.sessionType === 'hour-1' && session.status === 'active' && (
             <button
               onClick={onPromote}
-              className="p-2 bg-orange-500/20 hover:bg-orange-500/40 text-orange-400 rounded-lg transition-colors"
+              className="p-2 bg-[#00A651]/10 hover:bg-[#00A651]/20 text-[#00A651] rounded-lg transition-colors"
               title="Promote Players to Hour 2"
             >
               <ArrowUpCircle className="w-5 h-5" />
@@ -791,14 +791,14 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                   className={`p-4 rounded-xl border-2 text-left transition-all ${
                     formData.sessionType === type.id
                       ? type.id === 'hour-1'
-                        ? 'border-violet-500 bg-violet-500/20'
-                        : 'border-orange-500 bg-orange-500/20'
+                        ? 'border-[#005028] bg-[#005028]/10'
+                        : 'border-[#00A651] bg-[#00A651]/10'
                       : 'border-[#D4E4D4] hover:border-[#00A651]'
                   }`}
                 >
                   <p className={`font-medium ${
                     formData.sessionType === type.id
-                      ? type.id === 'hour-1' ? 'text-violet-300' : 'text-orange-300'
+                      ? type.id === 'hour-1' ? 'text-[#005028]' : 'text-[#00A651]'
                       : 'text-gray-800'
                   }`}>
                     {type.label}
@@ -934,10 +934,10 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
               <Users className="w-5 h-5 text-[#00A651]" />
               Players ({formData.players.length})
               {formData.sessionType === 'hour-1' && (
-                <span className="text-violet-300 text-xs ml-2">Team 3 + Newcomers</span>
+                <span className="text-[#005028] text-xs ml-2">Team 3 + Newcomers</span>
               )}
               {formData.sessionType === 'hour-2' && (
-                <span className="text-orange-300 text-xs ml-2">Team 1 & 2 + Promoted</span>
+                <span className="text-[#00A651] text-xs ml-2">Team 1 & 2 + Promoted</span>
               )}
             </h3>
 
@@ -1011,7 +1011,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                               {player.ageGroup && <span className="text-gray-400 ml-1">- {player.ageGroup}</span>}
                               {age && <span className="text-gray-400 ml-1">- Age {age}</span>}
                               {overage && <span className="text-red-400 ml-2 font-medium">(overage)</span>}
-                              {alreadyAdded && <span className="text-orange-400 ml-2">(added)</span>}
+                              {alreadyAdded && <span className="text-[#00A651] ml-2">(added)</span>}
                             </button>
                           );
                         })
@@ -1094,7 +1094,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                         </span>
                       )}
                       {player.promotedFromHour1 && (
-                        <span className="flex items-center gap-1 px-2 py-0.5 bg-orange-500/20 text-orange-300 text-xs rounded">
+                        <span className="flex items-center gap-1 px-2 py-0.5 bg-[#00A651]/10 text-[#00A651] text-xs rounded">
                           <ArrowUpCircle className="w-3 h-3" />
                           Promoted
                         </span>
@@ -1242,7 +1242,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                       {assessor.email && <span className="text-[#00A651] text-xs">{assessor.email}</span>}
                       <span className={`px-1.5 py-0.5 text-xs rounded ${
                         assessor.role === 'coach' ? 'bg-green-500/20 text-green-300' :
-                        assessor.role === 'tryout_assessor' ? 'bg-violet-500/20 text-violet-300' :
+                        assessor.role === 'tryout_assessor' ? 'bg-[#005028]/10 text-[#005028]' :
                         assessor.role === 'team_manager' ? 'bg-blue-500/20 text-blue-300' :
                         'bg-[#D4E4D4]/50 text-gray-600'
                       }`}>
@@ -1342,14 +1342,14 @@ const PromotePlayersModal = ({ session, sessions, onClose, onPromote }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white border-2 border-orange-500/50 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div className="bg-white border-2 border-[#00A651]/50 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-[#D4E4D4] p-4 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-              <ArrowUpCircle className="w-6 h-6 text-orange-400" />
+              <ArrowUpCircle className="w-6 h-6 text-[#00A651]" />
               Promote Players
             </h2>
-            <p className="text-orange-300 text-sm">Move top performers to Hour 2</p>
+            <p className="text-[#00A651] text-sm">Move top performers to Hour 2</p>
           </div>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
             <X className="w-6 h-6" />
@@ -1387,7 +1387,7 @@ const PromotePlayersModal = ({ session, sessions, onClose, onPromote }) => {
               <select
                 value={targetSessionId}
                 onChange={(e) => setTargetSessionId(e.target.value)}
-                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-orange-500 focus:outline-none"
+                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
               >
                 <option value="">Select Hour 2 session...</option>
                 {hour2Sessions.map(s => (
@@ -1421,7 +1421,7 @@ const PromotePlayersModal = ({ session, sessions, onClose, onPromote }) => {
                       type="checkbox"
                       checked={selectedPlayers.includes(player.id)}
                       onChange={() => togglePlayer(player.id)}
-                      className="w-5 h-5 rounded border-[#D4E4D4] bg-[#F5F9F5] text-orange-500 focus:ring-orange-500"
+                      className="w-5 h-5 rounded border-[#D4E4D4] bg-[#F5F9F5] text-[#00A651] focus:ring-[#00A651]"
                     />
                     <span className="w-10 h-10 bg-[#D4E4D4] rounded-full flex items-center justify-center text-gray-800 font-bold">
                       {player.number || '?'}
@@ -1452,7 +1452,7 @@ const PromotePlayersModal = ({ session, sessions, onClose, onPromote }) => {
             <button
               onClick={handlePromote}
               disabled={promoting || !targetSessionId || selectedPlayers.length === 0}
-              className="flex-1 py-3 bg-orange-500 hover:bg-orange-400 disabled:bg-[#D4E4D4] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-[#00A651] hover:bg-[#008c44] disabled:bg-[#D4E4D4] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
             >
               {promoting ? (
                 <>

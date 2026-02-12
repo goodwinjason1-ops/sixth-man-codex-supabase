@@ -42,7 +42,7 @@ const getRatingColor = (value) => {
   const v = parseFloat(value);
   if (v >= 4) return 'text-green-400';
   if (v >= 3) return 'text-yellow-400';
-  if (v >= 2) return 'text-orange-400';
+  if (v >= 2) return 'text-[#00A651]';
   return 'text-red-400';
 };
 
@@ -51,7 +51,7 @@ const getRatingBg = (value) => {
   const v = parseFloat(value);
   if (v >= 4) return 'bg-green-500/30';
   if (v >= 3) return 'bg-yellow-500/30';
-  if (v >= 2) return 'bg-orange-500/30';
+  if (v >= 2) return 'bg-[#00A651]/20';
   return 'bg-red-500/30';
 };
 
@@ -76,7 +76,7 @@ const TIER_CONFIG = [
 
 // Session 1 (Development): assign to teams 3-7
 const HOUR1_ASSIGN_OPTIONS = [
-  { value: 'team-3', label: 'Team 3', shortLabel: '3', color: 'bg-violet-500 text-white', borderColor: 'border-violet-500', columnColor: 'violet' },
+  { value: 'team-3', label: 'Team 3', shortLabel: '3', color: 'bg-[#005028] text-white', borderColor: 'border-[#005028]', columnColor: 'violet' },
   { value: 'team-4', label: 'Team 4', shortLabel: '4', color: 'bg-indigo-500 text-white', borderColor: 'border-indigo-500', columnColor: 'indigo' },
   { value: 'team-5', label: 'Team 5', shortLabel: '5', color: 'bg-cyan-500 text-white', borderColor: 'border-cyan-500', columnColor: 'cyan' },
   { value: 'team-6', label: 'Team 6', shortLabel: '6', color: 'bg-teal-500 text-white', borderColor: 'border-teal-500', columnColor: 'teal' },
@@ -413,7 +413,7 @@ const TryoutResultsPage = () => {
         <div className="flex flex-wrap gap-2">
           {assignmentsDirty && (
             <button onClick={saveAssignments} disabled={savingAssignments}
-              className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-white rounded-lg font-medium transition-colors animate-pulse">
+              className="flex items-center gap-2 px-4 py-2 bg-[#00A651] hover:bg-[#008c44] disabled:opacity-50 text-white rounded-lg font-medium transition-colors animate-pulse">
               {savingAssignments ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <CheckCircle className="w-4 h-4" />}
               Save Assignments
             </button>
@@ -534,7 +534,7 @@ const OverviewTab = ({
     {/* Stats Cards */}
     {(() => {
       const assignOptions = getTeamAssignOptions(session.sessionType);
-      const statColorMap = { green: 'text-green-400', blue: 'text-blue-400', yellow: 'text-yellow-400', violet: 'text-violet-400', indigo: 'text-indigo-400', cyan: 'text-cyan-400', teal: 'text-teal-400', amber: 'text-amber-400', rose: 'text-rose-400' };
+      const statColorMap = { green: 'text-green-400', blue: 'text-blue-400', yellow: 'text-yellow-400', violet: 'text-[#005028]', indigo: 'text-indigo-400', cyan: 'text-cyan-400', teal: 'text-teal-400', amber: 'text-amber-400', rose: 'text-rose-400' };
       return (
         <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6 print:grid-cols-6 ${assignOptions.length <= 3 ? 'lg:grid-cols-6' : 'lg:grid-cols-5'}`}>
           <StatCard label="Total Players" value={stats.total} icon={Users} />
@@ -543,7 +543,7 @@ const OverviewTab = ({
           {assignOptions.length <= 3 ? assignOptions.map(opt => (
             <StatCard key={opt.value} label={opt.label} value={stats.assignmentCounts[opt.value] || 0} color={statColorMap[opt.columnColor] || 'text-gray-800'} />
           )) : (
-            <StatCard label="Assigned" value={stats.total - stats.unassigned} color="text-violet-400" />
+            <StatCard label="Assigned" value={stats.total - stats.unassigned} color="text-[#005028]" />
           )}
           <StatCard label="Unassigned" value={stats.unassigned} color="text-gray-400" />
         </div>
@@ -564,7 +564,7 @@ const OverviewTab = ({
           </span>
         )}
         {stats.inconsistent > 0 && (
-          <span className="flex items-center gap-1 text-orange-400">
+          <span className="flex items-center gap-1 text-[#00A651]">
             <AlertTriangle className="w-4 h-4" /> {stats.inconsistent} with inconsistent ratings
           </span>
         )}
@@ -650,14 +650,14 @@ const OverviewTab = ({
                 <div className="flex items-center gap-2 min-w-0 mb-1 lg:mb-0">
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-gray-800 text-xs font-bold flex-shrink-0 ${
                     summary.teamAssignment ? getAssignmentBadgeColor(summary.teamAssignment) :
-                    summary.promotedFromHour1 ? 'bg-orange-500' : 'bg-[#D4E4D4]'
+                    summary.promotedFromHour1 ? 'bg-[#00A651]' : 'bg-[#D4E4D4]'
                   }`}>
                     {summary.playerNumber || '?'}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1">
                       <span className="text-gray-800 font-medium text-sm truncate">{summary.playerName}</span>
-                      {summary.promotedFromHour1 && <ArrowUpCircle className="w-3.5 h-3.5 text-orange-400 flex-shrink-0" />}
+                      {summary.promotedFromHour1 && <ArrowUpCircle className="w-3.5 h-3.5 text-[#00A651] flex-shrink-0" />}
                       {summary.linkedPlayerId && <span className="text-blue-400 text-[10px] flex-shrink-0">(linked)</span>}
                     </div>
                     {/* Flags */}
@@ -665,7 +665,7 @@ const OverviewTab = ({
                       <div className="flex gap-1 flex-wrap">
                         {summary.flags.includes('not-assessed') && <span className="text-[10px] text-red-400 bg-red-500/20 px-1 rounded">No evals</span>}
                         {summary.flags.includes('needs-more-evals') && <span className="text-[10px] text-amber-400 bg-amber-500/20 px-1 rounded">1 eval</span>}
-                        {summary.flags.includes('inconsistent') && <span className="text-[10px] text-orange-400 bg-orange-500/20 px-1 rounded">Inconsistent</span>}
+                        {summary.flags.includes('inconsistent') && <span className="text-[10px] text-[#00A651] bg-[#00A651]/10 px-1 rounded">Inconsistent</span>}
                       </div>
                     )}
                   </div>
@@ -690,7 +690,7 @@ const OverviewTab = ({
                 </div>
                 {/* Std dev */}
                 <div className="hidden lg:block text-center">
-                  <span className={`text-xs ${summary.overallStdDev > 1.0 ? 'text-orange-400 font-bold' : 'text-gray-400'}`}>
+                  <span className={`text-xs ${summary.overallStdDev > 1.0 ? 'text-[#00A651] font-bold' : 'text-gray-400'}`}>
                     {summary.evaluationCount >= 2 ? summary.overallStdDev.toFixed(1) : '-'}
                   </span>
                 </div>
@@ -832,7 +832,7 @@ const AssessorCompletionSection = ({ completionStats, session, evaluations }) =>
                   <span className="text-gray-800 font-medium text-sm print:text-black">{a.name}</span>
                   {a.role && <span className={`px-1.5 py-0.5 text-xs rounded ${
                     a.role === 'coach' ? 'bg-green-500/20 text-green-300' :
-                    a.role === 'tryout_assessor' ? 'bg-violet-500/20 text-violet-300' :
+                    a.role === 'tryout_assessor' ? 'bg-[#005028]/10 text-[#005028]' :
                     a.role === 'team_manager' ? 'bg-blue-500/20 text-blue-300' :
                     'bg-[#D4E4D4]/50 text-gray-600'
                   }`}>{a.role === 'team_manager' ? 'Team Mgr' : a.role}</span>}
@@ -1095,7 +1095,7 @@ const TeamBuilderTab = ({ playerSummaries, assignTeam, teamAssignments, session,
       {/* Balance Header */}
       <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
         {(() => {
-          const statColorMap = { green: 'text-green-400', blue: 'text-blue-400', yellow: 'text-yellow-400', violet: 'text-violet-400', indigo: 'text-indigo-400', cyan: 'text-cyan-400', teal: 'text-teal-400', amber: 'text-amber-400', rose: 'text-rose-400' };
+          const statColorMap = { green: 'text-green-400', blue: 'text-blue-400', yellow: 'text-yellow-400', violet: 'text-[#005028]', indigo: 'text-indigo-400', cyan: 'text-cyan-400', teal: 'text-teal-400', amber: 'text-amber-400', rose: 'text-rose-400' };
           return (
             <div className={`grid gap-4 items-center ${assignOptions.length <= 3 ? `grid-cols-2 lg:grid-cols-${assignOptions.length + 2}` : 'grid-cols-3 lg:grid-cols-4'}`}>
               {assignOptions.length <= 3 ? teamGroups.map(g => (
@@ -1133,7 +1133,7 @@ const TeamBuilderTab = ({ playerSummaries, assignTeam, teamAssignments, session,
         {dirty && (
           <div className="flex justify-center mt-4">
             <button onClick={onSave} disabled={saving}
-              className="flex items-center gap-2 px-6 py-2 bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-white rounded-lg font-medium">
+              className="flex items-center gap-2 px-6 py-2 bg-[#00A651] hover:bg-[#008c44] disabled:opacity-50 text-white rounded-lg font-medium">
               {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <CheckCircle className="w-4 h-4" />}
               Save Team Assignments
             </button>
@@ -1201,7 +1201,7 @@ const TeamColumn = ({ title, players, color, assignTeam, teamKey, avg, assignOpt
     green: { border: 'border-green-500/50', header: 'bg-green-500/20 text-green-400' },
     blue: { border: 'border-blue-500/50', header: 'bg-blue-500/20 text-blue-400' },
     yellow: { border: 'border-yellow-500/50', header: 'bg-yellow-500/20 text-yellow-400' },
-    violet: { border: 'border-violet-500/50', header: 'bg-violet-500/20 text-violet-400' },
+    violet: { border: 'border-[#005028]/50', header: 'bg-[#005028]/10 text-[#005028]' },
     indigo: { border: 'border-indigo-500/50', header: 'bg-indigo-500/20 text-indigo-400' },
     cyan: { border: 'border-cyan-500/50', header: 'bg-cyan-500/20 text-cyan-400' },
     teal: { border: 'border-teal-500/50', header: 'bg-teal-500/20 text-teal-400' },
@@ -1334,7 +1334,7 @@ const CalibrationTab = ({ evaluations, session, assessors }) => {
                     {sessionAssessor?.role && (
                       <span className={`px-1.5 py-0.5 text-xs rounded ${
                         sessionAssessor.role === 'coach' ? 'bg-green-500/20 text-green-300' :
-                        sessionAssessor.role === 'tryout_assessor' ? 'bg-violet-500/20 text-violet-300' :
+                        sessionAssessor.role === 'tryout_assessor' ? 'bg-[#005028]/10 text-[#005028]' :
                         'bg-[#D4E4D4]/50 text-gray-600'
                       }`}>{sessionAssessor.role}</span>
                     )}
@@ -1402,10 +1402,10 @@ const CalibrationTab = ({ evaluations, session, assessors }) => {
 
       {/* Outlier Ratings */}
       {outliers.length > 0 && (
-        <div className="bg-white border border-orange-500/30 rounded-xl overflow-hidden">
+        <div className="bg-white border border-[#00A651]/30 rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-[#D4E4D4]">
             <h3 className="text-gray-800 font-bold flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-orange-400" /> Outlier Ratings ({outliers.length})
+              <AlertTriangle className="w-5 h-5 text-[#00A651]" /> Outlier Ratings ({outliers.length})
             </h3>
             <p className="text-gray-400 text-xs mt-1">Individual ratings that differ significantly from the player average</p>
           </div>
@@ -1486,7 +1486,7 @@ const PlayerDetailModal = ({ summary, evaluations, session, getTeamBadge, onClos
             </div>
             <div className="bg-[#F5F9F5] rounded-lg p-3 text-center">
               <p className="text-gray-400 text-xs">Rating Spread (SD)</p>
-              <p className={`text-2xl font-bold ${summary.overallStdDev > 1.0 ? 'text-orange-400' : 'text-gray-800'}`}>
+              <p className={`text-2xl font-bold ${summary.overallStdDev > 1.0 ? 'text-[#00A651]' : 'text-gray-800'}`}>
                 {summary.evaluationCount >= 2 ? summary.overallStdDev.toFixed(2) : '-'}
               </p>
             </div>

@@ -118,7 +118,7 @@ const AssessorDashboard = () => {
               <p className="text-gray-800 text-lg opacity-90">
                 Welcome, {userProfile.displayName}
               </p>
-              <span className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium bg-violet-500/20 text-violet-300 border border-violet-500">
+              <span className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium bg-[#005028]/10 text-[#005028] border border-[#005028]/40">
                 Tryout Assessor
               </span>
             </div>
@@ -162,12 +162,12 @@ const AssessorDashboard = () => {
                         <h3 className="text-gray-800 font-bold">{session.name}</h3>
                         {getStatusBadge(session.status)}
                         {session.sessionType === 'hour-1' && (
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-violet-500/20 text-violet-300 border border-violet-500">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[#005028]/10 text-[#005028] border border-[#005028]/40">
                             Hour 1
                           </span>
                         )}
                         {session.sessionType === 'hour-2' && (
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-orange-500/20 text-orange-300 border border-orange-500">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[#00A651]/10 text-[#005028] border border-[#00A651]/40">
                             Hour 2
                           </span>
                         )}

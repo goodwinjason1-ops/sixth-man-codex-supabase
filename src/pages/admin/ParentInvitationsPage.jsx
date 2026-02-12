@@ -33,6 +33,9 @@ const ParentInvitationsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortField, setSortField] = useState('createdAt');
+  const [sortDir, setSortDir] = useState('desc');
   const [copiedCode, setCopiedCode] = useState(null);
   const [bulkLoading, setBulkLoading] = useState(false);
   const [bulkResult, setBulkResult] = useState(null);
@@ -124,16 +127,49 @@ const ParentInvitationsPage = () => {
     }
   };
 
-  // Filtered invitations
+  // Helper to compute display status
+  const getInvStatus = (inv) => {
+    if (inv.status === 'pending' && inv.expiresAt && new Date(inv.expiresAt) < new Date()) return 'expired';
+    return inv.status;
+  };
+
+  // Filtered + sorted invitations
   const filtered = useMemo(() => {
-    if (!searchQuery.trim()) return invitations;
-    const q = searchQuery.toLowerCase();
-    return invitations.filter(inv =>
-      inv.invitationCode?.toLowerCase().includes(q) ||
-      inv.parentEmail?.toLowerCase().includes(q) ||
-      inv.parentName?.toLowerCase().includes(q)
-    );
-  }, [invitations, searchQuery]);
+    let result = invitations;
+
+    // Status filter
+    if (statusFilter !== 'all') {
+      result = result.filter(inv => getInvStatus(inv) === statusFilter);
+    }
+
+    // Search
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(inv =>
+        inv.invitationCode?.toLowerCase().includes(q) ||
+        inv.parentEmail?.toLowerCase().includes(q) ||
+        inv.parentName?.toLowerCase().includes(q)
+      );
+    }
+
+    // Sort
+    result = [...result].sort((a, b) => {
+      let aVal = a[sortField] || '';
+      let bVal = b[sortField] || '';
+      if (sortField === 'createdAt' || sortField === 'expiresAt') {
+        aVal = new Date(aVal || 0).getTime();
+        bVal = new Date(bVal || 0).getTime();
+      } else {
+        aVal = String(aVal).toLowerCase();
+        bVal = String(bVal).toLowerCase();
+      }
+      if (aVal < bVal) return sortDir === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+  }, [invitations, searchQuery, statusFilter, sortField, sortDir]);
 
   const handleRevoke = async (invId) => {
     const result = await revokeInvitation(invId);
@@ -279,10 +315,10 @@ const ParentInvitationsPage = () => {
       <div className="space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <SummaryCard label="Pending" count={counts.pending} color="text-blue-400" bgColor="bg-blue-500/10" />
-          <SummaryCard label="Accepted" count={counts.accepted} color="text-green-400" bgColor="bg-green-500/10" />
-          <SummaryCard label="Expired" count={counts.expired} color="text-yellow-400" bgColor="bg-yellow-500/10" />
-          <SummaryCard label="Revoked" count={counts.revoked} color="text-red-400" bgColor="bg-red-500/10" />
+          <SummaryCard label="Pending" count={counts.pending} color="text-blue-600" bgColor="bg-blue-50" active={statusFilter === 'pending'} onClick={() => setStatusFilter(statusFilter === 'pending' ? 'all' : 'pending')} />
+          <SummaryCard label="Accepted" count={counts.accepted} color="text-green-600" bgColor="bg-green-50" active={statusFilter === 'accepted'} onClick={() => setStatusFilter(statusFilter === 'accepted' ? 'all' : 'accepted')} />
+          <SummaryCard label="Expired" count={counts.expired} color="text-yellow-600" bgColor="bg-yellow-50" active={statusFilter === 'expired'} onClick={() => setStatusFilter(statusFilter === 'expired' ? 'all' : 'expired')} />
+          <SummaryCard label="Revoked" count={counts.revoked} color="text-red-600" bgColor="bg-red-50" active={statusFilter === 'revoked'} onClick={() => setStatusFilter(statusFilter === 'revoked' ? 'all' : 'revoked')} />
         </div>
 
         {/* Confirm Revoke All */}
@@ -445,11 +481,32 @@ const ParentInvitationsPage = () => {
           <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl overflow-hidden">
             {/* Table Header (desktop) */}
             <div className="hidden md:grid md:grid-cols-6 gap-4 p-4 bg-[#F5F9F5] border-b border-[#D4E4D4] text-[#00A651] text-sm font-medium">
-              <div>Code</div>
-              <div>Parent</div>
-              <div>Player(s)</div>
-              <div>Status</div>
-              <div>Expires</div>
+              {[
+                { label: 'Code', field: 'invitationCode' },
+                { label: 'Parent', field: 'parentName' },
+                { label: 'Player(s)', field: null },
+                { label: 'Status', field: 'status' },
+                { label: 'Expires', field: 'expiresAt' },
+              ].map(col => (
+                <button
+                  key={col.label}
+                  onClick={() => {
+                    if (!col.field) return;
+                    if (sortField === col.field) {
+                      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+                    } else {
+                      setSortField(col.field);
+                      setSortDir('asc');
+                    }
+                  }}
+                  className={`text-left flex items-center gap-1 ${col.field ? 'hover:text-[#005028] cursor-pointer' : 'cursor-default'}`}
+                >
+                  {col.label}
+                  {col.field && sortField === col.field && (
+                    <span className="text-[10px]">{sortDir === 'asc' ? '▲' : '▼'}</span>
+                  )}
+                </button>
+              ))}
               <div className="text-right">Actions</div>
             </div>
 
@@ -542,11 +599,16 @@ const ParentInvitationsPage = () => {
   );
 };
 
-const SummaryCard = ({ label, count, color, bgColor }) => (
-  <div className={`${bgColor} rounded-xl p-4`}>
+const SummaryCard = ({ label, count, color, bgColor, active, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`${bgColor} rounded-xl p-4 text-left w-full transition-all ${
+      active ? 'ring-2 ring-[#00A651] ring-offset-1' : 'hover:opacity-80'
+    }`}
+  >
     <p className={`text-2xl font-bold ${color}`}>{count}</p>
     <p className="text-gray-500 text-sm">{label}</p>
-  </div>
+  </button>
 );
 
 export default ParentInvitationsPage;

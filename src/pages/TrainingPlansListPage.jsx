@@ -194,6 +194,7 @@ const TrainingPlansListPage = () => {
     const active = plans.filter(p => p.status === 'active').length;
     const draft = plans.filter(p => p.status === 'draft').length;
     const completed = plans.filter(p => p.status === 'completed').length;
+    const needsRevision = plans.filter(p => p.status === 'needs-revision').length;
 
     // Find next session from active plans
     const today = new Date();
@@ -213,7 +214,7 @@ const TrainingPlansListPage = () => {
         });
       });
 
-    return { active, draft, completed, nextSession };
+    return { active, draft, completed, needsRevision, nextSession };
   }, [plans]);
 
   // Format date
@@ -248,6 +249,8 @@ const TrainingPlansListPage = () => {
         return 'bg-yellow-500/20 text-yellow-400 border-yellow-500';
       case 'completed':
         return 'bg-blue-500/20 text-blue-400 border-blue-500';
+      case 'needs-revision':
+        return 'bg-red-500/20 text-red-500 border-red-500';
       default:
         return 'bg-gray-500/20 text-gray-400 border-gray-500';
     }
@@ -328,35 +331,32 @@ const TrainingPlansListPage = () => {
     >
       <div className="space-y-6">
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[#6B7C6B] text-xs">Active Plans</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.active}</p>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          {[
+            { label: 'Active Plans', count: stats.active, icon: Play, color: 'text-[#00A651]', filter: 'active' },
+            { label: 'Draft Plans', count: stats.draft, icon: Edit3, color: 'text-yellow-500', filter: 'draft' },
+            { label: 'Needs Revision', count: stats.needsRevision, icon: AlertCircle, color: 'text-red-500', filter: 'needs-revision' },
+            { label: 'Completed', count: stats.completed, icon: CheckCircle2, color: 'text-blue-500', filter: 'completed' },
+          ].map(card => (
+            <button
+              key={card.filter}
+              onClick={() => setSelectedStatus(selectedStatus === card.filter ? 'all' : card.filter)}
+              className={`bg-white border-2 rounded-xl p-4 text-left transition-all ${
+                selectedStatus === card.filter
+                  ? 'border-[#00A651] ring-1 ring-[#00A651]/20'
+                  : 'border-[#D4E4D4] hover:border-[#00A651]/50'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[#6B7C6B] text-xs">{card.label}</p>
+                  <p className="text-2xl font-bold text-gray-800">{card.count}</p>
+                </div>
+                <card.icon className={`w-8 h-8 ${card.color}`} />
               </div>
-              <Play className="w-8 h-8 text-[#00A651]" />
-            </div>
-          </div>
+            </button>
+          ))}
           <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[#6B7C6B] text-xs">Draft Plans</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.draft}</p>
-              </div>
-              <Edit3 className="w-8 h-8 text-yellow-400" />
-            </div>
-          </div>
-          <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[#6B7C6B] text-xs">Completed</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.completed}</p>
-              </div>
-              <CheckCircle2 className="w-8 h-8 text-blue-400" />
-            </div>
-          </div>
-          <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4 sm:col-span-1">
             <div>
               <p className="text-[#6B7C6B] text-xs">Next Session</p>
               {stats.nextSession ? (
@@ -439,7 +439,7 @@ const TrainingPlansListPage = () => {
               <div>
                 <label className="block text-[#6B7C6B] text-xs font-medium mb-2">Status</label>
                 <div className="flex flex-wrap gap-2">
-                  {['all', 'active', 'draft', 'completed'].map(status => (
+                  {['all', 'active', 'draft', 'needs-revision', 'completed'].map(status => (
                     <button
                       key={status}
                       onClick={() => setSelectedStatus(status)}
@@ -494,9 +494,22 @@ const TrainingPlansListPage = () => {
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <h3 className="text-gray-800 font-semibold truncate">{plan.name}</h3>
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${getStatusColor(plan.status)}`}>
-                        {plan.status}
+                        {plan.status === 'needs-revision' ? 'Needs Revision' : plan.status}
                       </span>
+                      {plan.status === 'needs-revision' && (
+                        <button
+                          onClick={() => handleEdit(plan.id)}
+                          className="px-2 py-0.5 bg-red-500 text-white text-[10px] font-medium rounded-full hover:bg-red-600 transition-colors"
+                        >
+                          Revise Now
+                        </button>
+                      )}
                     </div>
+                    {plan.status === 'needs-revision' && plan.revisionNotes && (
+                      <div className="mb-2 px-2 py-1.5 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-red-600 text-xs">{plan.revisionNotes}</p>
+                      </div>
+                    )}
 
                     <div className="flex items-center gap-3 text-sm text-[#6B7C6B] mb-2 flex-wrap">
                       <span className="flex items-center gap-1">
@@ -573,6 +586,15 @@ const TrainingPlansListPage = () => {
                           >
                             <CheckCircle2 className="w-4 h-4" />
                             Mark Complete
+                          </button>
+                        )}
+                        {plan.status === 'needs-revision' && (
+                          <button
+                            onClick={() => handleEdit(plan.id)}
+                            className="w-full flex items-center gap-2 px-4 py-3 text-red-500 text-sm hover:bg-gray-100/30 transition-colors"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                            Edit & Resubmit
                           </button>
                         )}
                         {plan.status === 'completed' && (
