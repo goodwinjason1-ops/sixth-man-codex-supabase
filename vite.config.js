@@ -33,6 +33,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB to cover all chunks
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
@@ -62,6 +63,51 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor: Firebase core + auth
+          'vendor-firebase-core': [
+            'firebase/app',
+            'firebase/auth'
+          ],
+          // Vendor: Firestore (largest Firebase module)
+          'vendor-firebase-firestore': [
+            'firebase/firestore'
+          ],
+          // Vendor: Firebase storage
+          'vendor-firebase-storage': [
+            'firebase/storage'
+          ],
+          // Vendor: Recharts (larger charting lib)
+          'vendor-recharts': [
+            'recharts'
+          ],
+          // Vendor: Chart.js (used by coach/player only)
+          'vendor-chartjs': [
+            'chart.js',
+            'react-chartjs-2'
+          ],
+          // Vendor: React core + router
+          'vendor-react': [
+            'react',
+            'react-dom',
+            'react-router-dom'
+          ],
+          // Vendor: Icons
+          'vendor-icons': [
+            'lucide-react'
+          ],
+          // Vendor: Utilities
+          'vendor-utils': [
+            'date-fns',
+            'idb'
+          ]
+        }
+      }
+    }
+  },
   server: {
     port: 3000
   }
