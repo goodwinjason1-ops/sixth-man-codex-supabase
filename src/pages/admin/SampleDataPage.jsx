@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import PageShell from '../../components/PageShell';
+import SeedDrillsButton from './SeedDrillsButton';
 import {
   Database,
   Plus,
@@ -33,7 +34,8 @@ import {
   Copy,
   Check,
   CalendarClock,
-  Wrench
+  Wrench,
+  BookOpen
 } from 'lucide-react';
 import {
   getNextSaturday,
@@ -890,6 +892,16 @@ const SampleDataPage = () => {
             )}
             Clear Data
           </button>
+        </div>
+
+        {/* Drill Library Seed */}
+        <div className="bg-white rounded-xl p-6 border border-[#D4E4D4]/30">
+          <h2 className="text-lg font-bold flex items-center gap-2 mb-3">
+            <BookOpen className="text-[#00A651]" size={20} />
+            Drill Library
+          </h2>
+          <p className="text-sm text-gray-500 mb-4">Populate the drill library with 30 sample basketball drills across all categories and age groups.</p>
+          <SeedDrillsButton />
         </div>
 
         {/* Validation Results */}

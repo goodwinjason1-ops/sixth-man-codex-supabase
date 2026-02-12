@@ -68,6 +68,11 @@ import AssessorHelp from './pages/help/AssessorHelp';
 import ParentHelp from './pages/help/ParentHelp';
 import PlayerHelp from './pages/help/PlayerHelp';
 import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES } from './constants/roles';
+import { DRILL_VIEW_ROLES, DRILL_EDIT_ROLES } from './constants/drills';
+import DrillLibraryPage from './pages/DrillLibraryPage';
+import DrillDetailPage from './pages/DrillDetailPage';
+import CreateDrillPage from './pages/CreateDrillPage';
+import EditDrillPage from './pages/EditDrillPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import MobileBottomNav from './components/MobileBottomNav';
@@ -216,6 +221,42 @@ const AppRoutes = () => {
             <ErrorBoundary fallbackMessage="Unable to load plan. Please try again.">
               <TrainingPlanBuilderPage />
             </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Drill Library Routes */}
+      <Route
+        path="/drills"
+        element={
+          <ProtectedRoute allowedRoles={DRILL_VIEW_ROLES}>
+            <Layout>
+              <DrillLibraryPage />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/drills/new"
+        element={
+          <ProtectedRoute allowedRoles={DRILL_EDIT_ROLES}>
+            <CreateDrillPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/drills/:id"
+        element={
+          <ProtectedRoute allowedRoles={DRILL_VIEW_ROLES}>
+            <DrillDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/drills/:id/edit"
+        element={
+          <ProtectedRoute allowedRoles={DRILL_EDIT_ROLES}>
+            <EditDrillPage />
           </ProtectedRoute>
         }
       />

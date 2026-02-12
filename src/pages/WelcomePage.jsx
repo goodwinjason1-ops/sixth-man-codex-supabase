@@ -27,7 +27,8 @@ import {
   Clock,
   ChevronRight,
   HelpCircle,
-  ShieldCheck
+  ShieldCheck,
+  BookOpen
 } from 'lucide-react';
 
 const WelcomePage = () => {
@@ -215,6 +216,13 @@ const WelcomePage = () => {
           icon: ClipboardList,
           path: '/coach/players',
           description: 'View and assess all players'
+        },
+        {
+          id: 'drill-library',
+          title: 'Drill Library',
+          icon: BookOpen,
+          path: '/drills',
+          description: 'Browse and create drills'
         },
         {
           id: 'training-plans',
