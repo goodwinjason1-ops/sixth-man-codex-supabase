@@ -98,6 +98,46 @@ export const INFOGRAPHICS = {
       { from: 'collect-scores', to: 'team-placement' },
     ],
   },
+  // ── Season Journey ──────────────────────────────────────────────────────
+  'season-journey': {
+    id: 'season-journey',
+    title: 'Season Journey',
+    description: 'The club season lifecycle from registration to finals.',
+    icon: 'CalendarRange',
+    type: 'process-flow',
+    steps: [
+      {
+        icon: 'UserPlus',
+        label: 'Registration',
+        description: 'Players register and pay fees for the season.',
+      },
+      {
+        icon: 'ClipboardCheck',
+        label: 'Tryouts',
+        description: 'Assessors evaluate players across 5 metrics.',
+      },
+      {
+        icon: 'Users',
+        label: 'Team Placement',
+        description: 'Coordinators place players into teams based on scores.',
+      },
+      {
+        icon: 'Dumbbell',
+        label: 'Training Season',
+        description: 'Weekly training sessions with coaches.',
+      },
+      {
+        icon: 'BarChart3',
+        label: 'Mid-Season Review',
+        description: 'Coaches assess player development progress.',
+      },
+      {
+        icon: 'Trophy',
+        label: 'Finals & Presentation',
+        description: 'Season wraps up with awards and celebrations.',
+      },
+    ],
+  },
 };
 
 /** Look up an infographic by its ID */

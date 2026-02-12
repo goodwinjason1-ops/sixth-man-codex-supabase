@@ -16,6 +16,7 @@ import {
   User,
   HelpCircle
 } from 'lucide-react';
+import FirstTimeHint from './tutorial/FirstTimeHint';
 
 const Layout = ({ children }) => {
   const { userProfile, signOut } = useAuth();
@@ -96,13 +97,15 @@ const Layout = ({ children }) => {
               </div>
 
               {/* Help */}
-              <button
-                onClick={() => navigate('/help')}
-                className="p-2 rounded-lg hover:bg-white/10 text-green-300 hover:text-white"
-                title="Help Center"
-              >
-                <HelpCircle className="w-5 h-5" />
-              </button>
+              <FirstTimeHint hintKey="help-icon">
+                <button
+                  onClick={() => navigate('/help')}
+                  className="p-2 rounded-lg hover:bg-white/10 text-green-300 hover:text-white"
+                  title="Help Center"
+                >
+                  <HelpCircle className="w-5 h-5" />
+                </button>
+              </FirstTimeHint>
 
               {/* Notifications */}
               <button

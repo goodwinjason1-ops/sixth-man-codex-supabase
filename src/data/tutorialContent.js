@@ -943,6 +943,428 @@ export const TUTORIALS = {
     ],
   },
 
+  // ── LITTLE LAKERS HEAD COACH (6 steps) ────────────────────────────────
+  'little-lakers-head-coach': {
+    id: 'little-lakers-head-coach',
+    title: 'Little Lakers Head Coach',
+    subtitle: 'Oversee the ages 4-5 program',
+    icon: 'Baby',
+    applicableRoles: ['youth_head_coach'],
+    estimatedMinutes: 3,
+    steps: [
+      {
+        id: 'welcome',
+        title: 'Welcome, Head Coach!',
+        icon: 'Sparkles',
+        visual: { type: 'icon-hero', icon: 'Baby', label: 'Little Lakers Head Coach' },
+        content: [
+          { type: 'paragraph', text: 'This tutorial covers how to lead the Little Lakers (ages 4-5) program — from session philosophy to coach mentoring and parent communication.' },
+        ],
+        proTip: null,
+      },
+      {
+        id: 'philosophy',
+        title: 'Program Philosophy',
+        icon: 'Heart',
+        visual: null,
+        content: [
+          { type: 'paragraph', text: 'Little Lakers is all about fun first. At this age, basketball is a vehicle for movement, coordination, and social skills.' },
+          { type: 'info-card', items: [
+            { label: 'Fun First', text: 'Every session should feel like play. If kids are laughing, you\'re doing it right.' },
+            { label: '10-Word Instructions', text: 'Keep instructions to 10 words or less. Demonstrate, don\'t explain.' },
+            { label: 'Movement Focus', text: 'Running, jumping, throwing, and catching matter more than basketball technique.' },
+          ]},
+        ],
+        proTip: { text: 'If a drill isn\'t working, switch to a game. Attention spans are short at this age.' },
+      },
+      {
+        id: 'session-planning',
+        title: 'Session Planning',
+        icon: 'Calendar',
+        visual: {
+          type: 'annotated-screenshot',
+          placeholderLabel: 'Session Plan Screen',
+          annotations: [
+            { label: 'Warm-up games', position: 'top-left', description: 'Fun movement activities to start the session' },
+            { label: 'Skill demo', position: 'center', description: 'Short, visual demonstrations only' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'Each 45-minute session follows a simple structure:' },
+          { type: 'info-card', items: [
+            { label: 'Warm-Up Games (10 min)', text: 'Tag, animal walks, relay races — pure movement and fun.' },
+            { label: 'Skill Demo (15 min)', text: 'One simple skill with a short visual demonstration. No long explanations.' },
+            { label: 'Game Time (15 min)', text: 'Modified games that let kids practice the skill through play.' },
+            { label: 'Cool Down (5 min)', text: 'Stretching, high-fives, and a positive send-off.' },
+          ]},
+        ],
+        proTip: { text: 'Pre-loaded session plans are available in the app. Customise them to suit your group.' },
+      },
+      {
+        id: 'coach-mentoring',
+        title: 'Coach Mentoring',
+        icon: 'Users',
+        visual: null,
+        content: [
+          { type: 'paragraph', text: 'As head coach, you support and develop your coaching team.' },
+          { type: 'checklist', items: [
+            'Observe sessions regularly — aim for once per coach per term.',
+            'Lead with positive feedback first, then suggest one improvement.',
+            'Share session plan ideas and successful activities.',
+            'Check milestone tracking is being completed after each session.',
+            'Be available for questions before and after sessions.',
+          ]},
+        ],
+        proTip: { text: 'A quick "that warm-up game was great" goes a long way for coach confidence.' },
+      },
+      {
+        id: 'parent-comms',
+        title: 'Parent Communication',
+        icon: 'MessageSquare',
+        visual: null,
+        content: [
+          { type: 'paragraph', text: 'Keep parents informed and engaged with their child\'s progress.' },
+          { type: 'steps', items: [
+            'Milestone notifications are sent automatically when coaches tick them off.',
+            'End-of-term reports are generated from milestone data — review before they go out.',
+            'Encourage coaches to greet parents briefly at pick-up with a positive comment.',
+            'Direct any concerns to coordinators for follow-up.',
+          ]},
+        ],
+        proTip: { text: 'Parents love hearing one specific thing their child did well at the session.' },
+      },
+      {
+        id: 'complete',
+        title: 'You\'re Ready!',
+        icon: 'CheckCircle',
+        visual: { type: 'icon-hero', icon: 'Trophy', label: 'Tutorial Complete' },
+        content: [
+          { type: 'paragraph', text: 'You\'re set to lead the Little Lakers program. Head to your dashboard to review coach activity and milestone progress.' },
+          { type: 'paragraph', text: 'Revisit this tutorial anytime from the Help Center.' },
+        ],
+        proTip: null,
+      },
+    ],
+  },
+
+  // ── LAKERS READY HEAD COACH (6 steps) ────────────────────────────────
+  'lakers-ready-head-coach': {
+    id: 'lakers-ready-head-coach',
+    title: 'Lakers Ready Head Coach',
+    subtitle: 'Oversee the ages 6-7 program',
+    icon: 'GraduationCap',
+    applicableRoles: ['youth_head_coach'],
+    estimatedMinutes: 3,
+    steps: [
+      {
+        id: 'welcome',
+        title: 'Welcome, Head Coach!',
+        icon: 'Sparkles',
+        visual: { type: 'icon-hero', icon: 'GraduationCap', label: 'Lakers Ready Head Coach' },
+        content: [
+          { type: 'paragraph', text: 'This tutorial covers how to lead the Lakers Ready (ages 6-7) program — from skill progression to coach development and term reporting.' },
+        ],
+        proTip: null,
+      },
+      {
+        id: 'program-structure',
+        title: 'Program Structure',
+        icon: 'Layers',
+        visual: null,
+        content: [
+          { type: 'paragraph', text: 'Lakers Ready bridges the gap between play-based Little Lakers and structured team basketball.' },
+          { type: 'info-card', items: [
+            { label: 'More Basketball Drills', text: 'Sessions include real basketball drills alongside fun games.' },
+            { label: 'Simple Plays', text: 'Introduce give-and-go, basic screens, and positional awareness.' },
+            { label: 'Structured but Fun', text: 'More time on skill work, but games and energy stay high.' },
+          ]},
+        ],
+        proTip: { text: 'Balance structure with fun — if kids disengage, add a quick game break.' },
+      },
+      {
+        id: 'skill-progression',
+        title: 'Skill Progression',
+        icon: 'TrendingUp',
+        visual: null,
+        content: [
+          { type: 'paragraph', text: 'Track these key milestones for Lakers Ready players:' },
+          { type: 'checklist', items: [
+            'Dribble while moving — not just standing still.',
+            'Chest pass to a partner from 3 metres.',
+            'Basic defensive stance — feet wide, hands up.',
+            'Follow simple plays — give-and-go, basic cuts.',
+            'Show teamwork — passing to open players, calling for the ball.',
+          ]},
+        ],
+        proTip: { text: 'Celebrate each milestone with the player — it builds confidence and motivation.' },
+      },
+      {
+        id: 'coach-development',
+        title: 'Coach Development',
+        icon: 'Users',
+        visual: null,
+        content: [
+          { type: 'paragraph', text: 'Help your coaches grow by monitoring quality indicators.' },
+          { type: 'steps', items: [
+            'Track coaching quality through session completeness rates.',
+            'Review whether milestone tracking is being done consistently.',
+            'Observe sessions and provide constructive feedback.',
+            'Share best-practice drills and activities across the coaching team.',
+          ]},
+        ],
+        proTip: { text: 'Pair newer coaches with experienced ones for their first few sessions.' },
+      },
+      {
+        id: 'term-reporting',
+        title: 'Term Reporting',
+        icon: 'FileText',
+        visual: null,
+        content: [
+          { type: 'paragraph', text: 'End-of-term reports keep parents informed and celebrate progress.' },
+          { type: 'info-card', items: [
+            { label: 'Milestone Summaries', text: 'Auto-generated from milestone data tracked throughout the term.' },
+            { label: 'Parent Updates', text: 'Reports are shared with parents through the app.' },
+            { label: 'Coach Review', text: 'Review reports before release to ensure accuracy and add personal notes.' },
+          ]},
+        ],
+        proTip: { text: 'Add a personal note to each report — parents appreciate the individual attention.' },
+      },
+      {
+        id: 'complete',
+        title: 'You\'re Ready!',
+        icon: 'CheckCircle',
+        visual: { type: 'icon-hero', icon: 'Trophy', label: 'Tutorial Complete' },
+        content: [
+          { type: 'paragraph', text: 'You\'re set to lead the Lakers Ready program. Head to your dashboard to check on coach activity and player milestones.' },
+          { type: 'paragraph', text: 'Revisit this tutorial anytime from the Help Center.' },
+        ],
+        proTip: null,
+      },
+    ],
+  },
+
+  // ── GIRLS COORDINATOR (5 steps) ──────────────────────────────────────
+  'girls-coordinator': {
+    id: 'girls-coordinator',
+    title: 'Girls Coordinator Quick Start',
+    subtitle: 'Manage tryouts and team placement for the girls program',
+    icon: 'Network',
+    applicableRoles: ['girls_coordinator'],
+    estimatedMinutes: 3,
+    steps: [
+      {
+        id: 'welcome',
+        title: 'Welcome, Coordinator!',
+        icon: 'Sparkles',
+        visual: { type: 'icon-hero', icon: 'Network', label: 'Girls Program Coordinator' },
+        content: [
+          { type: 'paragraph', text: 'This tutorial covers your key responsibilities for the girls program: creating tryout sessions, coordinating assessors, reviewing results, and managing team placement.' },
+        ],
+        proTip: null,
+      },
+      {
+        id: 'tryout-management',
+        title: 'Tryout Management',
+        icon: 'CalendarPlus',
+        visual: {
+          type: 'annotated-screenshot',
+          placeholderLabel: 'Girls Tryout Session Creator',
+          annotations: [
+            { label: 'Age group', position: 'top-left', description: 'Select the girls age group for this session' },
+            { label: 'Player list', position: 'center', description: 'Add registered girls players' },
+            { label: 'Session date', position: 'bottom', description: 'Set the tryout date and time' },
+          ],
+        },
+        content: [
+          { type: 'steps', items: [
+            'Go to Tryouts > Create Session.',
+            'Select the girls age group and set the date and time.',
+            'Add players from the registered list for your program.',
+            'Save the session — assessors will see it on their dashboards.',
+          ]},
+        ],
+        proTip: { text: 'Create sessions at least a week in advance so assessors and families can plan.' },
+      },
+      {
+        id: 'assessor-coordination',
+        title: 'Assessor Coordination',
+        icon: 'UserCheck',
+        visual: {
+          type: 'annotated-screenshot',
+          placeholderLabel: 'Assessor Assignment Panel',
+          annotations: [
+            { label: 'Available assessors', position: 'left', description: 'People with the assessor role' },
+            { label: 'Availability', position: 'right', description: 'Check who is free for the session' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'Assign assessors to each tryout session for reliable, fair evaluations.' },
+          { type: 'steps', items: [
+            'Open the tryout session you created.',
+            'Tap "Assign Assessors" to view the available pool.',
+            'Select 3-5 assessors for reliable averaged scores.',
+            'Check availability to avoid scheduling conflicts.',
+          ]},
+        ],
+        proTip: { text: 'Use assessors who do not coach in the same age group to reduce bias.' },
+      },
+      {
+        id: 'results-placement',
+        title: 'Team Placement & Results',
+        icon: 'BarChart3',
+        visual: {
+          type: 'infographic',
+          infographicType: 'flowchart',
+          title: 'Tryout to Team Pipeline',
+          description: 'End-to-end flow from creating a tryout session to final team placement.',
+          nodes: [
+            { id: 'create-session', icon: 'CalendarPlus', label: 'Create Session', x: 15, y: 20 },
+            { id: 'assign-assessors', icon: 'UserCheck', label: 'Assign Assessors', x: 50, y: 20 },
+            { id: 'collect-scores', icon: 'ClipboardCheck', label: 'Collect Scores', x: 85, y: 20 },
+            { id: 'team-placement', icon: 'Users', label: 'Team Placement', x: 50, y: 75 },
+          ],
+          edges: [
+            { from: 'create-session', to: 'assign-assessors' },
+            { from: 'assign-assessors', to: 'collect-scores' },
+            { from: 'collect-scores', to: 'team-placement' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'Once assessors complete evaluations, review the aggregated data to make team placement decisions.' },
+          { type: 'steps', items: [
+            'Go to Tryouts > Results for the completed session.',
+            'Review averaged scores across all assessors.',
+            'Sort by individual metrics to identify standouts.',
+            'Use the data to finalise girls team placements.',
+          ]},
+        ],
+        proTip: { text: 'Check score spreads between assessors — high variance may need a second look.' },
+      },
+      {
+        id: 'complete',
+        title: 'You\'re Ready!',
+        icon: 'CheckCircle',
+        visual: { type: 'icon-hero', icon: 'Trophy', label: 'Tutorial Complete' },
+        content: [
+          { type: 'paragraph', text: 'You now know how to manage the full tryout-to-team pipeline for the girls program. Head to Tryouts to get started.' },
+          { type: 'paragraph', text: 'Revisit this tutorial anytime from the Help Center.' },
+        ],
+        proTip: null,
+      },
+    ],
+  },
+
+  // ── BOYS COORDINATOR (5 steps) ───────────────────────────────────────
+  'boys-coordinator': {
+    id: 'boys-coordinator',
+    title: 'Boys Coordinator Quick Start',
+    subtitle: 'Manage tryouts and team placement for the boys program',
+    icon: 'Network',
+    applicableRoles: ['boys_coordinator'],
+    estimatedMinutes: 3,
+    steps: [
+      {
+        id: 'welcome',
+        title: 'Welcome, Coordinator!',
+        icon: 'Sparkles',
+        visual: { type: 'icon-hero', icon: 'Network', label: 'Boys Program Coordinator' },
+        content: [
+          { type: 'paragraph', text: 'This tutorial covers your key responsibilities for the boys program: creating tryout sessions, coordinating assessors, reviewing results, and managing team placement.' },
+        ],
+        proTip: null,
+      },
+      {
+        id: 'tryout-management',
+        title: 'Tryout Management',
+        icon: 'CalendarPlus',
+        visual: {
+          type: 'annotated-screenshot',
+          placeholderLabel: 'Boys Tryout Session Creator',
+          annotations: [
+            { label: 'Age group', position: 'top-left', description: 'Select the boys age group for this session' },
+            { label: 'Player list', position: 'center', description: 'Add registered boys players' },
+            { label: 'Session date', position: 'bottom', description: 'Set the tryout date and time' },
+          ],
+        },
+        content: [
+          { type: 'steps', items: [
+            'Go to Tryouts > Create Session.',
+            'Select the boys age group and set the date and time.',
+            'Add players from the registered list for your program.',
+            'Save the session — assessors will see it on their dashboards.',
+          ]},
+        ],
+        proTip: { text: 'Create sessions at least a week in advance so assessors and families can plan.' },
+      },
+      {
+        id: 'assessor-coordination',
+        title: 'Assessor Coordination',
+        icon: 'UserCheck',
+        visual: {
+          type: 'annotated-screenshot',
+          placeholderLabel: 'Assessor Assignment Panel',
+          annotations: [
+            { label: 'Available assessors', position: 'left', description: 'People with the assessor role' },
+            { label: 'Availability', position: 'right', description: 'Check who is free for the session' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'Assign assessors to each tryout session for reliable, fair evaluations.' },
+          { type: 'steps', items: [
+            'Open the tryout session you created.',
+            'Tap "Assign Assessors" to view the available pool.',
+            'Select 3-5 assessors for reliable averaged scores.',
+            'Check availability to avoid scheduling conflicts.',
+          ]},
+        ],
+        proTip: { text: 'Use assessors who do not coach in the same age group to reduce bias.' },
+      },
+      {
+        id: 'results-placement',
+        title: 'Team Placement & Results',
+        icon: 'BarChart3',
+        visual: {
+          type: 'infographic',
+          infographicType: 'flowchart',
+          title: 'Tryout to Team Pipeline',
+          description: 'End-to-end flow from creating a tryout session to final team placement.',
+          nodes: [
+            { id: 'create-session', icon: 'CalendarPlus', label: 'Create Session', x: 15, y: 20 },
+            { id: 'assign-assessors', icon: 'UserCheck', label: 'Assign Assessors', x: 50, y: 20 },
+            { id: 'collect-scores', icon: 'ClipboardCheck', label: 'Collect Scores', x: 85, y: 20 },
+            { id: 'team-placement', icon: 'Users', label: 'Team Placement', x: 50, y: 75 },
+          ],
+          edges: [
+            { from: 'create-session', to: 'assign-assessors' },
+            { from: 'assign-assessors', to: 'collect-scores' },
+            { from: 'collect-scores', to: 'team-placement' },
+          ],
+        },
+        content: [
+          { type: 'paragraph', text: 'Once assessors complete evaluations, review the aggregated data to make team placement decisions.' },
+          { type: 'steps', items: [
+            'Go to Tryouts > Results for the completed session.',
+            'Review averaged scores across all assessors.',
+            'Sort by individual metrics to identify standouts.',
+            'Use the data to finalise boys team placements.',
+          ]},
+        ],
+        proTip: { text: 'Check score spreads between assessors — high variance may need a second look.' },
+      },
+      {
+        id: 'complete',
+        title: 'You\'re Ready!',
+        icon: 'CheckCircle',
+        visual: { type: 'icon-hero', icon: 'Trophy', label: 'Tutorial Complete' },
+        content: [
+          { type: 'paragraph', text: 'You now know how to manage the full tryout-to-team pipeline for the boys program. Head to Tryouts to get started.' },
+          { type: 'paragraph', text: 'Revisit this tutorial anytime from the Help Center.' },
+        ],
+        proTip: null,
+      },
+    ],
+  },
+
   // ── TEAM MANAGER (5 steps) ──────────────────────────────────────────────
   'team-manager': {
     id: 'team-manager',
@@ -1040,7 +1462,7 @@ export const TUTORIALS = {
   },
 };
 
-export const TUTORIAL_ORDER = ['assessor', 'youth-coach', 'coach', 'admin', 'coordinator', 'youth-head-coach', 'parent', 'player', 'team-manager'];
+export const TUTORIAL_ORDER = ['assessor', 'youth-coach', 'coach', 'admin', 'coordinator', 'youth-head-coach', 'parent', 'player', 'team-manager', 'little-lakers-head-coach', 'lakers-ready-head-coach', 'girls-coordinator', 'boys-coordinator'];
 
 export const ROLE_TO_TUTORIAL = {
   tryout_assessor: 'assessor',
@@ -1051,8 +1473,8 @@ export const ROLE_TO_TUTORIAL = {
   president: 'admin',
   vice_president: 'admin',
   coach_coordinator: 'admin',
-  girls_coordinator: 'coordinator',
-  boys_coordinator: 'coordinator',
+  girls_coordinator: 'girls-coordinator',
+  boys_coordinator: 'boys-coordinator',
   parent: 'parent',
   player: 'player',
   team_manager: 'team-manager',

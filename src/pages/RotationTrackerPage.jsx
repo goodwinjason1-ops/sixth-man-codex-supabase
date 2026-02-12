@@ -28,6 +28,7 @@ import {
   ListOrdered
 } from 'lucide-react';
 import PageShell from '../components/PageShell';
+import HelpTooltip from '../components/tutorial/HelpTooltip';
 import LoadingState from '../components/LoadingState';
 import EmptyState from '../components/EmptyState';
 
@@ -1433,7 +1434,9 @@ const RotationTrackerPage = () => {
                 <div className="flex-1 text-center">
                   <p className="text-gray-400 text-[10px] uppercase tracking-wider">Plan</p>
                   <p className="text-2xl font-bold text-[#00A651]">{plannedFairness.score}</p>
-                  <p className="text-gray-400 text-[10px]">fairness</p>
+                  <HelpTooltip text="Fairness score (0-100) measures how evenly playing time is distributed. Higher = more equal.">
+                    <p className="text-gray-400 text-[10px]">fairness</p>
+                  </HelpTooltip>
                 </div>
                 <div className="text-gray-800/20">→</div>
                 <div className="flex-1 text-center">

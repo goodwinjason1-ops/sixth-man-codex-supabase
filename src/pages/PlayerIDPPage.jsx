@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
 import PageShell from '../components/PageShell';
+import FirstTimeHint from '../components/tutorial/FirstTimeHint';
 import {
   Target,
   Award,
@@ -188,13 +189,15 @@ const PlayerIDPPage = () => {
               and targeted practice recommendations.
             </p>
             {isCoachOrStaff && (
-              <button
-                onClick={() => navigate(`/players/${playerId}/development-plan/new`)}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#00A651] text-white font-semibold rounded-lg hover:bg-[#008c44] transition-colors"
-              >
-                <Plus className="w-5 h-5" />
-                Create Development Plan
-              </button>
+              <FirstTimeHint hintKey="create-idp">
+                <button
+                  onClick={() => navigate(`/players/${playerId}/development-plan/new`)}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#00A651] text-white font-semibold rounded-lg hover:bg-[#008c44] transition-colors"
+                >
+                  <Plus className="w-5 h-5" />
+                  Create Development Plan
+                </button>
+              </FirstTimeHint>
             )}
           </div>
         </div>

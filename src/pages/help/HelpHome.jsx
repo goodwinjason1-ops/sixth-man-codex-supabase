@@ -23,7 +23,14 @@ import {
   Dumbbell,
   Layers,
   X,
+  TrendingUp,
+  ClipboardList,
+  Users as UsersIcon,
+  FileText,
+  Target,
+  PenTool,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const PAGE_ORDER = ['admin', 'leadership', 'coordinators', 'coaches', 'youth-coaches', 'assessors', 'parents', 'players'];
 
@@ -77,6 +84,7 @@ const HelpHome = () => {
   const { userProfile } = useAuth();
   const role = userProfile?.role;
   const { completedCount, totalCount } = useTutorial();
+  const navigate = useNavigate();
   const [activeInfographic, setActiveInfographic] = useState(null);
   const [activePractice, setActivePractice] = useState(null);
 
@@ -109,7 +117,34 @@ const HelpHome = () => {
         {/* 1. Quick Start Carousel with ProgressRing */}
         <QuickStartCarousel userRole={role} />
 
-        {/* 2. Practice Areas grid */}
+        {/* 2. Popular Topics */}
+        <div>
+          <h2 className="text-gray-800 font-bold text-base mb-3 flex items-center gap-2">
+            <Star className="w-4 h-4 text-[#00A651]" />
+            Popular Topics
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: 'How do tryouts work?', icon: ClipboardList, to: '/help/coordinators' },
+              { label: 'Track my child\'s progress', icon: TrendingUp, to: '/help/parents' },
+              { label: 'Take attendance', icon: UsersIcon, to: '/help/youth-coaches' },
+              { label: 'Use the drill library', icon: BookOpen, to: '/help/coaches' },
+              { label: 'Create a development plan', icon: Target, to: '/help/coaches' },
+              { label: 'Write session summaries', icon: PenTool, to: '/help/youth-coaches' },
+            ].map((topic) => (
+              <button
+                key={topic.label}
+                onClick={() => navigate(topic.to)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#D4E4D4] rounded-full text-xs text-gray-700 hover:border-[#00A651] hover:text-[#005028] transition-colors"
+              >
+                <topic.icon className="w-3.5 h-3.5 text-[#00A651]" />
+                {topic.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 3. Practice Areas grid */}
         {availablePractice.length > 0 && (
           <div>
             <h2 className="text-gray-800 font-bold text-base mb-3 flex items-center gap-2">

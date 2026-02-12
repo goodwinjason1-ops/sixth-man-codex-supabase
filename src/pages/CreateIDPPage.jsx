@@ -18,6 +18,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { SKILL_CATEGORIES } from '../data/sampleIDPs';
+import HelpTooltip from '../components/tutorial/HelpTooltip';
 import { fetchDrills } from '../services/drillService';
 
 const levelLabels = {
@@ -505,6 +506,7 @@ const CreateIDPPage = () => {
             <div className="flex items-center gap-2">
               <HomeIcon className="w-5 h-5 text-[#00A651]" />
               <h3 className="text-gray-800 font-semibold">Parent Sharing</h3>
+              <HelpTooltip text="When enabled, parents can view this development plan and add encouraging comments." />
             </div>
             <button
               onClick={() => setParentVisible(!parentVisible)}

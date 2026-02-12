@@ -813,17 +813,19 @@ const TryoutAssessorPage = () => {
                 )}
 
                 {/* Submit */}
-                <button
-                  onClick={handleSubmit}
-                  className={`px-3 py-2 rounded-lg flex items-center gap-1 text-sm font-medium ${
-                    currentEval.evalStatus === 'submitted'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-[#005028] hover:bg-[#00A651] text-white'
-                  }`}
-                >
-                  <Send className="w-4 h-4" />
-                  {currentEval.evalStatus === 'submitted' ? 'Submitted' : 'Submit'}
-                </button>
+                <HelpTooltip text="Submitting locks your scores for this player. You can still review but not edit after submission.">
+                  <button
+                    onClick={handleSubmit}
+                    className={`px-3 py-2 rounded-lg flex items-center gap-1 text-sm font-medium ${
+                      currentEval.evalStatus === 'submitted'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-[#005028] hover:bg-[#00A651] text-white'
+                    }`}
+                  >
+                    <Send className="w-4 h-4" />
+                    {currentEval.evalStatus === 'submitted' ? 'Submitted' : 'Submit'}
+                  </button>
+                </HelpTooltip>
 
                 {/* Next / Done */}
                 {currentPlayerIndex < totalPlayers - 1 ? (
