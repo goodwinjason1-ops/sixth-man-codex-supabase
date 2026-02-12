@@ -1561,15 +1561,27 @@ const NotificationsPage = () => {
     const team = availableTeams.find(t =>
       t.id === editingAssignment.teamId || t.name === editingAssignment.teamName
     );
-    if (!team?.players) return [];
 
-    return team.players.map(p => ({
+    // Use team.players if available, fallback to fresh query from players array
+    let teamPlayers = team?.players || [];
+    if (teamPlayers.length === 0 && team) {
+      teamPlayers = players?.filter(p => {
+        const matchById = p.teamId === team.id;
+        const matchByName = p.team === team.name;
+        const matchByDerivedId = p.team?.toLowerCase().replace(/\s+/g, '-') === team.id;
+        return matchById || matchByName || matchByDerivedId;
+      }) || [];
+    }
+
+    if (teamPlayers.length === 0) return [];
+
+    return teamPlayers.map(p => ({
       id: p.id,
-      name: p.parentName || `Parent of ${p.name}`,
-      email: p.parentEmail,
+      name: p.parentName || p.parent1Name || `Parent of ${p.name}`,
+      email: p.parentEmail || p.parent1Email,
       playerName: p.name
     })).filter(p => p.name && p.id !== editingAssignment.parentId);
-  }, [editingAssignment, availableTeams]);
+  }, [editingAssignment, availableTeams, players]);
 
   // Filtered scoring assignments based on view and team filter
   const filteredScoringAssignments = useMemo(() => {

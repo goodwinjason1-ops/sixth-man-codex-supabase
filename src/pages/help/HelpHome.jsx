@@ -9,6 +9,7 @@ import QuickStartCarousel from '../../components/help/QuickStartCarousel';
 import ProgressRing from '../../components/help/ProgressRing';
 import FlowChart from '../../components/tutorial/FlowChart';
 import ProcessFlow from '../../components/tutorial/ProcessFlow';
+import PracticeArea from '../../components/practice/PracticeArea';
 import { HELP_PAGES, GLOBAL_FAQS } from '../../data/helpContent';
 import { INFOGRAPHICS } from '../../data/infographicContent';
 import * as Icons from 'lucide-react';
@@ -77,6 +78,7 @@ const HelpHome = () => {
   const role = userProfile?.role;
   const { completedCount, totalCount } = useTutorial();
   const [activeInfographic, setActiveInfographic] = useState(null);
+  const [activePractice, setActivePractice] = useState(null);
 
   // Find the recommended guide for the current user
   const recommended = PAGE_ORDER.find(
@@ -93,10 +95,7 @@ const HelpHome = () => {
   const infographicList = Object.values(INFOGRAPHICS || {});
 
   const handleStartPractice = (practiceId) => {
-    // Open practice in a modal/overlay — for now scroll to embedded practice area
-    // This is a placeholder; actual navigation handled by content blocks
-    const el = document.getElementById(`practice-${practiceId}`);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    setActivePractice(practiceId);
   };
 
   return (
@@ -104,7 +103,7 @@ const HelpHome = () => {
       title="Help Center"
       subtitle="Guides, FAQs, and support"
       backTo={role === 'tryout_assessor' ? '/assessor' : '/welcome'}
-      maxWidth="lg"
+      maxWidth="4xl"
     >
       <div className="space-y-6">
         {/* 1. Quick Start Carousel with ProgressRing */}
@@ -231,6 +230,24 @@ const HelpHome = () => {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Practice Area Full-Screen Modal */}
+      {activePractice && (
+        <div className="fixed inset-0 z-50 bg-[#0a3d2e] overflow-y-auto">
+          <div className="sticky top-0 z-10 bg-[#0d5943] border-b border-[#1a8a68]/30 px-4 py-3 flex items-center justify-between">
+            <h3 className="text-white font-bold text-sm">
+              {PRACTICE_AREAS.find(a => a.id === activePractice)?.title || 'Practice'}
+            </h3>
+            <button
+              onClick={() => setActivePractice(null)}
+              className="p-2 hover:bg-white/10 rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center"
+            >
+              <X size={20} className="text-white/60" />
+            </button>
+          </div>
+          <PracticeArea practiceId={activePractice} />
         </div>
       )}
     </PageShell>

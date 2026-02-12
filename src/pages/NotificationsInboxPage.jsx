@@ -309,35 +309,49 @@ Emerald Lakers Basketball Club`,
 
   // Get other parents for swap (from the same team as the notification)
   const getOtherParents = () => {
-    if (!selectedNotification?.gameData?.teamId) {
-      // Fallback to sample data
-      return [
-        { id: 'p1', name: 'Sarah Jones', playerName: 'Emma Jones', email: 'sarah@test.com' },
-        { id: 'p2', name: 'Mike Wilson', playerName: 'Jack Wilson', email: 'mike@test.com' },
-        { id: 'p3', name: 'Lisa Brown', playerName: 'Olivia Brown', email: 'lisa@test.com' }
-      ];
+    const teamId = selectedNotification?.gameData?.teamId;
+    const teamName = selectedNotification?.gameData?.team;
+
+    // Find players from the same team using multiple matching strategies
+    let teamPlayers = [];
+    if (teamId || teamName) {
+      teamPlayers = players?.filter(p => {
+        if (teamId) {
+          if (p.teamId === teamId) return true;
+          if (p.team?.toLowerCase().replace(/\s+/g, '-') === teamId) return true;
+        }
+        if (teamName) {
+          if (p.team === teamName) return true;
+          if (p.teamName === teamName) return true;
+        }
+        return false;
+      }) || [];
     }
 
-    const teamId = selectedNotification.gameData.teamId;
-    const teamName = selectedNotification.gameData.team;
-
-    // Find players from the same team
-    const teamPlayers = players?.filter(p => {
-      const matchById = p.teamId === teamId;
-      const matchByName = p.team === teamName;
-      return matchById || matchByName;
-    }) || [];
+    // Fallback: if no team-specific players found, use all players with parent info
+    if (teamPlayers.length === 0) {
+      teamPlayers = players?.filter(p =>
+        (p.parentName || p.parent1Name) && (p.parentEmail || p.parent1Email)
+      ) || [];
+    }
 
     // Get parent info from players, excluding current user
-    return teamPlayers
+    const parents = teamPlayers
       .map(p => ({
-        id: p.id,
-        name: p.parentName || `Parent of ${p.name}`,
+        id: p.parentId || p.id,
+        name: p.parentName || p.parent1Name || `Parent of ${p.name}`,
         playerName: p.name,
         email: p.parentEmail || p.parent1Email
       }))
-      .filter(p => p.email && p.email !== userProfile?.email)
-      .slice(0, 10); // Limit to 10 parents
+      .filter(p => p.email && p.email !== userProfile?.email);
+
+    // Deduplicate by email
+    const seen = new Set();
+    return parents.filter(p => {
+      if (seen.has(p.email)) return false;
+      seen.add(p.email);
+      return true;
+    }).slice(0, 10);
   };
 
   // Handle swap request - create in Firestore
