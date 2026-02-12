@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -20,6 +20,16 @@ console.log('Signing in as admin...');
 await signInWithEmailAndPassword(auth, 'admin@test.com', 'Admin123!');
 console.log('Authenticated successfully.\n');
 
+// Delete all existing drills first
+console.log('Deleting existing drills...');
+const existingDrills = await getDocs(collection(db, 'drills'));
+let deleteCount = 0;
+for (const docSnap of existingDrills.docs) {
+  await deleteDoc(doc(db, 'drills', docSnap.id));
+  deleteCount++;
+}
+console.log(`Deleted ${deleteCount} existing drills.\n`);
+
 // Import seed data
 const seedDrills = (await import('../src/data/seedDrills.js')).default;
 
@@ -36,7 +46,7 @@ for (const drill of seedDrills) {
       createdAt: serverTimestamp()
     });
     count++;
-    console.log(`  ${count}. ${drill.name} (${docRef.id})`);
+    console.log(`  ${count}. ${drill.name} [${drill.category}] (Level ${drill.difficulty}) (${docRef.id})`);
   } catch (err) {
     console.error(`  FAILED: ${drill.name} - ${err.message}`);
   }

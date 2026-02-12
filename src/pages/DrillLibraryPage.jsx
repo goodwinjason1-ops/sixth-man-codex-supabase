@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Plus, SlidersHorizontal, X, BookOpen } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchDrills } from '../services/drillService';
-import { DRILL_CATEGORIES, CATEGORY_COLORS, AGE_GROUPS, DRILL_EDIT_ROLES } from '../constants/drills';
+import { DRILL_CATEGORIES, CATEGORY_COLORS, DIFFICULTY_LEVELS, AGE_GROUPS, DRILL_EDIT_ROLES } from '../constants/drills';
 import DrillCard from '../components/drills/DrillCard';
 import PageShell from '../components/PageShell';
 
@@ -67,9 +67,9 @@ const DrillLibraryPage = () => {
       result = result.filter(d => d.ageGroups?.includes(ageFilter));
     }
 
-    // Difficulty filter
+    // Difficulty filter (now numeric 1-4)
     if (difficultyFilter) {
-      result = result.filter(d => d.difficulty === difficultyFilter);
+      result = result.filter(d => d.difficulty === Number(difficultyFilter));
     }
 
     // Sort
@@ -83,7 +83,7 @@ const DrillLibraryPage = () => {
       case 'fun_rating':
         result.sort((a, b) => (b.funRating || 0) - (a.funRating || 0));
         break;
-      default: // newest — already sorted by createdAt desc from Firestore
+      default: // newest
         break;
     }
 
@@ -161,9 +161,9 @@ const DrillLibraryPage = () => {
             )}
           </div>
 
-          {/* Category Pills */}
+          {/* Skill Category Pills */}
           <div>
-            <span className="text-xs font-medium text-[#6B7C6B] uppercase tracking-wide">Category</span>
+            <span className="text-xs font-medium text-[#6B7C6B] uppercase tracking-wide">Skill Category</span>
             <div className="flex flex-wrap gap-2 mt-2">
               {Object.entries(DRILL_CATEGORIES).map(([key, cat]) => {
                 const colorSet = CATEGORY_COLORS[cat.color];
@@ -204,21 +204,21 @@ const DrillLibraryPage = () => {
             </div>
           </div>
 
-          {/* Difficulty */}
+          {/* Difficulty Level Pills — 1-4 matching assessment scale */}
           <div>
-            <span className="text-xs font-medium text-[#6B7C6B] uppercase tracking-wide">Difficulty</span>
+            <span className="text-xs font-medium text-[#6B7C6B] uppercase tracking-wide">Difficulty Level</span>
             <div className="flex flex-wrap gap-2 mt-2">
-              {['beginner', 'intermediate', 'advanced'].map(d => (
+              {Object.entries(DIFFICULTY_LEVELS).map(([level, info]) => (
                 <button
-                  key={d}
-                  onClick={() => setDifficultyFilter(difficultyFilter === d ? '' : d)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors capitalize ${
-                    difficultyFilter === d
-                      ? 'bg-[#005028] text-white border-[#005028]'
+                  key={level}
+                  onClick={() => setDifficultyFilter(difficultyFilter === level ? '' : level)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                    difficultyFilter === level
+                      ? `${info.bg} ${info.text} border-transparent`
                       : 'bg-white text-gray-600 border-[#D4E4D4] hover:border-[#00A651]'
                   }`}
                 >
-                  {d}
+                  {info.short} — {info.label}
                 </button>
               ))}
             </div>

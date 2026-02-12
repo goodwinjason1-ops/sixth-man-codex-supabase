@@ -1,14 +1,14 @@
 export default [
   // ===========================
-  // WARM-UP DRILLS (1-5)
+  // BALL HANDLING (1-4)
   // ===========================
   {
     name: "Dribble Tag",
     description:
       "A high-energy tag game where every player must maintain their dribble while trying to tag others. If you lose your ball or get tagged, you do a fun penalty (e.g., 5 jumping jacks) and rejoin. Develops dribbling under pressure in a game-like setting.",
-    category: "ball_handling",
-    ageGroups: ["u8", "u10", "u12", "u14", "u16", "u19"],
-    difficulty: "beginner",
+    category: "ball-handling",
+    ageGroups: ["u8", "u10", "u12", "u14", "u16", "u18"],
+    difficulty: 1,
     duration: 5,
     minPlayers: 4,
     maxPlayers: 20,
@@ -47,9 +47,9 @@ export default [
     name: "Sharks and Minnows",
     description:
       "Players (minnows) dribble from baseline to baseline while defenders (sharks) in the middle try to knock the ball away. If your ball is knocked away, you become a shark. Last minnow standing wins.",
-    category: "ball_handling",
+    category: "ball-handling",
     ageGroups: ["u8", "u10", "u12"],
-    difficulty: "beginner",
+    difficulty: 1,
     duration: 5,
     minPlayers: 6,
     maxPlayers: 20,
@@ -86,187 +86,12 @@ export default [
     tags: ["warm-up", "team", "competitive", "fun"]
   },
   {
-    name: "Musical Basketballs",
-    description:
-      "Just like musical chairs, but with basketballs! Players dribble around a circle of balls. When the music or whistle stops, everyone grabs a ball and starts dribbling. The player without a ball is out. Teaches quick reactions and ball control.",
-    category: "ball_handling",
-    ageGroups: ["u8", "u10"],
-    difficulty: "beginner",
-    duration: 5,
-    minPlayers: 5,
-    maxPlayers: 15,
-    equipment: ["basketballs", "cones", "speaker (optional)"],
-    setup:
-      "Place basketballs in a circle in the center of the court. Use one fewer ball than the number of players. Mark a jogging circle around the balls with cones.",
-    instructions: [
-      "Players jog around the circle of basketballs while music plays (or while the coach counts).",
-      "When the music stops or the coach blows the whistle, each player grabs the nearest ball and starts dribbling.",
-      "The player left without a ball is eliminated and becomes a cheerleader on the side.",
-      "Remove one ball each round and repeat.",
-      "Last player standing wins!"
-    ],
-    variations: [
-      {
-        name: "Dribble Around",
-        description:
-          "Instead of jogging, players must dribble a shared ball in pairs around the circle, adding coordination."
-      },
-      {
-        name: "Skill Challenge Re-Entry",
-        description:
-          "Eliminated players can earn their way back by completing a challenge (e.g., make a free throw)."
-      }
-    ],
-    coachingPoints: [
-      "Pick up the ball quickly and get into a low dribble stance right away.",
-      "Keep your head up so you can see where the open balls are."
-    ],
-    videoUrl: null,
-    skillsFocus: ["quick reactions", "ball pickup", "dribble stance"],
-    funRating: 5,
-    tags: ["warm-up", "team", "competitive", "fun"]
-  },
-  {
-    name: "Relay Races",
-    description:
-      "Teams compete in dribbling relay races through a cone course. Each player dribbles through the cones, around the end cone, and back to hand off to the next teammate. Builds dribbling speed and control in a competitive setting.",
-    category: "ball_handling",
-    ageGroups: ["u8", "u10", "u12", "u14", "u16", "u19"],
-    difficulty: "beginner",
-    duration: 8,
-    minPlayers: 6,
-    maxPlayers: 24,
-    equipment: ["basketballs", "cones"],
-    setup:
-      "Set up 2-4 parallel lines of 5-6 cones spaced 2-3 meters apart from the baseline. Each team lines up behind the baseline in a single file with one basketball per team.",
-    instructions: [
-      "Divide players into equal teams of 3-6 and line them up behind the start line.",
-      "On the whistle, the first player from each team dribbles through the cones in a zigzag pattern.",
-      "At the last cone, dribble around it and zigzag back through the cones.",
-      "Hand the ball off to the next teammate in line (no throwing).",
-      "First team to have all players complete the course wins.",
-      "If the ball is lost, the player must retrieve it and restart from the cone where they lost control."
-    ],
-    variations: [
-      {
-        name: "Weak Hand Relay",
-        description:
-          "Players must dribble with their non-dominant hand for the entire relay."
-      },
-      {
-        name: "Two-Ball Relay",
-        description:
-          "Older players dribble two balls simultaneously through the cones for an advanced challenge."
-      }
-    ],
-    coachingPoints: [
-      "Stay low and push the ball out in front when going through cones.",
-      "Use fingertip control, not your palm, when changing direction."
-    ],
-    videoUrl: null,
-    skillsFocus: ["speed dribbling", "cone navigation", "hand-off technique"],
-    funRating: 4,
-    tags: ["warm-up", "team", "competitive"]
-  },
-  {
-    name: "Dynamic Stretch Circuit",
-    description:
-      "A basketball-specific dynamic warm-up where players move through a series of stations combining stretches with ball work. Prepares the body for practice while reinforcing ball familiarity.",
-    category: "footwork",
-    ageGroups: ["u12", "u14", "u16", "u19"],
-    difficulty: "beginner",
-    duration: 6,
-    minPlayers: 1,
-    maxPlayers: 20,
-    equipment: ["basketballs"],
-    setup:
-      "Use the sideline-to-sideline width of the court. Players spread out along the baseline with a ball each, about 2 meters apart. Coach stands at center court to demonstrate each movement.",
-    instructions: [
-      "Jog baseline to half court while passing the ball around your waist, then around your head on the way back.",
-      "High knees to half court while dribbling low with the right hand, switch to left hand coming back.",
-      "Walking lunges to half court — at each lunge, twist your torso and extend the ball to the outside.",
-      "Lateral slides in defensive stance to half court (ball on hip), switch direction coming back.",
-      "Frankenstein kicks (straight leg swings) to half court while bouncing the ball between your hands.",
-      "Two sets of each movement, 30 seconds rest between sets."
-    ],
-    variations: [
-      {
-        name: "Partner Mirror",
-        description:
-          "Partners face each other and mirror the movements, adding a reaction component."
-      },
-      {
-        name: "Coach Says",
-        description:
-          "Coach randomly calls the next stretch — players must listen and react quickly."
-      }
-    ],
-    coachingPoints: [
-      "Control the ball even while focusing on stretching — this builds automatic ball handling.",
-      "Full range of motion on every stretch — quality over speed.",
-      "Stay light on your feet during lateral slides, maintaining a low center of gravity."
-    ],
-    videoUrl: null,
-    skillsFocus: ["flexibility", "ball familiarity", "lateral movement"],
-    funRating: 2,
-    tags: ["warm-up", "individual"]
-  },
-
-  // ===========================
-  // BALL HANDLING DRILLS (6-9)
-  // ===========================
-  {
-    name: "Zigzag Dribble",
-    description:
-      "Players dribble through a zigzag cone course, performing a designated move at each cone — crossover, between the legs, behind the back, or spin. Builds the habit of attacking with a change-of-direction move.",
-    category: "ball_handling",
-    ageGroups: ["u10", "u12", "u14", "u16", "u19"],
-    difficulty: "intermediate",
-    duration: 8,
-    minPlayers: 1,
-    maxPlayers: 16,
-    equipment: ["basketballs", "cones"],
-    setup:
-      "Place 8-10 cones in a zigzag pattern down one side of the court, spacing them about 2 meters apart at 45-degree angles. Players line up at the start with a ball each.",
-    instructions: [
-      "Dribble toward the first cone at about 75% speed.",
-      "As you reach the cone, perform a crossover dribble to change direction toward the next cone.",
-      "Continue through all cones, performing a crossover at each one.",
-      "Jog back to the start on the sideline.",
-      "Repeat using between-the-legs move at each cone.",
-      "Repeat using behind-the-back move at each cone.",
-      "Repeat using a spin move at each cone."
-    ],
-    variations: [
-      {
-        name: "Coach Call",
-        description:
-          "Coach calls out which move to use at each cone in real time. Player must listen and execute without slowing down."
-      },
-      {
-        name: "Race Format",
-        description:
-          "Two players go side-by-side on parallel cone courses. First to finish cleanly wins."
-      }
-    ],
-    coachingPoints: [
-      "Sell the move — attack the cone as if it is a defender, not just casually dribbling by.",
-      "Keep the dribble low during the crossover, ideally below your knee.",
-      "Explode out of each move — change of pace is just as important as change of direction.",
-      "Protect the ball by keeping your body between the imaginary defender (cone) and the ball."
-    ],
-    videoUrl: null,
-    skillsFocus: ["crossover", "between the legs", "behind the back", "change of direction"],
-    funRating: 3,
-    tags: ["individual", "skill-building"]
-  },
-  {
     name: "Stationary Ball Handling Series",
     description:
       "Players stand in one spot and cycle through 10 different dribble moves, spending 30 seconds on each. This foundational drill builds hand speed, coordination, and muscle memory for every basic dribble move.",
-    category: "ball_handling",
-    ageGroups: ["u8", "u10", "u12", "u14", "u16", "u19"],
-    difficulty: "beginner",
+    category: "ball-handling",
+    ageGroups: ["u8", "u10", "u12", "u14", "u16", "u18"],
+    difficulty: 1,
     duration: 8,
     minPlayers: 1,
     maxPlayers: 30,
@@ -307,106 +132,61 @@ export default [
     tags: ["individual", "skill-building", "fundamentals"]
   },
   {
-    name: "Figure-8 Dribbling",
+    name: "Zigzag Dribble",
     description:
-      "Players dribble the ball in a figure-8 pattern through and around their legs while walking up the court. Develops advanced hand-eye coordination and the ability to handle the ball in tight spaces.",
-    category: "ball_handling",
-    ageGroups: ["u12", "u14", "u16", "u19"],
-    difficulty: "intermediate",
+      "Players dribble through a zigzag cone course, performing a designated move at each cone — crossover, between the legs, behind the back, or spin. Builds the habit of attacking with a change-of-direction move.",
+    category: "ball-handling",
+    ageGroups: ["u10", "u12", "u14", "u16", "u18"],
+    difficulty: 2,
     duration: 8,
     minPlayers: 1,
     maxPlayers: 16,
-    equipment: ["basketballs"],
+    equipment: ["basketballs", "cones"],
     setup:
-      "Players line up on the baseline with a basketball each. Use the full length of the court.",
+      "Place 8-10 cones in a zigzag pattern down one side of the court, spacing them about 2 meters apart at 45-degree angles. Players line up at the start with a ball each.",
     instructions: [
-      "Start in a wide athletic stance with knees bent.",
-      "Dribble the ball with your right hand around the outside of your right leg.",
-      "Push the ball through your legs from front to back.",
-      "Receive it with your left hand behind your left leg.",
-      "Dribble around the outside of your left leg and push through your legs front to back again.",
-      "Continue this figure-8 pattern while slowly walking from baseline to baseline.",
-      "Walk back doing the figure-8 in reverse (back to front)."
+      "Dribble toward the first cone at about 75% speed.",
+      "As you reach the cone, perform a crossover dribble to change direction toward the next cone.",
+      "Continue through all cones, performing a crossover at each one.",
+      "Jog back to the start on the sideline.",
+      "Repeat using between-the-legs move at each cone.",
+      "Repeat using behind-the-back move at each cone.",
+      "Repeat using a spin move at each cone."
     ],
     variations: [
       {
-        name: "Speed Walk",
+        name: "Coach Call",
         description:
-          "Increase walking speed each trip. Focus on maintaining the clean figure-8 pattern at higher speeds."
+          "Coach calls out which move to use at each cone in real time. Player must listen and execute without slowing down."
       },
       {
-        name: "Stationary to Moving",
+        name: "Race Format",
         description:
-          "Start with 10 stationary reps, then on the whistle begin walking. Helps players transition the skill."
+          "Two players go side-by-side on parallel cone courses. First to finish cleanly wins."
       }
     ],
     coachingPoints: [
-      "Stay low — the lower your stance, the easier it is to push the ball through your legs.",
-      "Keep the dribble tight and close to your body.",
-      "Use your fingertips and wrist to guide the ball, not big arm swings."
+      "Sell the move — attack the cone as if it is a defender, not just casually dribbling by.",
+      "Keep the dribble low during the crossover, ideally below your knee.",
+      "Explode out of each move — change of pace is just as important as change of direction.",
+      "Protect the ball by keeping your body between the imaginary defender (cone) and the ball."
     ],
     videoUrl: null,
-    skillsFocus: ["coordination", "low dribble", "ambidexterity"],
+    skillsFocus: ["crossover", "between the legs", "behind the back", "change of direction"],
     funRating: 3,
     tags: ["individual", "skill-building"]
   },
-  {
-    name: "The Gauntlet",
-    description:
-      "A player dribbles through a corridor of defenders standing in two lines, each reaching in to try to steal the ball. The dribbler must use moves, changes of pace, and body control to get through all defenders without losing the ball.",
-    category: "ball_handling",
-    ageGroups: ["u14", "u16", "u19"],
-    difficulty: "advanced",
-    duration: 10,
-    minPlayers: 7,
-    maxPlayers: 16,
-    equipment: ["basketballs"],
-    setup:
-      "Place 5-7 defenders in two parallel lines along the free-throw lane, each pair about 1.5 meters apart. Defenders stand facing each other with about 2 meters of space between them forming a corridor. Dribbler starts at one end of the corridor.",
-    instructions: [
-      "The dribbler starts at the top of the corridor with the ball.",
-      "On the whistle, the dribbler attacks through the corridor while maintaining their dribble.",
-      "Defenders can reach with one hand only (no body contact or stepping into the lane) to try to knock the ball away.",
-      "The dribbler must use hesitation moves, crossovers, spin moves, and body shields to protect the ball.",
-      "If the ball is knocked away, the dribbler retrieves it and restarts from that spot.",
-      "Complete the gauntlet, finish with a layup at the basket.",
-      "Rotate: the dribbler joins the back of a defender line, the first defender becomes the next dribbler."
-    ],
-    variations: [
-      {
-        name: "Live Gauntlet",
-        description:
-          "Defenders can step into the lane and play more actively. The corridor becomes a live defensive challenge."
-      },
-      {
-        name: "Two-Ball Gauntlet",
-        description:
-          "Advanced players dribble two balls through the corridor simultaneously."
-      }
-    ],
-    coachingPoints: [
-      "Use your off arm and shoulder to shield the ball — keep your body between the defender and the ball.",
-      "Change pace through the gauntlet — don't go at one speed the whole way.",
-      "Keep the dribble low and tight when defenders are close.",
-      "Read the defender's reach and attack the opposite side.",
-      "Stay strong and balanced — don't lean away from pressure."
-    ],
-    videoUrl: null,
-    skillsFocus: ["ball protection", "contact finishing", "poise under pressure", "change of pace"],
-    funRating: 4,
-    tags: ["competitive", "team", "skill-building"]
-  },
 
   // ===========================
-  // PASSING DRILLS (10-13)
+  // PASSING & RECEIVING (5-8)
   // ===========================
   {
     name: "Partner Passing Basics",
     description:
       "Players pair up and practice the three fundamental passes — chest pass, bounce pass, and overhead pass. Emphasis on proper technique, stepping into the pass, and hitting the target every time.",
-    category: "passing",
+    category: "passing-receiving",
     ageGroups: ["u8", "u10", "u12"],
-    difficulty: "beginner",
+    difficulty: 1,
     duration: 8,
     minPlayers: 2,
     maxPlayers: 30,
@@ -446,9 +226,9 @@ export default [
     name: "Triangle Passing",
     description:
       "Three players form a triangle and pass the ball while moving to different spots. Develops passing accuracy on the move, communication, and the habit of relocating after passing.",
-    category: "passing",
-    ageGroups: ["u10", "u12", "u14", "u16", "u19"],
-    difficulty: "intermediate",
+    category: "passing-receiving",
+    ageGroups: ["u10", "u12", "u14", "u16", "u18"],
+    difficulty: 2,
     duration: 10,
     minPlayers: 3,
     maxPlayers: 18,
@@ -490,9 +270,9 @@ export default [
     name: "Full-Court Outlet Passing",
     description:
       "Players practice the long outlet pass used in transition offense. A rebounder grabs the ball and fires a two-hand overhead or baseball pass to a player sprinting up the sideline. Develops fast-break passing accuracy under game-speed conditions.",
-    category: "passing",
-    ageGroups: ["u14", "u16", "u19"],
-    difficulty: "advanced",
+    category: "passing-receiving",
+    ageGroups: ["u14", "u16", "u18"],
+    difficulty: 3,
     duration: 10,
     minPlayers: 4,
     maxPlayers: 12,
@@ -537,9 +317,9 @@ export default [
     name: "Hot Potato",
     description:
       "Players stand in a circle and pass the ball rapidly around the circle. On the whistle, whoever is holding the ball is out. A fun, fast-paced game that teaches quick hands and catch-and-release speed.",
-    category: "passing",
+    category: "passing-receiving",
     ageGroups: ["u8", "u10", "u12"],
-    difficulty: "beginner",
+    difficulty: 1,
     duration: 6,
     minPlayers: 5,
     maxPlayers: 15,
@@ -576,15 +356,15 @@ export default [
   },
 
   // ===========================
-  // SHOOTING DRILLS (14-17)
+  // SHOOTING (9-12)
   // ===========================
   {
     name: "Form Shooting",
     description:
       "Players focus on shooting technique using the BEEF method (Balance, Eyes, Elbow, Follow-through) from very close range. No jumping — pure form. This is the single most important shooting drill for developing correct mechanics.",
     category: "shooting",
-    ageGroups: ["u8", "u10", "u12", "u14", "u16", "u19"],
-    difficulty: "beginner",
+    ageGroups: ["u8", "u10", "u12", "u14", "u16", "u18"],
+    difficulty: 1,
     duration: 10,
     minPlayers: 1,
     maxPlayers: 16,
@@ -626,8 +406,8 @@ export default [
     description:
       "Classic two-line layup drill with players alternating from the right and left sides. Focuses on proper footwork, the two-step gather, and finishing at the rim with the correct hand. A practice staple at every level.",
     category: "shooting",
-    ageGroups: ["u8", "u10", "u12", "u14", "u16", "u19"],
-    difficulty: "beginner",
+    ageGroups: ["u8", "u10", "u12", "u14", "u16", "u18"],
+    difficulty: 1,
     duration: 8,
     minPlayers: 4,
     maxPlayers: 20,
@@ -668,8 +448,8 @@ export default [
     description:
       "Players rotate through 5 marked spots on the court, taking a set number of shots from each spot and tracking their shooting percentage. Creates accountability and a competitive benchmark for improvement.",
     category: "shooting",
-    ageGroups: ["u12", "u14", "u16", "u19"],
-    difficulty: "intermediate",
+    ageGroups: ["u12", "u14", "u16", "u18"],
+    difficulty: 2,
     duration: 12,
     minPlayers: 2,
     maxPlayers: 12,
@@ -712,8 +492,8 @@ export default [
     description:
       "Players practice catching and shooting from realistic game situations — coming off screens, attacking closeouts, pulling up off the dribble. Every shot replicates a shot they would take in a real game.",
     category: "shooting",
-    ageGroups: ["u14", "u16", "u19"],
-    difficulty: "advanced",
+    ageGroups: ["u14", "u16", "u18"],
+    difficulty: 3,
     duration: 12,
     minPlayers: 3,
     maxPlayers: 10,
@@ -753,15 +533,100 @@ export default [
   },
 
   // ===========================
-  // FOOTWORK DRILLS (18-20)
+  // FOOTWORK (13-16)
   // ===========================
+  {
+    name: "Dynamic Stretch Circuit",
+    description:
+      "A basketball-specific dynamic warm-up where players move through a series of stations combining stretches with ball work. Prepares the body for practice while reinforcing ball familiarity.",
+    category: "footwork",
+    ageGroups: ["u10", "u12", "u14", "u16", "u18"],
+    difficulty: 1,
+    duration: 6,
+    minPlayers: 1,
+    maxPlayers: 20,
+    equipment: ["basketballs"],
+    setup:
+      "Use the sideline-to-sideline width of the court. Players spread out along the baseline with a ball each, about 2 meters apart. Coach stands at center court to demonstrate each movement.",
+    instructions: [
+      "Jog baseline to half court while passing the ball around your waist, then around your head on the way back.",
+      "High knees to half court while dribbling low with the right hand, switch to left hand coming back.",
+      "Walking lunges to half court — at each lunge, twist your torso and extend the ball to the outside.",
+      "Lateral slides in defensive stance to half court (ball on hip), switch direction coming back.",
+      "Frankenstein kicks (straight leg swings) to half court while bouncing the ball between your hands.",
+      "Two sets of each movement, 30 seconds rest between sets."
+    ],
+    variations: [
+      {
+        name: "Partner Mirror",
+        description:
+          "Partners face each other and mirror the movements, adding a reaction component."
+      },
+      {
+        name: "Coach Says",
+        description:
+          "Coach randomly calls the next stretch — players must listen and react quickly."
+      }
+    ],
+    coachingPoints: [
+      "Control the ball even while focusing on stretching — this builds automatic ball handling.",
+      "Full range of motion on every stretch — quality over speed.",
+      "Stay light on your feet during lateral slides, maintaining a low center of gravity."
+    ],
+    videoUrl: null,
+    skillsFocus: ["flexibility", "ball familiarity", "lateral movement"],
+    funRating: 2,
+    tags: ["warm-up", "individual"]
+  },
+  {
+    name: "Relay Races",
+    description:
+      "Teams compete in dribbling relay races through a cone course. Each player dribbles through the cones, around the end cone, and back to hand off to the next teammate. Builds dribbling speed and control in a competitive setting.",
+    category: "footwork",
+    ageGroups: ["u8", "u10", "u12", "u14", "u16", "u18"],
+    difficulty: 2,
+    duration: 8,
+    minPlayers: 6,
+    maxPlayers: 24,
+    equipment: ["basketballs", "cones"],
+    setup:
+      "Set up 2-4 parallel lines of 5-6 cones spaced 2-3 meters apart from the baseline. Each team lines up behind the baseline in a single file with one basketball per team.",
+    instructions: [
+      "Divide players into equal teams of 3-6 and line them up behind the start line.",
+      "On the whistle, the first player from each team dribbles through the cones in a zigzag pattern.",
+      "At the last cone, dribble around it and zigzag back through the cones.",
+      "Hand the ball off to the next teammate in line (no throwing).",
+      "First team to have all players complete the course wins.",
+      "If the ball is lost, the player must retrieve it and restart from the cone where they lost control."
+    ],
+    variations: [
+      {
+        name: "Weak Hand Relay",
+        description:
+          "Players must dribble with their non-dominant hand for the entire relay."
+      },
+      {
+        name: "Two-Ball Relay",
+        description:
+          "Older players dribble two balls simultaneously through the cones for an advanced challenge."
+      }
+    ],
+    coachingPoints: [
+      "Stay low and push the ball out in front when going through cones.",
+      "Use fingertip control, not your palm, when changing direction."
+    ],
+    videoUrl: null,
+    skillsFocus: ["speed dribbling", "cone navigation", "hand-off technique"],
+    funRating: 4,
+    tags: ["warm-up", "team", "competitive"]
+  },
   {
     name: "Defensive Slide Drill",
     description:
       "Players practice defensive lateral slides through a cone course, emphasizing staying low, keeping feet wide, and never crossing their feet. Builds the fundamental footwork for on-ball defense.",
     category: "footwork",
-    ageGroups: ["u8", "u10", "u12", "u14", "u16", "u19"],
-    difficulty: "beginner",
+    ageGroups: ["u8", "u10", "u12", "u14", "u16", "u18"],
+    difficulty: 2,
     duration: 6,
     minPlayers: 1,
     maxPlayers: 20,
@@ -799,105 +664,60 @@ export default [
     tags: ["individual", "fundamentals", "defense"]
   },
   {
-    name: "Pivot Work Stations",
+    name: "Figure-8 Dribbling",
     description:
-      "Players rotate through stations practicing front pivots and reverse pivots from different situations — post catches, wing catches, and dribble pickups. Builds the foundational footwork for creating space and protecting the ball.",
+      "Players dribble the ball in a figure-8 pattern through and around their legs while walking up the court. Develops advanced hand-eye coordination and the ability to handle the ball in tight spaces.",
     category: "footwork",
-    ageGroups: ["u10", "u12", "u14", "u16", "u19"],
-    difficulty: "intermediate",
+    ageGroups: ["u12", "u14", "u16", "u18"],
+    difficulty: 3,
     duration: 8,
-    minPlayers: 4,
+    minPlayers: 1,
     maxPlayers: 16,
-    equipment: ["basketballs", "cones"],
+    equipment: ["basketballs"],
     setup:
-      "Set up 4 stations around the half court: (1) low block, (2) elbow, (3) wing/free-throw line extended, (4) top of the key. Place a cone at each station. 2-4 players per station.",
+      "Players line up on the baseline with a basketball each. Use the full length of the court.",
     instructions: [
-      "Station 1 (Low Block): Catch the ball on the block, front pivot to face the basket, execute a shot fake, and go up strong.",
-      "Station 2 (Elbow): Catch at the elbow, reverse pivot to face the basket, read the defense (imaginary), and choose to shoot or drive.",
-      "Station 3 (Wing): Catch on the wing, front pivot to triple threat, then jab step right and jab step left.",
-      "Station 4 (Top of Key): Pick up your dribble, reverse pivot to protect the ball, and find an open passing lane.",
-      "Spend 90 seconds at each station, then rotate clockwise.",
-      "Complete two full rotations."
+      "Start in a wide athletic stance with knees bent.",
+      "Dribble the ball with your right hand around the outside of your right leg.",
+      "Push the ball through your legs from front to back.",
+      "Receive it with your left hand behind your left leg.",
+      "Dribble around the outside of your left leg and push through your legs front to back again.",
+      "Continue this figure-8 pattern while slowly walking from baseline to baseline.",
+      "Walk back doing the figure-8 in reverse (back to front)."
     ],
     variations: [
       {
-        name: "Add a Defender",
+        name: "Speed Walk",
         description:
-          "A partner provides light defensive pressure. The pivoting player must use pivots to create space and protect the ball."
+          "Increase walking speed each trip. Focus on maintaining the clean figure-8 pattern at higher speeds."
       },
       {
-        name: "Pivot and Pass",
+        name: "Stationary to Moving",
         description:
-          "After each pivot, the player must make a pass to a specific target. Combines pivoting with decision-making."
+          "Start with 10 stationary reps, then on the whistle begin walking. Helps players transition the skill."
       }
     ],
     coachingPoints: [
-      "Keep your pivot foot glued to the floor — lifting or sliding it is a travel.",
-      "Stay low when you pivot. A wide, low stance gives you balance and power.",
-      "Protect the ball: keep it on your hip or chin it with elbows wide.",
-      "Front pivot to face up aggressively; reverse pivot to protect and reset."
+      "Stay low — the lower your stance, the easier it is to push the ball through your legs.",
+      "Keep the dribble tight and close to your body.",
+      "Use your fingertips and wrist to guide the ball, not big arm swings."
     ],
     videoUrl: null,
-    skillsFocus: ["front pivot", "reverse pivot", "triple threat", "ball protection"],
-    funRating: 2,
-    tags: ["individual", "fundamentals", "skill-building"]
-  },
-  {
-    name: "Triple Threat Moves",
-    description:
-      "From the triple threat position (shoot, pass, or drive), players practice jab steps, shot fakes, and attack drives. The triple threat is the foundation of offensive basketball — every possession starts here.",
-    category: "footwork",
-    ageGroups: ["u12", "u14", "u16", "u19"],
-    difficulty: "intermediate",
-    duration: 10,
-    minPlayers: 2,
-    maxPlayers: 12,
-    equipment: ["basketballs", "cones"],
-    setup:
-      "Players pair up at a basket. Shooter catches the ball on the wing from a passer at the top of the key. A cone represents the defender. 2-3 pairs per basket.",
-    instructions: [
-      "Catch the ball on the wing and immediately get into triple threat position: knees bent, ball on your hip, eyes on the basket.",
-      "Jab Step Right: step aggressively with your non-pivot foot toward the basket, then pull back. Read the defense — if they drop back, pull up for the jumper.",
-      "Jab Step and Go: jab right, and if the imaginary defender doesn't react, explode past the cone for a layup.",
-      "Shot Fake and Drive: show the ball up high to fake the shot, get the defender in the air, then take one hard dribble to the basket.",
-      "Shot Fake, Jab, Crossover: fake the shot, jab right, then cross over left for a drive to the basket.",
-      "Do 5 reps of each move from both the right and left wings.",
-      "Finish each drive with a layup or pull-up jumper."
-    ],
-    variations: [
-      {
-        name: "Live 1-on-1 from Triple Threat",
-        description:
-          "Replace the cone with a live defender. The offensive player gets 2 dribbles maximum to score from triple threat."
-      },
-      {
-        name: "Read the Chair",
-        description:
-          "Coach positions a chair at different distances/angles. Player must read the distance and choose the right move."
-      }
-    ],
-    coachingPoints: [
-      "Be a triple threat on every catch — if you put the ball above your head, you have taken away the drive.",
-      "Make your jab step aggressive and long — it needs to be a real threat to work.",
-      "On the shot fake: ball goes up, knees extend slightly — sell it. Then attack low and fast.",
-      "Read the defender's feet: if they jump on the fake, drive. If they sit, shoot."
-    ],
-    videoUrl: null,
-    skillsFocus: ["triple threat", "jab step", "shot fake", "attack dribble"],
+    skillsFocus: ["coordination", "low dribble", "ambidexterity"],
     funRating: 3,
     tags: ["individual", "skill-building"]
   },
 
   // ===========================
-  // DEFENSE DRILLS (21-23)
+  // DEFENSE (17-20)
   // ===========================
   {
     name: "Closeout Drill",
     description:
       "Players practice sprinting to close out on a shooter with proper technique — short choppy steps, hand up, low stance. Then they play live 1-on-1 from the closeout. The closeout is the most important individual defensive skill in basketball.",
     category: "defense",
-    ageGroups: ["u12", "u14", "u16", "u19"],
-    difficulty: "intermediate",
+    ageGroups: ["u12", "u14", "u16", "u18"],
+    difficulty: 3,
     duration: 10,
     minPlayers: 4,
     maxPlayers: 12,
@@ -941,8 +761,8 @@ export default [
     description:
       "A 4-on-4 shell drill where the defense practices rotating to help when the ball is driven and recovering when the ball is passed. The foundation of team defense. Coaches can stop the drill at any point to teach positioning.",
     category: "defense",
-    ageGroups: ["u14", "u16", "u19"],
-    difficulty: "advanced",
+    ageGroups: ["u14", "u16", "u18"],
+    difficulty: 4,
     duration: 12,
     minPlayers: 8,
     maxPlayers: 12,
@@ -987,8 +807,8 @@ export default [
     description:
       "Live 1-on-1 defense from various court positions. The defender's only job is to prevent the score using fundamental on-ball defense — active feet, low stance, no reaching. Great for building defensive toughness and pride.",
     category: "defense",
-    ageGroups: ["u12", "u14", "u16", "u19"],
-    difficulty: "intermediate",
+    ageGroups: ["u12", "u14", "u16", "u18"],
+    difficulty: 4,
     duration: 10,
     minPlayers: 4,
     maxPlayers: 12,
@@ -1027,17 +847,63 @@ export default [
     funRating: 4,
     tags: ["individual", "competitive", "defense"]
   },
+  {
+    name: "The Gauntlet",
+    description:
+      "A player dribbles through a corridor of defenders standing in two lines, each reaching in to try to steal the ball. The dribbler must use moves, changes of pace, and body control to get through all defenders without losing the ball.",
+    category: "defense",
+    ageGroups: ["u14", "u16", "u18"],
+    difficulty: 4,
+    duration: 10,
+    minPlayers: 7,
+    maxPlayers: 16,
+    equipment: ["basketballs"],
+    setup:
+      "Place 5-7 defenders in two parallel lines along the free-throw lane, each pair about 1.5 meters apart. Defenders stand facing each other with about 2 meters of space between them forming a corridor. Dribbler starts at one end of the corridor.",
+    instructions: [
+      "The dribbler starts at the top of the corridor with the ball.",
+      "On the whistle, the dribbler attacks through the corridor while maintaining their dribble.",
+      "Defenders can reach with one hand only (no body contact or stepping into the lane) to try to knock the ball away.",
+      "The dribbler must use hesitation moves, crossovers, spin moves, and body shields to protect the ball.",
+      "If the ball is knocked away, the dribbler retrieves it and restarts from that spot.",
+      "Complete the gauntlet, finish with a layup at the basket.",
+      "Rotate: the dribbler joins the back of a defender line, the first defender becomes the next dribbler."
+    ],
+    variations: [
+      {
+        name: "Live Gauntlet",
+        description:
+          "Defenders can step into the lane and play more actively. The corridor becomes a live defensive challenge."
+      },
+      {
+        name: "Two-Ball Gauntlet",
+        description:
+          "Advanced players dribble two balls through the corridor simultaneously."
+      }
+    ],
+    coachingPoints: [
+      "Use your off arm and shoulder to shield the ball — keep your body between the defender and the ball.",
+      "Change pace through the gauntlet — don't go at one speed the whole way.",
+      "Keep the dribble low and tight when defenders are close.",
+      "Read the defender's reach and attack the opposite side.",
+      "Stay strong and balanced — don't lean away from pressure."
+    ],
+    videoUrl: null,
+    skillsFocus: ["ball protection", "contact finishing", "poise under pressure", "change of pace"],
+    funRating: 4,
+    tags: ["competitive", "team", "skill-building"]
+  },
 
   // ===========================
-  // OFF-BALL MOVEMENT (24-26)
+  // OFF-BALL MOVEMENT (21-24)
   // ===========================
   {
     name: "Cutting Drill",
     description:
       "Players practice the three basic off-ball cuts — V-cut, L-cut, and backdoor cut — to get open and receive a pass. Off-ball movement is the most undertaught and most impactful skill in youth basketball.",
-    category: "off_ball",
-    ageGroups: ["u10", "u12", "u14", "u16", "u19"],
-    difficulty: "intermediate",
+    category: "off-ball-movement",
+    ageGroups: ["u10", "u12", "u14", "u16", "u18"],
+    difficulty: 2,
     duration: 10,
     minPlayers: 3,
     maxPlayers: 12,
@@ -1078,9 +944,9 @@ export default [
     name: "Screen and Roll Basics",
     description:
       "Players learn how to set a proper screen (wide base, hands in) and how to roll to the basket after the ball handler uses the screen. The pick and roll is the most common play in basketball at every level.",
-    category: "off_ball",
-    ageGroups: ["u12", "u14", "u16", "u19"],
-    difficulty: "intermediate",
+    category: "off-ball-movement",
+    ageGroups: ["u12", "u14", "u16", "u18"],
+    difficulty: 3,
     duration: 10,
     minPlayers: 4,
     maxPlayers: 12,
@@ -1119,61 +985,105 @@ export default [
     tags: ["team", "skill-building"]
   },
   {
-    name: "Spacing Awareness",
+    name: "Pivot Work Stations",
     description:
-      "Five players work on maintaining proper floor spacing while the ball moves. When one player drives, the other four must fill specific spots. This drill teaches players to space the floor and move with purpose without the ball.",
-    category: "off_ball",
-    ageGroups: ["u14", "u16", "u19"],
-    difficulty: "intermediate",
-    duration: 12,
-    minPlayers: 5,
-    maxPlayers: 10,
+      "Players rotate through stations practicing front pivots and reverse pivots from different situations — post catches, wing catches, and dribble pickups. Builds the foundational footwork for creating space and protecting the ball.",
+    category: "off-ball-movement",
+    ageGroups: ["u10", "u12", "u14", "u16", "u18"],
+    difficulty: 3,
+    duration: 8,
+    minPlayers: 4,
+    maxPlayers: 16,
     equipment: ["basketballs", "cones"],
     setup:
-      "Mark 5 spots on the perimeter with cones: both corners, both wings, and the top of the key. One player at each spot. One ball. No defenders initially.",
+      "Set up 4 stations around the half court: (1) low block, (2) elbow, (3) wing/free-throw line extended, (4) top of the key. Place a cone at each station. 2-4 players per station.",
     instructions: [
-      "Start with all 5 players at their spots. The player at the top of the key has the ball.",
-      "Pass the ball to the right wing. The top player and the left wing player must adjust their positions — slide to fill the gap.",
-      "When the wing player drives baseline, the other four players must rotate: corner lifts to the wing, top fills the strong-side corner, weak-side wing fills the top, weak-side corner stays.",
-      "If the wing drives middle, the opposite rotation occurs: players fill behind the drive.",
-      "Practice passing out of the drive to the open player created by proper spacing.",
-      "Run 10 possessions with the coach calling out the drive direction."
+      "Station 1 (Low Block): Catch the ball on the block, front pivot to face the basket, execute a shot fake, and go up strong.",
+      "Station 2 (Elbow): Catch at the elbow, reverse pivot to face the basket, read the defense (imaginary), and choose to shoot or drive.",
+      "Station 3 (Wing): Catch on the wing, front pivot to triple threat, then jab step right and jab step left.",
+      "Station 4 (Top of Key): Pick up your dribble, reverse pivot to protect the ball, and find an open passing lane.",
+      "Spend 90 seconds at each station, then rotate clockwise.",
+      "Complete two full rotations."
     ],
     variations: [
       {
-        name: "Add Defense",
+        name: "Add a Defender",
         description:
-          "Play 5-on-5 but offense cannot dribble more than twice. Forces constant movement and proper spacing to create passing lanes."
+          "A partner provides light defensive pressure. The pivoting player must use pivots to create space and protect the ball."
       },
       {
-        name: "No Dribble Offense",
+        name: "Pivot and Pass",
         description:
-          "Offense must score without any dribbles at all. Only cutting and passing. Requires perfect spacing and timing."
+          "After each pivot, the player must make a pass to a specific target. Combines pivoting with decision-making."
       }
     ],
     coachingPoints: [
-      "Maintain about 4-5 meters between each player — too close and one defender can guard two people.",
-      "When the ball moves, you move. Every pass should trigger a reaction from all 5 players.",
-      "Fill behind the drive — if your teammate drives from the wing, drift to the open space they left.",
-      "Stay spaced on the three-point line unless you are cutting to the basket. Don't drift into the lane and clog it.",
-      "Communicate: point to where you want your teammates to go."
+      "Keep your pivot foot glued to the floor — lifting or sliding it is a travel.",
+      "Stay low when you pivot. A wide, low stance gives you balance and power.",
+      "Protect the ball: keep it on your hip or chin it with elbows wide.",
+      "Front pivot to face up aggressively; reverse pivot to protect and reset."
     ],
     videoUrl: null,
-    skillsFocus: ["floor spacing", "off-ball movement", "court awareness", "rotation"],
+    skillsFocus: ["front pivot", "reverse pivot", "triple threat", "ball protection"],
+    funRating: 2,
+    tags: ["individual", "fundamentals", "skill-building"]
+  },
+  {
+    name: "Triple Threat Moves",
+    description:
+      "From the triple threat position (shoot, pass, or drive), players practice jab steps, shot fakes, and attack drives. The triple threat is the foundation of offensive basketball — every possession starts here.",
+    category: "off-ball-movement",
+    ageGroups: ["u12", "u14", "u16", "u18"],
+    difficulty: 4,
+    duration: 10,
+    minPlayers: 2,
+    maxPlayers: 12,
+    equipment: ["basketballs", "cones"],
+    setup:
+      "Players pair up at a basket. Shooter catches the ball on the wing from a passer at the top of the key. A cone represents the defender. 2-3 pairs per basket.",
+    instructions: [
+      "Catch the ball on the wing and immediately get into triple threat position: knees bent, ball on your hip, eyes on the basket.",
+      "Jab Step Right: step aggressively with your non-pivot foot toward the basket, then pull back. Read the defense — if they drop back, pull up for the jumper.",
+      "Jab Step and Go: jab right, and if the imaginary defender doesn't react, explode past the cone for a layup.",
+      "Shot Fake and Drive: show the ball up high to fake the shot, get the defender in the air, then take one hard dribble to the basket.",
+      "Shot Fake, Jab, Crossover: fake the shot, jab right, then cross over left for a drive to the basket.",
+      "Do 5 reps of each move from both the right and left wings.",
+      "Finish each drive with a layup or pull-up jumper."
+    ],
+    variations: [
+      {
+        name: "Live 1-on-1 from Triple Threat",
+        description:
+          "Replace the cone with a live defender. The offensive player gets 2 dribbles maximum to score from triple threat."
+      },
+      {
+        name: "Read the Chair",
+        description:
+          "Coach positions a chair at different distances/angles. Player must read the distance and choose the right move."
+      }
+    ],
+    coachingPoints: [
+      "Be a triple threat on every catch — if you put the ball above your head, you have taken away the drive.",
+      "Make your jab step aggressive and long — it needs to be a real threat to work.",
+      "On the shot fake: ball goes up, knees extend slightly — sell it. Then attack low and fast.",
+      "Read the defender's feet: if they jump on the fake, drive. If they sit, shoot."
+    ],
+    videoUrl: null,
+    skillsFocus: ["triple threat", "jab step", "shot fake", "attack dribble"],
     funRating: 3,
-    tags: ["team", "skill-building"]
+    tags: ["individual", "skill-building"]
   },
 
   // ===========================
-  // TEAM PLAY DRILLS (27-28)
+  // TEAM PLAY (25-27)
   // ===========================
   {
     name: "3-on-2 Fast Break",
     description:
       "Three offensive players attack two defenders in transition, learning to push the ball quickly, make quick decisions, and finish before the defense recovers. The numbers advantage forces the offense to find and exploit the open player.",
-    category: "team_play",
-    ageGroups: ["u12", "u14", "u16", "u19"],
-    difficulty: "intermediate",
+    category: "team-play",
+    ageGroups: ["u12", "u14", "u16", "u18"],
+    difficulty: 3,
     duration: 12,
     minPlayers: 5,
     maxPlayers: 15,
@@ -1218,9 +1128,9 @@ export default [
     name: "Half-Court Motion Offense",
     description:
       "Players learn basic motion offense principles: pass and cut, screen away, fill empty spots. There is no set play — players read and react to each other and the defense. Develops basketball IQ, unselfishness, and teamwork.",
-    category: "team_play",
-    ageGroups: ["u14", "u16", "u19"],
-    difficulty: "advanced",
+    category: "team-play",
+    ageGroups: ["u14", "u16", "u18"],
+    difficulty: 4,
     duration: 15,
     minPlayers: 5,
     maxPlayers: 12,
@@ -1261,17 +1171,62 @@ export default [
     funRating: 4,
     tags: ["team", "skill-building"]
   },
+  {
+    name: "Spacing Awareness",
+    description:
+      "Five players work on maintaining proper floor spacing while the ball moves. When one player drives, the other four must fill specific spots. This drill teaches players to space the floor and move with purpose without the ball.",
+    category: "team-play",
+    ageGroups: ["u14", "u16", "u18"],
+    difficulty: 4,
+    duration: 12,
+    minPlayers: 5,
+    maxPlayers: 10,
+    equipment: ["basketballs", "cones"],
+    setup:
+      "Mark 5 spots on the perimeter with cones: both corners, both wings, and the top of the key. One player at each spot. One ball. No defenders initially.",
+    instructions: [
+      "Start with all 5 players at their spots. The player at the top of the key has the ball.",
+      "Pass the ball to the right wing. The top player and the left wing player must adjust their positions — slide to fill the gap.",
+      "When the wing player drives baseline, the other four players must rotate: corner lifts to the wing, top fills the strong-side corner, weak-side wing fills the top, weak-side corner stays.",
+      "If the wing drives middle, the opposite rotation occurs: players fill behind the drive.",
+      "Practice passing out of the drive to the open player created by proper spacing.",
+      "Run 10 possessions with the coach calling out the drive direction."
+    ],
+    variations: [
+      {
+        name: "Add Defense",
+        description:
+          "Play 5-on-5 but offense cannot dribble more than twice. Forces constant movement and proper spacing to create passing lanes."
+      },
+      {
+        name: "No Dribble Offense",
+        description:
+          "Offense must score without any dribbles at all. Only cutting and passing. Requires perfect spacing and timing."
+      }
+    ],
+    coachingPoints: [
+      "Maintain about 4-5 meters between each player — too close and one defender can guard two people.",
+      "When the ball moves, you move. Every pass should trigger a reaction from all 5 players.",
+      "Fill behind the drive — if your teammate drives from the wing, drift to the open space they left.",
+      "Stay spaced on the three-point line unless you are cutting to the basket. Don't drift into the lane and clog it.",
+      "Communicate: point to where you want your teammates to go."
+    ],
+    videoUrl: null,
+    skillsFocus: ["floor spacing", "off-ball movement", "court awareness", "rotation"],
+    funRating: 3,
+    tags: ["team", "skill-building"]
+  },
 
   // ===========================
-  // BASKETBALL IQ DRILLS (29-30)
+  // BASKETBALL IQ (28-30)
   // ===========================
   {
     name: "Decision Making Game",
     description:
       "Players are in groups. The coach assigns each player a number. During live play, the coach calls numbers to create different offensive and defensive situations. Players must quickly recognize the advantage (or disadvantage) and make the right play.",
-    category: "basketball_iq",
-    ageGroups: ["u10", "u12", "u14", "u16", "u19"],
-    difficulty: "intermediate",
+    category: "basketball-iq",
+    ageGroups: ["u10", "u12", "u14", "u16", "u18"],
+    difficulty: 2,
     duration: 10,
     minPlayers: 6,
     maxPlayers: 14,
@@ -1314,9 +1269,9 @@ export default [
     name: "Read and React Scenarios",
     description:
       "The coach sets up specific game situations (e.g., down 2 with 30 seconds left, inbounding against a press), then freezes play to quiz players on the correct read. Builds basketball IQ by teaching players to think through situations before they happen in games.",
-    category: "basketball_iq",
-    ageGroups: ["u14", "u16", "u19"],
-    difficulty: "advanced",
+    category: "basketball-iq",
+    ageGroups: ["u14", "u16", "u18"],
+    difficulty: 4,
     duration: 12,
     minPlayers: 5,
     maxPlayers: 12,
@@ -1356,5 +1311,46 @@ export default [
     skillsFocus: ["basketball IQ", "situational awareness", "decision making", "game management"],
     funRating: 3,
     tags: ["team", "basketball-iq", "skill-building"]
+  },
+  {
+    name: "Musical Basketballs",
+    description:
+      "Just like musical chairs, but with basketballs! Players dribble around a circle of balls. When the music or whistle stops, everyone grabs a ball and starts dribbling. The player without a ball is out. Teaches quick reactions and ball control.",
+    category: "basketball-iq",
+    ageGroups: ["u8", "u10", "u12"],
+    difficulty: 2,
+    duration: 5,
+    minPlayers: 5,
+    maxPlayers: 15,
+    equipment: ["basketballs", "cones", "speaker (optional)"],
+    setup:
+      "Place basketballs in a circle in the center of the court. Use one fewer ball than the number of players. Mark a jogging circle around the balls with cones.",
+    instructions: [
+      "Players jog around the circle of basketballs while music plays (or while the coach counts).",
+      "When the music stops or the coach blows the whistle, each player grabs the nearest ball and starts dribbling.",
+      "The player left without a ball is eliminated and becomes a cheerleader on the side.",
+      "Remove one ball each round and repeat.",
+      "Last player standing wins!"
+    ],
+    variations: [
+      {
+        name: "Dribble Around",
+        description:
+          "Instead of jogging, players must dribble a shared ball in pairs around the circle, adding coordination."
+      },
+      {
+        name: "Skill Challenge Re-Entry",
+        description:
+          "Eliminated players can earn their way back by completing a challenge (e.g., make a free throw)."
+      }
+    ],
+    coachingPoints: [
+      "Pick up the ball quickly and get into a low dribble stance right away.",
+      "Keep your head up so you can see where the open balls are."
+    ],
+    videoUrl: null,
+    skillsFocus: ["quick reactions", "ball pickup", "dribble stance"],
+    funRating: 5,
+    tags: ["warm-up", "team", "competitive", "fun"]
   }
 ];

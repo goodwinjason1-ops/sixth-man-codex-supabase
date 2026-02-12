@@ -1,11 +1,11 @@
 import React from 'react';
 import { Clock, Users, Star } from 'lucide-react';
-import { DRILL_CATEGORIES, CATEGORY_COLORS, DIFFICULTY_COLORS } from '../../constants/drills';
+import { DRILL_CATEGORIES, CATEGORY_COLORS, DIFFICULTY_LEVELS } from '../../constants/drills';
 
 const DrillCard = ({ drill, onClick }) => {
   const category = DRILL_CATEGORIES[drill.category] || {};
   const colorSet = CATEGORY_COLORS[category.color] || CATEGORY_COLORS.blue;
-  const difficultyStyle = DIFFICULTY_COLORS[drill.difficulty] || '';
+  const diffLevel = DIFFICULTY_LEVELS[drill.difficulty] || DIFFICULTY_LEVELS[1];
 
   const renderStars = (rating) => {
     const stars = [];
@@ -31,8 +31,8 @@ const DrillCard = ({ drill, onClick }) => {
         <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${colorSet.badge}`}>
           {category.label}
         </span>
-        <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${difficultyStyle}`}>
-          {drill.difficulty}
+        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${diffLevel.badge}`}>
+          {diffLevel.short} — {diffLevel.label}
         </span>
       </div>
 

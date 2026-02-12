@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchDrill, rateDrill, incrementDrillUsage } from '../services/drillService';
-import { DRILL_CATEGORIES, CATEGORY_COLORS, DIFFICULTY_COLORS, DRILL_EDIT_ROLES } from '../constants/drills';
+import { DRILL_CATEGORIES, CATEGORY_COLORS, DIFFICULTY_LEVELS, DRILL_EDIT_ROLES } from '../constants/drills';
 import { ADMIN_ROLES } from '../constants/roles';
 import PageShell from '../components/PageShell';
 import Breadcrumb from '../components/Breadcrumb';
@@ -81,7 +81,7 @@ const DrillDetailPage = () => {
 
   const category = DRILL_CATEGORIES[drill.category] || {};
   const colorSet = CATEGORY_COLORS[category.color] || CATEGORY_COLORS.blue;
-  const difficultyStyle = DIFFICULTY_COLORS[drill.difficulty] || '';
+  const diffLevel = DIFFICULTY_LEVELS[drill.difficulty] || DIFFICULTY_LEVELS[1];
 
   return (
     <div className="min-h-screen bg-[#F5F9F5]">
@@ -104,8 +104,8 @@ const DrillDetailPage = () => {
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colorSet.badge}`}>
                   {category.label}
                 </span>
-                <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${difficultyStyle}`}>
-                  {drill.difficulty}
+                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${diffLevel.badge}`}>
+                  {diffLevel.short} — {diffLevel.label}
                 </span>
                 <span className="flex items-center gap-1 text-green-200 text-sm">
                   <Clock className="w-4 h-4" /> {drill.duration} min

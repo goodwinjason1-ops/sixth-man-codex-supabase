@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, GripVertical, ChevronUp, ChevronDown, Eye, ArrowLeft } from 'lucide-react';
-import { DRILL_CATEGORIES, DIFFICULTY_COLORS, AGE_GROUPS, EQUIPMENT_OPTIONS, TAG_OPTIONS } from '../../constants/drills';
+import { DRILL_CATEGORIES, CATEGORY_COLORS, DIFFICULTY_LEVELS, AGE_GROUPS, EQUIPMENT_OPTIONS, TAG_OPTIONS } from '../../constants/drills';
 import PageShell from '../PageShell';
 
 const FUN_EMOJIS = ['😐', '🙂', '😊', '😄', '🤩'];
@@ -11,9 +11,9 @@ const DrillForm = ({ initialData, onSubmit, title, backPath = '/drills' }) => {
   const [form, setForm] = useState({
     name: '',
     description: '',
-    category: 'ball_handling',
+    category: 'ball-handling',
     ageGroups: [],
-    difficulty: 'beginner',
+    difficulty: 1,
     duration: 10,
     minPlayers: 2,
     maxPlayers: 12,
@@ -94,6 +94,7 @@ const DrillForm = ({ initialData, onSubmit, title, backPath = '/drills' }) => {
         minPlayers: Number(form.minPlayers),
         maxPlayers: Number(form.maxPlayers),
         funRating: Number(form.funRating),
+        difficulty: Number(form.difficulty),
       };
       await onSubmit(cleanedForm);
     } finally {
@@ -101,7 +102,12 @@ const DrillForm = ({ initialData, onSubmit, title, backPath = '/drills' }) => {
     }
   };
 
+  const currentDiffLevel = DIFFICULTY_LEVELS[form.difficulty] || DIFFICULTY_LEVELS[1];
+
   if (preview) {
+    const previewDiff = DIFFICULTY_LEVELS[form.difficulty] || DIFFICULTY_LEVELS[1];
+    const previewCat = DRILL_CATEGORIES[form.category];
+    const previewColor = CATEGORY_COLORS[previewCat?.color] || CATEGORY_COLORS.blue;
     return (
       <PageShell title="Preview Drill" backPath={null}>
         <div className="max-w-3xl mx-auto">
@@ -112,11 +118,11 @@ const DrillForm = ({ initialData, onSubmit, title, backPath = '/drills' }) => {
             <h1 className="text-2xl font-bold text-gray-800">{form.name || 'Untitled Drill'}</h1>
             <p className="text-[#6B7C6B]">{form.description}</p>
             <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                {DRILL_CATEGORIES[form.category]?.label}
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${previewColor.badge}`}>
+                {previewCat?.label}
               </span>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium border ${DIFFICULTY_COLORS[form.difficulty]}`}>
-                {form.difficulty}
+              <span className={`px-3 py-1 rounded-full text-sm font-semibold border ${previewDiff.badge}`}>
+                {previewDiff.short} — {previewDiff.label}
               </span>
               <span className="px-3 py-1 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full text-sm">{form.duration} min</span>
             </div>
@@ -177,31 +183,43 @@ const DrillForm = ({ initialData, onSubmit, title, backPath = '/drills' }) => {
 
         {/* Category & Difficulty */}
         <Section title="Classification">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="block">
-              <span className="text-sm font-medium text-gray-700">Category *</span>
-              <select
-                value={form.category}
-                onChange={e => updateField('category', e.target.value)}
-                className="mt-1 w-full px-4 py-3 border border-[#D4E4D4] rounded-lg focus:ring-2 focus:ring-[#00A651] focus:border-transparent outline-none bg-white"
-              >
-                {Object.entries(DRILL_CATEGORIES).map(([key, cat]) => (
-                  <option key={key} value={key}>{cat.label}</option>
-                ))}
-              </select>
-            </label>
-            <label className="block">
-              <span className="text-sm font-medium text-gray-700">Difficulty *</span>
-              <select
-                value={form.difficulty}
-                onChange={e => updateField('difficulty', e.target.value)}
-                className="mt-1 w-full px-4 py-3 border border-[#D4E4D4] rounded-lg focus:ring-2 focus:ring-[#00A651] focus:border-transparent outline-none bg-white"
-              >
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="advanced">Advanced</option>
-              </select>
-            </label>
+          <label className="block mb-4">
+            <span className="text-sm font-medium text-gray-700">Skill Category *</span>
+            <select
+              value={form.category}
+              onChange={e => updateField('category', e.target.value)}
+              className="mt-1 w-full px-4 py-3 border border-[#D4E4D4] rounded-lg focus:ring-2 focus:ring-[#00A651] focus:border-transparent outline-none bg-white"
+            >
+              {Object.entries(DRILL_CATEGORIES).map(([key, cat]) => (
+                <option key={key} value={key}>{cat.label}</option>
+              ))}
+            </select>
+          </label>
+
+          {/* Difficulty Level — 1-4 buttons matching assessment scale */}
+          <div>
+            <span className="text-sm font-medium text-gray-700">Difficulty Level *</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+              {Object.entries(DIFFICULTY_LEVELS).map(([level, info]) => {
+                const numLevel = Number(level);
+                const isSelected = form.difficulty === numLevel;
+                return (
+                  <button
+                    key={level}
+                    type="button"
+                    onClick={() => updateField('difficulty', numLevel)}
+                    className={`px-3 py-3 rounded-lg text-sm font-semibold border-2 transition-all ${
+                      isSelected
+                        ? `${info.bg} ${info.text} border-transparent ring-2 ring-[#00A651] ring-offset-1`
+                        : 'bg-white text-gray-600 border-[#D4E4D4] hover:border-[#00A651]'
+                    }`}
+                  >
+                    <div className="text-xs opacity-70">{info.short}</div>
+                    <div>{info.label}</div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Age Groups */}
