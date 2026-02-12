@@ -29,7 +29,8 @@ import {
   AlertCircle,
   Database,
   ClipboardCheck,
-  UserPlus
+  UserPlus,
+  ShieldCheck
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
 import HelpTooltip from '../components/tutorial/HelpTooltip';
@@ -271,6 +272,14 @@ const AdminDashboard = () => {
       icon: AlertCircle,
       path: '/admin/data-cleanup',
       color: 'from-rose-500 to-rose-600'
+    },
+    {
+      id: 'coach-compliance',
+      title: 'Coach Compliance',
+      description: 'Accreditation tracking & expiry alerts',
+      icon: ShieldCheck,
+      path: '/admin/coach-compliance',
+      color: 'from-emerald-500 to-green-600'
     },
     {
       id: 'sample-data',

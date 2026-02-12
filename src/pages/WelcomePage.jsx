@@ -26,7 +26,8 @@ import {
   MapPin,
   Clock,
   ChevronRight,
-  HelpCircle
+  HelpCircle,
+  ShieldCheck
 } from 'lucide-react';
 
 const WelcomePage = () => {
@@ -166,6 +167,13 @@ const WelcomePage = () => {
           icon: Award,
           path: '/admin/youth-programs',
           description: 'Little Lakers & Lakers Ready'
+        },
+        {
+          id: 'coach-compliance',
+          title: 'Coach Compliance',
+          icon: ShieldCheck,
+          path: '/admin/coach-compliance',
+          description: 'Track accreditations'
         },
         {
           id: 'profile',

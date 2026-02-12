@@ -57,6 +57,7 @@ import UserManagementPage from './pages/admin/UserManagementPage';
 import TeamManagementPage from './pages/admin/TeamManagementPage';
 import ActivityLogPage from './pages/admin/ActivityLogPage';
 import AssessmentMetricsPage from './pages/admin/AssessmentMetricsPage';
+import CoachCompliancePage from './pages/admin/CoachCompliancePage';
 import HelpHome from './pages/help/HelpHome';
 import AdminHelp from './pages/help/AdminHelp';
 import LeadershipHelp from './pages/help/LeadershipHelp';
@@ -672,6 +673,17 @@ const AppRoutes = () => {
           <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
             <ErrorBoundary fallbackMessage="Unable to load assessment metrics.">
               <AssessmentMetricsPage />
+            </ErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/coach-compliance"
+        element={
+          <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
+            <ErrorBoundary fallbackMessage="Unable to load coach compliance.">
+              <CoachCompliancePage />
             </ErrorBoundary>
           </ProtectedRoute>
         }

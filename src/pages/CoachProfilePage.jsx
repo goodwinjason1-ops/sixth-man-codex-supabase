@@ -1,10 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
+import { db } from '../services/firebase';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import {
   User,
   Award,
+  Heart,
+  ShieldCheck,
   Trophy,
   Users,
   TrendingUp,
@@ -20,7 +24,8 @@ import {
   Dumbbell,
   Shield,
   Star,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
 import {
   BarChart,
@@ -36,13 +41,10 @@ import {
 } from 'recharts';
 import PageShell from '../components/PageShell';
 
-// Sample data for coaches without real data
-const sampleAccreditations = [
-  { id: '1', name: 'Level 2 Basketball Coach', issuer: 'Basketball Australia', expiryDate: '2027-03-15', status: 'active' },
-  { id: '2', name: 'First Aid Certificate', issuer: 'St John Ambulance', expiryDate: '2025-08-20', status: 'expiring' },
-  { id: '3', name: 'Working with Children Check', issuer: 'NSW Government', expiryDate: '2028-01-10', status: 'active' },
-  { id: '4', name: 'CPR Certification', issuer: 'Red Cross', expiryDate: '2024-12-01', status: 'expired' }
-];
+// Coaching level options
+const COACHING_LEVELS = ['Community Coach', 'Development Coach', 'State Level', 'High Performance'];
+const FIRST_AID_LEVELS = ['CPR Only', 'Level 1', 'Level 2'];
+const AUSTRALIAN_STATES = ['VIC', 'NSW', 'QLD', 'SA', 'WA', 'TAS', 'NT', 'ACT'];
 
 const sampleCoachingRecord = {
   totalGames: 87,
@@ -90,7 +92,7 @@ const CHART_COLORS = ['#22c55e', '#ef4444', '#eab308'];
 const CoachProfilePage = () => {
   const navigate = useNavigate();
   const { userProfile, currentUser } = useAuth();
-  const { games, evaluations, teams, players } = useData();
+  const { games, evaluations, teams, players, addDocument, updateDocument } = useData();
 
   // Derive teams coached from Firestore teams collection
   const teamsCoached = useMemo(() => {
@@ -120,15 +122,34 @@ const CoachProfilePage = () => {
     };
   }, [players, teams, currentUser]);
 
-  // Accreditation management state
-  const [accreditations, setAccreditations] = useState(sampleAccreditations);
-  const [showAddAccreditation, setShowAddAccreditation] = useState(false);
-  const [editingAccreditation, setEditingAccreditation] = useState(null);
-  const [newAccreditation, setNewAccreditation] = useState({
-    name: '',
-    issuer: '',
-    expiryDate: ''
-  });
+  // Accreditation state (Firestore-backed)
+  const [accreditation, setAccreditation] = useState(null);
+  const [accredDocId, setAccredDocId] = useState(null);
+  const [accredLoading, setAccredLoading] = useState(true);
+  const [editingSection, setEditingSection] = useState(null); // 'coaching' | 'firstAid' | 'wwcc'
+  const [editForm, setEditForm] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Load accreditations from Firestore
+  useEffect(() => {
+    if (!currentUser) return;
+    const q = query(
+      collection(db, 'coach_accreditations'),
+      where('coachId', '==', currentUser.uid)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      if (!snap.empty) {
+        const docSnap = snap.docs[0];
+        setAccreditation(docSnap.data());
+        setAccredDocId(docSnap.id);
+      } else {
+        setAccreditation(null);
+        setAccredDocId(null);
+      }
+      setAccredLoading(false);
+    });
+    return () => unsub();
+  }, [currentUser]);
 
   // Calculate coaching record from real data or use sample
   const coachingRecord = useMemo(() => {
@@ -177,12 +198,13 @@ const CoachProfilePage = () => {
       case 'active': return 'bg-[#22c55e]/20 text-[#4ade80] border-[#22c55e]';
       case 'expiring': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500';
       case 'expired': return 'bg-red-500/20 text-red-400 border-red-500';
-      default: return 'bg-[#1a8a68]/20 text-[#4ade80] border-[#1a8a68]';
+      default: return 'bg-gray-500/20 text-gray-400 border-gray-500';
     }
   };
 
   // Check if certification is expiring soon (within 3 months)
   const checkExpiryStatus = (expiryDate) => {
+    if (!expiryDate) return 'not_set';
     const expiry = new Date(expiryDate);
     const today = new Date();
     const threeMonthsFromNow = new Date();
@@ -193,24 +215,118 @@ const CoachProfilePage = () => {
     return 'active';
   };
 
-  // Handle add accreditation
-  const handleAddAccreditation = () => {
-    if (!newAccreditation.name || !newAccreditation.issuer) return;
-
-    const accreditation = {
-      id: Date.now().toString(),
-      ...newAccreditation,
-      status: newAccreditation.expiryDate ? checkExpiryStatus(newAccreditation.expiryDate) : 'active'
-    };
-
-    setAccreditations(prev => [...prev, accreditation]);
-    setNewAccreditation({ name: '', issuer: '', expiryDate: '' });
-    setShowAddAccreditation(false);
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'active': return 'Valid';
+      case 'expiring': return 'Expiring Soon';
+      case 'expired': return 'Expired';
+      default: return 'Not Set';
+    }
   };
 
-  // Handle delete accreditation
-  const handleDeleteAccreditation = (id) => {
-    setAccreditations(prev => prev.filter(a => a.id !== id));
+  // Compute warnings for expiring/expired accreditations
+  const accredWarnings = useMemo(() => {
+    if (!accreditation) return [];
+    const warnings = [];
+    const sections = [
+      { key: 'coaching', label: 'Coaching' },
+      { key: 'firstAid', label: 'First Aid' },
+      { key: 'wwcc', label: 'WWCC' },
+    ];
+    sections.forEach(({ key, label }) => {
+      const section = accreditation[key];
+      if (!section?.expiryDate) return;
+      const status = checkExpiryStatus(section.expiryDate);
+      if (status === 'expired') {
+        warnings.push({ type: 'expired', label, date: section.expiryDate });
+      } else if (status === 'expiring') {
+        warnings.push({ type: 'expiring', label, date: section.expiryDate });
+      }
+    });
+    return warnings;
+  }, [accreditation]);
+
+  // Handle editing a section
+  const startEditing = (section) => {
+    const data = accreditation?.[section] || {};
+    setEditForm({
+      level: data.level || '',
+      certificateNumber: data.certificateNumber || data.checkNumber || '',
+      issueDate: data.issueDate || '',
+      expiryDate: data.expiryDate || '',
+      state: data.state || 'VIC',
+    });
+    setEditingSection(section);
+  };
+
+  // Save accreditation section
+  const handleSaveSection = async () => {
+    if (!currentUser) return;
+    setIsSaving(true);
+    try {
+      const sectionData = {};
+      if (editingSection === 'coaching') {
+        sectionData.coaching = {
+          level: editForm.level,
+          certificateNumber: editForm.certificateNumber,
+          issueDate: editForm.issueDate,
+          expiryDate: editForm.expiryDate,
+        };
+      } else if (editingSection === 'firstAid') {
+        sectionData.firstAid = {
+          level: editForm.level,
+          certificateNumber: editForm.certificateNumber,
+          issueDate: editForm.issueDate,
+          expiryDate: editForm.expiryDate,
+        };
+      } else if (editingSection === 'wwcc') {
+        sectionData.wwcc = {
+          checkNumber: editForm.certificateNumber,
+          issueDate: editForm.issueDate,
+          expiryDate: editForm.expiryDate,
+          state: editForm.state,
+        };
+      }
+
+      // Compute overall status
+      const merged = { ...accreditation, ...sectionData };
+      const statuses = ['coaching', 'firstAid', 'wwcc'].map(k => {
+        const s = merged[k];
+        return s?.expiryDate ? checkExpiryStatus(s.expiryDate) : 'not_set';
+      });
+      const overallStatus = statuses.includes('expired') ? 'expired'
+        : statuses.includes('expiring') ? 'expiring'
+        : statuses.includes('not_set') ? 'incomplete'
+        : 'compliant';
+
+      const payload = {
+        ...sectionData,
+        status: overallStatus,
+        updatedAt: new Date().toISOString(),
+        updatedBy: currentUser.uid,
+      };
+
+      if (accredDocId) {
+        await updateDocument('coach_accreditations', accredDocId, payload);
+      } else {
+        await addDocument('coach_accreditations', {
+          coachId: currentUser.uid,
+          coachName: userProfile?.displayName || 'Unknown Coach',
+          coaching: { level: '', certificateNumber: '', issueDate: '', expiryDate: '' },
+          firstAid: { level: '', certificateNumber: '', issueDate: '', expiryDate: '' },
+          wwcc: { checkNumber: '', issueDate: '', expiryDate: '', state: 'VIC' },
+          ...sectionData,
+          status: overallStatus,
+          updatedAt: new Date().toISOString(),
+          updatedBy: currentUser.uid,
+        });
+      }
+      setEditingSection(null);
+    } catch (err) {
+      console.error('Failed to save accreditation:', err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Get activity icon
@@ -232,6 +348,139 @@ const CoachProfilePage = () => {
   // Years coaching (sample - would come from profile)
   const yearsCoaching = userProfile?.yearsCoaching || 5;
   const currentSeason = '2025/2026';
+
+  // Render an accreditation card (coaching, firstAid, or wwcc)
+  const renderAccredCard = ({ key, icon: Icon, title, data, levelLabel, certLabel, certValue }) => {
+    const status = data?.expiryDate ? checkExpiryStatus(data.expiryDate) : 'not_set';
+    const isEditing = editingSection === key;
+
+    return (
+      <div key={key} className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
+              <Icon className="w-4 h-4 text-[#4ade80]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-white font-medium text-sm">{title}</h3>
+                <span className="text-[#1a8a68] text-xs">— {levelLabel}</span>
+              </div>
+              {data?.expiryDate && (
+                <p className="text-[#1a8a68] text-xs mt-0.5">
+                  {certLabel}: {certValue || 'N/A'} &bull; {data.issueDate ? formatDate(data.issueDate) : '?'} → {formatDate(data.expiryDate)}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${getStatusColor(status)}`}>
+              {getStatusLabel(status)}
+            </span>
+            {!isEditing && (
+              <button
+                onClick={() => startEditing(key)}
+                className="p-1.5 text-[#4ade80] hover:bg-[#0a3d2e] rounded-lg transition-colors"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Inline Edit Form */}
+        {isEditing && (
+          <div className="mt-3 p-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl space-y-3">
+            {key === 'coaching' && (
+              <div>
+                <label className="text-[#1a8a68] text-xs block mb-1">Coaching Level</label>
+                <select
+                  value={editForm.level}
+                  onChange={(e) => setEditForm(f => ({ ...f, level: e.target.value }))}
+                  className="w-full px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                >
+                  <option value="">Select level...</option>
+                  {COACHING_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+                </select>
+              </div>
+            )}
+            {key === 'firstAid' && (
+              <div>
+                <label className="text-[#1a8a68] text-xs block mb-1">First Aid Level</label>
+                <select
+                  value={editForm.level}
+                  onChange={(e) => setEditForm(f => ({ ...f, level: e.target.value }))}
+                  className="w-full px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                >
+                  <option value="">Select level...</option>
+                  {FIRST_AID_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+                </select>
+              </div>
+            )}
+            {key === 'wwcc' && (
+              <div>
+                <label className="text-[#1a8a68] text-xs block mb-1">State</label>
+                <select
+                  value={editForm.state}
+                  onChange={(e) => setEditForm(f => ({ ...f, state: e.target.value }))}
+                  className="w-full px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                >
+                  {AUSTRALIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+            )}
+            <div>
+              <label className="text-[#1a8a68] text-xs block mb-1">{key === 'wwcc' ? 'Check Number' : 'Certificate Number'}</label>
+              <input
+                type="text"
+                value={editForm.certificateNumber}
+                onChange={(e) => setEditForm(f => ({ ...f, certificateNumber: e.target.value }))}
+                className="w-full px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
+                placeholder={key === 'wwcc' ? 'e.g. WWC12345678' : 'e.g. CERT-12345'}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[#1a8a68] text-xs block mb-1">Issue Date</label>
+                <input
+                  type="date"
+                  value={editForm.issueDate}
+                  onChange={(e) => setEditForm(f => ({ ...f, issueDate: e.target.value }))}
+                  className="w-full px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-[#1a8a68] text-xs block mb-1">Expiry Date</label>
+                <input
+                  type="date"
+                  value={editForm.expiryDate}
+                  onChange={(e) => setEditForm(f => ({ ...f, expiryDate: e.target.value }))}
+                  className="w-full px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={handleSaveSection}
+                disabled={isSaving}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#22c55e] rounded-lg text-[#0a3d2e] text-sm font-medium hover:bg-[#4ade80] transition-colors disabled:opacity-50"
+              >
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                Save
+              </button>
+              <button
+                onClick={() => setEditingSection(null)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-transparent border border-[#1a8a68] rounded-lg text-white text-sm hover:bg-[#1a8a68]/20 transition-colors"
+              >
+                <X className="w-4 h-4" />
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <PageShell
@@ -280,101 +529,89 @@ const CoachProfilePage = () => {
 
       <div className="space-y-6">
         {/* Accreditations & Certifications */}
-        <div className="bg-[#0d5943] border-2 border-[#1a8a68] rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
-                <Award className="w-5 h-5 text-[#4ade80]" />
-              </div>
-              <div>
-                <h2 className="text-white font-semibold">Accreditations & Certifications</h2>
-                <p className="text-[#1a8a68] text-xs">{accreditations.length} qualifications</p>
-              </div>
+        <div className="space-y-3">
+          {/* Section Header */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg flex items-center justify-center">
+              <Award className="w-5 h-5 text-[#4ade80]" />
             </div>
-            <button
-              onClick={() => setShowAddAccreditation(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0a3d2e] border border-[#1a8a68] rounded-lg text-[#4ade80] text-sm hover:border-[#22c55e] transition-colors"
+            <div>
+              <h2 className="text-white font-semibold">Accreditations & Certifications</h2>
+              <p className="text-[#1a8a68] text-xs">Coaching, First Aid & WWCC</p>
+            </div>
+          </div>
+
+          {/* Warning Banners */}
+          {accredWarnings.map((w, i) => (
+            <div
+              key={i}
+              className={`flex items-center gap-3 p-3 rounded-xl border ${
+                w.type === 'expired'
+                  ? 'bg-red-500/10 border-red-500/50 text-red-400'
+                  : 'bg-yellow-500/10 border-yellow-500/50 text-yellow-400'
+              }`}
             >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Add</span>
-            </button>
-          </div>
-
-          {/* Add Accreditation Form */}
-          {showAddAccreditation && (
-            <div className="mb-4 p-4 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-                <input
-                  type="text"
-                  placeholder="Qualification name"
-                  value={newAccreditation.name}
-                  onChange={(e) => setNewAccreditation(prev => ({ ...prev, name: e.target.value }))}
-                  className="px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
-                />
-                <input
-                  type="text"
-                  placeholder="Issuing organization"
-                  value={newAccreditation.issuer}
-                  onChange={(e) => setNewAccreditation(prev => ({ ...prev, issuer: e.target.value }))}
-                  className="px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm placeholder-[#1a8a68] focus:border-[#22c55e] focus:outline-none"
-                />
-                <input
-                  type="date"
-                  placeholder="Expiry date"
-                  value={newAccreditation.expiryDate}
-                  onChange={(e) => setNewAccreditation(prev => ({ ...prev, expiryDate: e.target.value }))}
-                  className="px-3 py-2 bg-[#0d5943] border border-[#1a8a68] rounded-lg text-white text-sm focus:border-[#22c55e] focus:outline-none"
-                />
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleAddAccreditation}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#22c55e] rounded-lg text-[#0a3d2e] text-sm font-medium hover:bg-[#4ade80] transition-colors"
-                >
-                  <Check className="w-4 h-4" />
-                  Save
-                </button>
-                <button
-                  onClick={() => {
-                    setShowAddAccreditation(false);
-                    setNewAccreditation({ name: '', issuer: '', expiryDate: '' });
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-transparent border border-[#1a8a68] rounded-lg text-white text-sm hover:bg-[#1a8a68]/20 transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                  Cancel
-                </button>
-              </div>
+              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+              <p className="text-sm">
+                {w.type === 'expired'
+                  ? `Your ${w.label} has expired. Please renew immediately.`
+                  : `Your ${w.label} expires on ${formatDate(w.date)}. Please update.`}
+              </p>
             </div>
-          )}
+          ))}
 
-          {/* Accreditations List */}
-          <div className="space-y-2">
-            {accreditations.map((accred) => (
-              <div
-                key={accred.id}
-                className="flex items-center justify-between p-3 bg-[#0a3d2e] border border-[#1a8a68] rounded-xl"
+          {accredLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 text-[#4ade80] animate-spin" />
+            </div>
+          ) : !accreditation ? (
+            <div className="bg-[#0d5943] border-2 border-dashed border-[#1a8a68] rounded-2xl p-8 text-center">
+              <ShieldCheck className="w-10 h-10 text-[#1a8a68] mx-auto mb-3" />
+              <p className="text-white font-medium mb-1">No accreditations on file</p>
+              <p className="text-[#1a8a68] text-sm mb-4">Set up your coaching, first aid, and WWCC details.</p>
+              <button
+                onClick={() => startEditing('coaching')}
+                className="px-4 py-2 bg-[#22c55e] rounded-lg text-[#0a3d2e] text-sm font-medium hover:bg-[#4ade80] transition-colors"
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-white font-medium text-sm truncate">{accred.name}</h3>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${getStatusColor(accred.status)}`}>
-                      {accred.status === 'active' ? 'Active' : accred.status === 'expiring' ? 'Expiring Soon' : 'Expired'}
-                    </span>
-                  </div>
-                  <p className="text-[#1a8a68] text-xs mt-1">
-                    {accred.issuer} • {accred.expiryDate ? `Expires ${formatDate(accred.expiryDate)}` : 'No expiry'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => handleDeleteAccreditation(accred.id)}
-                  className="ml-2 p-1.5 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-          </div>
+                Set Up Accreditations
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Coaching Card */}
+              {renderAccredCard({
+                key: 'coaching',
+                icon: Award,
+                title: 'Coaching',
+                data: accreditation.coaching,
+                levelLabel: accreditation.coaching?.level || 'Not Set',
+                certLabel: 'Certificate #',
+                certValue: accreditation.coaching?.certificateNumber,
+              })}
+
+              {/* First Aid Card */}
+              {renderAccredCard({
+                key: 'firstAid',
+                icon: Heart,
+                title: 'First Aid',
+                data: accreditation.firstAid,
+                levelLabel: accreditation.firstAid?.level || 'Not Set',
+                certLabel: 'Certificate #',
+                certValue: accreditation.firstAid?.certificateNumber,
+              })}
+
+              {/* WWCC Card */}
+              {renderAccredCard({
+                key: 'wwcc',
+                icon: ShieldCheck,
+                title: 'Working with Children Check',
+                data: accreditation.wwcc,
+                levelLabel: accreditation.wwcc?.state || 'VIC',
+                certLabel: 'Check #',
+                certValue: accreditation.wwcc?.checkNumber,
+              })}
+            </>
+          )}
         </div>
 
         {/* Coaching Record */}
