@@ -45,7 +45,7 @@ const AdminDashboard = () => {
   const clubStats = useMemo(() => {
     const totalPlayers = players?.length || 0;
     const totalTeams = teams?.length || [...new Set(players.map(p => p.team))].filter(Boolean).length;
-    const totalEvaluations = Object.keys(evaluations || {}).length;
+    const totalEvaluations = new Set(Object.values(evaluations || {}).map(e => e.id)).size;
 
     // Calculate players assessed in last 30 days
     const thirtyDaysAgo = new Date();
@@ -368,7 +368,7 @@ const AdminDashboard = () => {
               icon={Award}
               label="Avg Skill Level"
               value={clubStats.clubAvgLevel}
-              subtext="out of 5"
+              subtext="out of 4"
               color="text-orange-400"
             />
           </div>

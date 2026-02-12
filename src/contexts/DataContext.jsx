@@ -191,8 +191,18 @@ export const DataProvider = ({ children }) => {
         const evalsArray = [];
         snapshot.docs.forEach(doc => {
           const data = { id: doc.id, ...doc.data() };
-          evalsObj[`${data.playerId}_${data.skillId}`] = data;
-          evalsArray.push(data);
+          if (data.skills && typeof data.skills === 'object') {
+            // Session format: one doc with nested skills
+            Object.entries(data.skills).forEach(([skillId, skillData]) => {
+              const flatEntry = { ...data, skillId, level: skillData.level, skillNotes: skillData.notes };
+              evalsObj[`${data.playerId}_${skillId}`] = flatEntry;
+              evalsArray.push(flatEntry);
+            });
+          } else if (data.skillId) {
+            // Legacy format: one doc per skill
+            evalsObj[`${data.playerId}_${data.skillId}`] = data;
+            evalsArray.push(data);
+          }
         });
         setEvaluations(evalsObj);
         await dbService.setAll('evaluations', evalsArray);
@@ -201,7 +211,14 @@ export const DataProvider = ({ children }) => {
         const offlineData = await dbService.getAll('evaluations');
         const evalsObj = {};
         offlineData.forEach(data => {
-          evalsObj[`${data.playerId}_${data.skillId}`] = data;
+          if (data.skills && typeof data.skills === 'object') {
+            Object.entries(data.skills).forEach(([skillId, skillData]) => {
+              const flatEntry = { ...data, skillId, level: skillData.level, skillNotes: skillData.notes };
+              evalsObj[`${data.playerId}_${skillId}`] = flatEntry;
+            });
+          } else if (data.skillId) {
+            evalsObj[`${data.playerId}_${data.skillId}`] = data;
+          }
         });
         setEvaluations(evalsObj);
       })

@@ -90,10 +90,10 @@ const ClubAnalyticsPage = () => {
       });
     }
 
-    // Skill distribution
-    const skillCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    // Skill distribution (practice assessments use 1-4 scale)
+    const skillCounts = { 1: 0, 2: 0, 3: 0, 4: 0 };
     recentEvals.forEach(e => {
-      if (e.level >= 1 && e.level <= 5) {
+      if (e.level >= 1 && e.level <= 4) {
         skillCounts[Math.round(e.level)]++;
       }
     });
@@ -101,9 +101,8 @@ const ClubAnalyticsPage = () => {
     const skillDistribution = [
       { name: 'Emerging', value: skillCounts[1], color: '#ef4444' },
       { name: 'Developing', value: skillCounts[2], color: '#f97316' },
-      { name: 'Competent', value: skillCounts[3], color: '#eab308' },
-      { name: 'Proficient', value: skillCounts[4], color: '#00A651' },
-      { name: 'Elite', value: skillCounts[5], color: '#86efac' }
+      { name: 'Competent', value: skillCounts[3], color: '#00A651' },
+      { name: 'Confident Leader', value: skillCounts[4], color: '#005028' }
     ];
 
     // Team comparison
@@ -140,8 +139,8 @@ const ClubAnalyticsPage = () => {
 
     return {
       totalPlayers: players?.length || 0,
-      totalAssessments: recentEvals.length,
-      prevAssessments: prevEvals.length,
+      totalAssessments: new Set(recentEvals.map(e => e.id)).size,
+      prevAssessments: new Set(prevEvals.map(e => e.id)).size,
       avgLevel: currentAvg.toFixed(1),
       prevAvgLevel: prevAvg.toFixed(1),
       levelChange: (currentAvg - prevAvg).toFixed(2),
@@ -209,7 +208,7 @@ const ClubAnalyticsPage = () => {
             label="Avg Skill Level"
             value={analytics.avgLevel}
             change={getChangeIndicator(analytics.levelChange)}
-            subtext="out of 5"
+            subtext="out of 4"
           />
           <MetricCard
             icon={Users}
@@ -235,11 +234,11 @@ const ClubAnalyticsPage = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={analytics.trendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#D4E4D4" />
-                <XAxis dataKey="period" stroke="#fff" fontSize={12} />
-                <YAxis stroke="#fff" fontSize={12} />
+                <XAxis dataKey="period" stroke="#6B7C6B" fontSize={12} />
+                <YAxis stroke="#6B7C6B" fontSize={12} />
                 <Tooltip
                   contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #D4E4D4', borderRadius: '8px' }}
-                  labelStyle={{ color: '#fff' }}
+                  labelStyle={{ color: '#333333' }}
                 />
                 <Bar dataKey="assessments" fill="#00A651" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -297,7 +296,7 @@ const ClubAnalyticsPage = () => {
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-[#00A651] to-[#00A651] rounded-full"
-                        style={{ width: `${(parseFloat(team.avgLevel) / 5) * 100}%` }}
+                        style={{ width: `${(parseFloat(team.avgLevel) / 4) * 100}%` }}
                       />
                     </div>
                     <div className="flex justify-between text-xs text-gray-400 mt-1">
