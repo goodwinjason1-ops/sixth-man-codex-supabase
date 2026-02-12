@@ -512,6 +512,7 @@ const CoachProfilePage = () => {
                 src={userProfile.photoURL}
                 alt={userProfile.displayName}
                 className="w-full h-full rounded-full object-cover"
+                loading="lazy"
               />
             ) : (
               <User className="w-10 h-10 text-[#00A651]" />

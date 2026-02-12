@@ -629,6 +629,7 @@ const CoachPlayerOverviewPage = () => {
                           src={player.photoURL}
                           alt={player.name}
                           className="w-full h-full rounded-full object-cover"
+                          loading="lazy"
                         />
                       ) : (
                         <User className="w-6 h-6 text-[#00A651]" />
@@ -839,6 +840,7 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
                   src={player.photoURL}
                   alt={player.name}
                   className="w-full h-full rounded-full object-cover"
+                  loading="lazy"
                 />
               ) : (
                 <User className="w-7 h-7 text-[#00A651]" />

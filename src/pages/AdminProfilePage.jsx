@@ -216,6 +216,7 @@ const AdminProfilePage = () => {
                   src={userProfile.photoURL}
                   alt={userProfile.displayName}
                   className="w-full h-full rounded-full object-cover"
+                  loading="lazy"
                 />
               ) : (
                 <Shield className="w-10 h-10 text-gray-800" />
