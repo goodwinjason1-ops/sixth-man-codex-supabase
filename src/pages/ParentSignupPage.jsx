@@ -163,11 +163,11 @@ const ParentSignupPage = () => {
   // Loading state
   if (validating) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-lakers-900 via-lakers-800 to-lakers-700 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#003018] via-[#005028] to-[#005028] flex items-center justify-center p-4">
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-[#00A651] animate-spin mx-auto mb-4" />
-          <p className="text-gray-800 font-medium">Validating invitation code...</p>
-          <p className="text-lakers-200 text-sm mt-2">Code: {invitationCode}</p>
+          <p className="text-white font-medium">Validating invitation code...</p>
+          <p className="text-green-200 text-sm mt-2">Code: {invitationCode}</p>
         </div>
       </div>
     );
@@ -176,14 +176,14 @@ const ParentSignupPage = () => {
   // Already logged in — show log-out prompt instead of silently redirecting
   if (currentUser && invitation) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-lakers-900 via-lakers-800 to-lakers-700 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#003018] via-[#005028] to-[#005028] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-yellow-400 rounded-full mb-4 shadow-lg">
-              <span className="text-4xl font-bold text-lakers-900">L</span>
+              <span className="text-4xl font-bold text-[#003018]">L</span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Emerald Lakers</h1>
-            <p className="text-lakers-200">Parent Registration</p>
+            <h1 className="text-3xl font-bold text-white mb-2">Emerald Lakers</h1>
+            <p className="text-green-200">Parent Registration</p>
           </div>
 
           <div className="bg-white rounded-2xl shadow-2xl p-8">
@@ -201,7 +201,7 @@ const ParentSignupPage = () => {
               <button
                 onClick={handleLogoutAndContinue}
                 disabled={loggingOut}
-                className="w-full bg-lakers-700 text-white py-3 rounded-lg font-semibold hover:bg-lakers-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mb-3"
+                className="w-full bg-[#005028] text-white py-3 rounded-lg font-semibold hover:bg-[#003018] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mb-3"
               >
                 {loggingOut ? (
                   <>
@@ -232,14 +232,14 @@ const ParentSignupPage = () => {
   // Invalid code
   if (validationError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-lakers-900 via-lakers-800 to-lakers-700 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#003018] via-[#005028] to-[#005028] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-yellow-400 rounded-full mb-4 shadow-lg">
-              <span className="text-4xl font-bold text-lakers-900">L</span>
+              <span className="text-4xl font-bold text-[#003018]">L</span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Emerald Lakers</h1>
-            <p className="text-lakers-200">Basketball Club Portal</p>
+            <h1 className="text-3xl font-bold text-white mb-2">Emerald Lakers</h1>
+            <p className="text-green-200">Basketball Club Portal</p>
           </div>
 
           <div className="bg-white rounded-2xl shadow-2xl p-8">
@@ -249,7 +249,7 @@ const ParentSignupPage = () => {
               <p className="text-gray-600 mb-6">{validationError}</p>
               <button
                 onClick={() => navigate('/login')}
-                className="w-full bg-lakers-700 text-white py-3 rounded-lg font-semibold hover:bg-lakers-800 transition-colors"
+                className="w-full bg-[#005028] text-white py-3 rounded-lg font-semibold hover:bg-[#003018] transition-colors"
               >
                 Go to Login
               </button>
@@ -262,15 +262,15 @@ const ParentSignupPage = () => {
 
   // Signup form
   return (
-    <div className="min-h-screen bg-gradient-to-br from-lakers-900 via-lakers-800 to-lakers-700 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#003018] via-[#005028] to-[#005028] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8 animate-fade-in">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-yellow-400 rounded-full mb-4 shadow-lg">
-            <span className="text-4xl font-bold text-lakers-900">L</span>
+            <span className="text-4xl font-bold text-[#003018]">L</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Emerald Lakers</h1>
-          <p className="text-lakers-200">Parent Registration</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Emerald Lakers</h1>
+          <p className="text-green-200">Parent Registration</p>
         </div>
 
         {/* Main Card */}
@@ -350,7 +350,7 @@ const ParentSignupPage = () => {
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lakers-600 focus:border-transparent outline-none"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A651] focus:border-transparent outline-none"
                   placeholder="Enter your name"
                   disabled={loading}
                   autoComplete="name"
@@ -367,7 +367,7 @@ const ParentSignupPage = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lakers-600 focus:border-transparent outline-none"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A651] focus:border-transparent outline-none"
                   placeholder="you@example.com"
                   disabled={loading}
                   autoComplete="email"
@@ -384,7 +384,7 @@ const ParentSignupPage = () => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lakers-600 focus:border-transparent outline-none"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A651] focus:border-transparent outline-none"
                   placeholder="Min. 8 characters"
                   disabled={loading}
                   autoComplete="new-password"
@@ -396,7 +396,7 @@ const ParentSignupPage = () => {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full bg-lakers-700 text-white py-3 rounded-lg font-semibold hover:bg-lakers-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-[#005028] text-white py-3 rounded-lg font-semibold hover:bg-[#003018] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -418,7 +418,7 @@ const ParentSignupPage = () => {
               Already have an account?{' '}
               <button
                 onClick={() => navigate('/login')}
-                className="text-lakers-700 hover:text-lakers-800 font-semibold"
+                className="text-[#005028] hover:text-[#003018] font-semibold"
               >
                 Sign in
               </button>
@@ -426,7 +426,7 @@ const ParentSignupPage = () => {
           </div>
         </div>
 
-        <p className="text-center text-lakers-200 text-sm mt-6">
+        <p className="text-center text-green-200 text-sm mt-6">
           &copy; 2024 Emerald Lakers Basketball Club
         </p>
       </div>

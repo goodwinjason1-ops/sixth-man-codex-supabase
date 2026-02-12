@@ -336,7 +336,7 @@ const CoachDashboard = () => {
       datasets: [{
         label: 'Attendance',
         data: last10Sessions.map(a => a.present?.length || 0),
-        backgroundColor: 'rgba(5, 150, 105, 0.8)',
+        backgroundColor: 'rgba(0, 166, 81, 0.7)',
       }]
     };
   }, [attendance, selectedTeam]);
@@ -344,11 +344,11 @@ const CoachDashboard = () => {
   // Show loading state while waiting for data
   if (isLoading || !gameDayCheckComplete) {
     return (
-      <div className="min-h-screen bg-lakers-900 flex items-center justify-center">
+      <div className="min-h-screen bg-[#F5F9F5] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-lakers-600 border-t-[#00A651] rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-16 h-16 border-4 border-[#D4E4D4] border-t-[#00A651] rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-800 font-medium">Loading Dashboard...</p>
-          <p className="text-lakers-400 text-sm mt-1">
+          <p className="text-gray-500 text-sm mt-1">
             {authLoading ? 'Checking authentication...' :
              dataLoading ? 'Loading data...' :
              !gameDayCheckComplete ? 'Checking for games today...' : 'Almost ready...'}
@@ -359,9 +359,9 @@ const CoachDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-lakers-900">
-      {/* Header */}
-      <div className="bg-lakers-800 border-b border-lakers-700 sticky top-0 z-10">
+    <div className="min-h-screen bg-[#F5F9F5]">
+      {/* Header — stays dark */}
+      <div className="bg-[#005028] border-b border-[#003018] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4">
           {/* Breadcrumb Navigation */}
           <Breadcrumb
@@ -369,13 +369,13 @@ const CoachDashboard = () => {
               { label: 'Home', url: '/welcome' },
               { label: 'Coach Dashboard' }
             ]}
-            className="mb-3"
+            className="mb-3 [&_*]:text-green-200 [&_button]:!text-green-300 [&_button:hover]:!text-white [&_span.font-medium]:!text-white"
           />
 
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">Coach Dashboard</h1>
-              <p className="text-sm text-lakers-300 mt-1">
+              <h1 className="text-2xl font-bold text-white">Coach Dashboard</h1>
+              <p className="text-sm text-green-300 mt-1">
                 Welcome back, {userProfile?.displayName || 'Coach'}
               </p>
             </div>
@@ -384,7 +384,7 @@ const CoachDashboard = () => {
               {/* Training Plans Button */}
               <button
                 onClick={() => navigate('/coach/training-plans')}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-gray-800 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors"
               >
                 <Dumbbell className="w-5 h-5" />
                 <span className="hidden sm:inline">Plans</span>
@@ -394,7 +394,7 @@ const CoachDashboard = () => {
               <FirstTimeHint hintKey="coach_assess_skills">
                 <button
                   onClick={() => navigate('/coach-assessment')}
-                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-gray-800 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors"
                 >
                   <ClipboardCheck className="w-5 h-5" />
                   <span className="hidden sm:inline">Skills</span>
@@ -405,7 +405,7 @@ const CoachDashboard = () => {
               <HelpTooltip text="Record live game performance observations for your players during match day.">
                 <button
                   onClick={() => navigate('/coach/match-assessment')}
-                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-gray-800 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors"
                 >
                   <Trophy className="w-5 h-5" />
                   <span className="hidden sm:inline">Match Day</span>
@@ -416,7 +416,7 @@ const CoachDashboard = () => {
               <HelpTooltip text="Track player rotations and playing time during live games.">
                 <button
                   onClick={() => navigate('/coach/rotation-tracker')}
-                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-lakers-600 hover:bg-lakers-500 border border-lakers-500 text-gray-800 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors"
                 >
                   <Clock className="w-5 h-5" />
                   <span className="hidden sm:inline">Rotations</span>
@@ -428,7 +428,7 @@ const CoachDashboard = () => {
                 <select
                   value={selectedTeam}
                   onChange={(e) => setSelectedTeam(e.target.value)}
-                  className="px-4 py-2 bg-lakers-700 border border-lakers-600 text-white rounded-lg focus:ring-2 focus:ring-lakers-500 focus:border-transparent"
+                  className="px-4 py-2 bg-white/10 border border-white/20 text-white rounded-lg focus:ring-2 focus:ring-[#00A651] focus:border-transparent"
                 >
                   <option value="all">All Teams</option>
                   {coachTeams.map(team => (
@@ -451,7 +451,7 @@ const CoachDashboard = () => {
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-[#005028] rounded-xl flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-gray-800" />
+                  <Zap className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -488,22 +488,22 @@ const CoachDashboard = () => {
 
         {/* Pending Drafts Section */}
         {pendingDrafts.length > 0 && (
-          <div className="bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border-2 border-yellow-600 rounded-xl p-6 mb-6">
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-xl p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-yellow-600 rounded-lg flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-gray-800" />
+                <div className="w-10 h-10 bg-yellow-500 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-white" />
                 </div>
                 <div>
                   <HelpTooltip text="Draft assessments saved on this device. Resume them anytime before submission.">
                     <h2 className="text-lg font-bold text-gray-800">Pending Assessments</h2>
                   </HelpTooltip>
-                  <p className="text-yellow-400 text-sm">
+                  <p className="text-yellow-600 text-sm">
                     {pendingDrafts.length} draft{pendingDrafts.length !== 1 ? 's' : ''} awaiting completion
                   </p>
                 </div>
               </div>
-              <div className="bg-yellow-600 text-white text-lg font-bold w-10 h-10 rounded-full flex items-center justify-center">
+              <div className="bg-yellow-500 text-white text-lg font-bold w-10 h-10 rounded-full flex items-center justify-center">
                 {pendingDrafts.length}
               </div>
             </div>
@@ -523,15 +523,15 @@ const CoachDashboard = () => {
                 return (
                   <div
                     key={draft.id}
-                    className="bg-lakers-800/80 border border-lakers-700 rounded-lg p-4 hover:border-lakers-600 transition-all"
+                    className="bg-white border border-[#D4E4D4] rounded-lg p-4 hover:border-[#00A651] transition-all"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-3 flex-1">
                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          isSkillsDraft ? 'bg-[#D4E4D4]' : 'bg-white'
+                          isSkillsDraft ? 'bg-[#F5F9F5]' : 'bg-[#F5F9F5]'
                         }`}>
                           {isSkillsDraft ? (
-                            <ClipboardCheck className="w-5 h-5 text-gray-800" />
+                            <ClipboardCheck className="w-5 h-5 text-[#005028]" />
                           ) : (
                             <Trophy className="w-5 h-5 text-[#00A651]" />
                           )}
@@ -540,17 +540,17 @@ const CoachDashboard = () => {
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className={`text-xs px-2 py-0.5 rounded font-medium ${
                               isSkillsDraft
-                                ? 'bg-[#D4E4D4] text-gray-800'
-                                : 'bg-white border border-[#D4E4D4] text-[#00A651]'
+                                ? 'bg-[#F5F9F5] text-[#005028]'
+                                : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#00A651]'
                             }`}>
                               {isSkillsDraft ? 'Skills Assessment' : 'Match Day'}
                             </span>
-                            <span className="text-lakers-400 text-xs">{draft.teamName || 'Unknown Team'}</span>
+                            <span className="text-gray-400 text-xs">{draft.teamName || 'Unknown Team'}</span>
                           </div>
                           <h4 className="text-gray-800 font-semibold mt-1 truncate">
                             {isSkillsDraft ? draft.playerName : (draft.opponentName || 'vs TBD')}
                           </h4>
-                          <div className="flex items-center gap-3 mt-1.5 text-xs text-lakers-400">
+                          <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
                             {draftDate && (
                               <span className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
@@ -575,14 +575,14 @@ const CoachDashboard = () => {
                       <div className="flex items-center gap-2 ml-3">
                         <button
                           onClick={() => handleResumeDraft(draft)}
-                          className="flex items-center gap-1.5 px-3 py-2 bg-[#D4E4D4] hover:bg-[#00A651] text-white rounded-lg text-sm font-medium transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-2 bg-[#005028] hover:bg-[#00A651] text-white rounded-lg text-sm font-medium transition-colors"
                         >
                           <Play className="w-4 h-4" />
                           <span className="hidden sm:inline">Resume</span>
                         </button>
                         <button
                           onClick={() => handleDeleteDraft(draft.id)}
-                          className="p-2 bg-lakers-700 hover:bg-red-900/50 border border-lakers-600 hover:border-red-500 text-lakers-400 hover:text-red-400 rounded-lg transition-colors"
+                          className="p-2 bg-gray-100 hover:bg-red-50 border border-[#D4E4D4] hover:border-red-300 text-gray-400 hover:text-red-500 rounded-lg transition-colors"
                           title="Delete Draft"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -599,17 +599,17 @@ const CoachDashboard = () => {
         {/* Training Plans Quick Card */}
         <div
           onClick={() => navigate('/coach/training-plans')}
-          className="bg-gradient-to-r from-[#005028] to-[#003018] border-2 border-[#D4E4D4] rounded-xl p-6 mb-6 cursor-pointer hover:border-[#00A651] transition-all group"
+          className="bg-gradient-to-r from-[#005028] to-[#003018] border-2 border-[#005028] rounded-xl p-6 mb-6 cursor-pointer hover:border-[#00A651] transition-all group"
         >
           {coachPlansData.total === 0 ? (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-[#005028]/20 border-2 border-[#D4E4D4] rounded-xl flex items-center justify-center">
-                  <Dumbbell className="w-7 h-7 text-[#00A651]" />
+                <div className="w-14 h-14 bg-white/10 border-2 border-white/20 rounded-xl flex items-center justify-center">
+                  <Dumbbell className="w-7 h-7 text-green-300" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-gray-800">Training Plans</h2>
-                  <p className="text-[#6B7C6B] text-sm">No training plans yet</p>
+                  <h2 className="text-lg font-bold text-white">Training Plans</h2>
+                  <p className="text-green-300 text-sm">No training plans yet</p>
                 </div>
               </div>
               <button
@@ -617,7 +617,7 @@ const CoachDashboard = () => {
                   e.stopPropagation();
                   navigate('/coach/training-plans/new');
                 }}
-                className="flex items-center gap-2 px-4 py-2 bg-[#005028] text-white rounded-lg font-medium hover:bg-[#00A651] transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-medium transition-colors"
               >
                 Create Your First Plan
               </button>
@@ -625,12 +625,12 @@ const CoachDashboard = () => {
           ) : (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-[#005028]/20 border-2 border-[#00A651] rounded-xl flex items-center justify-center">
-                  <Dumbbell className="w-7 h-7 text-[#00A651]" />
+                <div className="w-14 h-14 bg-white/10 border-2 border-[#00A651] rounded-xl flex items-center justify-center">
+                  <Dumbbell className="w-7 h-7 text-green-300" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-gray-800">Training Plans</h2>
-                  <p className="text-[#00A651] text-sm">
+                  <h2 className="text-lg font-bold text-white">Training Plans</h2>
+                  <p className="text-green-300 text-sm">
                     {coachPlansData.active} active plan{coachPlansData.active !== 1 ? 's' : ''}
                     {coachPlansData.nextSession && (
                       <> &bull; Next: {new Date(coachPlansData.nextSession.date).toLocaleDateString('en-AU', { month: 'short', day: 'numeric' })}</>
@@ -644,11 +644,11 @@ const CoachDashboard = () => {
                     e.stopPropagation();
                     navigate('/coach/training-plans/new');
                   }}
-                  className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[#005028] text-white rounded-lg font-medium hover:bg-[#00A651] transition-colors"
+                  className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-medium transition-colors"
                 >
                   New Plan
                 </button>
-                <ChevronRight className="w-6 h-6 text-[#00A651] group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-6 h-6 text-green-300 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
           )}
@@ -657,9 +657,9 @@ const CoachDashboard = () => {
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* MVP Leaderboard */}
-          <div className="lg:col-span-1 bg-lakers-800 rounded-xl border border-lakers-700 p-6">
+          <div className="lg:col-span-1 bg-white rounded-xl border border-[#D4E4D4] p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Award className="w-5 h-5 text-lakers-400" />
+              <Award className="w-5 h-5 text-[#00A651]" />
               <h2 className="text-lg font-bold text-gray-800">MVP Leaderboard</h2>
             </div>
 
@@ -668,38 +668,38 @@ const CoachDashboard = () => {
                 {mvpLeaderboard.map((item, index) => (
                   <div
                     key={item.player.id}
-                    className={`flex items-center justify-between p-3 rounded-lg bg-lakers-700 border border-lakers-600`}
+                    className="flex items-center justify-between p-3 rounded-lg bg-[#F5F9F5] border border-[#D4E4D4]"
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                        index === 0 ? 'bg-lakers-500 text-gray-800' :
-                        index === 1 ? 'bg-lakers-600 text-gray-800' :
-                        index === 2 ? 'bg-lakers-600 text-gray-800' :
-                        'bg-lakers-700 text-white'
+                        index === 0 ? 'bg-yellow-400 text-yellow-900' :
+                        index === 1 ? 'bg-gray-300 text-gray-700' :
+                        index === 2 ? 'bg-orange-300 text-orange-800' :
+                        'bg-gray-100 text-gray-600'
                       }`}>
                         {index + 1}
                       </div>
                       <div>
                         <p className="font-semibold text-sm text-gray-800">{item.player.name}</p>
-                        <p className="text-xs text-lakers-400">{item.player.team}</p>
+                        <p className="text-xs text-gray-400">{item.player.team}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-bold text-gray-800">{item.count}</p>
-                      <p className="text-xs text-lakers-400">MVP{item.count > 1 ? 's' : ''}</p>
+                      <p className="text-xs text-gray-400">MVP{item.count > 1 ? 's' : ''}</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-lakers-400 text-center py-8">No MVP votes yet</p>
+              <p className="text-sm text-gray-400 text-center py-8">No MVP votes yet</p>
             )}
           </div>
 
           {/* Attendance Trend */}
-          <div className="lg:col-span-2 bg-lakers-800 rounded-xl border border-lakers-700 p-6">
+          <div className="lg:col-span-2 bg-white rounded-xl border border-[#D4E4D4] p-6">
             <div className="flex items-center gap-2 mb-4">
-              <BarChart3 className="w-5 h-5 text-lakers-400" />
+              <BarChart3 className="w-5 h-5 text-[#00A651]" />
               <h2 className="text-lg font-bold text-gray-800">Attendance Trend</h2>
             </div>
             {attendanceTrendData.labels.length > 0 ? (
@@ -714,36 +714,36 @@ const CoachDashboard = () => {
                   scales: {
                     y: {
                       beginAtZero: true,
-                      ticks: { color: '#a7f3d0' },
-                      grid: { color: 'rgba(167, 243, 208, 0.1)' }
+                      ticks: { color: '#6B7C6B' },
+                      grid: { color: 'rgba(212, 228, 212, 0.5)' }
                     },
                     x: {
-                      ticks: { color: '#a7f3d0' },
-                      grid: { color: 'rgba(167, 243, 208, 0.1)' }
+                      ticks: { color: '#6B7C6B' },
+                      grid: { color: 'rgba(212, 228, 212, 0.5)' }
                     }
                   }
                 }}
                 height={200}
               />
             ) : (
-              <p className="text-sm text-lakers-400 text-center py-8">No attendance data yet</p>
+              <p className="text-sm text-gray-400 text-center py-8">No attendance data yet</p>
             )}
           </div>
         </div>
 
         {/* My Teams */}
-        <div className="bg-lakers-800 rounded-xl border border-lakers-700 p-6">
+        <div className="bg-white rounded-xl border border-[#D4E4D4] p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-lakers-400" />
+              <Users className="w-5 h-5 text-[#00A651]" />
               <h2 className="text-lg font-bold text-gray-800">My Teams</h2>
-              <span className="text-sm text-lakers-400">
+              <span className="text-sm text-gray-400">
                 {coachTeamObjects.reduce((sum, t) => sum + t.playerCount, 0)} players
               </span>
             </div>
             <button
               onClick={() => navigate('/coach/players')}
-              className="text-sm text-lakers-300 hover:text-gray-800 transition-colors flex items-center gap-1"
+              className="text-sm text-[#00A651] hover:text-[#005028] transition-colors flex items-center gap-1"
             >
               View All <ChevronRight className="w-4 h-4" />
             </button>
@@ -761,23 +761,23 @@ const CoachDashboard = () => {
                 <div
                   key={team.id}
                   onClick={() => navigate(`/coach/players?team=${encodeURIComponent(team.id || team.name || team.displayName)}`)}
-                  className="p-4 bg-lakers-700 border border-lakers-600 rounded-lg hover:border-lakers-500 transition-all cursor-pointer group"
+                  className="p-4 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg hover:border-[#00A651] transition-all cursor-pointer group"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <h3 className="font-semibold text-gray-800 group-hover:text-lakers-200 transition-colors">
+                      <h3 className="font-semibold text-gray-800 group-hover:text-[#005028] transition-colors">
                         {team.displayName || team.name}
                       </h3>
                       {team.ageGroup && (
-                        <p className="text-xs text-lakers-400">{team.ageGroup}</p>
+                        <p className="text-xs text-gray-400">{team.ageGroup}</p>
                       )}
                     </div>
-                    <ChevronRight className="w-4 h-4 text-lakers-500 group-hover:text-lakers-300 group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#00A651] group-hover:translate-x-0.5 transition-all" />
                   </div>
 
                   <div className="flex items-center gap-2 text-sm">
-                    <Users className="w-4 h-4 text-lakers-400" />
-                    <span className="text-lakers-300">{team.playerCount} player{team.playerCount !== 1 ? 's' : ''}</span>
+                    <Users className="w-4 h-4 text-gray-400" />
+                    <span className="text-gray-500">{team.playerCount} player{team.playerCount !== 1 ? 's' : ''}</span>
                   </div>
                 </div>
               ))}
@@ -791,14 +791,14 @@ const CoachDashboard = () => {
 
 // Metric Card Component
 const MetricCard = ({ icon: Icon, label, value }) => (
-  <div className="bg-lakers-800 rounded-xl border border-lakers-700 p-6 hover:border-lakers-600 transition-all">
+  <div className="bg-white rounded-xl border border-[#D4E4D4] p-6 hover:border-[#00A651] transition-all">
     <div className="flex items-center justify-between">
       <div>
-        <p className="text-sm text-lakers-400 mb-1">{label}</p>
+        <p className="text-sm text-gray-500 mb-1">{label}</p>
         <p className="text-2xl font-bold text-gray-800">{value}</p>
       </div>
-      <div className="w-12 h-12 bg-lakers-700 border border-lakers-600 rounded-lg flex items-center justify-center">
-        <Icon className="w-6 h-6 text-lakers-300" />
+      <div className="w-12 h-12 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg flex items-center justify-center">
+        <Icon className="w-6 h-6 text-[#005028]" />
       </div>
     </div>
   </div>

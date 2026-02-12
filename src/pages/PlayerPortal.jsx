@@ -106,8 +106,8 @@ const PlayerPortal = () => {
       datasets: [{
         label: 'Skill Level',
         data: last10Evals.map(e => e.level || 0),
-        borderColor: 'rgb(5, 150, 105)',
-        backgroundColor: 'rgba(5, 150, 105, 0.1)',
+        borderColor: '#00A651',
+        backgroundColor: 'rgba(0, 166, 81, 0.1)',
         tension: 0.4,
         fill: true
       }]
@@ -123,21 +123,21 @@ const PlayerPortal = () => {
   }, [games, playerData.team]);
 
   const LEVEL_LABELS = {
-    1: { label: "Emerging", color: "bg-lakers-700 text-white border-lakers-600" },
-    2: { label: "Developing", color: "bg-lakers-600 text-gray-800 border-lakers-500" },
-    3: { label: "Competent", color: "bg-lakers-500 text-gray-800 border-lakers-400" },
-    4: { label: "Leader", color: "bg-lakers-400 text-gray-800 border-lakers-300" }
+    1: { label: "Emerging", color: "bg-gray-100 text-gray-700 border-gray-300" },
+    2: { label: "Developing", color: "bg-blue-50 text-blue-700 border-blue-300" },
+    3: { label: "Competent", color: "bg-green-50 text-green-700 border-green-300" },
+    4: { label: "Leader", color: "bg-[#FFD700]/10 text-[#005028] border-[#FFD700]" }
   };
 
   return (
-    <div className="min-h-screen bg-lakers-900">
-      {/* Hero Section */}
-      <div className="bg-lakers-800 border-b border-lakers-700">
+    <div className="min-h-screen bg-[#F5F9F5]">
+      {/* Hero Section — dark header */}
+      <div className="bg-[#005028] border-b border-[#005028]">
         <div className="max-w-7xl mx-auto px-4 py-6">
           {/* Back Button */}
           <button
             onClick={() => navigate('/welcome')}
-            className="flex items-center gap-2 text-lakers-300 hover:text-gray-800 mb-4 transition-colors"
+            className="flex items-center gap-2 text-green-200 hover:text-white mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Back to Home</span>
@@ -145,17 +145,17 @@ const PlayerPortal = () => {
 
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">{playerData.name}</h1>
-              <p className="text-lakers-300 text-lg">{playerData.team}</p>
+              <h1 className="text-3xl font-bold text-white mb-2">{playerData.name}</h1>
+              <p className="text-green-200 text-lg">{playerData.team}</p>
             </div>
 
             {/* MVP Badge */}
             {mvpStats.rank && mvpStats.rank <= 3 && (
-              <div className="bg-lakers-700 border border-lakers-600 px-4 py-2 rounded-lg flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-gray-800" />
+              <div className="bg-white/10 border border-white/20 px-4 py-2 rounded-lg flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-[#FFD700]" />
                 <div className="text-right">
-                  <p className="text-xs text-lakers-300">MVP Rank</p>
-                  <p className="text-lg font-bold text-gray-800">#{mvpStats.rank}</p>
+                  <p className="text-xs text-green-200">MVP Rank</p>
+                  <p className="text-lg font-bold text-white">#{mvpStats.rank}</p>
                 </div>
               </div>
             )}
@@ -176,9 +176,9 @@ const PlayerPortal = () => {
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
             {/* Skill Progress Chart */}
-            <div className="bg-lakers-800 rounded-xl border border-lakers-700 p-6">
+            <div className="bg-white rounded-xl border border-[#D4E4D4] shadow-sm p-6">
               <div className="flex items-center gap-2 mb-4">
-                <TrendingUp className="w-5 h-5 text-lakers-400" />
+                <TrendingUp className="w-5 h-5 text-[#00A651]" />
                 <h2 className="text-lg font-bold text-gray-800">Skill Progression</h2>
               </div>
 
@@ -197,28 +197,28 @@ const PlayerPortal = () => {
                           beginAtZero: true,
                           max: 4,
                           ticks: {
-                            color: '#a7f3d0',
+                            color: '#6B7C6B',
                             callback: function(value) {
                               return ['', 'Emerging', 'Developing', 'Competent', 'Leader'][value] || '';
                             }
                           },
-                          grid: { color: 'rgba(167, 243, 208, 0.1)' }
+                          grid: { color: 'rgba(212, 228, 212, 0.5)' }
                         },
                         x: {
-                          ticks: { color: '#a7f3d0' },
-                          grid: { color: 'rgba(167, 243, 208, 0.1)' }
+                          ticks: { color: '#6B7C6B' },
+                          grid: { color: 'rgba(212, 228, 212, 0.5)' }
                         }
                       }
                     }}
                   />
                 </div>
               ) : (
-                <p className="text-sm text-lakers-400 text-center py-12">No skill assessments yet</p>
+                <p className="text-sm text-[#6B7C6B] text-center py-12">No skill assessments yet</p>
               )}
             </div>
 
             {/* Skill Assessments */}
-            <div className="bg-lakers-800 rounded-xl border border-lakers-700 p-6">
+            <div className="bg-white rounded-xl border border-[#D4E4D4] shadow-sm p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4">Recent Skill Assessments</h2>
 
               {playerEvaluations.length > 0 ? (
@@ -226,12 +226,12 @@ const PlayerPortal = () => {
                   {playerEvaluations.slice(0, 10).map((evaluation, index) => (
                     <div
                       key={index}
-                      className="p-4 bg-lakers-700 border border-lakers-600 rounded-lg hover:border-lakers-500 transition-colors"
+                      className="p-4 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg hover:border-[#00A651] transition-colors"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
                           <h3 className="font-semibold text-gray-800">{evaluation.skill?.name || 'Unknown Skill'}</h3>
-                          <p className="text-xs text-lakers-400 mt-1">
+                          <p className="text-xs text-[#6B7C6B] mt-1">
                             {new Date(evaluation.date).toLocaleDateString('en-AU', {
                               year: 'numeric',
                               month: 'long',
@@ -240,27 +240,27 @@ const PlayerPortal = () => {
                           </p>
                         </div>
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${
-                          LEVEL_LABELS[evaluation.level]?.color || 'bg-lakers-700 text-white'
+                          LEVEL_LABELS[evaluation.level]?.color || 'bg-gray-100 text-gray-600'
                         }`}>
                           {LEVEL_LABELS[evaluation.level]?.label || 'Not Rated'}
                         </span>
                       </div>
 
                       {evaluation.notes && (
-                        <div className="mt-2 p-3 bg-lakers-800 rounded-lg border border-lakers-600">
-                          <p className="text-sm text-lakers-200">{evaluation.notes}</p>
+                        <div className="mt-2 p-3 bg-white rounded-lg border border-[#D4E4D4]">
+                          <p className="text-sm text-gray-600">{evaluation.notes}</p>
                         </div>
                       )}
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-lakers-400 text-center py-8">No assessments recorded yet</p>
+                <p className="text-sm text-[#6B7C6B] text-center py-8">No assessments recorded yet</p>
               )}
             </div>
 
             {/* Recent Games */}
-            <div className="bg-lakers-800 rounded-xl border border-lakers-700 p-6">
+            <div className="bg-white rounded-xl border border-[#D4E4D4] shadow-sm p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4">Recent Games</h2>
 
               {recentGames.length > 0 ? (
@@ -268,20 +268,20 @@ const PlayerPortal = () => {
                   {recentGames.map((game) => (
                     <div
                       key={game.id}
-                      className="p-4 bg-lakers-700 border border-lakers-600 rounded-lg"
+                      className="p-4 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div>
                           <p className="font-semibold text-gray-800">vs {game.opponent}</p>
-                          <p className="text-xs text-lakers-400">
+                          <p className="text-xs text-[#6B7C6B]">
                             {new Date(game.date).toLocaleDateString('en-AU')}
                           </p>
                         </div>
                         <div className="text-right">
                           <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            game.result === 'win' ? 'bg-lakers-500 text-gray-800' :
-                            game.result === 'loss' ? 'bg-lakers-900 text-lakers-300' :
-                            'bg-lakers-600 text-gray-800'
+                            game.result === 'win' ? 'bg-green-100 text-green-700' :
+                            game.result === 'loss' ? 'bg-red-100 text-red-700' :
+                            'bg-gray-200 text-gray-700'
                           }`}>
                             {game.result?.toUpperCase() || 'N/A'}
                           </span>
@@ -289,8 +289,8 @@ const PlayerPortal = () => {
                       </div>
 
                       {game.mvp === playerData.id && (
-                        <div className="mt-2 flex items-center gap-2 bg-lakers-600 px-3 py-2 rounded-lg border border-lakers-500">
-                          <Award className="w-4 h-4 text-gray-800" />
+                        <div className="mt-2 flex items-center gap-2 bg-[#FFD700]/10 px-3 py-2 rounded-lg border border-[#FFD700]">
+                          <Award className="w-4 h-4 text-[#FFD700]" />
                           <span className="text-sm font-semibold text-gray-800">MVP of the Game!</span>
                         </div>
                       )}
@@ -298,7 +298,7 @@ const PlayerPortal = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-lakers-400 text-center py-8">No games recorded yet</p>
+                <p className="text-sm text-[#6B7C6B] text-center py-8">No games recorded yet</p>
               )}
             </div>
           </div>
@@ -306,9 +306,9 @@ const PlayerPortal = () => {
           {/* Right Column */}
           <div className="space-y-6">
             {/* Skill Distribution */}
-            <div className="bg-lakers-800 rounded-xl border border-lakers-700 p-6">
+            <div className="bg-white rounded-xl border border-[#D4E4D4] shadow-sm p-6">
               <div className="flex items-center gap-2 mb-4">
-                <BarChart2 className="w-5 h-5 text-lakers-400" />
+                <BarChart2 className="w-5 h-5 text-[#00A651]" />
                 <h2 className="text-lg font-bold text-gray-800">Skill Levels</h2>
               </div>
 
@@ -327,22 +327,22 @@ const PlayerPortal = () => {
             </div>
 
             {/* MVP Standing */}
-            <div className="bg-lakers-700 rounded-xl border-2 border-lakers-600 p-6">
+            <div className="bg-white rounded-xl border-2 border-[#D4E4D4] shadow-sm p-6">
               <div className="flex items-center gap-2 mb-4">
-                <Trophy className="w-6 h-6 text-lakers-300" />
+                <Trophy className="w-6 h-6 text-[#FFD700]" />
                 <h2 className="text-lg font-bold text-gray-800">MVP Standing</h2>
               </div>
 
               <div className="text-center">
-                <p className="text-5xl font-bold text-gray-800 mb-2">{mvpStats.votes}</p>
-                <p className="text-sm text-lakers-300 mb-4">Total MVP Votes</p>
+                <p className="text-5xl font-bold text-[#005028] mb-2">{mvpStats.votes}</p>
+                <p className="text-sm text-[#6B7C6B] mb-4">Total MVP Votes</p>
 
                 {mvpStats.rank && (
-                  <div className="bg-lakers-800 rounded-lg p-3 border border-lakers-600">
-                    <p className="text-xs text-lakers-400 mb-1">Current Rank</p>
-                    <p className="text-2xl font-bold text-gray-800">
+                  <div className="bg-[#F5F9F5] rounded-lg p-3 border border-[#D4E4D4]">
+                    <p className="text-xs text-[#6B7C6B] mb-1">Current Rank</p>
+                    <p className="text-2xl font-bold text-[#005028]">
                       #{mvpStats.rank}
-                      <span className="text-sm text-lakers-400 ml-1">of {mvpStats.totalPlayers}</span>
+                      <span className="text-sm text-[#6B7C6B] ml-1">of {mvpStats.totalPlayers}</span>
                     </p>
                   </div>
                 )}
@@ -350,25 +350,25 @@ const PlayerPortal = () => {
             </div>
 
             {/* Coach Notes */}
-            <div className="bg-lakers-800 rounded-xl border border-lakers-700 p-6">
+            <div className="bg-white rounded-xl border border-[#D4E4D4] shadow-sm p-6">
               <div className="flex items-center gap-2 mb-4">
-                <MessageSquare className="w-5 h-5 text-lakers-400" />
+                <MessageSquare className="w-5 h-5 text-[#00A651]" />
                 <h2 className="text-lg font-bold text-gray-800">Coach Notes</h2>
               </div>
 
               {playerTrainingNotes.length > 0 ? (
                 <div className="space-y-3">
                   {playerTrainingNotes.map((note, index) => (
-                    <div key={index} className="p-3 bg-lakers-700 rounded-lg border border-lakers-600">
-                      <p className="text-xs text-lakers-400 mb-2">
+                    <div key={index} className="p-3 bg-[#F5F9F5] rounded-lg border border-[#D4E4D4]">
+                      <p className="text-xs text-[#6B7C6B] mb-2">
                         {new Date(note.date).toLocaleDateString('en-AU')}
                       </p>
-                      <p className="text-sm text-lakers-200">{note.note}</p>
+                      <p className="text-sm text-gray-600">{note.note}</p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-lakers-400 text-center py-8">No notes yet</p>
+                <p className="text-sm text-[#6B7C6B] text-center py-8">No notes yet</p>
               )}
             </div>
           </div>
@@ -378,14 +378,14 @@ const PlayerPortal = () => {
   );
 };
 
-// Quick Stat Component
+// Quick Stat Component — sits on dark header
 const QuickStat = ({ icon: Icon, label, value }) => (
-  <div className="bg-lakers-700 border border-lakers-600 rounded-lg p-4">
+  <div className="bg-white/10 border border-white/20 rounded-lg p-4">
     <div className="flex items-center gap-2 mb-2">
-      <Icon className="w-4 h-4 text-lakers-300" />
-      <p className="text-xs text-lakers-300">{label}</p>
+      <Icon className="w-4 h-4 text-green-200" />
+      <p className="text-xs text-green-200">{label}</p>
     </div>
-    <p className="text-2xl font-bold text-gray-800">{value}</p>
+    <p className="text-2xl font-bold text-white">{value}</p>
   </div>
 );
 
