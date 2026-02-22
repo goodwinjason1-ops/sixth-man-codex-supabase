@@ -5,3 +5,9 @@ playwright-report
 .firebase
 .claude
 nul
+.env
+.env.test
+.vscode/
+_ul
+_ul-TheComputer
+gen.js
