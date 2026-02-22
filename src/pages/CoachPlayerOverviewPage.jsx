@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useData } from '../contexts/DataContext';
+import { useFilteredData } from '../hooks/useFilteredData';
 import {
   Search,
   Filter,
@@ -53,8 +52,7 @@ const SKILL_ICONS = {
 const CoachPlayerOverviewPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { userProfile, currentUser } = useAuth();
-  const { players: firestorePlayers, evaluations, teams: firestoreTeams, loading: dataLoading, errors } = useData();
+  const { players: firestorePlayers, evaluations, teams: firestoreTeams, loading: dataLoading, errors, currentUser, userProfile } = useFilteredData();
 
   // Read query params for deep-linking
   const teamParam = searchParams.get('team');

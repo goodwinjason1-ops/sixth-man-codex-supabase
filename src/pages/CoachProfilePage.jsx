@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useData } from '../contexts/DataContext';
+import { useFilteredData } from '../hooks/useFilteredData';
 import { db } from '../services/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import {
@@ -50,23 +49,21 @@ const CHART_COLORS = ['#00A651', '#ef4444', '#eab308'];
 
 const CoachProfilePage = () => {
   const navigate = useNavigate();
-  const { userProfile, currentUser } = useAuth();
-  const { games, evaluations, teams, players, addDocument, updateDocument, loading, errors } = useData();
+  const { games, evaluations, teams, players, addDocument, updateDocument, loading, errors, currentUser, userProfile } = useFilteredData();
 
-  // Derive teams coached from Firestore teams collection
+  // Derive teams coached - teams are pre-filtered by useFilteredData
   const teamsCoached = useMemo(() => {
-    if (!teams || teams.length === 0 || !currentUser) return [];
-    const myTeams = teams.filter(t => t.coachId === currentUser.uid);
-    return myTeams.map(t => ({
+    if (!teams || teams.length === 0) return [];
+    return teams.map(t => ({
       id: t.id,
       name: t.name || t.teamName || 'Unknown',
       season: t.season || '2025',
       ageGroup: t.ageGroup || '',
       current: t.active !== false
     }));
-  }, [teams, currentUser]);
+  }, [teams]);
 
-  // Derive player development stats from real data
+  // Derive player development stats from real data - players are pre-filtered by useFilteredData
   const realPlayerDevStats = useMemo(() => {
     const emptyStats = {
       totalPlayersCoached: 0,
@@ -74,17 +71,12 @@ const CoachProfilePage = () => {
       avgSkillProgression: 0,
       starPerformers: []
     };
-    if (!players || players.length === 0 || !currentUser) return emptyStats;
-    // Get players on coach's teams
-    const myTeamIds = (teams || []).filter(t => t.coachId === currentUser.uid).map(t => t.id);
-    if (myTeamIds.length === 0) return emptyStats;
-    const myPlayers = players.filter(p => myTeamIds.includes(p.teamId) || myTeamIds.includes(p.team));
-    if (myPlayers.length === 0) return emptyStats;
+    if (!players || players.length === 0) return emptyStats;
     return {
       ...emptyStats,
-      totalPlayersCoached: myPlayers.length
+      totalPlayersCoached: players.length
     };
-  }, [players, teams, currentUser]);
+  }, [players]);
 
   // Accreditation state (Firestore-backed)
   const [accreditation, setAccreditation] = useState(null);

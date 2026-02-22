@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useData } from '../contexts/DataContext';
+import { useFilteredData } from '../hooks/useFilteredData';
 import {
   ArrowLeft,
   ClipboardCheck,
@@ -74,24 +73,19 @@ const levelColors = {
 const CoachAssessmentPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { userProfile, currentUser } = useAuth();
-  const { players: firestorePlayers, teams: firestoreTeams, addDocument, deleteDocument, isOnline, pendingSync, loading, errors } = useData();
+  const { players: firestorePlayers, teams: firestoreTeams, addDocument, deleteDocument, isOnline, pendingSync, loading, errors, currentUser, userProfile } = useFilteredData();
   const tabsContainerRef = useRef(null);
   const draftIdFromUrl = searchParams.get('draftId');
 
-  // Get coach's teams from Firestore
+  // Get coach's teams - pre-filtered by useFilteredData
   const coachTeams = useMemo(() => {
-    if (!firestoreTeams || firestoreTeams.length === 0 || !currentUser) return [];
-    const isAdmin = userProfile?.role === 'admin';
-    const filtered = isAdmin
-      ? firestoreTeams
-      : firestoreTeams.filter(t => t.coachId === currentUser.uid);
-    return filtered.map(t => ({
+    if (!firestoreTeams || firestoreTeams.length === 0) return [];
+    return firestoreTeams.map(t => ({
       id: t.id,
       name: t.name || t.teamName || 'Unknown Team',
       ageGroup: t.ageGroup || ''
     }));
-  }, [firestoreTeams, currentUser, userProfile]);
+  }, [firestoreTeams]);
 
   // Build players grouped by team from Firestore
   const playersByTeam = useMemo(() => {

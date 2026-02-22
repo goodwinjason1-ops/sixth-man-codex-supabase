@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useData } from '../../contexts/DataContext';
+import { useFilteredData } from '../../hooks/useFilteredData';
 import {
   ChevronRight,
   Trophy,
@@ -56,7 +55,7 @@ const CHART_COLORS = ['#00A651', '#ef4444', '#eab308'];
 
 const GameResultsPage = () => {
   const navigate = useNavigate();
-  const { games: firestoreGames, players, teams: firestoreTeams, loading } = useData();
+  const { games: firestoreGames, players, teams: firestoreTeams, loading } = useFilteredData();
 
   // Derive completed games from Firestore (only games that have a result)
   const games = useMemo(() => {

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useData } from '../contexts/DataContext';
+import { useFilteredData } from '../hooks/useFilteredData';
 import { useAuth } from '../contexts/AuthContext';
 import { useGameDayDetection, formatGameForDisplay } from '../hooks/useGameDayDetection';
 import {
@@ -59,8 +59,8 @@ ChartJS.register(
 const CoachDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { players, games, evaluations, attendance, teams, trainingPlans, loading: dataLoading } = useData();
-  const { userProfile, currentUser, loading: authLoading } = useAuth();
+  const { players, games, evaluations, attendance, teams, trainingPlans, loading: dataLoading, currentUser, userProfile } = useFilteredData();
+  const { loading: authLoading } = useAuth();
   const [selectedTeam, setSelectedTeam] = useState('all');
   const [pendingDrafts, setPendingDrafts] = useState([]);
   const [loadingDrafts, setLoadingDrafts] = useState(true);
@@ -199,44 +199,29 @@ const CoachDashboard = () => {
     }
   };
 
-  // Get teams the coach manages - derive from Firestore teams collection
+  // Get teams the coach manages - teams are pre-filtered by useFilteredData
   const coachTeams = useMemo(() => {
-    if (userProfile?.role === 'admin') {
-      return [...new Set(players.map(p => p.team))].filter(Boolean);
-    }
-    // Derive from teams collection by matching coachId to current user
-    if (teams && teams.length > 0 && currentUser) {
+    if (teams && teams.length > 0) {
       const myTeamNames = teams
-        .filter(t => t.coachId === currentUser.uid)
         .map(t => t.name || t.teamName)
         .filter(Boolean);
       if (myTeamNames.length > 0) return myTeamNames;
     }
     // Fallback: try userProfile.teams if set, otherwise show all
     return userProfile?.teams || [...new Set(players.map(p => p.team))].filter(Boolean);
-  }, [players, userProfile, teams, currentUser]);
+  }, [players, userProfile, teams]);
 
   // Get full team objects for the coach's teams (with player counts)
   const coachTeamObjects = useMemo(() => {
-    if (userProfile?.role === 'admin') {
-      const teamNames = [...new Set(players.map(p => p.team))].filter(Boolean);
-      return teamNames.map(name => ({
-        id: name,
-        name,
-        playerCount: players.filter(p => p.team === name).length
+    if (teams?.length > 0) {
+      return teams.map(t => ({
+        ...t,
+        displayName: t.name || t.teamName,
+        playerCount: players.filter(p => p.team === (t.name || t.teamName)).length
       }));
     }
-    if (teams?.length > 0 && currentUser) {
-      return teams
-        .filter(t => t.coachId === currentUser.uid)
-        .map(t => ({
-          ...t,
-          displayName: t.name || t.teamName,
-          playerCount: players.filter(p => p.team === (t.name || t.teamName)).length
-        }));
-    }
     return [];
-  }, [players, teams, userProfile, currentUser]);
+  }, [players, teams]);
 
   // Training plans for this coach
   const coachPlansData = useMemo(() => {

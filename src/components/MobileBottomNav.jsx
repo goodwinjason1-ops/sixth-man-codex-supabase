@@ -66,10 +66,16 @@ const roleNavItems = {
     { icon: Gamepad2, label: 'Match Day', path: '/coach/match-assessment' },
     { icon: Dumbbell, label: 'Plans', path: '/coach/training-plans' },
   ],
+  team_manager: [
+    { icon: Home, label: 'Home', path: '/welcome' },
+    { icon: Calendar, label: 'Schedule', path: '/dashboard' },
+    { icon: Users, label: 'Players', path: '/team' },
+    { icon: Bell, label: 'Alerts', path: '/notifications' },
+  ],
   parent: [
     { icon: Home, label: 'Home', path: '/welcome' },
     { icon: BarChart3, label: 'Dashboard', path: '/dashboard' },
-    { icon: Calendar, label: 'Schedule', path: '/dashboard' },
+    { icon: Lightbulb, label: 'Skills', path: '/skills-passport' },
     { icon: Bell, label: 'Alerts', path: '/notifications' },
   ],
   default: [

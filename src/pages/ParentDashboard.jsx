@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useData } from '../contexts/DataContext';
+import { useFilteredData } from '../hooks/useFilteredData';
 import {
   Users,
   User,
@@ -20,7 +20,6 @@ import {
   ChevronRight,
   CheckCircle
 } from 'lucide-react';
-import { sampleIDPs } from '../data/sampleIDPs';
 import Breadcrumb from '../components/Breadcrumb';
 import FirstTimeHint from '../components/tutorial/FirstTimeHint';
 import TutorialPromptCard from '../components/tutorial/TutorialPromptCard';
@@ -31,26 +30,21 @@ import SessionSummaryCard from '../components/youth/SessionSummaryCard';
 
 const ParentDashboard = () => {
   const navigate = useNavigate();
-  const { userProfile, refreshUserProfile } = useAuth();
-  const { players, teams, evaluations, schedule } = useData();
+  const { refreshUserProfile } = useAuth();
+  const { players, teams, evaluations, schedule, userProfile, userChildrenIds } = useFilteredData();
   const [refreshing, setRefreshing] = useState(false);
-
-  const linkedPlayerIds = userProfile?.linkedPlayerIds || [];
 
   // If linkedPlayerIds is empty but user is a parent, try refreshing from Firestore
   // in case the profile is stale (e.g. acceptInvitation updated it after initial fetch)
   useEffect(() => {
-    if (userProfile?.role === 'parent' && linkedPlayerIds.length === 0 && !refreshing) {
+    if (userProfile?.role === 'parent' && userChildrenIds.length === 0 && !refreshing) {
       setRefreshing(true);
       refreshUserProfile().finally(() => setRefreshing(false));
     }
   }, [userProfile?.role]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Get linked children's data
-  const linkedPlayers = useMemo(() => {
-    if (!linkedPlayerIds.length || !players?.length) return [];
-    return players.filter(p => linkedPlayerIds.includes(p.id));
-  }, [linkedPlayerIds, players]);
+  // players is already filtered to parent's children by useFilteredData
+  const linkedPlayers = players || [];
 
   const [selectedChildIdx, setSelectedChildIdx] = useState(0);
   const selectedChild = linkedPlayers[selectedChildIdx] || null;
@@ -68,14 +62,8 @@ const ParentDashboard = () => {
     return evals.sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0)).slice(0, 5);
   }, [selectedChild, evaluations]);
 
-  // Get IDP for selected child (if shared with parents)
-  const childIDP = useMemo(() => {
-    if (!selectedChild) return null;
-    // Find active or completed IDP for this child that is visible to parents
-    return sampleIDPs.find(
-      plan => plan.playerId === selectedChild.id && plan.parentVisible
-    ) || null;
-  }, [selectedChild]);
+  // IDP placeholder — real IDP data would come from Firestore if available
+  const childIDP = null;
 
   // Session summaries from youth programs
   const [sessionSummaries, setSessionSummaries] = useState([]);
@@ -128,7 +116,7 @@ const ParentDashboard = () => {
   }, [selectedChild, schedule, childTeam]);
 
   // Empty state (show loading if still refreshing)
-  if (linkedPlayerIds.length === 0) {
+  if (userChildrenIds.length === 0) {
     return (
       <div className="min-h-screen bg-[#F5F9F5]">
         <div className="bg-white border-b border-[#D4E4D4]/30">

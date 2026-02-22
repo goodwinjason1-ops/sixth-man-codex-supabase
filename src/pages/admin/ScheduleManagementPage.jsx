@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useData } from '../../contexts/DataContext';
+import { useFilteredData } from '../../hooks/useFilteredData';
 import {
   collection,
   doc,
@@ -78,8 +77,7 @@ const toDateString = (dateValue) => {
 const ScheduleManagementPage = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-  const { currentUser, userProfile } = useAuth();
-  const { games: contextGames, teams, loading } = useData();
+  const { currentUser, userProfile, games: contextGames, teams, loading } = useFilteredData();
 
   const [games, setGames] = useState([]);
   const [isLoading, setIsLoading] = useState(true);

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useData } from '../contexts/DataContext';
+import { useFilteredData } from '../hooks/useFilteredData';
 import {
   Calendar, Clock, Users, ChevronRight, ArrowLeft,
   CheckCircle2, XCircle, AlertCircle, Dumbbell, FileText, Search
@@ -14,8 +13,7 @@ import { toJsDate, formatDateShortAU } from '../utils/dateUtils';
 const TrainingHistoryPage = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
-  const { currentUser, userProfile } = useAuth();
-  const { teams, players, trainingPlans } = useData();
+  const { currentUser, userProfile, teams: coachTeams, players, trainingPlans } = useFilteredData();
 
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,16 +25,9 @@ const TrainingHistoryPage = () => {
   // Get team name helper
   const getTeamName = (teamId) => {
     if (!teamId) return 'Unknown Team';
-    const team = (teams || []).find(t => t.id === teamId);
+    const team = (coachTeams || []).find(t => t.id === teamId);
     return team ? (team.name || team.teamName || 'Unknown Team') : teamId;
   };
-
-  // Coach's teams
-  const coachTeams = useMemo(() => {
-    if (!teams || !currentUser) return [];
-    if (userProfile?.role === 'admin' || userProfile?.role === 'president') return teams;
-    return teams.filter(t => t.coachId === currentUser.uid);
-  }, [teams, currentUser, userProfile]);
 
   // Load all training sessions from Firestore
   useEffect(() => {
@@ -107,9 +98,9 @@ const TrainingHistoryPage = () => {
   // Filter sessions
   const filteredSessions = useMemo(() => {
     let result = [...sessions];
-    // Filter by coach's teams
+    // Filter by coach's teams (already role-filtered by useFilteredData)
     const coachTeamIds = coachTeams.map(t => t.id);
-    if (coachTeamIds.length > 0 && userProfile?.role !== 'admin' && userProfile?.role !== 'president') {
+    if (coachTeamIds.length > 0) {
       result = result.filter(s => coachTeamIds.includes(s.teamId));
     }
     if (teamFilter !== 'all') {
@@ -124,7 +115,7 @@ const TrainingHistoryPage = () => {
       );
     }
     return result;
-  }, [sessions, teamFilter, searchQuery, coachTeams, userProfile]);
+  }, [sessions, teamFilter, searchQuery, coachTeams]);
 
   // Format a date value safely
   const formatDate = (dateVal) => {

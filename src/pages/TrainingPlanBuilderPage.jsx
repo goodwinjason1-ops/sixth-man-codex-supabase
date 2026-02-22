@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useData } from '../contexts/DataContext';
+import { useFilteredData } from '../hooks/useFilteredData';
 import {
   Save,
   Plus,
@@ -49,15 +48,7 @@ const TrainingPlanBuilderPage = () => {
   const { id: planId } = useParams();
   const [searchParams] = useSearchParams();
   const duplicateFrom = searchParams.get('duplicate');
-  const { currentUser, userProfile } = useAuth();
-  const { addDocument, updateDocument, fetchDocument, teams, loading } = useData();
-
-  // Determine which teams this coach can see
-  const coachTeams = useMemo(() => {
-    if (!teams || !currentUser) return [];
-    const isAdmin = userProfile?.role === 'admin' || userProfile?.role === 'president' || userProfile?.role === 'vice_president';
-    return isAdmin ? teams : teams.filter(t => t.coachId === currentUser?.uid);
-  }, [teams, currentUser, userProfile]);
+  const { currentUser, userProfile, addDocument, updateDocument, fetchDocument, teams: coachTeams, loading } = useFilteredData();
 
   // Plan setup state
   const [planName, setPlanName] = useState('');

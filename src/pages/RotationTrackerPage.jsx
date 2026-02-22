@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useData } from '../contexts/DataContext';
+import { useFilteredData } from '../hooks/useFilteredData';
 import { useAuth } from '../contexts/AuthContext';
 import { useGameDayDetection, formatGameForDisplay } from '../hooks/useGameDayDetection';
 import {
@@ -169,8 +169,8 @@ function generateRotationPlan(rosterIds, firstHalfIds, secondHalfIds, quarterLen
 // ═══════════════════════════════════════════════════════════════════════
 const RotationTrackerPage = () => {
   const navigate = useNavigate();
-  const { players, teams, loading: dataLoading, addDocument } = useData();
-  const { currentUser, userProfile, loading: authLoading } = useAuth();
+  const { players, teams, loading: dataLoading, addDocument, currentUser, userProfile } = useFilteredData();
+  const { loading: authLoading } = useAuth();
   const { todaysGames, primaryGame, dataReady } = useGameDayDetection();
 
   // ── Phase: 'setup' | 'live' | 'summary' ──
@@ -222,9 +222,9 @@ const RotationTrackerPage = () => {
 
   // ═══ Derived ═══
   const coachTeams = useMemo(() => {
-    if (!teams || !currentUser) return [];
-    return teams.filter(t => t.coachId === currentUser.uid);
-  }, [teams, currentUser]);
+    if (!teams) return [];
+    return teams;
+  }, [teams]);
 
   const selectedTeam = useMemo(() => {
     return coachTeams.find(t => t.id === selectedTeamId) || null;

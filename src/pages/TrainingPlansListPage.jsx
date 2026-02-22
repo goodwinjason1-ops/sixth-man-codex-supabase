@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useData } from '../contexts/DataContext';
+import { useFilteredData } from '../hooks/useFilteredData';
 import {
   Plus,
   Search,
@@ -31,8 +30,7 @@ import { toJsDate, formatDateShortAU } from '../utils/dateUtils';
 
 const TrainingPlansListPage = () => {
   const navigate = useNavigate();
-  const { currentUser, userProfile } = useAuth();
-  const { trainingPlans: firestorePlans, teams: firestoreTeams, games, deleteDocument, updateDocument, setDocument, loading: dataLoading } = useData();
+  const { currentUser, userProfile, trainingPlans: firestorePlans, teams: firestoreTeams, games, deleteDocument, updateDocument, setDocument, loading: dataLoading } = useFilteredData();
 
   // Seed templates into Firestore on first load (deterministic IDs prevent duplicates)
   const [seeded, setSeeded] = useState(false);
