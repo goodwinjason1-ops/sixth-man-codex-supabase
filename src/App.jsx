@@ -101,6 +101,10 @@ const ParentDashboard = lazy(() => import('./pages/ParentDashboard'));
 const ParentTeamViewPage = lazy(() => import('./pages/ParentTeamViewPage'));
 const ParentSchedulePage = lazy(() => import('./pages/ParentSchedulePage'));
 
+// Manager chunk
+const ManagerTeamPage = lazy(() => import('./pages/ManagerTeamPage'));
+const ScoringRosterPage = lazy(() => import('./pages/ScoringRosterPage'));
+
 // Help chunk
 const HelpHome = lazy(() => import('./pages/help/HelpHome'));
 const AdminHelp = lazy(() => import('./pages/help/AdminHelp'));
@@ -689,9 +693,9 @@ const AppRoutes = () => {
         <Route
           path="/admin/scoring-roster"
           element={
-            <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
+            <ProtectedRoute allowedRoles={[...STAFF_ROLES, 'team_manager']}>
               <ErrorBoundary fallbackMessage="Unable to load scoring roster.">
-                <NotificationsAdminPage />
+                <ScoringRosterPage />
               </ErrorBoundary>
             </ProtectedRoute>
           }
@@ -837,6 +841,29 @@ const AppRoutes = () => {
             <ProtectedRoute allowedRoles={['parent', ...ADMIN_ROLES]}>
               <ErrorBoundary fallbackMessage="Unable to load schedule.">
                 <ParentSchedulePage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Manager Routes */}
+        <Route
+          path="/manager/team"
+          element={
+            <ProtectedRoute allowedRoles={['team_manager', ...ADMIN_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load team view.">
+                <ManagerTeamPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/manager/scoring"
+          element={
+            <ProtectedRoute allowedRoles={['team_manager', ...ADMIN_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load scoring roster.">
+                <ScoringRosterPage />
               </ErrorBoundary>
             </ProtectedRoute>
           }

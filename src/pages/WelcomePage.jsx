@@ -257,7 +257,7 @@ const WelcomePage = () => {
           id: 'team',
           title: 'My Team',
           icon: Users,
-          path: '/team',
+          path: '/manager/team',
           description: 'Team roster and info'
         },
         {
@@ -266,6 +266,13 @@ const WelcomePage = () => {
           icon: LayoutDashboard,
           path: '/dashboard',
           description: 'Your dashboard'
+        },
+        {
+          id: 'scoring',
+          title: 'Scoring Roster',
+          icon: ClipboardList,
+          description: 'Manage scoring duties',
+          path: '/manager/scoring'
         },
         {
           id: 'notifications',
@@ -389,7 +396,7 @@ const WelcomePage = () => {
           id: 'schedule',
           title: 'Schedule',
           icon: Calendar,
-          path: '/dashboard',
+          path: '/parent/schedule',
           description: 'Games and training'
         },
         {
@@ -411,7 +418,7 @@ const WelcomePage = () => {
           id: 'team',
           title: 'Team Info',
           icon: Users,
-          path: '/team',
+          path: '/parent/team',
           description: 'Team roster and info'
         }
       ];

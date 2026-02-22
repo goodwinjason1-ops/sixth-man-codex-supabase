@@ -69,7 +69,7 @@ const roleNavItems = {
   team_manager: [
     { icon: Home, label: 'Home', path: '/welcome' },
     { icon: Calendar, label: 'Schedule', path: '/dashboard' },
-    { icon: Users, label: 'Players', path: '/team' },
+    { icon: Users, label: 'Players', path: '/manager/team' },
     { icon: Bell, label: 'Alerts', path: '/notifications' },
   ],
   parent: [
