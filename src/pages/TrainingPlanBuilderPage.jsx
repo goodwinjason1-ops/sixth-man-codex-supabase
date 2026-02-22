@@ -37,12 +37,6 @@ import {
 } from '../data/drillLibrary';
 import { SKILL_CATEGORIES, AGE_GROUPS } from '../data/skillBenchmarks';
 
-// Sample teams for coach
-const sampleTeams = [
-  { id: 't1', name: 'U14 Lakers', ageGroup: 'U14' },
-  { id: 't2', name: 'U12 Emerald', ageGroup: 'U12' }
-];
-
 const DURATION_OPTIONS = [
   { value: 'single', label: 'Single Session' },
   { value: 'weekly', label: 'Weekly Plan' },
@@ -56,7 +50,14 @@ const TrainingPlanBuilderPage = () => {
   const [searchParams] = useSearchParams();
   const duplicateFrom = searchParams.get('duplicate');
   const { currentUser, userProfile } = useAuth();
-  const { addDocument, updateDocument, fetchDocument } = useData();
+  const { addDocument, updateDocument, fetchDocument, teams, loading } = useData();
+
+  // Determine which teams this coach can see
+  const coachTeams = useMemo(() => {
+    if (!teams || !currentUser) return [];
+    const isAdmin = userProfile?.role === 'admin' || userProfile?.role === 'president' || userProfile?.role === 'vice_president';
+    return isAdmin ? teams : teams.filter(t => t.coachId === currentUser?.uid);
+  }, [teams, currentUser, userProfile]);
 
   // Plan setup state
   const [planName, setPlanName] = useState('');
@@ -107,12 +108,12 @@ const TrainingPlanBuilderPage = () => {
   // Auto-fill age group when team is selected
   useEffect(() => {
     if (selectedTeam) {
-      const team = sampleTeams.find(t => t.id === selectedTeam);
+      const team = coachTeams.find(t => t.id === selectedTeam);
       if (team) {
         setAgeGroup(team.ageGroup);
       }
     }
-  }, [selectedTeam]);
+  }, [selectedTeam, coachTeams]);
 
   // Create empty session
   function createEmptySession(number) {
@@ -306,7 +307,7 @@ const TrainingPlanBuilderPage = () => {
       const planData = {
         coachId: currentUser.uid,
         teamId: selectedTeam,
-        teamName: sampleTeams.find(t => t.id === selectedTeam)?.name || '',
+        teamName: coachTeams.find(t => t.id === selectedTeam)?.name || coachTeams.find(t => t.id === selectedTeam)?.teamName || '',
         ageGroup,
         name: planName,
         duration,
@@ -426,8 +427,8 @@ const TrainingPlanBuilderPage = () => {
                 }`}
               >
                 <option value="">Select a team</option>
-                {sampleTeams.map(team => (
-                  <option key={team.id} value={team.id}>{team.name}</option>
+                {coachTeams.map(team => (
+                  <option key={team.id} value={team.id}>{team.name || team.teamName}</option>
                 ))}
               </select>
               {errors.team && <p className="text-red-400 text-xs mt-1">{errors.team}</p>}
@@ -656,7 +657,7 @@ const TrainingPlanBuilderPage = () => {
         <PreviewModal
           plan={{
             name: planName,
-            team: sampleTeams.find(t => t.id === selectedTeam)?.name,
+            team: coachTeams.find(t => t.id === selectedTeam)?.name || coachTeams.find(t => t.id === selectedTeam)?.teamName,
             ageGroup,
             duration,
             dateRange: { start: startDate, end: endDate },

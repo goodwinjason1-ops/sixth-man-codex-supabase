@@ -50,209 +50,11 @@ const SKILL_ICONS = {
   'basketball-iq': Brain
 };
 
-// Sample player data for demonstration
-const samplePlayers = [
-  {
-    id: 'p1',
-    name: 'Emma Wilson',
-    teamId: 't1',
-    teamName: 'U14 Lakers',
-    ageGroup: 'U14',
-    photoURL: null,
-    skills: {
-      'ball-handling': { level: 3, lastAssessed: '2026-02-01' },
-      'passing-receiving': { level: 3, lastAssessed: '2026-02-01' },
-      'shooting': { level: 2, lastAssessed: '2026-01-28' },
-      'footwork': { level: 3, lastAssessed: '2026-01-28' },
-      'defense': { level: 4, lastAssessed: '2026-02-03' },
-      'off-ball-movement': { level: 2, lastAssessed: '2026-01-15' },
-      'team-play': { level: 3, lastAssessed: '2026-02-01' },
-      'basketball-iq': { level: 3, lastAssessed: '2026-02-01' }
-    },
-    assessmentHistory: [
-      { date: '2026-02-03', skillId: 'defense', level: 4, previousLevel: 3, coach: 'Coach Mike', notes: 'Outstanding defensive awareness. Ready for level 4!' },
-      { date: '2026-02-01', skillId: 'ball-handling', level: 3, previousLevel: 3, coach: 'Coach Mike', notes: 'Maintaining strong ball handling skills.' },
-      { date: '2026-01-28', skillId: 'shooting', level: 2, previousLevel: 2, coach: 'Coach Sarah', notes: 'Form is improving. Focus on follow-through.' },
-      { date: '2026-01-15', skillId: 'off-ball-movement', level: 2, previousLevel: 1, coach: 'Coach Mike', notes: 'Great improvement in cutting and spacing!' }
-    ],
-    seasonProgress: 2.5,
-    joinDate: '2024-09-01'
-  },
-  {
-    id: 'p2',
-    name: 'Liam Johnson',
-    teamId: 't2',
-    teamName: 'U12 Emerald',
-    ageGroup: 'U12',
-    photoURL: null,
-    skills: {
-      'ball-handling': { level: 2, lastAssessed: '2026-02-02' },
-      'passing-receiving': { level: 3, lastAssessed: '2026-02-02' },
-      'shooting': { level: 2, lastAssessed: '2026-01-30' },
-      'footwork': { level: 2, lastAssessed: '2026-01-25' },
-      'defense': { level: 2, lastAssessed: '2026-01-30' },
-      'off-ball-movement': { level: 1, lastAssessed: '2026-01-10' },
-      'team-play': { level: 2, lastAssessed: '2026-02-02' },
-      'basketball-iq': { level: 2, lastAssessed: '2026-01-25' }
-    },
-    assessmentHistory: [
-      { date: '2026-02-02', skillId: 'passing-receiving', level: 3, previousLevel: 2, coach: 'Coach Sarah', notes: 'Excellent court vision developing!' },
-      { date: '2026-01-30', skillId: 'shooting', level: 2, previousLevel: 1, coach: 'Coach Mike', notes: 'Form much improved. Keep practicing!' }
-    ],
-    seasonProgress: 2.3,
-    joinDate: '2025-02-01'
-  },
-  {
-    id: 'p3',
-    name: 'Sophia Garcia',
-    teamId: 't2',
-    teamName: 'U12 Emerald',
-    ageGroup: 'U12',
-    photoURL: null,
-    skills: {
-      'ball-handling': { level: 2, lastAssessed: '2026-01-28' },
-      'passing-receiving': { level: 2, lastAssessed: '2026-01-28' },
-      'shooting': { level: 3, lastAssessed: '2026-02-04' },
-      'footwork': { level: 2, lastAssessed: '2026-01-20' },
-      'defense': { level: 2, lastAssessed: '2026-01-28' },
-      'off-ball-movement': { level: 2, lastAssessed: '2026-01-28' },
-      'team-play': { level: 2, lastAssessed: '2026-01-15' },
-      'basketball-iq': { level: 3, lastAssessed: '2026-02-04' }
-    },
-    assessmentHistory: [
-      { date: '2026-02-04', skillId: 'shooting', level: 3, previousLevel: 2, coach: 'Coach Mike', notes: 'Great shooting progress! Very consistent form.' },
-      { date: '2026-02-04', skillId: 'basketball-iq', level: 3, previousLevel: 2, coach: 'Coach Mike', notes: 'Reads the game really well now.' }
-    ],
-    seasonProgress: 2.1,
-    joinDate: '2025-01-15'
-  },
-  {
-    id: 'p4',
-    name: 'Noah Davis',
-    teamId: 't1',
-    teamName: 'U14 Lakers',
-    ageGroup: 'U14',
-    photoURL: null,
-    skills: {
-      'ball-handling': { level: 2, lastAssessed: '2026-01-25' },
-      'passing-receiving': { level: 2, lastAssessed: '2026-01-25' },
-      'shooting': { level: 1, lastAssessed: '2026-01-20' },
-      'footwork': { level: 2, lastAssessed: '2026-01-25' },
-      'defense': { level: 3, lastAssessed: '2026-02-01' },
-      'off-ball-movement': null,
-      'team-play': { level: 2, lastAssessed: '2026-01-25' },
-      'basketball-iq': null
-    },
-    assessmentHistory: [
-      { date: '2026-02-01', skillId: 'defense', level: 3, previousLevel: 2, coach: 'Coach Sarah', notes: 'Great defensive effort!' }
-    ],
-    seasonProgress: 1.0,
-    joinDate: '2025-09-01'
-  },
-  {
-    id: 'p5',
-    name: 'Olivia Martinez',
-    teamId: 't1',
-    teamName: 'U14 Lakers',
-    ageGroup: 'U14',
-    photoURL: null,
-    skills: {
-      'ball-handling': { level: 4, lastAssessed: '2026-02-03' },
-      'passing-receiving': { level: 4, lastAssessed: '2026-02-03' },
-      'shooting': { level: 3, lastAssessed: '2026-01-30' },
-      'footwork': { level: 3, lastAssessed: '2026-01-30' },
-      'defense': { level: 3, lastAssessed: '2026-01-25' },
-      'off-ball-movement': { level: 3, lastAssessed: '2026-01-25' },
-      'team-play': { level: 4, lastAssessed: '2026-02-03' },
-      'basketball-iq': { level: 4, lastAssessed: '2026-02-03' }
-    },
-    assessmentHistory: [
-      { date: '2026-02-03', skillId: 'ball-handling', level: 4, previousLevel: 3, coach: 'Coach Mike', notes: 'Elite ball handler! Can teach others.' },
-      { date: '2026-02-03', skillId: 'passing-receiving', level: 4, previousLevel: 3, coach: 'Coach Mike', notes: 'Excellent court vision and passing.' },
-      { date: '2026-02-03', skillId: 'team-play', level: 4, previousLevel: 3, coach: 'Coach Mike', notes: 'True team leader on the court.' },
-      { date: '2026-02-03', skillId: 'basketball-iq', level: 4, previousLevel: 3, coach: 'Coach Mike', notes: 'Outstanding game sense.' }
-    ],
-    seasonProgress: 3.5,
-    joinDate: '2023-09-01'
-  },
-  {
-    id: 'p6',
-    name: 'Ethan Brown',
-    teamId: 't2',
-    teamName: 'U12 Emerald',
-    ageGroup: 'U12',
-    photoURL: null,
-    skills: {
-      'ball-handling': { level: 1, lastAssessed: '2025-12-15' },
-      'passing-receiving': { level: 1, lastAssessed: '2025-12-15' },
-      'shooting': { level: 1, lastAssessed: '2025-12-15' },
-      'footwork': { level: 1, lastAssessed: '2025-12-10' },
-      'defense': { level: 1, lastAssessed: '2025-12-10' },
-      'off-ball-movement': null,
-      'team-play': null,
-      'basketball-iq': null
-    },
-    assessmentHistory: [
-      { date: '2025-12-15', skillId: 'ball-handling', level: 1, previousLevel: null, coach: 'Coach Sarah', notes: 'Initial assessment. Good potential!' }
-    ],
-    seasonProgress: 0,
-    joinDate: '2025-12-01'
-  },
-  {
-    id: 'p7',
-    name: 'Ava Thompson',
-    teamId: 't1',
-    teamName: 'U14 Lakers',
-    ageGroup: 'U14',
-    photoURL: null,
-    skills: {
-      'ball-handling': { level: 2, lastAssessed: '2026-01-10' },
-      'passing-receiving': { level: 2, lastAssessed: '2026-01-10' },
-      'shooting': { level: 2, lastAssessed: '2026-01-05' },
-      'footwork': { level: 2, lastAssessed: '2026-01-05' },
-      'defense': { level: 2, lastAssessed: '2026-01-10' },
-      'off-ball-movement': { level: 1, lastAssessed: '2025-12-20' },
-      'team-play': { level: 2, lastAssessed: '2026-01-10' },
-      'basketball-iq': { level: 2, lastAssessed: '2026-01-10' }
-    },
-    assessmentHistory: [],
-    seasonProgress: 0.8,
-    joinDate: '2024-09-01'
-  },
-  {
-    id: 'p8',
-    name: 'Mason Lee',
-    teamId: 't2',
-    teamName: 'U12 Emerald',
-    ageGroup: 'U12',
-    photoURL: null,
-    skills: {
-      'ball-handling': null,
-      'passing-receiving': null,
-      'shooting': null,
-      'footwork': null,
-      'defense': null,
-      'off-ball-movement': null,
-      'team-play': null,
-      'basketball-iq': null
-    },
-    assessmentHistory: [],
-    seasonProgress: 0,
-    joinDate: '2026-01-15'
-  }
-];
-
-// Sample teams for the coach
-const sampleTeams = [
-  { id: 't1', name: 'U14 Lakers', ageGroup: 'U14' },
-  { id: 't2', name: 'U12 Emerald', ageGroup: 'U12' }
-];
-
 const CoachPlayerOverviewPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { userProfile, currentUser } = useAuth();
-  const { players: firestorePlayers, evaluations, teams: firestoreTeams, loading: dataLoading } = useData();
+  const { players: firestorePlayers, evaluations, teams: firestoreTeams, loading: dataLoading, errors } = useData();
 
   // Read query params for deep-linking
   const teamParam = searchParams.get('team');
@@ -267,7 +69,7 @@ const CoachPlayerOverviewPage = () => {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [showPlayerModal, setShowPlayerModal] = useState(false);
 
-  // Use sample data if no real data exists
+  // Transform Firestore players to expected structure
   const players = useMemo(() => {
     if (firestorePlayers && firestorePlayers.length > 0) {
       // Transform Firestore players to match our expected structure
@@ -292,7 +94,7 @@ const CoachPlayerOverviewPage = () => {
         };
       });
     }
-    return samplePlayers;
+    return [];
   }, [firestorePlayers, evaluations]);
 
   const teams = useMemo(() => {
@@ -303,7 +105,7 @@ const CoachPlayerOverviewPage = () => {
         ageGroup: t.ageGroup || ''
       }));
     }
-    return sampleTeams;
+    return [];
   }, [firestoreTeams]);
 
   // Auto-open player detail modal from ?player= query param
@@ -472,6 +274,28 @@ const CoachPlayerOverviewPage = () => {
             <div className="w-12 h-12 border-4 border-[#D4E4D4] border-t-[#00A651] rounded-full animate-spin mx-auto mb-4" />
             <p className="text-gray-800 font-medium">Loading players...</p>
           </div>
+        </div>
+      </PageShell>
+    );
+  }
+
+  if (players.length === 0) {
+    return (
+      <PageShell
+        title="Player Overview"
+        subtitle="View player development"
+        backTo="/dashboard"
+        breadcrumbs={[
+          { label: 'Home', url: '/welcome' },
+          { label: 'Dashboard', url: '/dashboard' },
+          { label: 'My Players' }
+        ]}
+        maxWidth="4xl"
+      >
+        <div className="text-center py-16">
+          <Users className="w-12 h-12 text-[#D4E4D4] mx-auto mb-4" />
+          <h2 className="text-lg font-bold text-gray-800 mb-2">No Players Found</h2>
+          <p className="text-gray-500 text-sm">No players are assigned to your teams yet.</p>
         </div>
       </PageShell>
     );

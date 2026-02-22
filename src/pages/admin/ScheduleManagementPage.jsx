@@ -72,38 +72,14 @@ const toDateString = (dateValue) => {
   return `${year}-${month}-${day}`;
 };
 
-const sampleTeams = [
-  { id: 'lakers-u8', name: 'Lakers U8', ageGroup: 'U8' },
-  { id: 'lakers-u10', name: 'Lakers U10', ageGroup: 'U10' },
-  { id: 'lakers-u12', name: 'Lakers U12', ageGroup: 'U12' },
-  { id: 'lakers-u14', name: 'Lakers U14', ageGroup: 'U14' },
-  { id: 'lakers-u16', name: 'Lakers U16', ageGroup: 'U16' },
-  { id: 'lakers-u19', name: 'Lakers U19', ageGroup: 'U19' }
-];
 
-const getNextSaturday = (weeksFromNow) => {
-  const today = new Date();
-  const daysUntilSat = (6 - today.getDay() + 7) % 7 || 7;
-  const nextSat = new Date(today);
-  nextSat.setDate(today.getDate() + daysUntilSat + (weeksFromNow * 7));
-  return nextSat.toISOString().split('T')[0];
-};
 
-const sampleGames = [
-  { id: 'g1', teamId: 'lakers-u12', teamName: 'Lakers U12', opponent: 'Hills Hawks', date: getNextSaturday(0), time: '9:00 AM', venue: 'Emerald Indoor Courts', homeAway: 'home', type: 'game', result: null },
-  { id: 'g2', teamId: 'lakers-u14', teamName: 'Lakers U14', opponent: 'North Stars', date: getNextSaturday(0), time: '11:00 AM', venue: 'Emerald Indoor Courts', homeAway: 'home', type: 'game', result: null },
-  { id: 'g3', teamId: 'lakers-u10', teamName: 'Lakers U10', opponent: 'Western Warriors', date: getNextSaturday(1), time: '10:00 AM', venue: 'Sports Centre', homeAway: 'home', type: 'game', result: null },
-  { id: 'g4', teamId: 'lakers-u8', teamName: 'Lakers U8', opponent: 'South Side', date: getNextSaturday(1), time: '2:00 PM', venue: 'Emerald Indoor Courts', homeAway: 'home', type: 'game', result: null },
-  { id: 'g5', teamId: 'lakers-u16', teamName: 'Lakers U16', opponent: 'Eastern Eagles', date: getNextSaturday(2), time: '9:00 AM', venue: 'Sports Centre', homeAway: 'away', type: 'game', result: null },
-  { id: 'g6', teamId: 'lakers-u12', teamName: 'Lakers U12', opponent: 'Northern Stars', date: getNextSaturday(2), time: '11:00 AM', venue: 'Sports Centre', homeAway: 'home', type: 'game', result: null },
-  { id: 'g7', teamId: 'lakers-u14', teamName: 'Lakers U14', opponent: 'Western Warriors', date: getNextSaturday(3), time: '9:00 AM', venue: 'Emerald Indoor Courts', homeAway: 'away', type: 'game', result: null }
-];
 
 const ScheduleManagementPage = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const { currentUser, userProfile } = useAuth();
-  const { games: contextGames } = useData();
+  const { games: contextGames, teams, loading } = useData();
 
   const [games, setGames] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -126,18 +102,20 @@ const ScheduleManagementPage = () => {
   const [eventTypeFilter, setEventTypeFilter] = useState('all');
 
   useEffect(() => {
-    if (contextGames && contextGames.length > 0) {
+    if (contextGames) {
       setGames(contextGames);
       setIsLoading(false);
-      const firstDate = toJsDate(contextGames[0]?.date);
-      if (firstDate) {
-        setCurrentMonth(new Date(firstDate.getFullYear(), firstDate.getMonth(), 1));
+      if (contextGames.length > 0) {
+        const firstDate = toJsDate(contextGames[0]?.date);
+        if (firstDate) {
+          setCurrentMonth(new Date(firstDate.getFullYear(), firstDate.getMonth(), 1));
+        }
       }
-    } else {
-      setGames(sampleGames);
+    } else if (!loading) {
+      setGames([]);
       setIsLoading(false);
     }
-  }, [contextGames]);
+  }, [contextGames, loading]);
 
   // Count stats
   const gameCount = games.filter(g => (g.type || 'game') === 'game').length;
@@ -219,7 +197,7 @@ const ScheduleManagementPage = () => {
       if (result.data.length > 0) {
         const newGames = result.data.map((row, index) => ({
           id: `imported_${Date.now()}_${index}`,
-          teamId: sampleTeams.find(t => t.name.toLowerCase().includes((row.team || '').toLowerCase()))?.id || '',
+          teamId: (teams || []).find(t => (t.name || t.teamName || '').toLowerCase().includes((row.team || '').toLowerCase()))?.id || '',
           teamName: row.team || '',
           opponent: row.opponent || '',
           date: row.date || '',
@@ -275,10 +253,10 @@ const ScheduleManagementPage = () => {
   const saveGame = async (gameData) => {
     setIsSaving(true);
     try {
-      const team = sampleTeams.find(t => t.id === gameData.teamId);
+      const team = (teams || []).find(t => t.id === gameData.teamId);
       const gameDoc = {
         ...gameData,
-        teamName: team?.name || gameData.teamName || '',
+        teamName: team?.name || team?.teamName || gameData.teamName || '',
         type: 'game',
         status: 'scheduled',
         result: gameData.result || null,
@@ -317,10 +295,10 @@ const ScheduleManagementPage = () => {
   const saveTraining = async (trainingData) => {
     setIsSaving(true);
     try {
-      const team = sampleTeams.find(t => t.id === trainingData.teamId);
+      const team = (teams || []).find(t => t.id === trainingData.teamId);
       const trainingDoc = {
         ...trainingData,
-        teamName: team?.name || trainingData.teamName || '',
+        teamName: team?.name || team?.teamName || trainingData.teamName || '',
         type: 'training',
         status: 'scheduled',
         createdAt: editingTraining ? (editingTraining.createdAt || new Date().toISOString()) : new Date().toISOString(),
@@ -488,8 +466,8 @@ const ScheduleManagementPage = () => {
               className="px-4 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none"
             >
               <option value="all">All Teams</option>
-              {sampleTeams.map(team => (
-                <option key={team.id} value={team.id}>{team.name}</option>
+              {(teams || []).map(team => (
+                <option key={team.id} value={team.id}>{team.name || team.teamName}</option>
               ))}
             </select>
           </div>
@@ -716,7 +694,7 @@ const ScheduleManagementPage = () => {
       {showAddModal && (
         <GameFormModal
           game={editingGame}
-          teams={sampleTeams}
+          teams={teams || []}
           onSave={saveGame}
           onClose={() => { setShowAddModal(false); setEditingGame(null); }}
         />
@@ -726,7 +704,7 @@ const ScheduleManagementPage = () => {
       {showTrainingModal && (
         <TrainingFormModal
           training={editingTraining}
-          teams={sampleTeams}
+          teams={teams || []}
           allEvents={games}
           onSave={saveTraining}
           onClose={() => { setShowTrainingModal(false); setEditingTraining(null); }}
@@ -817,7 +795,7 @@ const GameFormModal = ({ game, teams, onSave, onClose }) => {
             <select required value={formData.teamId} onChange={(e) => setFormData({ ...formData, teamId: e.target.value })}
               className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-[#00A651] focus:outline-none">
               <option value="">Select Team</option>
-              {teams.map(team => <option key={team.id} value={team.id}>{team.name}</option>)}
+              {teams.map(team => <option key={team.id} value={team.id}>{team.name || team.teamName}</option>)}
             </select>
           </div>
           <div>
@@ -955,7 +933,7 @@ const TrainingFormModal = ({ training, teams, allEvents, onSave, onClose }) => {
             <select required value={formData.teamId} onChange={(e) => setFormData({ ...formData, teamId: e.target.value })}
               className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 focus:border-amber-400 focus:outline-none">
               <option value="">Select Team</option>
-              {teams.map(team => <option key={team.id} value={team.id}>{team.name}</option>)}
+              {teams.map(team => <option key={team.id} value={team.id}>{team.name || team.teamName}</option>)}
             </select>
           </div>
           <div>

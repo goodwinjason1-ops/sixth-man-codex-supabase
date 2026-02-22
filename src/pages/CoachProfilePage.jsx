@@ -46,62 +46,20 @@ const COACHING_LEVELS = ['Community Coach', 'Development Coach', 'State Level', 
 const FIRST_AID_LEVELS = ['CPR Only', 'Level 1', 'Level 2'];
 const AUSTRALIAN_STATES = ['VIC', 'NSW', 'QLD', 'SA', 'WA', 'TAS', 'NT', 'ACT'];
 
-const sampleCoachingRecord = {
-  totalGames: 87,
-  wins: 52,
-  losses: 30,
-  draws: 5,
-  seasonBreakdown: [
-    { season: '2023', wins: 15, losses: 10, draws: 2 },
-    { season: '2024', wins: 18, losses: 9, draws: 1 },
-    { season: '2025', wins: 19, losses: 11, draws: 2 }
-  ]
-};
-
-const sampleTeamsCoached = [
-  { id: '1', name: 'U14 Lakers', season: '2025', ageGroup: 'U14', current: true },
-  { id: '2', name: 'U12 Emerald', season: '2025', ageGroup: 'U12', current: true },
-  { id: '3', name: 'U12 Green', season: '2024', ageGroup: 'U12', current: false },
-  { id: '4', name: 'U10 Dragons', season: '2023', ageGroup: 'U10', current: false }
-];
-
-const samplePlayerDevStats = {
-  totalPlayersCoached: 48,
-  playersImproved2Plus: 12,
-  avgSkillProgression: 1.4,
-  starPerformers: [
-    { id: '1', name: 'Emma Wilson', improvement: 2.5, team: 'U14 Lakers' },
-    { id: '2', name: 'Liam Johnson', improvement: 2.3, team: 'U12 Emerald' },
-    { id: '3', name: 'Sophia Garcia', improvement: 2.1, team: 'U12 Emerald' }
-  ]
-};
-
-const sampleRecentActivity = [
-  { id: '1', type: 'assessment', description: 'Skills assessment for Emma Wilson', date: '2026-02-04', team: 'U14 Lakers' },
-  { id: '2', type: 'match', description: 'Match Day vs Thunder', date: '2026-02-03', team: 'U14 Lakers', result: 'W 45-38' },
-  { id: '3', type: 'assessment', description: 'Skills assessment for Liam Johnson', date: '2026-02-02', team: 'U12 Emerald' },
-  { id: '4', type: 'training', description: 'Training session - Ball handling drills', date: '2026-02-01', team: 'U12 Emerald' },
-  { id: '5', type: 'assessment', description: 'Mid-season assessment for team', date: '2026-01-30', team: 'U14 Lakers' },
-  { id: '6', type: 'match', description: 'Match Day vs Celtics', date: '2026-01-28', team: 'U12 Emerald', result: 'L 32-36' },
-  { id: '7', type: 'training', description: 'Training session - Defense fundamentals', date: '2026-01-27', team: 'U14 Lakers' },
-  { id: '8', type: 'assessment', description: 'Skills assessment for Noah Davis', date: '2026-01-25', team: 'U14 Lakers' }
-];
-
 const CHART_COLORS = ['#00A651', '#ef4444', '#eab308'];
 
 const CoachProfilePage = () => {
   const navigate = useNavigate();
   const { userProfile, currentUser } = useAuth();
-  const { games, evaluations, teams, players, addDocument, updateDocument } = useData();
+  const { games, evaluations, teams, players, addDocument, updateDocument, loading, errors } = useData();
 
   // Derive teams coached from Firestore teams collection
   const teamsCoached = useMemo(() => {
-    if (!teams || teams.length === 0 || !currentUser) return sampleTeamsCoached;
+    if (!teams || teams.length === 0 || !currentUser) return [];
     const myTeams = teams.filter(t => t.coachId === currentUser.uid);
-    if (myTeams.length === 0) return sampleTeamsCoached;
     return myTeams.map(t => ({
       id: t.id,
-      name: t.name || t.teamName || 'Unknown Team',
+      name: t.name || t.teamName || 'Unknown',
       season: t.season || '2025',
       ageGroup: t.ageGroup || '',
       current: t.active !== false
@@ -110,14 +68,20 @@ const CoachProfilePage = () => {
 
   // Derive player development stats from real data
   const realPlayerDevStats = useMemo(() => {
-    if (!players || players.length === 0 || !currentUser) return samplePlayerDevStats;
+    const emptyStats = {
+      totalPlayersCoached: 0,
+      playersImproved2Plus: 0,
+      avgSkillProgression: 0,
+      starPerformers: []
+    };
+    if (!players || players.length === 0 || !currentUser) return emptyStats;
     // Get players on coach's teams
     const myTeamIds = (teams || []).filter(t => t.coachId === currentUser.uid).map(t => t.id);
-    if (myTeamIds.length === 0) return samplePlayerDevStats;
+    if (myTeamIds.length === 0) return emptyStats;
     const myPlayers = players.filter(p => myTeamIds.includes(p.teamId) || myTeamIds.includes(p.team));
-    if (myPlayers.length === 0) return samplePlayerDevStats;
+    if (myPlayers.length === 0) return emptyStats;
     return {
-      ...samplePlayerDevStats,
+      ...emptyStats,
       totalPlayersCoached: myPlayers.length
     };
   }, [players, teams, currentUser]);
@@ -158,29 +122,35 @@ const CoachProfilePage = () => {
     loadAccreditations();
   }, [currentUser]);
 
-  // Calculate coaching record from real data or use sample
+  // Calculate coaching record from real data
   const coachingRecord = useMemo(() => {
-    if (!games || games.length === 0) {
-      return sampleCoachingRecord;
-    }
+    const emptyRecord = { totalGames: 0, wins: 0, losses: 0, draws: 0, seasonBreakdown: [] };
+    if (!games || games.length === 0) return emptyRecord;
 
     // Filter games where this coach was involved
     const coachGames = games.filter(g => g.coachId === currentUser?.uid);
-
-    if (coachGames.length === 0) {
-      return sampleCoachingRecord;
-    }
+    if (coachGames.length === 0) return emptyRecord;
 
     const wins = coachGames.filter(g => g.result === 'win').length;
     const losses = coachGames.filter(g => g.result === 'loss').length;
     const draws = coachGames.filter(g => g.result === 'draw').length;
+
+    // Build season breakdown from real data
+    const seasonMap = {};
+    coachGames.forEach(g => {
+      const season = g.season || new Date(g.date).getFullYear().toString();
+      if (!seasonMap[season]) seasonMap[season] = { season, wins: 0, losses: 0, draws: 0 };
+      if (g.result === 'win') seasonMap[season].wins++;
+      else if (g.result === 'loss') seasonMap[season].losses++;
+      else if (g.result === 'draw') seasonMap[season].draws++;
+    });
 
     return {
       totalGames: coachGames.length,
       wins,
       losses,
       draws,
-      seasonBreakdown: sampleCoachingRecord.seasonBreakdown // Would need real calculation
+      seasonBreakdown: Object.values(seasonMap).sort((a, b) => a.season.localeCompare(b.season))
     };
   }, [games, currentUser]);
 
@@ -196,8 +166,34 @@ const CoachProfilePage = () => {
     { name: 'Draws', value: coachingRecord.draws }
   ].filter(d => d.value > 0);
 
-  // Use real player dev stats (computed above) or sample fallback
+  // Use real player dev stats (computed above)
   const playerDevStats = realPlayerDevStats;
+
+  // Derive recent activity from Firestore games and evaluations
+  const recentActivity = useMemo(() => {
+    const activities = [];
+    // Add games as activities
+    if (games && games.length > 0) {
+      const coachGames = games.filter(g => g.coachId === currentUser?.uid);
+      coachGames.forEach(g => {
+        const result = g.result === 'win' ? `W ${g.scoreFor || ''}-${g.scoreAgainst || ''}`.trim()
+          : g.result === 'loss' ? `L ${g.scoreFor || ''}-${g.scoreAgainst || ''}`.trim()
+          : g.result === 'draw' ? `D ${g.scoreFor || ''}-${g.scoreAgainst || ''}`.trim()
+          : null;
+        activities.push({
+          id: g.id,
+          type: 'match',
+          description: g.opponent ? `Match Day vs ${g.opponent}` : 'Match Day',
+          date: g.date || g.gameDate || '',
+          team: g.teamName || '',
+          result: result
+        });
+      });
+    }
+    // Sort by date descending and take most recent 8
+    activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return activities.slice(0, 8);
+  }, [games, currentUser]);
 
   // Get certification status color
   const getStatusColor = (status) => {
@@ -354,7 +350,7 @@ const CoachProfilePage = () => {
     return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
-  // Years coaching (sample - would come from profile)
+  // Years coaching (from profile)
   const yearsCoaching = userProfile?.yearsCoaching || 5;
   const currentSeason = '2025/2026';
 
@@ -490,6 +486,14 @@ const CoachProfilePage = () => {
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F5F9F5] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-[#D4E4D4] border-t-[#00A651] rounded-full animate-spin mx-auto" />
+      </div>
+    );
+  }
 
   return (
     <PageShell
@@ -875,44 +879,51 @@ const CoachProfilePage = () => {
           </div>
 
           {/* Activity Timeline */}
-          <div className="space-y-0">
-            {sampleRecentActivity.map((activity, index) => (
-              <div
-                key={activity.id}
-                className="flex gap-3 pb-4 relative"
-              >
-                {/* Timeline line */}
-                {index < sampleRecentActivity.length - 1 && (
-                  <div className="absolute left-[15px] top-8 bottom-0 w-px bg-[#D4E4D4]" />
-                )}
+          {recentActivity.length === 0 ? (
+            <div className="text-center py-8">
+              <Clock className="w-10 h-10 text-[#D4E4D4] mx-auto mb-3" />
+              <p className="text-gray-500 text-sm">No recent activity to display.</p>
+            </div>
+          ) : (
+            <div className="space-y-0">
+              {recentActivity.map((activity, index) => (
+                <div
+                  key={activity.id}
+                  className="flex gap-3 pb-4 relative"
+                >
+                  {/* Timeline line */}
+                  {index < recentActivity.length - 1 && (
+                    <div className="absolute left-[15px] top-8 bottom-0 w-px bg-[#D4E4D4]" />
+                  )}
 
-                {/* Icon */}
-                <div className="w-8 h-8 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center flex-shrink-0 z-10">
-                  {getActivityIcon(activity.type)}
-                </div>
+                  {/* Icon */}
+                  <div className="w-8 h-8 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center flex-shrink-0 z-10">
+                    {getActivityIcon(activity.type)}
+                  </div>
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-gray-800 text-sm">{activity.description}</p>
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <span className="text-[#6B7C6B] text-xs">{formatDate(activity.date)}</span>
-                    <span className="text-[#6B7C6B] text-xs">•</span>
-                    <span className="text-[#00A651] text-xs">{activity.team}</span>
-                    {activity.result && (
-                      <>
-                        <span className="text-[#6B7C6B] text-xs">•</span>
-                        <span className={`text-xs font-medium ${
-                          activity.result.startsWith('W') ? 'text-[#00A651]' : 'text-red-400'
-                        }`}>
-                          {activity.result}
-                        </span>
-                      </>
-                    )}
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-gray-800 text-sm">{activity.description}</p>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className="text-[#6B7C6B] text-xs">{formatDate(activity.date)}</span>
+                      <span className="text-[#6B7C6B] text-xs">•</span>
+                      <span className="text-[#00A651] text-xs">{activity.team}</span>
+                      {activity.result && (
+                        <>
+                          <span className="text-[#6B7C6B] text-xs">•</span>
+                          <span className={`text-xs font-medium ${
+                            activity.result.startsWith('W') ? 'text-[#00A651]' : 'text-red-400'
+                          }`}>
+                            {activity.result}
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* View All Link */}
           <button

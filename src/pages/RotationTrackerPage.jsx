@@ -33,6 +33,7 @@ import LoadingState from '../components/LoadingState';
 import EmptyState from '../components/EmptyState';
 
 // ─── Constants ───────────────────────────────────────────────────────
+const QUARTERS = ['Q1', 'Q2', 'Q3', 'Q4'];
 const HALF_LENGTH_OPTIONS = [15, 17, 19];
 const COURT_SIZE = 5;
 const AUTO_SAVE_INTERVAL = 30000; // 30 seconds

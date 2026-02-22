@@ -50,140 +50,31 @@ const toJsDate = (dateValue) => {
   return null;
 };
 
-// Sample game results data
-const sampleGames = [
-  {
-    id: 'g1',
-    teamId: 't1',
-    teamName: 'U14 Lakers',
-    ageGroup: 'U14',
-    opponent: 'Hills Hawks',
-    date: '2026-02-08',
-    time: '14:00',
-    venue: 'Emerald Indoor Courts',
-    homeScore: 48,
-    awayScore: 42,
-    result: 'win',
-    coachId: 'coach-1',
-    coachName: 'Sarah Mitchell',
-    scorers: [
-      { name: 'Emma Wilson', points: 18 },
-      { name: 'Liam Johnson', points: 14 },
-      { name: 'Noah Davis', points: 10 }
-    ],
-    notes: 'Great defensive effort in 4th quarter'
-  },
-  {
-    id: 'g2',
-    teamId: 't2',
-    teamName: 'U12 Emerald',
-    ageGroup: 'U12',
-    opponent: 'North Stars',
-    date: '2026-02-08',
-    time: '10:00',
-    venue: 'Emerald Indoor Courts',
-    homeScore: 32,
-    awayScore: 38,
-    result: 'loss',
-    coachId: 'coach-2',
-    coachName: 'Mike Thompson',
-    scorers: [
-      { name: 'Sophia Garcia', points: 12 },
-      { name: 'Oliver Brown', points: 10 }
-    ],
-    notes: 'Need to work on free throws'
-  },
-  {
-    id: 'g3',
-    teamId: 't3',
-    teamName: 'U10 Green',
-    ageGroup: 'U10',
-    opponent: 'Western Warriors',
-    date: '2026-02-01',
-    time: '09:00',
-    venue: 'Sports Centre',
-    homeScore: 24,
-    awayScore: 24,
-    result: 'draw',
-    coachId: 'coach-3',
-    coachName: 'James Wilson',
-    scorers: [
-      { name: 'Ava Chen', points: 8 },
-      { name: 'Jack Miller', points: 8 }
-    ],
-    notes: 'Close game, good teamwork'
-  },
-  {
-    id: 'g4',
-    teamId: 't1',
-    teamName: 'U14 Lakers',
-    ageGroup: 'U14',
-    opponent: 'Thunder',
-    date: '2026-02-01',
-    time: '16:00',
-    venue: 'Thunder Arena',
-    homeScore: 52,
-    awayScore: 45,
-    result: 'win',
-    coachId: 'coach-1',
-    coachName: 'Sarah Mitchell',
-    scorers: [
-      { name: 'Emma Wilson', points: 22 },
-      { name: 'Noah Davis', points: 15 }
-    ],
-    notes: 'Strong start set the tone'
-  },
-  {
-    id: 'g5',
-    teamId: 't4',
-    teamName: 'U16 Dragons',
-    ageGroup: 'U16',
-    opponent: 'City Blazers',
-    date: '2026-01-25',
-    time: '18:00',
-    venue: 'City Arena',
-    homeScore: 58,
-    awayScore: 62,
-    result: 'loss',
-    coachId: 'coach-2',
-    coachName: 'Mike Thompson',
-    scorers: [
-      { name: 'James Lee', points: 20 },
-      { name: 'Sarah Kim', points: 18 }
-    ],
-    notes: 'Lost momentum in final minutes'
-  },
-  {
-    id: 'g6',
-    teamId: 't5',
-    teamName: 'U14 Gold',
-    ageGroup: 'U14',
-    opponent: 'Eagles',
-    date: '2026-01-25',
-    time: '12:00',
-    venue: 'Emerald Indoor Courts',
-    homeScore: 44,
-    awayScore: 36,
-    result: 'win',
-    coachId: 'coach-4',
-    coachName: 'Lisa Chen',
-    scorers: [
-      { name: 'Mia Roberts', points: 16 },
-      { name: 'Ethan Park', points: 14 }
-    ],
-    notes: 'Dominant second half performance'
-  }
-];
 
 // Chart colors
 const CHART_COLORS = ['#00A651', '#ef4444', '#eab308'];
 
 const GameResultsPage = () => {
   const navigate = useNavigate();
-  const { players } = useData();
+  const { games: firestoreGames, players, teams: firestoreTeams, loading } = useData();
+
+  // Derive completed games from Firestore (only games that have a result)
+  const games = useMemo(() => {
+    if (!firestoreGames) return [];
+    return firestoreGames
+      .filter(g => g.result && (g.type || 'game') === 'game')
+      .map(g => ({
+        ...g,
+        homeScore: g.finalScore?.home ?? g.homeScore ?? 0,
+        awayScore: g.finalScore?.away ?? g.awayScore ?? 0,
+        ageGroup: g.ageGroup || (firestoreTeams || []).find(t => t.id === g.teamId)?.ageGroup || '',
+        coachName: g.coachName || '',
+        scorers: g.scorers || [],
+        notes: g.notes || ''
+      }));
+  }, [firestoreGames, firestoreTeams]);
 
   // State
-  const [games, setGames] = useState(sampleGames);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTeam, setSelectedTeam] = useState('all');
   const [selectedAgeGroup, setSelectedAgeGroup] = useState('all');
@@ -192,7 +83,7 @@ const GameResultsPage = () => {
   const [showAddResultModal, setShowAddResultModal] = useState(false);
 
   const ageGroups = ['U8', 'U10', 'U12', 'U14', 'U16', 'U18'];
-  const teams = [...new Set(games.map(g => g.teamName))].sort();
+  const teamNames = [...new Set(games.map(g => g.teamName).filter(Boolean))].sort();
 
   // Filter games
   const filteredGames = useMemo(() => {
@@ -209,14 +100,21 @@ const GameResultsPage = () => {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       result = result.filter(g =>
-        g.teamName.toLowerCase().includes(query) ||
-        g.opponent.toLowerCase().includes(query) ||
-        g.venue.toLowerCase().includes(query)
+        (g.teamName || '').toLowerCase().includes(query) ||
+        (g.opponent || '').toLowerCase().includes(query) ||
+        (g.venue || '').toLowerCase().includes(query)
       );
     }
 
     // Sort by date (most recent first)
-    result.sort((a, b) => new Date(b.date) - new Date(a.date));
+    result.sort((a, b) => {
+      const dateA = toJsDate(a.date);
+      const dateB = toJsDate(b.date);
+      if (!dateA && !dateB) return 0;
+      if (!dateA) return 1;
+      if (!dateB) return -1;
+      return dateB.getTime() - dateA.getTime();
+    });
 
     return result;
   }, [games, selectedTeam, selectedAgeGroup, searchQuery]);
@@ -328,8 +226,27 @@ const GameResultsPage = () => {
       }
     >
       <div className="space-y-6">
+        {/* Loading State */}
+        {loading && games.length === 0 && (
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
+            <div className="animate-spin w-8 h-8 border-4 border-[#D4E4D4] border-t-[#00A651] rounded-full mx-auto mb-4" />
+            <p className="text-[#6B7C6B]">Loading game results...</p>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && games.length === 0 && (
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
+            <Trophy className="w-12 h-12 text-[#6B7C6B] mx-auto mb-3" />
+            <h3 className="text-gray-800 font-semibold mb-2">No Match Results Yet</h3>
+            <p className="text-[#6B7C6B] text-sm">
+              No match results recorded yet. Complete a match day assessment to see results here.
+            </p>
+          </div>
+        )}
+
         {/* Stats Overview */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+        {games.length > 0 && <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
           <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4 text-center">
             <p className="text-2xl font-bold text-gray-800">{stats.totalGames}</p>
             <p className="text-[#6B7C6B] text-xs">Total Games</p>
@@ -356,10 +273,10 @@ const GameResultsPage = () => {
             </p>
             <p className="text-[#6B7C6B] text-xs">Point Diff</p>
           </div>
-        </div>
+        </div>}
 
         {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {games.length > 0 && <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Win/Loss Pie Chart */}
           <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
             <h3 className="text-gray-800 font-bold mb-4">Overall Record</h3>
@@ -415,7 +332,7 @@ const GameResultsPage = () => {
               </ResponsiveContainer>
             </div>
           </div>
-        </div>
+        </div>}
 
         {/* Search and Filters */}
         <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-4">
@@ -449,7 +366,7 @@ const GameResultsPage = () => {
                   className="w-full bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg px-3 py-2 text-gray-800 focus:border-[#00A651] focus:outline-none"
                 >
                   <option value="all">All Teams</option>
-                  {teams.map(team => (
+                  {teamNames.map(team => (
                     <option key={team} value={team}>{team}</option>
                   ))}
                 </select>
@@ -479,7 +396,11 @@ const GameResultsPage = () => {
             <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
               <Trophy className="w-12 h-12 text-[#6B7C6B] mx-auto mb-3" />
               <h3 className="text-gray-800 font-semibold mb-2">No Games Found</h3>
-              <p className="text-[#6B7C6B] text-sm">Try adjusting your filters</p>
+              <p className="text-[#6B7C6B] text-sm">
+                {searchQuery || selectedTeam !== 'all' || selectedAgeGroup !== 'all'
+                  ? 'Try adjusting your filters'
+                  : 'No match results recorded yet. Complete a match day assessment to see results here.'}
+              </p>
             </div>
           ) : (
             filteredGames.map(game => (

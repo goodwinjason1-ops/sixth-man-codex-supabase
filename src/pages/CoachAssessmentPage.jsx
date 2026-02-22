@@ -38,46 +38,6 @@ import { getAgeGroupFromTeam } from '../data/skillBenchmarks';
 import Breadcrumb from '../components/Breadcrumb';
 import { useAutoSave } from '../hooks/useAutoSave';
 
-// Sample teams data - will connect to Firestore later
-const sampleTeamsData = [
-  { id: 'u10-green', name: 'U10 Green', ageGroup: 'U10' },
-  { id: 'u12-emerald', name: 'U12 Emerald', ageGroup: 'U12' },
-  { id: 'u14-lakers', name: 'U14 Lakers', ageGroup: 'U14' },
-  { id: 'u16-senior', name: 'U16 Senior', ageGroup: 'U16' }
-];
-
-// Sample players data - will connect to Firestore later
-const samplePlayersData = {
-  'u10-green': [
-    { id: 'p1', name: 'Emma Wilson', number: 5 },
-    { id: 'p2', name: 'Jack Thompson', number: 8 },
-    { id: 'p3', name: 'Olivia Brown', number: 12 },
-    { id: 'p4', name: 'Noah Davis', number: 3 },
-    { id: 'p5', name: 'Ava Martinez', number: 7 }
-  ],
-  'u12-emerald': [
-    { id: 'p6', name: 'Liam Johnson', number: 11 },
-    { id: 'p7', name: 'Sophia Garcia', number: 22 },
-    { id: 'p8', name: 'Mason Lee', number: 4 },
-    { id: 'p9', name: 'Isabella Clark', number: 15 },
-    { id: 'p10', name: 'Ethan White', number: 9 }
-  ],
-  'u14-lakers': [
-    { id: 'p11', name: 'Mia Robinson', number: 23 },
-    { id: 'p12', name: 'Lucas Hall', number: 10 },
-    { id: 'p13', name: 'Charlotte Young', number: 6 },
-    { id: 'p14', name: 'Aiden King', number: 14 },
-    { id: 'p15', name: 'Amelia Wright', number: 21 }
-  ],
-  'u16-senior': [
-    { id: 'p16', name: 'James Scott', number: 33 },
-    { id: 'p17', name: 'Harper Adams', number: 1 },
-    { id: 'p18', name: 'Benjamin Turner', number: 24 },
-    { id: 'p19', name: 'Evelyn Hill', number: 13 },
-    { id: 'p20', name: 'Alexander Green', number: 30 }
-  ]
-};
-
 // Skills categories
 const skillCategories = [
   { id: 'ball-handling', name: 'Ball Handling', icon: CircleDot },
@@ -115,40 +75,34 @@ const CoachAssessmentPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { userProfile, currentUser } = useAuth();
-  const { players: firestorePlayers, teams: firestoreTeams, addDocument, deleteDocument, isOnline, pendingSync } = useData();
+  const { players: firestorePlayers, teams: firestoreTeams, addDocument, deleteDocument, isOnline, pendingSync, loading, errors } = useData();
   const tabsContainerRef = useRef(null);
   const draftIdFromUrl = searchParams.get('draftId');
 
-  // Get coach's teams from Firestore, fall back to sample data
+  // Get coach's teams from Firestore
   const coachTeams = useMemo(() => {
-    if (firestoreTeams && firestoreTeams.length > 0 && currentUser) {
-      const isAdmin = userProfile?.role === 'admin';
-      const filtered = isAdmin
-        ? firestoreTeams
-        : firestoreTeams.filter(t => t.coachId === currentUser.uid);
-      if (filtered.length > 0) {
-        return filtered.map(t => ({
-          id: t.id,
-          name: t.name || t.teamName || 'Unknown Team',
-          ageGroup: t.ageGroup || ''
-        }));
-      }
-    }
-    return sampleTeamsData;
+    if (!firestoreTeams || firestoreTeams.length === 0 || !currentUser) return [];
+    const isAdmin = userProfile?.role === 'admin';
+    const filtered = isAdmin
+      ? firestoreTeams
+      : firestoreTeams.filter(t => t.coachId === currentUser.uid);
+    return filtered.map(t => ({
+      id: t.id,
+      name: t.name || t.teamName || 'Unknown Team',
+      ageGroup: t.ageGroup || ''
+    }));
   }, [firestoreTeams, currentUser, userProfile]);
 
-  // Build players grouped by team from Firestore, fall back to sample data
+  // Build players grouped by team from Firestore
   const playersByTeam = useMemo(() => {
-    if (firestorePlayers && firestorePlayers.length > 0 && coachTeams !== sampleTeamsData) {
-      const grouped = {};
-      coachTeams.forEach(team => {
-        grouped[team.id] = firestorePlayers
-          .filter(p => p.teamId === team.id || p.team === team.name || p.teamName === team.name)
-          .map(p => ({ id: p.id, name: p.name || p.displayName || 'Unknown', number: p.number || p.jerseyNumber || 0 }));
-      });
-      return grouped;
-    }
-    return samplePlayersData;
+    if (!firestorePlayers || firestorePlayers.length === 0) return {};
+    const grouped = {};
+    coachTeams.forEach(team => {
+      grouped[team.id] = firestorePlayers
+        .filter(p => p.teamId === team.id || p.team === team.name || p.teamName === team.name)
+        .map(p => ({ id: p.id, name: p.name || p.displayName || 'Unknown', number: p.number || p.jerseyNumber || 0 }));
+    });
+    return grouped;
   }, [firestorePlayers, coachTeams]);
 
   const hasMultipleTeams = coachTeams.length > 1;
@@ -464,6 +418,32 @@ const CoachAssessmentPage = () => {
       }
     }
   }, [draftIdFromUrl, currentUser, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F5F9F5] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#D4E4D4] border-t-[#00A651] rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-500">Loading skills assessment...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (coachTeams.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#F5F9F5] flex items-center justify-center">
+        <div className="text-center px-6">
+          <ClipboardCheck className="w-12 h-12 text-[#D4E4D4] mx-auto mb-4" />
+          <h2 className="text-lg font-bold text-gray-800 mb-2">No Teams Assigned</h2>
+          <p className="text-gray-500 text-sm">Contact your administrator to be assigned to a team.</p>
+          <button onClick={() => navigate('/dashboard')} className="mt-4 px-4 py-2 bg-[#005028] text-white rounded-lg text-sm">
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F9F5]">

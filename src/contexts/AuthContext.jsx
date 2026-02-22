@@ -98,6 +98,7 @@ export const AuthProvider = ({ children }) => {
       );
       return result.user;
     } catch (err) {
+      console.error('Google Sign-In Error:', err.code, err.message);
       setError(err.message);
       throw err;
     }

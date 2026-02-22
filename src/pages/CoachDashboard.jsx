@@ -306,25 +306,37 @@ const CoachDashboard = () => {
     };
   }, [selectedTeam, games, attendance, evaluations, filteredPlayers, coachTeams]);
 
-  // MVP Leaderboard
+  // MVP Leaderboard — reads from mvpVoting.votes (3-2-1 system) in games collection
   const mvpLeaderboard = useMemo(() => {
-    const mvpCounts = {};
+    const mvpPoints = {};
+    const mvpMatchCount = {};
+    const teamIds = coachTeams.map(t => t.id);
 
     games.forEach(game => {
-      if (game.mvp && (selectedTeam === 'all' || game.team === selectedTeam)) {
-        mvpCounts[game.mvp] = (mvpCounts[game.mvp] || 0) + 1;
-      }
+      if (selectedTeam !== 'all' && game.teamId !== selectedTeam) return;
+      if (selectedTeam === 'all' && !teamIds.includes(game.teamId)) return;
+
+      const votes = game.mvpVoting?.votes;
+      if (!votes) return;
+
+      Object.entries(votes).forEach(([points, playerId]) => {
+        if (!playerId) return;
+        const pts = parseInt(points, 10);
+        if (isNaN(pts)) return;
+        mvpPoints[playerId] = (mvpPoints[playerId] || 0) + pts;
+        mvpMatchCount[playerId] = (mvpMatchCount[playerId] || 0) + 1;
+      });
     });
 
-    return Object.entries(mvpCounts)
-      .map(([playerId, count]) => {
+    return Object.entries(mvpPoints)
+      .map(([playerId, totalPoints]) => {
         const player = players.find(p => p.id === playerId);
-        return { player, count };
+        return { player, totalPoints, matches: mvpMatchCount[playerId] || 0 };
       })
       .filter(item => item.player)
-      .sort((a, b) => b.count - a.count)
+      .sort((a, b) => b.totalPoints - a.totalPoints)
       .slice(0, 5);
-  }, [games, players, selectedTeam]);
+  }, [games, players, selectedTeam, coachTeams]);
 
   // Attendance trend chart
   const attendanceTrendData = useMemo(() => {
@@ -706,19 +718,19 @@ const CoachDashboard = () => {
                         {index + 1}
                       </div>
                       <div>
-                        <p className="font-semibold text-sm text-gray-800">{item.player.name}</p>
-                        <p className="text-xs text-gray-400">{item.player.team}</p>
+                        <p className="font-semibold text-sm text-gray-800">{item.player.name || item.player.displayName || 'Unknown'}</p>
+                        <p className="text-xs text-gray-400">{item.player.teamName || item.player.team || ''} · {item.matches} match{item.matches !== 1 ? 'es' : ''}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-gray-800">{item.count}</p>
-                      <p className="text-xs text-gray-400">MVP{item.count > 1 ? 's' : ''}</p>
+                      <p className="text-lg font-bold text-gray-800">{item.totalPoints}</p>
+                      <p className="text-xs text-gray-400">pts</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-400 text-center py-8">No MVP votes yet</p>
+              <p className="text-sm text-gray-400 text-center py-8">No MVP votes recorded yet — vote after your next match!</p>
             )}
           </div>
 
