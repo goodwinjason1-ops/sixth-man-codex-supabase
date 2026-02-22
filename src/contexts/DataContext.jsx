@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import {
   collection,
   onSnapshot,
@@ -10,7 +10,8 @@ import {
   deleteDoc,
   doc,
   getDoc,
-  setDoc
+  setDoc,
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { dbService } from '../services/indexedDB';
@@ -64,6 +65,15 @@ const getSampleSchedule = () => {
   ];
 };
 
+// All collection keys for loading/error tracking
+const COLLECTION_KEYS = [
+  'players', 'skills', 'evaluations', 'games', 'attendance',
+  'trainingNotes', 'schedule', 'notifications', 'teams', 'trainingPlans'
+];
+
+const initialLoadingStates = Object.fromEntries(COLLECTION_KEYS.map(k => [k, true]));
+const initialErrors = {};
+
 export const useData = () => {
   const context = useContext(DataContext);
   if (!context) {
@@ -84,18 +94,43 @@ export const DataProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [teams, setTeams] = useState([]);
   const [trainingPlans, setTrainingPlans] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pendingSync, setPendingSync] = useState([]);
+
+  // BUG 1 FIX: Per-collection loading states
+  const [loadingStates, setLoadingStates] = useState(initialLoadingStates);
+
+  // BUG 3: Per-collection error tracking
+  const [errors, setErrors] = useState(initialErrors);
+
+  // Derive overall loading — true until ALL collections have received first snapshot (or errored)
+  const loading = useMemo(
+    () => Object.values(loadingStates).some(v => v === true),
+    [loadingStates]
+  );
+
+  // Helper to mark a collection as loaded
+  const markLoaded = useCallback((key) => {
+    setLoadingStates(prev => {
+      if (!prev[key]) return prev; // already false, skip re-render
+      return { ...prev, [key]: false };
+    });
+  }, []);
+
+  // Helper to record a collection error
+  const markError = useCallback((key, errorCode) => {
+    setErrors(prev => ({ ...prev, [key]: errorCode }));
+    markLoaded(key); // stop loading even on error
+  }, [markLoaded]);
 
   // Monitor online/offline status
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
-    
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
@@ -145,7 +180,12 @@ export const DataProvider = ({ children }) => {
 
   // Subscribe to Firestore collections
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      // Reset loading states when no user (prevents stale loading on logout/login)
+      setLoadingStates(initialLoadingStates);
+      setErrors({});
+      return;
+    }
 
     const unsubscribers = [];
 
@@ -153,14 +193,15 @@ export const DataProvider = ({ children }) => {
     const playersQuery = query(collection(db, 'players'));
     unsubscribers.push(
       onSnapshot(playersQuery, async (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         setPlayers(data);
+        markLoaded('players');
         await dbService.setAll('players', data);
       }, async (error) => {
-        console.error('Players snapshot error:', error);
-        // Load from IndexedDB on error
+        console.error('Players snapshot error:', error.code, error.message);
+        markError('players', error.code || 'unknown');
         const offlineData = await dbService.getAll('players');
-        setPlayers(offlineData);
+        setPlayers(offlineData || []);
       })
     );
 
@@ -168,18 +209,20 @@ export const DataProvider = ({ children }) => {
     const skillsQuery = query(collection(db, 'curriculum'));
     unsubscribers.push(
       onSnapshot(skillsQuery, async (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ 
-          id: doc.id, 
-          ...doc.data(),
-          drills: Array.isArray(doc.data().drills) ? doc.data().drills : [],
-          category: doc.data().category || 'Uncategorized'
+        const data = snapshot.docs.map(d => ({
+          id: d.id,
+          ...d.data(),
+          drills: Array.isArray(d.data().drills) ? d.data().drills : [],
+          category: d.data().category || 'Uncategorized'
         }));
         setSkills(data);
+        markLoaded('skills');
         await dbService.setAll('skills', data);
       }, async (error) => {
-        console.error('Skills snapshot error:', error);
+        console.error('Skills snapshot error:', error.code, error.message);
+        markError('skills', error.code || 'unknown');
         const offlineData = await dbService.getAll('skills');
-        setSkills(offlineData);
+        setSkills(offlineData || []);
       })
     );
 
@@ -189,28 +232,28 @@ export const DataProvider = ({ children }) => {
       onSnapshot(evalsQuery, async (snapshot) => {
         const evalsObj = {};
         const evalsArray = [];
-        snapshot.docs.forEach(doc => {
-          const data = { id: doc.id, ...doc.data() };
+        snapshot.docs.forEach(d => {
+          const data = { id: d.id, ...d.data() };
           if (data.skills && typeof data.skills === 'object') {
-            // Session format: one doc with nested skills
             Object.entries(data.skills).forEach(([skillId, skillData]) => {
               const flatEntry = { ...data, skillId, level: skillData.level, skillNotes: skillData.notes };
               evalsObj[`${data.playerId}_${skillId}`] = flatEntry;
               evalsArray.push(flatEntry);
             });
           } else if (data.skillId) {
-            // Legacy format: one doc per skill
             evalsObj[`${data.playerId}_${data.skillId}`] = data;
             evalsArray.push(data);
           }
         });
         setEvaluations(evalsObj);
+        markLoaded('evaluations');
         await dbService.setAll('evaluations', evalsArray);
       }, async (error) => {
-        console.error('Evaluations snapshot error:', error);
+        console.error('Evaluations snapshot error:', error.code, error.message);
+        markError('evaluations', error.code || 'unknown');
         const offlineData = await dbService.getAll('evaluations');
         const evalsObj = {};
-        offlineData.forEach(data => {
+        (offlineData || []).forEach(data => {
           if (data.skills && typeof data.skills === 'object') {
             Object.entries(data.skills).forEach(([skillId, skillData]) => {
               const flatEntry = { ...data, skillId, level: skillData.level, skillNotes: skillData.notes };
@@ -228,13 +271,15 @@ export const DataProvider = ({ children }) => {
     const gamesQuery = query(collection(db, 'games'), orderBy('date', 'desc'));
     unsubscribers.push(
       onSnapshot(gamesQuery, async (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         setGames(data);
+        markLoaded('games');
         await dbService.setAll('games', data);
       }, async (error) => {
-        console.error('Games snapshot error:', error);
+        console.error('Games snapshot error:', error.code, error.message);
+        markError('games', error.code || 'unknown');
         const offlineData = await dbService.getAll('games');
-        setGames(offlineData);
+        setGames(offlineData || []);
       })
     );
 
@@ -242,13 +287,15 @@ export const DataProvider = ({ children }) => {
     const attendanceQuery = query(collection(db, 'attendance'));
     unsubscribers.push(
       onSnapshot(attendanceQuery, async (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         setAttendance(data);
+        markLoaded('attendance');
         await dbService.setAll('attendance', data);
       }, async (error) => {
-        console.error('Attendance snapshot error:', error);
+        console.error('Attendance snapshot error:', error.code, error.message);
+        markError('attendance', error.code || 'unknown');
         const offlineData = await dbService.getAll('attendance');
-        setAttendance(offlineData);
+        setAttendance(offlineData || []);
       })
     );
 
@@ -256,13 +303,15 @@ export const DataProvider = ({ children }) => {
     const notesQuery = query(collection(db, 'training_notes'), orderBy('date', 'desc'));
     unsubscribers.push(
       onSnapshot(notesQuery, async (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         setTrainingNotes(data);
+        markLoaded('trainingNotes');
         await dbService.setAll('trainingNotes', data);
       }, async (error) => {
-        console.error('Training notes snapshot error:', error);
+        console.error('Training notes snapshot error:', error.code, error.message);
+        markError('trainingNotes', error.code || 'unknown');
         const offlineData = await dbService.getAll('trainingNotes');
-        setTrainingNotes(offlineData);
+        setTrainingNotes(offlineData || []);
       })
     );
 
@@ -270,9 +319,8 @@ export const DataProvider = ({ children }) => {
     const scheduleQuery = query(collection(db, 'schedule'), orderBy('date', 'asc'));
     unsubscribers.push(
       onSnapshot(scheduleQuery, async (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         if (data.length === 0) {
-          // Check IndexedDB cache first before falling back to sample data
           const cached = await dbService.getAll('schedule');
           if (cached && cached.length > 0) {
             setSchedule(cached);
@@ -284,8 +332,10 @@ export const DataProvider = ({ children }) => {
           setSchedule(data);
           await dbService.setAll('schedule', data);
         }
+        markLoaded('schedule');
       }, async (error) => {
-        console.error('Schedule snapshot error:', error);
+        console.error('Schedule snapshot error:', error.code, error.message);
+        markError('schedule', error.code || 'unknown');
         const offlineData = await dbService.getAll('schedule');
         if (offlineData && offlineData.length > 0) {
           setSchedule(offlineData);
@@ -303,13 +353,15 @@ export const DataProvider = ({ children }) => {
     );
     unsubscribers.push(
       onSnapshot(notifsQuery, async (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         setNotifications(data);
+        markLoaded('notifications');
         await dbService.setAll('notifications', data);
       }, async (error) => {
-        console.error('Notifications snapshot error:', error);
+        console.error('Notifications snapshot error:', error.code, error.message);
+        markError('notifications', error.code || 'unknown');
         const offlineData = await dbService.getAll('notifications');
-        setNotifications(offlineData);
+        setNotifications(offlineData || []);
       })
     );
 
@@ -317,14 +369,15 @@ export const DataProvider = ({ children }) => {
     const teamsQuery = query(collection(db, 'teams'));
     unsubscribers.push(
       onSnapshot(teamsQuery, async (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        console.log('[DataContext] Teams loaded:', data.length);
+        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         setTeams(data);
+        markLoaded('teams');
         await dbService.setAll('teams', data);
       }, async (error) => {
-        console.error('Teams snapshot error:', error);
+        console.error('Teams snapshot error:', error.code, error.message);
+        markError('teams', error.code || 'unknown');
         const offlineData = await dbService.getAll('teams');
-        setTeams(offlineData);
+        setTeams(offlineData || []);
       })
     );
 
@@ -332,61 +385,96 @@ export const DataProvider = ({ children }) => {
     const trainingPlansQuery = query(collection(db, 'training_plans'), orderBy('updatedAt', 'desc'));
     unsubscribers.push(
       onSnapshot(trainingPlansQuery, async (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         setTrainingPlans(data);
+        markLoaded('trainingPlans');
         await dbService.setAll('trainingPlans', data);
       }, async (error) => {
-        console.error('Training plans snapshot error:', error);
+        console.error('Training plans snapshot error:', error.code, error.message);
+        markError('trainingPlans', error.code || 'unknown');
         const offlineData = await dbService.getAll('trainingPlans');
         setTrainingPlans(offlineData || []);
       })
     );
 
-    setLoading(false);
+    // NO synchronous setLoading(false) here — loading is derived from loadingStates
 
     return () => {
       unsubscribers.forEach(unsub => unsub());
     };
-  }, [currentUser]);
+  }, [currentUser, markLoaded, markError]);
 
-  // Helper methods for offline-first operations
+  // BUG 2 FIX: Mutation helpers with try-catch returning { success, error }
+  // All writes include updatedBy + updatedAt
+
   const addDocument = async (collectionName, data) => {
-    if (isOnline) {
-      return await addDoc(collection(db, collectionName), data);
-    } else {
-      await dbService.addPendingSync({
-        type: 'add',
-        collection: collectionName,
-        data,
-        timestamp: Date.now()
-      });
+    const writeData = {
+      ...data,
+      updatedBy: currentUser?.uid || 'unknown',
+      updatedAt: serverTimestamp()
+    };
+    try {
+      if (isOnline) {
+        const docRef = await addDoc(collection(db, collectionName), writeData);
+        return { success: true, id: docRef.id };
+      } else {
+        await dbService.addPendingSync({
+          type: 'add',
+          collection: collectionName,
+          data: { ...writeData, updatedAt: new Date().toISOString() },
+          timestamp: Date.now()
+        });
+        return { success: true, id: null, offline: true };
+      }
+    } catch (error) {
+      console.error(`Error adding to ${collectionName}:`, error.code, error.message);
+      return { success: false, error: error.code || error.message };
     }
   };
 
   const updateDocument = async (collectionName, docId, data) => {
-    if (isOnline) {
-      return await updateDoc(doc(db, collectionName, docId), data);
-    } else {
-      await dbService.addPendingSync({
-        type: 'update',
-        collection: collectionName,
-        id: docId,
-        data,
-        timestamp: Date.now()
-      });
+    const writeData = {
+      ...data,
+      updatedBy: currentUser?.uid || 'unknown',
+      updatedAt: serverTimestamp()
+    };
+    try {
+      if (isOnline) {
+        await updateDoc(doc(db, collectionName, docId), writeData);
+        return { success: true };
+      } else {
+        await dbService.addPendingSync({
+          type: 'update',
+          collection: collectionName,
+          id: docId,
+          data: { ...writeData, updatedAt: new Date().toISOString() },
+          timestamp: Date.now()
+        });
+        return { success: true, offline: true };
+      }
+    } catch (error) {
+      console.error(`Error updating ${collectionName}/${docId}:`, error.code, error.message);
+      return { success: false, error: error.code || error.message };
     }
   };
 
   const deleteDocument = async (collectionName, docId) => {
-    if (isOnline) {
-      return await deleteDoc(doc(db, collectionName, docId));
-    } else {
-      await dbService.addPendingSync({
-        type: 'delete',
-        collection: collectionName,
-        id: docId,
-        timestamp: Date.now()
-      });
+    try {
+      if (isOnline) {
+        await deleteDoc(doc(db, collectionName, docId));
+        return { success: true };
+      } else {
+        await dbService.addPendingSync({
+          type: 'delete',
+          collection: collectionName,
+          id: docId,
+          timestamp: Date.now()
+        });
+        return { success: true, offline: true };
+      }
+    } catch (error) {
+      console.error(`Error deleting ${collectionName}/${docId}:`, error.code, error.message);
+      return { success: false, error: error.code || error.message };
     }
   };
 
@@ -401,28 +489,39 @@ export const DataProvider = ({ children }) => {
         }
         return null;
       } else {
-        // Try to get from IndexedDB when offline
         const offlineData = await dbService.getAll(collectionName);
-        return offlineData.find(item => item.id === docId) || null;
+        return (offlineData || []).find(item => item.id === docId) || null;
       }
     } catch (error) {
-      console.error('Error fetching document:', error);
+      console.error(`Error fetching ${collectionName}/${docId}:`, error.code, error.message);
       return null;
     }
   };
 
-  // Set a document with a specific ID (for admin operations)
+  // Set a document with a specific ID
   const setDocument = async (collectionName, docId, data) => {
-    if (isOnline) {
-      return await setDoc(doc(db, collectionName, docId), data);
-    } else {
-      await dbService.addPendingSync({
-        type: 'set',
-        collection: collectionName,
-        id: docId,
-        data,
-        timestamp: Date.now()
-      });
+    const writeData = {
+      ...data,
+      updatedBy: currentUser?.uid || 'unknown',
+      updatedAt: serverTimestamp()
+    };
+    try {
+      if (isOnline) {
+        await setDoc(doc(db, collectionName, docId), writeData);
+        return { success: true };
+      } else {
+        await dbService.addPendingSync({
+          type: 'set',
+          collection: collectionName,
+          id: docId,
+          data: { ...writeData, updatedAt: new Date().toISOString() },
+          timestamp: Date.now()
+        });
+        return { success: true, offline: true };
+      }
+    } catch (error) {
+      console.error(`Error setting ${collectionName}/${docId}:`, error.code, error.message);
+      return { success: false, error: error.code || error.message };
     }
   };
 
@@ -438,6 +537,8 @@ export const DataProvider = ({ children }) => {
     teams,
     trainingPlans,
     loading,
+    loadingStates,
+    errors,
     isOnline,
     pendingSync: pendingSync.length,
     addDocument,
