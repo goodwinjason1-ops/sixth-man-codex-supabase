@@ -25,8 +25,11 @@ import {
   BarChart3,
   Trophy,
   Sparkles,
-  ListOrdered
+  ListOrdered,
+  History
 } from 'lucide-react';
+import { collection, query, where, orderBy, getDocs, limit } from 'firebase/firestore';
+import { db } from '../services/firebase';
 import PageShell from '../components/PageShell';
 import HelpTooltip from '../components/tutorial/HelpTooltip';
 import LoadingState from '../components/LoadingState';
@@ -202,6 +205,11 @@ const RotationTrackerPage = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [showNextQConfirm, setShowNextQConfirm] = useState(false);
+
+  // ── History state ──
+  const [showHistory, setShowHistory] = useState(false);
+  const [pastGames, setPastGames] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   // ── Summary state ──
   const [saving, setSaving] = useState(false);
@@ -501,6 +509,27 @@ const RotationTrackerPage = () => {
     starters.size === COURT_SIZE ||
     (roster.length < COURT_SIZE && starters.size === roster.length)
   );
+
+  // ── Load past rotation data (on demand) ──
+  const loadRotationHistory = useCallback(async () => {
+    if (pastGames.length > 0 || historyLoading || !currentUser) return;
+    setHistoryLoading(true);
+    try {
+      const q = query(
+        collection(db, 'playing_time'),
+        where('coachId', '==', currentUser.uid),
+        orderBy('date', 'desc'),
+        limit(10)
+      );
+      const snapshot = await getDocs(q);
+      const games = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setPastGames(games);
+    } catch (err) {
+      console.error('Failed to load rotation history:', err);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, [currentUser, pastGames.length, historyLoading]);
 
   // ═══════════════════════════════════════════════════════════════════
   // LIVE ACTIONS
@@ -964,6 +993,66 @@ const RotationTrackerPage = () => {
               )}
             </div>
           )}
+
+          {/* Rotation History */}
+          <div className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
+            <button
+              onClick={() => {
+                setShowHistory(prev => !prev);
+                if (!showHistory) loadRotationHistory();
+              }}
+              className="w-full px-4 py-3 flex items-center justify-between hover:bg-[#F5F9F5] transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <History className="w-5 h-5 text-[#00A651]" />
+                <span className="font-semibold text-gray-800">Rotation History</span>
+                {pastGames.length > 0 && (
+                  <span className="text-xs bg-[#005028] text-white px-2 py-0.5 rounded-full">{pastGames.length}</span>
+                )}
+              </div>
+              <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${showHistory ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showHistory && (
+              <div className="border-t border-[#D4E4D4] p-4">
+                {historyLoading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <div className="w-6 h-6 border-2 border-[#D4E4D4] border-t-[#00A651] rounded-full animate-spin" />
+                  </div>
+                ) : pastGames.length === 0 ? (
+                  <p className="text-gray-400 text-sm text-center py-4">No rotation records yet. Complete a game to see history here.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {pastGames.map(game => {
+                      const playerCount = game.playerStats ? Object.keys(game.playerStats).length : 0;
+                      return (
+                        <div key={game.id} className="bg-[#F5F9F5] border border-[#D4E4D4]/50 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-gray-800 font-medium text-sm">
+                              {game.teamName || 'Team'} vs {game.opponent || 'Unknown'}
+                            </span>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                              game.fairnessScore === 'Excellent' ? 'bg-green-100 text-green-700' :
+                              game.fairnessScore === 'Good' ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-red-100 text-red-700'
+                            }`}>
+                              {game.fairnessScore || 'N/A'}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-gray-400">
+                            <span>{game.date || 'Unknown date'}</span>
+                            <span>{playerCount} players</span>
+                            <span>{game.quartersPlayed || 0} quarters</span>
+                            <span>{formatTime(game.totalGameSeconds || 0)}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Start Buttons */}
           <div className="space-y-3">

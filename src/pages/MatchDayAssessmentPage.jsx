@@ -152,6 +152,34 @@ const MatchDayAssessmentPage = () => {
   const [showGeneralNotes, setShowGeneralNotes] = useState(false);
   const [mvpVotes, setMvpVotes] = useState({ vote3: '', vote2: '', vote1: '' });
 
+  // Save state
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+  const [showPostSaveModal, setShowPostSaveModal] = useState(false);
+  const [savedOffline, setSavedOffline] = useState(false);
+
+  // Draft states
+  const [existingDraft, setExistingDraft] = useState(null);
+  const [showDraftBanner, setShowDraftBanner] = useState(false);
+
+  // MVP Voting (3-2-1 system)
+  const [openMvpDropdown, setOpenMvpDropdown] = useState(null);
+
+  // Individual Player Assessments
+  const [expandedPlayers, setExpandedPlayers] = useState({});
+  const [expandedPlayerNotes, setExpandedPlayerNotes] = useState({});
+  const [expandedMetricNotes, setExpandedMetricNotes] = useState({}); // { "playerId-metricId": true }
+  const [playerAssessments, setPlayerAssessments] = useState({});
+  const [showTeamNotes, setShowTeamNotes] = useState(false);
+
+  // FIX B: Update activeTeamId when coachTeams loads (it's '' on first render)
+  useEffect(() => {
+    if (coachTeams.length > 0 && !activeTeamId) {
+      setActiveTeamId(coachTeams[0].id);
+    }
+  }, [coachTeams, activeTeamId]);
+
   // Auto-save form data every 30 seconds as safety net
   const autoSaveFormData = useMemo(() => ({
     teamId: activeTeamId, matchDate, opponentName, gameResult,
@@ -173,28 +201,6 @@ const MatchDayAssessmentPage = () => {
     setPlayerAssessments(autoSavedData.playerAssessments || {});
     clearAutoSave();
   };
-
-  // Save state
-  const [isSaving, setIsSaving] = useState(false);
-  const [isSavingDraft, setIsSavingDraft] = useState(false);
-  const [saveError, setSaveError] = useState(null);
-  const [showPostSaveModal, setShowPostSaveModal] = useState(false);
-  const [savedOffline, setSavedOffline] = useState(false);
-
-  // Draft states
-  const [existingDraft, setExistingDraft] = useState(null);
-  const [showDraftBanner, setShowDraftBanner] = useState(false);
-
-  // MVP Voting (3-2-1 system)
-  
-  const [openMvpDropdown, setOpenMvpDropdown] = useState(null);
-
-  // Individual Player Assessments
-  const [expandedPlayers, setExpandedPlayers] = useState({});
-  const [expandedPlayerNotes, setExpandedPlayerNotes] = useState({});
-  const [expandedMetricNotes, setExpandedMetricNotes] = useState({}); // { "playerId-metricId": true }
-  const [playerAssessments, setPlayerAssessments] = useState({});
-  const [showTeamNotes, setShowTeamNotes] = useState(false);
 
   // Get players for active team
   const teamPlayers = useMemo(() => {
