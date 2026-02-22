@@ -31,6 +31,7 @@ const CoachProfilePage = lazy(() => import('./pages/CoachProfilePage'));
 const CoachPlayerOverviewPage = lazy(() => import('./pages/CoachPlayerOverviewPage'));
 const TrainingPlansListPage = lazy(() => import('./pages/TrainingPlansListPage'));
 const TrainingPlanBuilderPage = lazy(() => import('./pages/TrainingPlanBuilderPage'));
+const TrainingHistoryPage = lazy(() => import('./pages/TrainingHistoryPage'));
 
 // Drill chunk
 const DrillLibraryPage = lazy(() => import('./pages/DrillLibraryPage'));
@@ -294,6 +295,28 @@ const AppRoutes = () => {
             <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
               <ErrorBoundary fallbackMessage="Unable to load plan. Please try again.">
                 <TrainingPlanBuilderPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Training History Routes */}
+        <Route
+          path="/coach/training-history"
+          element={
+            <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load training history.">
+                <TrainingHistoryPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/coach/training-history/:sessionId"
+          element={
+            <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load training session.">
+                <TrainingHistoryPage />
               </ErrorBoundary>
             </ProtectedRoute>
           }

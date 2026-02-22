@@ -56,10 +56,10 @@ service cloud.firestore {
     // PLAYERS
     // ───────────────────────────────────────
     match /players/{playerId} {
-      allow read: if isSignedIn();
-      allow create, update: if isCoach();
-      allow delete: if isAdmin();
-    }
+  allow read: if isSignedIn();
+  allow create, update: if isCoach() || getUserRole() == 'team_manager';
+  allow delete: if isAdmin();
+}
 
     // ───────────────────────────────────────
     // TEAMS
@@ -140,6 +140,16 @@ service cloud.firestore {
       allow update: if isCoach() && resource.data.coachId == request.auth.uid;
       allow update: if isCoordinator();
       allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // TRAINING SESSIONS (recorded by coaches)
+    // ───────────────────────────────────────
+    match /training_sessions/{sessionId} {
+      allow read: if isCoach();
+      allow create: if isCoach();
+      allow update: if isCoach() && resource.data.coachId == request.auth.uid;
+      allow update, delete: if isAdmin();
     }
 
     // ───────────────────────────────────────

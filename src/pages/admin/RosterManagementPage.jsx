@@ -7,94 +7,114 @@ import {
   Download,
   Plus,
   Search,
-  Filter,
   Edit3,
   Trash2,
   Users,
   User,
   UserPlus,
-  Phone,
   Mail,
   AlertCircle,
   CheckCircle2,
   X,
   FileText,
-  ChevronDown,
-  ChevronUp,
   Save
 } from 'lucide-react';
 import PageShell from '../../components/PageShell';
 import InviteParentModal from '../../components/InviteParentModal';
 import { playerHQService } from '../../services/playerHQService';
 
-// Sample teams
-const sampleTeams = [
-  { id: 't1', name: 'U14 Lakers', ageGroup: 'U14' },
-  { id: 't2', name: 'U12 Emerald', ageGroup: 'U12' },
-  { id: 't3', name: 'U10 Dragons', ageGroup: 'U10' },
-  { id: 't4', name: 'U8 Cubs', ageGroup: 'U8' }
-];
-
-// Sample players data
-const samplePlayers = [
-  { id: 'p1', name: 'Emma Wilson', dateOfBirth: '2012-03-15', teamId: 't1', ageGroup: 'U14', playerNumber: 7, parentEmail: 'wilson@email.com', parentPhone: '0412345678', active: true },
-  { id: 'p2', name: 'Liam Johnson', dateOfBirth: '2014-07-22', teamId: 't2', ageGroup: 'U12', playerNumber: 12, parentEmail: 'johnson@email.com', parentPhone: '0423456789', active: true },
-  { id: 'p3', name: 'Sophia Garcia', dateOfBirth: '2014-01-08', teamId: 't2', ageGroup: 'U12', playerNumber: 23, parentEmail: 'garcia@email.com', parentPhone: '0434567890', active: true },
-  { id: 'p4', name: 'Noah Davis', dateOfBirth: '2012-11-30', teamId: 't1', ageGroup: 'U14', playerNumber: 5, parentEmail: 'davis@email.com', parentPhone: '0445678901', active: true },
-  { id: 'p5', name: 'Olivia Martinez', dateOfBirth: '2011-06-12', teamId: 't1', ageGroup: 'U14', playerNumber: 11, parentEmail: 'martinez@email.com', parentPhone: '0456789012', active: true },
-  { id: 'p6', name: 'Ethan Brown', dateOfBirth: '2014-09-25', teamId: 't2', ageGroup: 'U12', playerNumber: 8, parentEmail: 'brown@email.com', parentPhone: '0467890123', active: true },
-  { id: 'p7', name: 'Ava Thompson', dateOfBirth: '2012-04-18', teamId: 't1', ageGroup: 'U14', playerNumber: 15, parentEmail: 'thompson@email.com', parentPhone: '0478901234', active: true },
-  { id: 'p8', name: 'Mason Lee', dateOfBirth: '2016-02-28', teamId: 't3', ageGroup: 'U10', playerNumber: 3, parentEmail: 'lee@email.com', parentPhone: '0489012345', active: true }
-];
-
 const RosterManagementPage = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const { addDocument, updateDocument, deleteDocument } = useData();
+  const {
+    players: rawPlayers = [],
+    teams: rawTeams = [],
+    addDocument,
+    updateDocument,
+    deleteDocument,
+    loading: dataLoading
+  } = useData();
   const fileInputRef = useRef(null);
 
-  // State
-  const [players, setPlayers] = useState(samplePlayers);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTeam, setSelectedTeam] = useState('all');
-  const [showFilters, setShowFilters] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editingPlayer, setEditingPlayer] = useState(null);
-  const [showImportModal, setShowImportModal] = useState(false);
-  const [importData, setImportData] = useState(null);
-  const [importErrors, setImportErrors] = useState([]);
-  const [importSuccess, setImportSuccess] = useState(null);
-  const [confirmDelete, setConfirmDelete] = useState(null);
-  const [invitePlayer, setInvitePlayer] = useState(null);
+  // Normalize teams — Firestore may use "teamName" or "name"
+  const teams = useMemo(() =>
+    rawTeams.map(t => ({
+      id: t.id,
+      name: t.name || t.teamName || 'Unknown Team',
+      ageGroup: t.ageGroup || ''
+    })),
+    [rawTeams]
+  );
 
-  // Filter players
-  const filteredPlayers = useMemo(() => {
-    let result = [...players];
+  // Normalize players — safe defaults for all fields
+  const players = useMemo(() =>
+    rawPlayers.map(p => ({
+      ...p,
+      name: p.name || 'Unknown Player',
+      teamId: p.teamId || '',
+      playerNumber: p.playerNumber ?? '',
+      parentEmail: p.parentEmail || '',
+      parentPhone: p.parentPhone || '',
+      dateOfBirth: p.dateOfBirth || '',
+      medicalNotes: p.medicalNotes || '',
+      emergencyContact: p.emergencyContact || '',
+      emergencyPhone: p.emergencyPhone || ''
+    })),
+    [rawPlayers]
+  );
 
-    if (selectedTeam !== 'all') {
-      result = result.filter(p => p.teamId === selectedTeam);
-    }
 
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(p =>
-        p.name.toLowerCase().includes(query) ||
-        p.parentEmail?.toLowerCase().includes(query) ||
-        p.playerNumber?.toString().includes(query)
-      );
-    }
+const formatDate = (ts) => {
+  if (!ts) return '-';
+  if (ts.seconds) {
+    return new Date(ts.seconds * 1000).toISOString().split('T')[0];
+  }
+  return ts;
+};
 
-    return result.sort((a, b) => a.name.localeCompare(b.name));
-  }, [players, selectedTeam, searchQuery]);
+// State
+const [searchQuery, setSearchQuery] = useState('');
+const [selectedTeam, setSelectedTeam] = useState('all');
+const [showAddModal, setShowAddModal] = useState(false);
+const [editingPlayer, setEditingPlayer] = useState(null);
+const [showImportModal, setShowImportModal] = useState(false);
+const [importData, setImportData] = useState(null);
+const [importErrors, setImportErrors] = useState([]);
+const [importSuccess, setImportSuccess] = useState(null);
+const [confirmDelete, setConfirmDelete] = useState(null);
+const [invitePlayer, setInvitePlayer] = useState(null);
+
+const filteredPlayers = useMemo(() => {
+  let result = players;
+
+  // Team Manager only sees their assigned team(s)
+  if (currentUser?.role === 'team_manager' && currentUser.assignedTeams) {
+    result = result.filter(p => currentUser.assignedTeams.includes(p.teamId));
+  } 
+  else if (selectedTeam !== 'all') {
+    result = result.filter(p => p.teamId === selectedTeam);
+  }
+
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase();
+    result = result.filter(p =>
+      p.name.toLowerCase().includes(query) ||
+      p.parentEmail.toLowerCase().includes(query) ||
+      String(p.playerNumber).includes(query)
+    );
+  }
+
+  return result.sort((a, b) => a.name.localeCompare(b.name));
+}, [players, selectedTeam, searchQuery, currentUser]);
 
   // Group players by team
   const playersByTeam = useMemo(() => {
     const grouped = {};
-    sampleTeams.forEach(team => {
+    teams.forEach(team => {
       grouped[team.id] = players.filter(p => p.teamId === team.id);
     });
     return grouped;
-  }, [players]);
+  }, [players, teams]);
 
   // Handle CSV upload
   const handleFileUpload = async (event) => {
@@ -116,19 +136,19 @@ const RosterManagementPage = () => {
       setImportErrors([error.message]);
     }
 
-    // Reset file input
     event.target.value = '';
   };
 
-  // Confirm import
-  const confirmImport = () => {
+  // Confirm import — always writes to Firestore
+  const confirmImport = async () => {
     if (!importData) return;
 
-    const newPlayers = importData.map((row, index) => ({
-      id: `imported_${Date.now()}_${index}`,
+    const newPlayers = importData.map((row) => ({
       name: row.player_name || row.name || '',
       dateOfBirth: row.date_of_birth || row.dob || '',
-      teamId: sampleTeams.find(t => t.name.toLowerCase().includes((row.team || '').toLowerCase()))?.id || '',
+      teamId: teams.find(t =>
+        t.name.toLowerCase().includes((row.team || '').toLowerCase())
+      )?.id || '',
       ageGroup: row.age_group || '',
       playerNumber: parseInt(row.player_number || row.number) || 0,
       parentEmail: row.parent_email || row.email || '',
@@ -139,12 +159,19 @@ const RosterManagementPage = () => {
       active: true
     }));
 
-    setPlayers([...players, ...newPlayers]);
-    setImportSuccess(`Successfully imported ${newPlayers.length} players`);
+    try {
+      for (const player of newPlayers) {
+        await addDocument('players', player);
+      }
+      setImportSuccess(`Successfully imported ${newPlayers.length} players`);
+    } catch (error) {
+      console.error('Error importing players:', error);
+      setImportSuccess('Import partially completed. Check console for errors.');
+    }
+
     setShowImportModal(false);
     setImportData(null);
     setImportErrors([]);
-
     setTimeout(() => setImportSuccess(null), 5000);
   };
 
@@ -162,7 +189,10 @@ const RosterManagementPage = () => {
 
   // Export current roster
   const exportRoster = () => {
-    const playersToExport = selectedTeam === 'all' ? players : players.filter(p => p.teamId === selectedTeam);
+    const playersToExport = selectedTeam === 'all'
+      ? players
+      : players.filter(p => p.teamId === selectedTeam);
+
     const csv = playerHQService.exportToCSV(playersToExport, [
       { key: 'name', label: 'Player Name' },
       { key: 'dateOfBirth', label: 'Date of Birth' },
@@ -182,25 +212,36 @@ const RosterManagementPage = () => {
     URL.revokeObjectURL(url);
   };
 
-  // Save player (add or edit)
-  const savePlayer = (playerData) => {
+// Save player (add or edit) — always writes to Firestore + forces the list to refresh
+const savePlayer = async (playerData) => {
+  try {
     if (editingPlayer) {
-      setPlayers(players.map(p => p.id === editingPlayer.id ? { ...p, ...playerData } : p));
+      await updateDocument('players', editingPlayer.id, playerData);
     } else {
-      const newPlayer = {
-        id: `player_${Date.now()}`,
-        ...playerData,
-        active: true
-      };
-      setPlayers([...players, newPlayer]);
+      await addDocument('players', { ...playerData, active: true });
     }
-    setShowAddModal(false);
-    setEditingPlayer(null);
-  };
+    
+    // Force the list to refresh and show the new player
+    setTimeout(() => {
+      setSelectedTeam('all');
+      setSearchQuery('');
+    }, 500);
 
-  // Delete player
-  const handleDelete = (playerId) => {
-    setPlayers(players.filter(p => p.id !== playerId));
+  } catch (error) {
+    console.error('Error saving player:', error);
+  }
+  
+  setShowAddModal(false);
+  setEditingPlayer(null);
+};
+
+  // Delete player — always deletes from Firestore
+  const handleDelete = async (playerId) => {
+    try {
+      await deleteDocument('players', playerId);
+    } catch (error) {
+      console.error('Error deleting player:', error);
+    }
     setConfirmDelete(null);
   };
 
@@ -208,6 +249,7 @@ const RosterManagementPage = () => {
   const calculateAge = (dob) => {
     if (!dob) return '-';
     const birthDate = new Date(dob);
+    if (isNaN(birthDate.getTime())) return '-';
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();
@@ -217,10 +259,47 @@ const RosterManagementPage = () => {
     return age;
   };
 
+  // Get team name for a player
+  const getTeamName = (teamId) => {
+    const team = teams.find(t => t.id === teamId);
+    return team?.name || '-';
+  };
+
+  const getTeamAgeGroup = (teamId) => {
+    const team = teams.find(t => t.id === teamId);
+    return team?.ageGroup || '';
+  };
+
+  if (dataLoading) {
+    return (
+      <PageShell
+        title="Roster Management"
+        subtitle="Loading..."
+        backTo="/welcome"
+        breadcrumbs={[
+          { label: 'Home', url: '/welcome' },
+          { label: 'Roster Management' }
+        ]}
+        maxWidth="6xl"
+      >
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-[#D4E4D4] border-t-[#00A651] rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-gray-800 font-medium">Loading roster...</p>
+          </div>
+        </div>
+      </PageShell>
+    );
+  }
+
   return (
     <PageShell
       title="Roster Management"
-      subtitle={`${players.length} players across ${sampleTeams.length} teams`}
+      subtitle={
+        players.length > 0
+          ? `${players.length} player${players.length !== 1 ? 's' : ''} across ${teams.length} team${teams.length !== 1 ? 's' : ''}`
+          : 'Manage your team roster'
+      }
       backTo="/welcome"
       breadcrumbs={[
         { label: 'Home', url: '/welcome' },
@@ -280,25 +359,33 @@ const RosterManagementPage = () => {
         )}
 
         {/* Team Summary Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {sampleTeams.map(team => (
-            <button
-              key={team.id}
-              onClick={() => setSelectedTeam(selectedTeam === team.id ? 'all' : team.id)}
-              className={`p-4 rounded-xl border-2 transition-all ${
-                selectedTeam === team.id
-                  ? 'bg-[#005028]/20 border-[#00A651]'
-                  : 'bg-white border-[#D4E4D4] hover:border-[#00A651]'
-              }`}
-            >
-              <p className="text-[#6B7C6B] text-xs">{team.ageGroup}</p>
-              <p className="text-gray-800 font-semibold truncate">{team.name}</p>
-              <p className="text-[#00A651] text-sm">{playersByTeam[team.id]?.length || 0} players</p>
-            </button>
-          ))}
-        </div>
+        {teams.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {teams.map(team => (
+              <button
+                key={team.id}
+                onClick={() => setSelectedTeam(selectedTeam === team.id ? 'all' : team.id)}
+                className={`p-4 rounded-xl border-2 transition-all ${
+                  selectedTeam === team.id
+                    ? 'bg-[#005028]/20 border-[#00A651]'
+                    : 'bg-white border-[#D4E4D4] hover:border-[#00A651]'
+                }`}
+              >
+                <p className="text-[#6B7C6B] text-xs">{team.ageGroup}</p>
+                <p className="text-gray-800 font-semibold truncate">{team.name}</p>
+                <p className="text-[#00A651] text-sm">{playersByTeam[team.id]?.length || 0} players</p>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white border-2 border-dashed border-[#D4E4D4] rounded-2xl p-6 text-center">
+            <Users className="w-10 h-10 text-[#6B7C6B] mx-auto mb-2" />
+            <p className="text-gray-800 font-medium mb-1">No Teams Set Up</p>
+            <p className="text-[#6B7C6B] text-sm">Teams need to be created before players can be assigned.</p>
+          </div>
+        )}
 
-        {/* Search and Filters */}
+        {/* Search */}
         <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#6B7C6B]" />
@@ -321,13 +408,55 @@ const RosterManagementPage = () => {
         </div>
 
         {/* Players List */}
-        {filteredPlayers.length === 0 ? (
+        {players.length === 0 ? (
+          /* No players at all — friendly empty state */
+          <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-10 text-center">
+            <div className="w-16 h-16 bg-[#F5F9F5] border-2 border-[#D4E4D4] rounded-full flex items-center justify-center mx-auto mb-4">
+              <Users className="w-8 h-8 text-[#6B7C6B]" />
+            </div>
+            <h3 className="text-gray-800 font-semibold text-lg mb-2">No Players Yet</h3>
+            <p className="text-[#6B7C6B] text-sm mb-6 max-w-md mx-auto">
+              No players have been added to the roster yet. You can add players manually
+              or import them from a CSV file.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                onClick={() => {
+                  setEditingPlayer(null);
+                  setShowAddModal(true);
+                }}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#005028] text-white rounded-lg font-medium hover:bg-[#00A651] transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add First Player
+              </button>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg font-medium hover:border-[#00A651] transition-colors"
+              >
+                <Upload className="w-4 h-4" />
+                Import CSV
+              </button>
+            </div>
+          </div>
+        ) : filteredPlayers.length === 0 ? (
+          /* Has players but filters/search returned nothing */
           <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
             <AlertCircle className="w-12 h-12 text-[#6B7C6B] mx-auto mb-3" />
             <h3 className="text-gray-800 font-semibold mb-2">No Players Found</h3>
             <p className="text-[#6B7C6B] text-sm">
-              {searchQuery ? 'Try a different search term' : 'Add players to get started'}
+              {searchQuery
+                ? 'No players match your search. Try a different term.'
+                : 'No players in the selected team.'}
             </p>
+            {(searchQuery || selectedTeam !== 'all') && (
+              <button
+                onClick={() => { setSearchQuery(''); setSelectedTeam('all'); }}
+                className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg text-sm hover:border-[#00A651] transition-colors"
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         ) : (
           <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl overflow-hidden">
@@ -343,88 +472,29 @@ const RosterManagementPage = () => {
 
             {/* Player Rows */}
             <div className="divide-y divide-[#D4E4D4]">
-              {filteredPlayers.map(player => {
-                const team = sampleTeams.find(t => t.id === player.teamId);
-                return (
-                  <div
-                    key={player.id}
-                    className="p-4 hover:bg-[#F5F9F5]/50 transition-colors"
-                  >
-                    {/* Mobile Layout */}
-                    <div className="md:hidden space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center">
-                            <User className="w-5 h-5 text-[#00A651]" />
-                          </div>
-                          <div>
-                            <p className="text-gray-800 font-semibold">{player.name}</p>
-                            <p className="text-[#6B7C6B] text-sm">#{player.playerNumber} • {team?.name}</p>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => setInvitePlayer(player)}
-                            className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg"
-                            title="Invite Parent"
-                          >
-                            <UserPlus className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setEditingPlayer(player);
-                              setShowAddModal(true);
-                            }}
-                            className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setConfirmDelete(player.id)}
-                            className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-[#6B7C6B]">
-                        <span>Age: {calculateAge(player.dateOfBirth)}</span>
-                        <span className="flex items-center gap-1">
-                          <Mail className="w-3 h-3" />
-                          {player.parentEmail || '-'}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Desktop Layout */}
-                    <div className="hidden md:grid md:grid-cols-7 gap-4 items-center">
-                      <div className="col-span-2 flex items-center gap-3">
+              {filteredPlayers.map(player => (
+                <div
+                  key={player.id}
+                  className="p-4 hover:bg-[#F5F9F5]/50 transition-colors"
+                >
+                  {/* Mobile Layout */}
+                  <div className="md:hidden space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center">
                           <User className="w-5 h-5 text-[#00A651]" />
                         </div>
                         <div>
                           <p className="text-gray-800 font-semibold">{player.name}</p>
-                          <p className="text-[#6B7C6B] text-xs">{player.dateOfBirth}</p>
+                          <p className="text-[#6B7C6B] text-sm">
+                            {player.playerNumber ? `#${player.playerNumber} \u2022 ` : ''}{getTeamName(player.teamId)}
+                          </p>
                         </div>
                       </div>
-                      <div>
-                        <p className="text-gray-800 text-sm">{team?.name || '-'}</p>
-                        <p className="text-[#6B7C6B] text-xs">{team?.ageGroup}</p>
-                      </div>
-                      <div className="text-gray-800">{calculateAge(player.dateOfBirth)}</div>
-                      <div>
-                        <span className="px-2 py-1 bg-[#005028]/20 text-[#00A651] rounded-lg text-sm font-medium">
-                          #{player.playerNumber}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-gray-800 text-sm truncate">{player.parentEmail || '-'}</p>
-                        <p className="text-[#6B7C6B] text-xs">{player.parentPhone || '-'}</p>
-                      </div>
-                      <div className="flex justify-end gap-2">
+                      <div className="flex gap-2">
                         <button
                           onClick={() => setInvitePlayer(player)}
-                          className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors"
+                          className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg"
                           title="Invite Parent"
                         >
                           <UserPlus className="w-4 h-4" />
@@ -434,21 +504,83 @@ const RosterManagementPage = () => {
                             setEditingPlayer(player);
                             setShowAddModal(true);
                           }}
-                          className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors"
+                          className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg"
                         >
                           <Edit3 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => setConfirmDelete(player.id)}
-                          className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                          className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
+                    <div className="flex items-center gap-4 text-sm text-[#6B7C6B]">
+                      <span>Age: {formatDate(player.dateOfBirth)}</span>
+                      <span className="flex items-center gap-1">
+                        <Mail className="w-3 h-3" />
+                        {player.parentEmail || '-'}
+                      </span>
+                    </div>
                   </div>
-                );
-              })}
+
+                  {/* Desktop Layout */}
+                  <div className="hidden md:grid md:grid-cols-7 gap-4 items-center">
+                    <div className="col-span-2 flex items-center gap-3">
+                      <div className="w-10 h-10 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-[#00A651]" />
+                      </div>
+                      <div>
+                        <p className="text-gray-800 font-semibold">{player.name}</p>
+                        <p className="text-[#6B7C6B] text-xs">{formatDate(player.dateOfBirth)}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-gray-800 text-sm">{getTeamName(player.teamId)}</p>
+                      <p className="text-[#6B7C6B] text-xs">{getTeamAgeGroup(player.teamId)}</p>
+                    </div>
+                    <div className="text-gray-800">{formatDate(player.dateOfBirth)}</div>
+                    <div>
+                      {player.playerNumber ? (
+                        <span className="px-2 py-1 bg-[#005028]/20 text-[#00A651] rounded-lg text-sm font-medium">
+                          #{player.playerNumber}
+                        </span>
+                      ) : (
+                        <span className="text-[#6B7C6B] text-sm">-</span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-gray-800 text-sm truncate">{player.parentEmail || '-'}</p>
+                      <p className="text-[#6B7C6B] text-xs">{player.parentPhone || '-'}</p>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => setInvitePlayer(player)}
+                        className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors"
+                        title="Invite Parent"
+                      >
+                        <UserPlus className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingPlayer(player);
+                          setShowAddModal(true);
+                        }}
+                        className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setConfirmDelete(player.id)}
+                        className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -463,7 +595,7 @@ const RosterManagementPage = () => {
       {showAddModal && (
         <PlayerFormModal
           player={editingPlayer}
-          teams={sampleTeams}
+          teams={teams}
           onSave={savePlayer}
           onClose={() => {
             setShowAddModal(false);
@@ -611,7 +743,9 @@ const PlayerFormModal = ({ player, teams, onSave, onClose }) => {
             >
               <option value="">Select Team</option>
               {teams.map(team => (
-                <option key={team.id} value={team.id}>{team.name} ({team.ageGroup})</option>
+                <option key={team.id} value={team.id}>
+                  {team.name}{team.ageGroup ? ` (${team.ageGroup})` : ''}
+                </option>
               ))}
             </select>
           </div>
@@ -673,7 +807,6 @@ const PlayerFormModal = ({ player, teams, onSave, onClose }) => {
 
         <div className="p-4 border-t border-[#D4E4D4]">
           <button
-            type="submit"
             onClick={handleSubmit}
             className="w-full py-3 bg-[#005028] text-white rounded-xl font-semibold hover:bg-[#00A651] transition-colors flex items-center justify-center gap-2"
           >
@@ -707,7 +840,7 @@ const ImportPreviewModal = ({ data, errors, onConfirm, onClose }) => {
             <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded-lg">
               <p className="text-red-400 font-medium mb-2">Import Warnings:</p>
               <ul className="text-red-300 text-sm space-y-1">
-                {errors.map((err, i) => <li key={i}>• {err}</li>)}
+                {errors.map((err, i) => <li key={i}>&bull; {err}</li>)}
               </ul>
             </div>
           )}
@@ -719,7 +852,7 @@ const ImportPreviewModal = ({ data, errors, onConfirm, onClose }) => {
               <div key={index} className="p-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg">
                 <p className="text-gray-800 font-medium">{row.player_name || row.name || 'Unknown'}</p>
                 <p className="text-[#6B7C6B] text-sm">
-                  {row.team || '-'} • #{row.player_number || row.number || '-'}
+                  {row.team || '-'} &bull; #{row.player_number || row.number || '-'}
                 </p>
               </div>
             ))}

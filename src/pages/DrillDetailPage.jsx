@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Clock, Users, Star, Edit2, Lightbulb, ChevronDown, ChevronUp,
-  PlayCircle, Package, ListOrdered
+  PlayCircle, Package, ListOrdered, Link, Save, X
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { fetchDrill, rateDrill, incrementDrillUsage } from '../services/drillService';
+import { fetchDrill, rateDrill, incrementDrillUsage, updateDrill } from '../services/drillService';
 import { DRILL_CATEGORIES, CATEGORY_COLORS, DIFFICULTY_LEVELS, DRILL_EDIT_ROLES } from '../constants/drills';
-import { ADMIN_ROLES } from '../constants/roles';
 import PageShell from '../components/PageShell';
 import Breadcrumb from '../components/Breadcrumb';
 
@@ -21,10 +20,12 @@ const DrillDetailPage = () => {
   const [userRating, setUserRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
+  const [editingVideo, setEditingVideo] = useState(false);
+  const [videoInput, setVideoInput] = useState('');
+  const [savingVideo, setSavingVideo] = useState(false);
 
   const canEdit = drill && (
-    ADMIN_ROLES.includes(userProfile?.role) ||
-    ['girls_coordinator', 'boys_coordinator', 'youth_head_coach'].includes(userProfile?.role) ||
+    DRILL_EDIT_ROLES.includes(userProfile?.role) ||
     drill.createdBy === userProfile?.uid
   );
 
@@ -229,11 +230,60 @@ const DrillDetailPage = () => {
         )}
 
         {/* Video */}
-        {drill.videoUrl ? (
-          <div className="bg-white rounded-xl border border-[#D4E4D4] p-6">
-            <h2 className="font-bold text-gray-800 flex items-center gap-2 mb-4">
+        <div className="bg-white rounded-xl border border-[#D4E4D4] p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-bold text-gray-800 flex items-center gap-2">
               <PlayCircle className="w-5 h-5 text-[#00A651]" /> Video
             </h2>
+            {canEdit && !editingVideo && (
+              <button
+                onClick={() => { setVideoInput(drill.videoUrl || ''); setEditingVideo(true); }}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#00A651] hover:bg-[#F5F9F5] rounded-lg transition-colors"
+              >
+                <Link className="w-4 h-4" />
+                {drill.videoUrl ? 'Edit Link' : 'Add Video'}
+              </button>
+            )}
+          </div>
+
+          {editingVideo ? (
+            <div className="space-y-3">
+              <input
+                type="url"
+                value={videoInput}
+                onChange={e => setVideoInput(e.target.value)}
+                placeholder="https://youtube.com/watch?v=..."
+                className="w-full px-4 py-3 border border-[#D4E4D4] rounded-lg focus:ring-2 focus:ring-[#00A651] focus:border-transparent outline-none"
+                autoFocus
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={async () => {
+                    setSavingVideo(true);
+                    try {
+                      const url = videoInput.trim() || null;
+                      await updateDrill(id, { videoUrl: url });
+                      setDrill(prev => ({ ...prev, videoUrl: url }));
+                      setEditingVideo(false);
+                    } catch (err) { console.error('Failed to save video URL:', err); }
+                    setSavingVideo(false);
+                  }}
+                  disabled={savingVideo}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-[#005028] text-white rounded-lg text-sm font-medium hover:bg-[#00A651] transition-colors disabled:opacity-50"
+                >
+                  <Save className="w-4 h-4" />
+                  {savingVideo ? 'Saving...' : 'Save'}
+                </button>
+                <button
+                  onClick={() => setEditingVideo(false)}
+                  className="flex items-center gap-1.5 px-4 py-2 border border-[#D4E4D4] text-gray-600 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : drill.videoUrl ? (
             <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden">
               <iframe
                 src={drill.videoUrl.replace('watch?v=', 'embed/')}
@@ -243,15 +293,13 @@ const DrillDetailPage = () => {
                 title={drill.name}
               />
             </div>
-          </div>
-        ) : (
-          <div className="bg-white rounded-xl border border-[#D4E4D4] p-6">
+          ) : (
             <div className="flex items-center justify-center py-8 text-[#6B7C6B]">
               <PlayCircle className="w-8 h-8 mr-2 opacity-30" />
               <span className="text-sm">No video available for this drill</span>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Rating */}
         <div className="bg-white rounded-xl border border-[#D4E4D4] p-6">

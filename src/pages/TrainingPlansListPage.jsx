@@ -11,7 +11,9 @@ import {
   Users,
   Target,
   Edit3,
+  Eye,
   Copy,
+  Share2,
   Trash2,
   CheckCircle2,
   AlertCircle,
@@ -24,122 +26,65 @@ import {
 } from 'lucide-react';
 import PageShell from '../components/PageShell';
 import { SKILL_CATEGORIES } from '../data/skillBenchmarks';
-
-// Sample training plans data
-const samplePlans = [
-  {
-    id: 'plan-1',
-    coachId: 'coach-1',
-    teamId: 't1',
-    teamName: 'U14 Lakers',
-    ageGroup: 'U14',
-    name: 'Pre-Season Skills Development',
-    duration: 'weekly',
-    dateRange: {
-      start: '2026-02-01',
-      end: '2026-02-28'
-    },
-    focusAreas: ['ball-handling', 'shooting', 'defense'],
-    sessions: [
-      { sessionNumber: 1, date: '2026-02-03', drills: [{}, {}, {}] },
-      { sessionNumber: 2, date: '2026-02-05', drills: [{}, {}] },
-      { sessionNumber: 3, date: '2026-02-10', drills: [{}, {}, {}, {}] },
-      { sessionNumber: 4, date: '2026-02-12', drills: [{}, {}] }
-    ],
-    status: 'active',
-    createdAt: '2026-01-25T10:00:00Z',
-    updatedAt: '2026-02-01T14:30:00Z'
-  },
-  {
-    id: 'plan-2',
-    coachId: 'coach-1',
-    teamId: 't2',
-    teamName: 'U12 Emerald',
-    ageGroup: 'U12',
-    name: 'Fundamentals Focus Week',
-    duration: 'weekly',
-    dateRange: {
-      start: '2026-02-10',
-      end: '2026-02-16'
-    },
-    focusAreas: ['passing-receiving', 'footwork'],
-    sessions: [
-      { sessionNumber: 1, date: '2026-02-10', drills: [{}, {}] },
-      { sessionNumber: 2, date: '2026-02-13', drills: [{}, {}, {}] }
-    ],
-    status: 'active',
-    createdAt: '2026-02-05T09:00:00Z',
-    updatedAt: '2026-02-05T09:00:00Z'
-  },
-  {
-    id: 'plan-3',
-    coachId: 'coach-1',
-    teamId: 't1',
-    teamName: 'U14 Lakers',
-    ageGroup: 'U14',
-    name: 'Defense Intensive Session',
-    duration: 'single',
-    dateRange: {
-      start: '2026-02-08',
-      end: '2026-02-08'
-    },
-    focusAreas: ['defense', 'team-play'],
-    sessions: [
-      { sessionNumber: 1, date: '2026-02-08', drills: [{}, {}, {}, {}, {}] }
-    ],
-    status: 'draft',
-    createdAt: '2026-02-03T16:00:00Z',
-    updatedAt: '2026-02-03T16:00:00Z'
-  },
-  {
-    id: 'plan-4',
-    coachId: 'coach-1',
-    teamId: 't2',
-    teamName: 'U12 Emerald',
-    ageGroup: 'U12',
-    name: 'January Training Program',
-    duration: 'monthly',
-    dateRange: {
-      start: '2026-01-01',
-      end: '2026-01-31'
-    },
-    focusAreas: ['ball-handling', 'shooting', 'basketball-iq'],
-    sessions: [
-      { sessionNumber: 1, date: '2026-01-06', drills: [{}, {}] },
-      { sessionNumber: 2, date: '2026-01-09', drills: [{}, {}, {}] },
-      { sessionNumber: 3, date: '2026-01-13', drills: [{}, {}] },
-      { sessionNumber: 4, date: '2026-01-16', drills: [{}, {}] },
-      { sessionNumber: 5, date: '2026-01-20', drills: [{}, {}, {}] },
-      { sessionNumber: 6, date: '2026-01-23', drills: [{}, {}] },
-      { sessionNumber: 7, date: '2026-01-27', drills: [{}, {}, {}] },
-      { sessionNumber: 8, date: '2026-01-30', drills: [{}, {}] }
-    ],
-    status: 'completed',
-    createdAt: '2025-12-20T10:00:00Z',
-    updatedAt: '2026-01-31T18:00:00Z'
-  }
-];
-
-// Sample teams
-const sampleTeams = [
-  { id: 't1', name: 'U14 Lakers', ageGroup: 'U14' },
-  { id: 't2', name: 'U12 Emerald', ageGroup: 'U12' }
-];
+import { TEMPLATE_PLANS } from '../data/templatePlans';
+import { toJsDate, formatDateShortAU } from '../utils/dateUtils';
 
 const TrainingPlansListPage = () => {
   const navigate = useNavigate();
   const { currentUser, userProfile } = useAuth();
-  const { trainingPlans: firestorePlans, teams: firestoreTeams, deleteDocument, updateDocument, loading: dataLoading } = useData();
+  const { trainingPlans: firestorePlans, teams: firestoreTeams, games, deleteDocument, updateDocument, setDocument, loading: dataLoading } = useData();
 
-  // Use Firestore data, fall back to samples only if no real data
-  const plans = useMemo(() => {
-    if (firestorePlans && firestorePlans.length > 0) {
-      // Filter to this coach's plans (admins see all)
-      if (userProfile?.role === 'admin') return firestorePlans;
-      return firestorePlans.filter(p => p.coachId === currentUser?.uid);
-    }
-    return samplePlans;
-  }, [firestorePlans, currentUser, userProfile]);
+  // Seed templates into Firestore on first load (deterministic IDs prevent duplicates)
+  const [seeded, setSeeded] = useState(false);
+  useEffect(() => {
+    if (dataLoading || seeded) return;
+    const existingIds = new Set((firestorePlans || []).map(p => p.id));
+    const missing = TEMPLATE_PLANS.filter(t => !existingIds.has(t.id));
+    if (missing.length === 0) { setSeeded(true); return; }
+    (async () => {
+      for (const tpl of missing) {
+        const { id, ...data } = tpl;
+        try { await setDocument('training_plans', id, data); } catch (e) { console.error('Seed template error:', e); }
+      }
+      setSeeded(true);
+    })();
+  }, [dataLoading, firestorePlans, seeded, setDocument]);
+
+  // Combine Firestore plans with local templates (for instant display before seed completes)
+  const allPlans = useMemo(() => {
+    const plans = [...(firestorePlans || [])];
+    const existingIds = new Set(plans.map(p => p.id));
+    TEMPLATE_PLANS.forEach(t => { if (!existingIds.has(t.id)) plans.push(t); });
+    return plans;
+  }, [firestorePlans]);
+
+  // Split into sections
+  const templatePlans = useMemo(() =>
+    allPlans.filter(p => p.isTemplate || (p.id && p.id.startsWith('template_'))),
+    [allPlans]
+  );
+
+  const sharedPlans = useMemo(() =>
+    allPlans.filter(p =>
+      p.isShared &&
+      !p.isTemplate &&
+      !(p.id && p.id.startsWith('template_')) &&
+      p.coachId !== currentUser?.uid
+    ),
+    [allPlans, currentUser]
+  );
+
+  const myPlans = useMemo(() =>
+    allPlans.filter(p =>
+      p.coachId === currentUser?.uid &&
+      !p.isTemplate &&
+      !(p.id && p.id.startsWith('template_'))
+    ),
+    [allPlans, currentUser]
+  );
+
+  // "plans" for stats and backwards compat = my plans
+  const plans = myPlans;
 
   const teamsList = useMemo(() => {
     if (firestoreTeams && firestoreTeams.length > 0) {
@@ -149,7 +94,7 @@ const TrainingPlansListPage = () => {
         ageGroup: t.ageGroup || ''
       }));
     }
-    return sampleTeams;
+    return [];
   }, [firestoreTeams]);
 
   // State
@@ -159,35 +104,54 @@ const TrainingPlansListPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [actionMenuPlan, setActionMenuPlan] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [schedulePlanId, setSchedulePlanId] = useState(null);
 
-  // Filter plans
-  const filteredPlans = useMemo(() => {
-    let result = [...plans];
+  // Upcoming training events that don't already have a plan linked
+  const upcomingTrainings = useMemo(() => {
+    if (!games || games.length === 0) return [];
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return games
+      .filter(g => {
+        if (g.type !== 'training') return false;
+        if (g.trainingPlanId) return false;
+        const d = toJsDate(g.date);
+        return d && d >= now;
+      })
+      .sort((a, b) => {
+        const da = toJsDate(a.date);
+        const db = toJsDate(b.date);
+        return (da || 0) - (db || 0);
+      })
+      .slice(0, 10);
+  }, [games]);
 
-    // Filter by team
-    if (selectedTeam !== 'all') {
-      result = result.filter(p => p.teamId === selectedTeam);
-    }
-
-    // Filter by status
-    if (selectedStatus !== 'all') {
-      result = result.filter(p => p.status === selectedStatus);
-    }
-
-    // Search
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(p =>
-        p.name.toLowerCase().includes(query) ||
-        p.teamName.toLowerCase().includes(query)
-      );
-    }
-
-    // Sort by date (most recent first)
-    result.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-
-    return result;
-  }, [plans, selectedTeam, selectedStatus, searchQuery]);
+  // Filter helper applied to each section
+  const { filteredTemplates, filteredShared, filteredMyPlans } = useMemo(() => {
+    const applyFilters = (planList) => {
+      let result = [...planList];
+      if (selectedTeam !== 'all') {
+        result = result.filter(p => p.teamId === selectedTeam);
+      }
+      if (selectedStatus !== 'all') {
+        result = result.filter(p => p.status === selectedStatus);
+      }
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        result = result.filter(p =>
+          (p.name || '').toLowerCase().includes(query) ||
+          (p.teamName || '').toLowerCase().includes(query)
+        );
+      }
+      result.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+      return result;
+    };
+    return {
+      filteredTemplates: applyFilters(templatePlans),
+      filteredShared: applyFilters(sharedPlans),
+      filteredMyPlans: applyFilters(myPlans)
+    };
+  }, [templatePlans, sharedPlans, myPlans, selectedTeam, selectedStatus, searchQuery]);
 
   // Get quick stats
   const stats = useMemo(() => {
@@ -204,7 +168,7 @@ const TrainingPlansListPage = () => {
     plans
       .filter(p => p.status === 'active')
       .forEach(plan => {
-        plan.sessions.forEach(session => {
+        (plan.sessions || []).forEach(session => {
           const sessionDate = new Date(session.date);
           if (sessionDate >= today) {
             if (!nextSession || sessionDate < new Date(nextSession.date)) {
@@ -458,27 +422,169 @@ const TrainingPlansListPage = () => {
           )}
         </div>
 
-        {/* Plans List */}
-        {filteredPlans.length === 0 ? (
-          <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
-            <AlertCircle className="w-12 h-12 text-[#6B7C6B] mx-auto mb-3" />
-            <h3 className="text-gray-800 font-semibold mb-2">No Training Plans Found</h3>
-            <p className="text-[#6B7C6B] text-sm mb-4">
-              {searchQuery || selectedTeam !== 'all' || selectedStatus !== 'all'
-                ? 'Try adjusting your filters'
-                : 'Create your first training plan to get started'}
-            </p>
-            <button
-              onClick={() => navigate('/coach/training-plans/new')}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#005028] text-white rounded-lg font-medium hover:bg-[#00A651] transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Create Plan
-            </button>
+        {/* Templates Section — always show */}
+        <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Archive className="w-5 h-5 text-[#FFD700]" />
+              <h2 className="text-lg font-bold text-gray-800">Templates</h2>
+              <span className="text-sm font-normal text-[#6B7C6B]">({filteredTemplates.length})</span>
+            </div>
+            {filteredTemplates.length === 0 ? (
+              <p className="text-[#6B7C6B] text-sm bg-white border border-[#D4E4D4] rounded-xl p-4 text-center">
+                {templatePlans.length === 0
+                  ? 'Loading templates...'
+                  : 'No templates match your filters.'}
+              </p>
+            ) : (
+              filteredTemplates.map(plan => (
+                <div key={plan.id} className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-4 hover:border-[#FFD700] transition-colors group">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-[#FFD700]/10 border-2 border-[#FFD700]/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Archive className="w-6 h-6 text-[#FFD700]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <h3 className="text-gray-800 font-semibold truncate">{plan.name}</h3>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium border bg-[#FFD700]/20 text-[#B8860B] border-[#FFD700]">
+                          Template
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm text-[#6B7C6B] mb-2 flex-wrap">
+                        {plan.teamName && (
+                          <span className="flex items-center gap-1"><Users className="w-3 h-3" />{plan.teamName}</span>
+                        )}
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {plan.sessions?.length || 0} session{(plan.sessions?.length || 0) !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                      {plan.focusAreas && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {plan.focusAreas.map(skillId => {
+                            const skill = SKILL_CATEGORIES.find(s => s.id === skillId);
+                            return skill ? (
+                              <span key={skillId} className="px-2 py-0.5 bg-[#005028]/20 text-[#00A651] text-[10px] rounded-full">{skill.name}</span>
+                            ) : null;
+                          })}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => navigate(`/coach/training-plans/${plan.id}`)} className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors" title="View">
+                        <Eye className="w-5 h-5" />
+                      </button>
+                      <button onClick={() => handleDuplicate(plan.id)} className="p-2 text-[#005028] hover:bg-[#005028]/10 rounded-lg transition-colors" title="Use Template">
+                        <Copy className="w-5 h-5" />
+                      </button>
+                      <button onClick={() => setSchedulePlanId(plan.id)} className="p-2 text-[#005028] hover:bg-[#005028]/10 rounded-lg transition-colors" title="Schedule">
+                        <Calendar className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-        ) : (
-          <div className="space-y-3">
-            {filteredPlans.map(plan => (
+
+        {/* Shared Plans Section */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Share2 className="w-5 h-5 text-[#005028]" />
+            <h2 className="text-lg font-bold text-gray-800">Shared Plans</h2>
+            <span className="text-sm font-normal text-[#6B7C6B]">({filteredShared.length})</span>
+          </div>
+          {filteredShared.length === 0 ? (
+            <div className="bg-white border-2 border-dashed border-[#D4E4D4] rounded-2xl p-6 text-center">
+              <Share2 className="w-8 h-8 text-[#6B7C6B] mx-auto mb-2" />
+              <p className="text-[#6B7C6B] text-sm">
+                {sharedPlans.length === 0
+                  ? "No shared plans yet \u2014 be the first to share one!"
+                  : "No shared plans match your filters."}
+              </p>
+            </div>
+          ) : (
+            filteredShared.map(plan => (
+              <div key={plan.id} className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-4 hover:border-[#00A651] transition-colors group">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-[#F5F9F5] border-2 border-[#D4E4D4] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:border-[#00A651] transition-colors">
+                    <Share2 className="w-6 h-6 text-[#005028]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <h3 className="text-gray-800 font-semibold truncate">{plan.name}</h3>
+                      {plan.ratings?.average > 0 && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#FFD700]/20 text-[#B8860B] border border-[#FFD700]">
+                          ★ {plan.ratings.average.toFixed(1)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-[#6B7C6B] mb-2 flex-wrap">
+                      {plan.coachName && (
+                        <span className="flex items-center gap-1"><Users className="w-3 h-3" />By {plan.coachName}</span>
+                      )}
+                      {plan.teamName && (
+                        <span className="flex items-center gap-1"><Target className="w-3 h-3" />{plan.teamName}</span>
+                      )}
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {plan.sessions?.length || 0} session{(plan.sessions?.length || 0) !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                    {plan.focusAreas && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {plan.focusAreas.map(skillId => {
+                          const skill = SKILL_CATEGORIES.find(s => s.id === skillId);
+                          return skill ? (
+                            <span key={skillId} className="px-2 py-0.5 bg-[#005028]/20 text-[#00A651] text-[10px] rounded-full">{skill.name}</span>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => navigate(`/coach/training-plans/${plan.id}`)} className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors" title="View">
+                      <Eye className="w-5 h-5" />
+                    </button>
+                    <button onClick={() => handleDuplicate(plan.id)} className="p-2 text-[#005028] hover:bg-[#005028]/10 rounded-lg transition-colors" title="Copy to My Plans">
+                      <Copy className="w-5 h-5" />
+                    </button>
+                    <button onClick={() => setSchedulePlanId(plan.id)} className="p-2 text-[#005028] hover:bg-[#005028]/10 rounded-lg transition-colors" title="Schedule">
+                      <Calendar className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* My Plans Section */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Dumbbell className="w-5 h-5 text-[#005028]" />
+            <h2 className="text-lg font-bold text-gray-800">My Plans</h2>
+            <span className="text-sm font-normal text-[#6B7C6B]">({filteredMyPlans.length})</span>
+          </div>
+          {filteredMyPlans.length === 0 ? (
+            <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
+              <AlertCircle className="w-12 h-12 text-[#6B7C6B] mx-auto mb-3" />
+              <h3 className="text-gray-800 font-semibold mb-2">No Plans Found</h3>
+              <p className="text-[#6B7C6B] text-sm mb-4">
+                {searchQuery || selectedTeam !== 'all' || selectedStatus !== 'all'
+                  ? 'Try adjusting your filters'
+                  : 'Create your first training plan to get started'}
+              </p>
+              <button
+                onClick={() => navigate('/coach/training-plans/new')}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#005028] text-white rounded-lg font-medium hover:bg-[#00A651] transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Create Plan
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredMyPlans.map(plan => (
               <div
                 key={plan.id}
                 className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-4 hover:border-[#00A651] transition-colors group"
@@ -518,18 +624,18 @@ const TrainingPlansListPage = () => {
                       </span>
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        {formatDate(plan.dateRange.start)}
-                        {plan.dateRange.end !== plan.dateRange.start && ` - ${formatDate(plan.dateRange.end)}`}
+                        {formatDate(plan.dateRange?.start)}
+                        {plan.dateRange?.end && plan.dateRange.end !== plan.dateRange.start && ` - ${formatDate(plan.dateRange.end)}`}
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        {plan.sessions.length} session{plan.sessions.length !== 1 ? 's' : ''}
+                        {plan.sessions?.length || 0} session{(plan.sessions?.length || 0) !== 1 ? 's' : ''}
                       </span>
                     </div>
 
                     {/* Focus Areas */}
                     <div className="flex flex-wrap gap-1.5">
-                      {plan.focusAreas.map(skillId => {
+                      {(plan.focusAreas || []).map(skillId => {
                         const skill = SKILL_CATEGORIES.find(s => s.id === skillId);
                         return skill ? (
                           <span
@@ -544,7 +650,14 @@ const TrainingPlansListPage = () => {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 relative">
+                  <div className="flex items-center gap-1 sm:gap-2 relative">
+                    <button
+                      onClick={() => setSchedulePlanId(plan.id)}
+                      className="p-2 text-[#005028] hover:bg-[#005028]/10 rounded-lg transition-colors"
+                      title="Schedule"
+                    >
+                      <Calendar className="w-5 h-5" />
+                    </button>
                     <button
                       onClick={() => handleEdit(plan.id)}
                       className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors"
@@ -626,17 +739,84 @@ const TrainingPlansListPage = () => {
                   Last updated {formatRelativeDate(plan.updatedAt)}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Schedule Modal */}
+      {schedulePlanId && (
+        <div className="fixed inset-0 z-50" onClick={() => setSchedulePlanId(null)}>
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <div
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md max-h-[calc(100vh-2rem)] bg-white border-2 border-[#D4E4D4] rounded-2xl overflow-hidden flex flex-col"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="p-4 border-b border-[#D4E4D4] flex items-center justify-between flex-shrink-0">
+              <div>
+                <h3 className="text-lg font-bold text-gray-800">Schedule Plan</h3>
+                <p className="text-[#6B7C6B] text-xs mt-0.5">
+                  {allPlans.find(p => p.id === schedulePlanId)?.name}
+                </p>
+              </div>
+              <button
+                onClick={() => setSchedulePlanId(null)}
+                className="w-8 h-8 bg-[#F5F9F5] border border-[#D4E4D4] rounded-full flex items-center justify-center hover:border-[#00A651] transition-colors flex-shrink-0"
+              >
+                <X className="w-4 h-4 text-gray-800" />
+              </button>
+            </div>
+            <div className="overflow-y-auto p-4 space-y-2">
+              {upcomingTrainings.length === 0 ? (
+                <div className="text-center py-6">
+                  <AlertCircle className="w-10 h-10 text-[#6B7C6B] mx-auto mb-2" />
+                  <p className="text-gray-800 font-medium text-sm">No upcoming training sessions</p>
+                  <p className="text-[#6B7C6B] text-xs mt-1">
+                    Add training events in Schedule Management first.
+                  </p>
+                </div>
+              ) : (
+                upcomingTrainings.map(event => {
+                  const eventDate = toJsDate(event.date);
+                  const teamName = teamsList.find(t => t.id === event.teamId)?.name || event.teamName || 'Unknown Team';
+                  return (
+                    <button
+                      key={event.id}
+                      onClick={async () => {
+                        try {
+                          await updateDocument('games', event.id, { trainingPlanId: schedulePlanId });
+                          setSchedulePlanId(null);
+                        } catch (err) {
+                          console.error('Error linking plan to schedule:', err);
+                        }
+                      }}
+                      className="w-full text-left bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-3 hover:border-[#00A651] transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-gray-800 font-medium text-sm">
+                            {eventDate ? formatDateShortAU(eventDate) : 'Unknown date'}
+                          </p>
+                          <p className="text-[#6B7C6B] text-xs">{teamName}</p>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-[#00A651]" />
+                      </div>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {confirmDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setConfirmDelete(null)}>
+        <div className="fixed inset-0 z-50" onClick={() => setConfirmDelete(null)}>
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
           <div
-            className="relative bg-white border-2 border-red-500 rounded-2xl p-6 max-w-sm w-full"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-sm max-h-[calc(100vh-2rem)] bg-white border-2 border-red-500 rounded-2xl p-6 overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             <div className="text-center">

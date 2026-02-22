@@ -69,6 +69,7 @@ const samplePlayersData = {
     { id: 'p4', name: 'Noah Davis', number: 3 },
     { id: 'p5', name: 'Ava Martinez', number: 7 }
   ],
+  
   'u12-emerald': [
     { id: 'p6', name: 'Liam Johnson', number: 11 },
     { id: 'p7', name: 'Sophia Garcia', number: 22 },
@@ -196,6 +197,7 @@ const MatchDayAssessmentPage = () => {
   const [teamRatingNotes, setTeamRatingNotes] = useState('');
   const [gameNotes, setGameNotes] = useState('');
   const [showGeneralNotes, setShowGeneralNotes] = useState(false);
+  const [mvpVotes, setMvpVotes] = useState({ vote3: '', vote2: '', vote1: '' });
 
   // Auto-save form data every 30 seconds as safety net
   const autoSaveFormData = useMemo(() => ({
@@ -231,7 +233,7 @@ const MatchDayAssessmentPage = () => {
   const [showDraftBanner, setShowDraftBanner] = useState(false);
 
   // MVP Voting (3-2-1 system)
-  const [mvpVotes, setMvpVotes] = useState({ vote3: '', vote2: '', vote1: '' });
+  
   const [openMvpDropdown, setOpenMvpDropdown] = useState(null);
 
   // Individual Player Assessments
