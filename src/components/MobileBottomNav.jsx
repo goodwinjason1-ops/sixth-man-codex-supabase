@@ -75,7 +75,7 @@ const roleNavItems = {
   parent: [
     { icon: Home, label: 'Home', path: '/welcome' },
     { icon: BarChart3, label: 'Dashboard', path: '/dashboard' },
-    { icon: Lightbulb, label: 'Skills', path: '/skills-passport' },
+    { icon: Calendar, label: 'Schedule', path: '/parent/schedule' },
     { icon: Bell, label: 'Alerts', path: '/notifications' },
   ],
   default: [

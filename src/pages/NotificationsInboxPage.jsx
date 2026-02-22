@@ -292,12 +292,28 @@ Emerald Lakers Basketball Club`,
 
   // Handle scoring confirmation
   const handleConfirmScoring = async (notif) => {
-    setScoringAssignments(prev => prev.map(a =>
-      a.id === notif.scoringAssignmentId
-        ? { ...a, status: 'confirmed' }
-        : a
-    ));
-    alert('Scoring duty confirmed! Thank you.');
+    const assignmentId = notif.scoringAssignmentId;
+    if (!assignmentId) {
+      alert('No scoring assignment linked to this notification.');
+      return;
+    }
+
+    try {
+      await updateDocument('scoring_assignments', assignmentId, {
+        status: 'confirmed',
+        confirmedAt: new Date().toISOString(),
+        confirmedBy: currentUser.uid
+      });
+
+      // Update local state after Firestore write succeeds
+      setScoringAssignments(prev => prev.map(a =>
+        a.id === assignmentId ? { ...a, status: 'confirmed' } : a
+      ));
+      alert('Scoring duty confirmed! Thank you.');
+    } catch (error) {
+      console.error('Failed to confirm scoring:', error);
+      alert('Failed to confirm. Please try again.');
+    }
     setSelectedNotification(null);
   };
 

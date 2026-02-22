@@ -674,6 +674,22 @@ const CoachDashboard = () => {
           )}
         </div>
 
+        {/* Rotation History Card */}
+        <div
+          onClick={() => navigate('/coach/rotation-tracker')}
+          className="bg-white rounded-xl border border-[#D4E4D4]/30 p-5 mb-6 hover:border-[#00A651]/50 transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 bg-[#005028]/10 rounded-lg flex items-center justify-center">
+              <History className="w-5 h-5 text-[#005028]" />
+            </div>
+            <div>
+              <h3 className="text-gray-800 font-bold text-sm">Rotation History</h3>
+              <p className="text-[#6B7C6B] text-xs">View past game rotation records and fairness scores</p>
+            </div>
+          </div>
+        </div>
+
         {/* Development Plans Dashboard */}
         <CoachIDPDashboard />
 

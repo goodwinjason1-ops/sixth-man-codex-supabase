@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { initializeApp, deleteApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import PageShell from '../../components/PageShell';
@@ -223,12 +223,19 @@ const TeamManagementPage = () => {
               <div className="space-y-2 mb-3">
                 <div className="flex items-center gap-2 text-sm">
                   <Users size={14} className="text-gray-400" />
-                  {team.coachName ? (
-                    <span className="text-gray-700">{team.coachName}</span>
+                  {team.coachId ? (
+                    <span className="text-gray-700">{getUserName(team.coachId)}</span>
                   ) : (
                     <span className="text-yellow-400 text-xs">No Coach Assigned</span>
                   )}
                 </div>
+                {team.managerId && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Shield size={14} className="text-gray-400" />
+                    <span className="text-gray-700">{getUserName(team.managerId)}</span>
+                    <span className="text-gray-400 text-xs">(Manager)</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <div className="flex-1 bg-gray-100 rounded-full h-2">
                     <div className="bg-[#005028] rounded-full h-2 transition-all"
@@ -267,7 +274,8 @@ const TeamManagementPage = () => {
               <DetailItem label="Age Group" value={viewTeam.ageGroup} />
               <DetailItem label="Gender" value={viewTeam.gender} />
               <DetailItem label="Season" value={viewTeam.season || '—'} />
-              <DetailItem label="Coach" value={viewTeam.coachName || 'None'} />
+              <DetailItem label="Coach" value={viewTeam.coachId ? getUserName(viewTeam.coachId) : 'None'} />
+              <DetailItem label="Manager" value={viewTeam.managerId ? getUserName(viewTeam.managerId) : 'None'} />
             </div>
 
             <div>
@@ -318,6 +326,7 @@ const TeamManagementPage = () => {
         <TeamFormModal
           team={editTeam}
           coaches={coaches}
+          allUsers={allUsers}
           players={players}
           allTeams={teams}
           coordinatorGender={coordinatorGender}
@@ -407,7 +416,7 @@ const Modal = ({ children, title, onClose, danger }) => (
 );
 
 // ─── Team Form Modal (Create + Edit) ───
-const TeamFormModal = ({ team, coaches: initialCoaches, players, allTeams, coordinatorGender, currentUserId, onClose, onSuccess, onError }) => {
+const TeamFormModal = ({ team, coaches: initialCoaches, allUsers, players, allTeams, coordinatorGender, currentUserId, onClose, onSuccess, onError }) => {
   const isEdit = !!team;
   const [coaches, setLocalCoaches] = useState(initialCoaches);
   const [form, setForm] = useState({
@@ -416,8 +425,15 @@ const TeamFormModal = ({ team, coaches: initialCoaches, players, allTeams, coord
     gender: coordinatorGender || team?.gender || '',
     season: team?.season || '',
     coachId: team?.coachId || '',
+    managerId: team?.managerId || '',
     playerIds: team?.playerIds || [],
   });
+
+  // Filter allUsers for team_manager role
+  const managers = useMemo(() =>
+    (allUsers || []).filter(u => u.role === 'team_manager' && !u.deleted),
+    [allUsers]
+  );
   const [saving, setSaving] = useState(false);
   const [playerSearch, setPlayerSearch] = useState('');
 
@@ -540,6 +556,7 @@ const TeamFormModal = ({ team, coaches: initialCoaches, players, allTeams, coord
   };
 
   const coachName = form.coachId ? (coaches.find(c => c.id === form.coachId)?.displayName || '') : '';
+  const managerName = form.managerId ? (managers.find(m => m.id === form.managerId)?.displayName || '') : '';
 
   const assignedElsewhere = useMemo(() => {
     const map = new Map();
@@ -571,17 +588,64 @@ const TeamFormModal = ({ team, coaches: initialCoaches, players, allTeams, coord
         season: form.season.trim(),
         coachId: form.coachId || null,
         coachName: coachName,
+        managerId: form.managerId || null,
+        managerName: managerName,
         playerIds: form.playerIds,
       };
 
+      let teamId;
       if (isEdit) {
+        teamId = team.id;
         const res = await updateTeam(team.id, data);
-        if (res.success) onSuccess(`Team "${form.name}" updated.`);
-        else onError(res.error);
+        if (res.success) {
+          // Update new coach's user doc
+          if (form.coachId) {
+            await updateDoc(doc(db, 'users', form.coachId), {
+              assignedTeams: arrayUnion(teamId)
+            });
+          }
+          // Remove team from old coach if coach changed
+          if (team.coachId && team.coachId !== form.coachId) {
+            await updateDoc(doc(db, 'users', team.coachId), {
+              assignedTeams: arrayRemove(teamId)
+            });
+          }
+          // Update new manager's user doc
+          if (form.managerId) {
+            await updateDoc(doc(db, 'users', form.managerId), {
+              assignedTeams: arrayUnion(teamId)
+            });
+          }
+          // Remove team from old manager if manager changed
+          if (team.managerId && team.managerId !== form.managerId) {
+            await updateDoc(doc(db, 'users', team.managerId), {
+              assignedTeams: arrayRemove(teamId)
+            });
+          }
+          onSuccess(`Team "${form.name}" updated.`);
+        } else {
+          onError(res.error);
+        }
       } else {
         const res = await createTeam({ ...data, createdBy: currentUserId });
-        if (res.success) onSuccess(`Team "${form.name}" created.`);
-        else onError(res.error);
+        if (res.success) {
+          teamId = res.data.id;
+          // Update new coach's user doc
+          if (form.coachId) {
+            await updateDoc(doc(db, 'users', form.coachId), {
+              assignedTeams: arrayUnion(teamId)
+            });
+          }
+          // Update new manager's user doc
+          if (form.managerId) {
+            await updateDoc(doc(db, 'users', form.managerId), {
+              assignedTeams: arrayUnion(teamId)
+            });
+          }
+          onSuccess(`Team "${form.name}" created.`);
+        } else {
+          onError(res.error);
+        }
       }
     } finally {
       setSaving(false);
@@ -664,6 +728,16 @@ const TeamFormModal = ({ team, coaches: initialCoaches, players, allTeams, coord
               </div>
             )}
           </div>
+        </div>
+
+        {/* Team Manager */}
+        <div>
+          <label className="text-[#00A651] text-sm font-medium mb-1.5 block">Team Manager</label>
+          <select value={form.managerId} onChange={e => setForm(p => ({ ...p, managerId: e.target.value }))}
+            className="w-full px-3 py-2.5 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none">
+            <option value="">No Manager</option>
+            {managers.map(m => <option key={m.id} value={m.id}>{m.displayName ? `${m.displayName} (${m.email})` : m.email}</option>)}
+          </select>
         </div>
 
         {/* Player Assignment */}

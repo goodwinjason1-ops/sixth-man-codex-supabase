@@ -31,7 +31,7 @@ import SessionSummaryCard from '../components/youth/SessionSummaryCard';
 const ParentDashboard = () => {
   const navigate = useNavigate();
   const { refreshUserProfile } = useAuth();
-  const { players, teams, evaluations, schedule, userProfile, userChildrenIds } = useFilteredData();
+  const { players, teams, evaluations, schedule, userProfile, userChildrenIds, loading } = useFilteredData();
   const [refreshing, setRefreshing] = useState(false);
 
   // If linkedPlayerIds is empty but user is a parent, try refreshing from Firestore
@@ -114,6 +114,30 @@ const ParentDashboard = () => {
       })
       .slice(0, 3);
   }, [selectedChild, schedule, childTeam]);
+
+  // Show loading spinner while data is being fetched
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F5F9F5]">
+        <div className="bg-white border-b border-[#D4E4D4]/30">
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            <Breadcrumb
+              path={[
+                { label: 'Home', url: '/welcome' },
+                { label: 'Parent Dashboard' }
+              ]}
+              className="mb-3"
+            />
+            <h1 className="text-2xl font-bold text-gray-800">Parent Dashboard</h1>
+          </div>
+        </div>
+        <div className="flex flex-col items-center justify-center py-16">
+          <Loader2 className="w-8 h-8 text-[#00A651] animate-spin mb-4" />
+          <p className="text-gray-500">Loading your child&apos;s information...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Empty state (show loading if still refreshing)
   if (userChildrenIds.length === 0) {
@@ -420,24 +444,33 @@ const ParentDashboard = () => {
         )}
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           <button
             onClick={() => navigate('/notifications')}
-            className="flex items-center gap-3 p-4 bg-white hover:bg-gray-100 border border-[#D4E4D4]/30 rounded-xl transition-colors"
+            className="flex flex-col items-center gap-2 p-4 bg-white hover:bg-gray-100 border border-[#D4E4D4]/30 rounded-xl transition-colors"
           >
             <div className="w-10 h-10 bg-[#005028]/20 rounded-lg flex items-center justify-center">
               <Bell className="text-[#00A651]" size={20} />
             </div>
-            <span className="text-gray-800 font-medium text-sm">Notifications</span>
+            <span className="text-gray-800 font-medium text-xs text-center">Notifications</span>
           </button>
           <button
-            onClick={() => navigate('/team')}
-            className="flex items-center gap-3 p-4 bg-white hover:bg-gray-100 border border-[#D4E4D4]/30 rounded-xl transition-colors"
+            onClick={() => navigate('/parent/team')}
+            className="flex flex-col items-center gap-2 p-4 bg-white hover:bg-gray-100 border border-[#D4E4D4]/30 rounded-xl transition-colors"
           >
             <div className="w-10 h-10 bg-[#005028]/20 rounded-lg flex items-center justify-center">
               <Users className="text-[#00A651]" size={20} />
             </div>
-            <span className="text-gray-800 font-medium text-sm">Team Info</span>
+            <span className="text-gray-800 font-medium text-xs text-center">Team Info</span>
+          </button>
+          <button
+            onClick={() => navigate('/parent/schedule')}
+            className="flex flex-col items-center gap-2 p-4 bg-white hover:bg-gray-100 border border-[#D4E4D4]/30 rounded-xl transition-colors"
+          >
+            <div className="w-10 h-10 bg-[#005028]/20 rounded-lg flex items-center justify-center">
+              <Calendar className="text-[#00A651]" size={20} />
+            </div>
+            <span className="text-gray-800 font-medium text-xs text-center">Schedule</span>
           </button>
         </div>
       </div>

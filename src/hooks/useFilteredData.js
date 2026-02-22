@@ -18,6 +18,13 @@ export function useFilteredData() {
       // Merge both sources, deduplicate
       return [...new Set([...fromProfile, ...coachTeamIds])];
     }
+    // Also check teams where user is the manager (managerId matches)
+    if (currentUser && userProfile.role === 'team_manager') {
+      const managerTeamIds = (teams || [])
+        .filter(t => t.managerId === currentUser.uid)
+        .map(t => t.id);
+      return [...new Set([...fromProfile, ...managerTeamIds])];
+    }
     return fromProfile;
   }, [userProfile, currentUser, teams]);
 

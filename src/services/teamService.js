@@ -117,8 +117,7 @@ export async function removePlayerFromTeam(teamId, playerId) {
  */
 export async function getCoaches() {
   try {
-    const coachRoles = ['coach', 'youth_coach', 'youth_head_coach', 'coach_coordinator'];
-    const q = query(collection(db, 'users'), where('role', 'in', coachRoles));
+    const q = query(collection(db, 'users'), where('role', '==', 'coach'));
     const snapshot = await getDocs(q);
     return {
       success: true,

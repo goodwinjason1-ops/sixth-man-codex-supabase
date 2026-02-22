@@ -115,27 +115,25 @@ export const useGameDayDetection = () => {
     }
 
     // Get coach's teams
-    const coachTeams = userProfile?.teams || [];
+    const coachTeams = userProfile?.assignedTeams || userProfile?.teamIds || [];
 
     console.log('[GameDay] Filtering games for teams:', coachTeams || 'ALL (admin)');
 
     // Filter for today's scheduled games
     const todaysGames = schedule.filter(game => {
+      // Must be a game (not training)
+      if (game.type && game.type !== 'game') return false;
+
       // Must be today
       if (!isToday(game.date)) return false;
 
       // Must be scheduled (not completed)
       if (game.status && game.status !== 'scheduled') return false;
 
-      // Filter by coach's teams if not admin
-      if (coachTeams && coachTeams.length > 0) {
-        // Check if game's team matches any of coach's teams
-        const gameTeam = game.teamId || game.teamName || game.team;
-        const matchesTeam = coachTeams.some(t =>
-          t.toLowerCase().includes(gameTeam?.toLowerCase()) ||
-          gameTeam?.toLowerCase().includes(t.toLowerCase())
-        );
-        if (!matchesTeam) return false;
+      // Filter by coach's teams
+      if (coachTeams.length > 0) {
+        const gameTeamId = game.teamId;
+        if (!gameTeamId || !coachTeams.includes(gameTeamId)) return false;
       }
 
       return true;

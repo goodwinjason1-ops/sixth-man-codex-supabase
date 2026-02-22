@@ -98,6 +98,8 @@ const SessionSummaryHistory = lazy(() => import('./pages/youth/SessionSummaryHis
 
 // Parent chunk
 const ParentDashboard = lazy(() => import('./pages/ParentDashboard'));
+const ParentTeamViewPage = lazy(() => import('./pages/ParentTeamViewPage'));
+const ParentSchedulePage = lazy(() => import('./pages/ParentSchedulePage'));
 
 // Help chunk
 const HelpHome = lazy(() => import('./pages/help/HelpHome'));
@@ -813,6 +815,28 @@ const AppRoutes = () => {
             <ProtectedRoute>
               <ErrorBoundary fallbackMessage="Unable to load swap request.">
                 <NotificationsInboxPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/parent/team"
+          element={
+            <ProtectedRoute allowedRoles={['parent', ...ADMIN_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load team view.">
+                <ParentTeamViewPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/parent/schedule"
+          element={
+            <ProtectedRoute allowedRoles={['parent', ...ADMIN_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load schedule.">
+                <ParentSchedulePage />
               </ErrorBoundary>
             </ProtectedRoute>
           }
