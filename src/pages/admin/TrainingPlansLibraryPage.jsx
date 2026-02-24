@@ -355,7 +355,7 @@ const TrainingPlansLibraryPage = () => {
                       <p className="text-[#6B7C6B] text-[10px] font-mono mt-0.5">{plan.id}</p>
                       {!plan.id?.startsWith('template_') && (
                         <span className="inline-block mt-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] rounded font-medium">
-                          Copy (not a system template)
+                          Promoted from coach plan
                         </span>
                       )}
                     </div>

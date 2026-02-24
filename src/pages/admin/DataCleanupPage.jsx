@@ -152,18 +152,42 @@ const DataCleanupPage = () => {
     });
   };
 
-  // Force delete a specific document by collection + ID
+  // Force delete a specific document by collection + ID — with verification
   const handleForceDelete = async () => {
-    if (!forceDelete.collection.trim() || !forceDelete.docId.trim()) return;
+    const col = forceDelete.collection.trim();
+    const id = forceDelete.docId.trim();
+    if (!col || !id) return;
     setForceDelete(prev => ({ ...prev, running: true, result: null }));
     try {
-      await deleteDoc(doc(db, forceDelete.collection.trim(), forceDelete.docId.trim()));
-      setForceDelete(prev => ({ ...prev, running: false, result: { success: true, message: `Deleted ${forceDelete.collection}/${forceDelete.docId}` } }));
-      setCleanupLog(prev => [...prev, { type: 'success', message: `Force deleted: ${forceDelete.collection}/${forceDelete.docId}` }]);
+      const docRef = doc(db, col, id);
+
+      // Check if document exists first
+      const before = await getDoc(docRef);
+      if (!before.exists()) {
+        setForceDelete(prev => ({ ...prev, running: false, result: { success: false, message: `Document ${col}/${id} does not exist — nothing to delete` } }));
+        setCleanupLog(prev => [...prev, { type: 'error', message: `Force delete: ${col}/${id} does not exist` }]);
+        return;
+      }
+
+      // Delete the document
+      await deleteDoc(docRef);
+
+      // Verify it's actually gone
+      const after = await getDoc(docRef);
+      if (after.exists()) {
+        setForceDelete(prev => ({ ...prev, running: false, result: { success: false, message: `DELETE FAILED — document still exists after deleteDoc. Check Firestore rules (need isAdmin role).` } }));
+        setCleanupLog(prev => [...prev, { type: 'error', message: `Force delete FAILED — ${col}/${id} still exists after deleteDoc call. Likely a Firestore security rules issue.` }]);
+      } else {
+        setForceDelete(prev => ({ ...prev, running: false, result: { success: true, message: `VERIFIED DELETED: ${col}/${id}` } }));
+        setCleanupLog(prev => [...prev, { type: 'success', message: `Force deleted (verified): ${col}/${id}` }]);
+      }
     } catch (err) {
       console.error('Force delete failed:', err);
-      setForceDelete(prev => ({ ...prev, running: false, result: { success: false, message: `Failed: ${err.message}` } }));
-      setCleanupLog(prev => [...prev, { type: 'error', message: `Force delete failed: ${forceDelete.collection}/${forceDelete.docId}: ${err.message}` }]);
+      const msg = err.code === 'permission-denied'
+        ? `PERMISSION DENIED — your Firestore role does not have delete access for "${col}". Check firestore.rules.`
+        : `Failed: ${err.message}`;
+      setForceDelete(prev => ({ ...prev, running: false, result: { success: false, message: msg } }));
+      setCleanupLog(prev => [...prev, { type: 'error', message: `Force delete failed: ${col}/${id}: ${msg}` }]);
     }
   };
 
@@ -275,7 +299,7 @@ const DataCleanupPage = () => {
         }
       });
 
-      // Notifications with all-phantom targetAudience userIds
+      // Notifications with phantom/invalid targetAudience userIds
       const notifsSnapshot = await getDocs(collection(db, 'notifications'));
       issues.phantomNotifs = [];
       notifsSnapshot.docs.forEach(d => {
@@ -286,9 +310,16 @@ const DataCleanupPage = () => {
           if (valid.length === 0) {
             issues.phantomNotifs.push({
               id: d.id, _collection: 'notifications', ...data,
-              problem: `All ${ta.userIds.length} target user(s) don't exist`
+              problem: `All ${ta.userIds.length} target user(s) don't exist: ${ta.userIds.join(', ')}`
             });
           }
+        }
+        // Also flag notifications with no targetAudience but a recipientId that doesn't exist
+        if (!ta && data.recipientId && !validUserIds.has(data.recipientId)) {
+          issues.phantomNotifs.push({
+            id: d.id, _collection: 'notifications', ...data,
+            problem: `recipientId "${data.recipientId}" doesn't exist in users`
+          });
         }
       });
 
@@ -348,7 +379,7 @@ const DataCleanupPage = () => {
   const deleteDocument = async (docId, collectionName = 'users') => {
     console.log('deleteDocument called:', collectionName, docId, 'dryRun:', dryRun);
     if (dryRun) {
-      setCleanupLog(prev => [...prev, { type: 'dry-run', message: `Would delete ${collectionName}/${docId}` }]);
+      setCleanupLog(prev => [...prev, { type: 'dry-run', message: `[DRY RUN] Would delete ${collectionName}/${docId} — turn off Safe Mode to actually delete` }]);
       return true;
     }
     try {

@@ -514,16 +514,21 @@ const NotificationsInboxPage = () => {
 
   // Format date
   const formatDate = (dateString) => {
-    const date = dateString?.toDate ? dateString.toDate() : new Date(dateString);
-    const now = new Date();
-    const diff = now - date;
+    try {
+      const date = dateString?.toDate ? dateString.toDate() : new Date(dateString);
+      if (isNaN(date.getTime())) return '-';
+      const now = new Date();
+      const diff = now - date;
 
-    if (diff < 86400000) { // Less than 24 hours
-      return date.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
-    } else if (diff < 604800000) { // Less than 7 days
-      return date.toLocaleDateString('en-AU', { weekday: 'short' });
-    } else {
-      return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+      if (diff < 86400000) {
+        return date.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+      } else if (diff < 604800000) {
+        return date.toLocaleDateString('en-AU', { weekday: 'short' });
+      } else {
+        return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+      }
+    } catch {
+      return '-';
     }
   };
 
@@ -708,13 +713,12 @@ const NotificationsInboxPage = () => {
                     {NOTIFICATION_TYPE_CONFIG[selectedNotification.type]?.label}
                   </span>
                   <p className="text-xs text-gray-400">
-                    {(selectedNotification.sentAt?.toDate ? selectedNotification.sentAt.toDate() : new Date(selectedNotification.sentAt)).toLocaleDateString('en-AU', {
-                      weekday: 'long',
-                      day: 'numeric',
-                      month: 'long',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                    {(() => {
+                      try {
+                        const d = selectedNotification.sentAt?.toDate ? selectedNotification.sentAt.toDate() : new Date(selectedNotification.sentAt);
+                        return isNaN(d.getTime()) ? 'Unknown date' : d.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+                      } catch { return 'Unknown date'; }
+                    })()}
                   </p>
                 </div>
               </div>
@@ -740,11 +744,12 @@ const NotificationsInboxPage = () => {
                   <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
                       <Calendar size={14} />
-                      {new Date(selectedNotification.gameData.date).toLocaleDateString('en-AU', {
-                        weekday: 'short',
-                        day: 'numeric',
-                        month: 'short'
-                      })}
+                      {(() => {
+                        try {
+                          const d = selectedNotification.gameData.date?.toDate ? selectedNotification.gameData.date.toDate() : new Date(selectedNotification.gameData.date);
+                          return isNaN(d.getTime()) ? 'Date TBD' : d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+                        } catch { return 'Date TBD'; }
+                      })()}
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock size={14} />
@@ -878,7 +883,12 @@ const NotificationsInboxPage = () => {
                 <p className="text-sm text-gray-600">Scoring duty for:</p>
                 <p className="font-medium">{selectedNotification.gameData.team} vs {selectedNotification.gameData.opponent}</p>
                 <p className="text-sm text-gray-500">
-                  {new Date(selectedNotification.gameData.date).toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })} at {selectedNotification.gameData.time}
+                  {(() => {
+                    try {
+                      const d = selectedNotification.gameData.date?.toDate ? selectedNotification.gameData.date.toDate() : new Date(selectedNotification.gameData.date);
+                      return isNaN(d.getTime()) ? 'Date TBD' : d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+                    } catch { return 'Date TBD'; }
+                  })()} at {selectedNotification.gameData.time || 'TBD'}
                 </p>
               </div>
             )}

@@ -75,6 +75,20 @@ const TrainingPlansListPage = () => {
     [allPlans, currentUser]
   );
 
+  // Debug shared plans visibility
+  useEffect(() => {
+    if (dataLoading) return;
+    const allShared = (firestorePlans || []).filter(p => p.isShared === true);
+    if (allShared.length > 0) {
+      console.log('[SharedPlans Debug] All plans with isShared=true:', allShared.length);
+      allShared.forEach(p => {
+        console.log(`  Plan "${p.name}" (${p.id}) - owner: coachId=${p.coachId}, createdBy=${p.createdBy}, isShared=${p.isShared}`);
+      });
+      console.log('[SharedPlans Debug] Current user UID:', currentUser?.uid);
+      console.log('[SharedPlans Debug] Shared by others (shown in section):', sharedPlans.length);
+    }
+  }, [firestorePlans, sharedPlans, currentUser, dataLoading]);
+
   const myPlans = useMemo(() =>
     allPlans.filter(p =>
       getPlanOwnerId(p) === currentUser?.uid &&
@@ -517,7 +531,7 @@ const TrainingPlansListPage = () => {
               <Share2 className="w-8 h-8 text-[#6B7C6B] mx-auto mb-2" />
               <p className="text-[#6B7C6B] text-sm">
                 {sharedPlans.length === 0
-                  ? "No shared plans yet \u2014 be the first to share one!"
+                  ? "Plans shared by other coaches will appear here. Your own shared plans are shown in My Plans with a blue Shared badge."
                   : "No shared plans match your filters."}
               </p>
             </div>
