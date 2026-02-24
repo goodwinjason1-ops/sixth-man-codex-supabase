@@ -93,72 +93,87 @@ export const TEMPLATE_PLANS = [
     updatedAt: '2025-01-01T00:00:00Z'
   },
   {
-    id: 'template_full_skills',
-    name: 'Full Skills Development (Multi-Session)',
+    id: 'template_passing',
+    name: 'Passing & Court Vision',
     isTemplate: true,
     status: 'active',
-    duration: 'monthly',
-    focusAreas: ['ball-handling', 'shooting', 'defense', 'passing-receiving'],
+    duration: 'weekly',
+    focusAreas: ['passing-receiving'],
     sessions: [
       {
         sessionNumber: 1,
-        warmUp: 'Dynamic stretching, ball-handling warm-up (5 min)',
+        warmUp: 'Partner passing warm-up (chest, bounce, overhead) 5 min, dynamic stretching',
         drills: [
-          { name: 'Ball Handling Circuit', duration: 10, description: 'Stations: crossovers, between legs, behind back, spin moves' },
-          { name: 'Passing Pairs', duration: 10, description: 'Chest pass, bounce pass, overhead pass — stationary then moving' }
+          { name: 'Two-Ball Partner Passing', duration: 10, description: 'Partners pass two balls simultaneously — one chest, one bounce. Builds coordination and peripheral vision.' },
+          { name: 'Circle Passing Drill', duration: 10, description: 'Players in a circle, 2 balls moving. Call names before passing. Develops communication and court awareness.' },
+          { name: 'Baseball Pass Outlet', duration: 10, description: 'Full-court outlet passes to a running partner. Focus on accuracy and leading the receiver.' }
         ],
-        coolDown: 'Free throws and stretch'
+        coolDown: 'Free throw shooting with pass-first entry, light stretch'
       },
       {
         sessionNumber: 2,
-        warmUp: 'Layup lines both sides (5 min)',
+        warmUp: 'Jog with ball, passing on the move in pairs (5 min)',
         drills: [
-          { name: 'Shooting Stations', duration: 15, description: 'Rotate through mid-range, 3-point, and free throw stations' },
-          { name: 'Defensive Slides', duration: 10, description: 'Lateral slides, drop steps, close-outs at game speed' }
+          { name: '3-Man Weave', duration: 12, description: 'Classic 3-man weave full court. Finish with a layup. Rotate lines.' },
+          { name: 'Skip Pass & Drive', duration: 10, description: 'Skip pass across, catch and drive or kick out. Read the defence.' },
+          { name: 'Pressure Passing 2v1', duration: 10, description: 'Two offensive players must complete 10 passes while one defender tries to intercept. No dribbling.' }
         ],
-        coolDown: 'Cool-down jog and team stretch'
-      },
-      {
-        sessionNumber: 3,
-        warmUp: 'Partner passing warm-up on the move (5 min)',
-        drills: [
-          { name: '3v3 Half Court', duration: 15, description: 'Small-sided game focusing on spacing and movement' },
-          { name: 'Fast Break 2v1', duration: 10, description: 'Outlet pass to fast break — decision making under pressure' }
-        ],
-        coolDown: 'Game review discussion, static stretching'
-      },
-      {
-        sessionNumber: 4,
-        warmUp: 'Shooting warm-up (form shots close range) 5 min',
-        drills: [
-          { name: 'Scrimmage', duration: 20, description: '5v5 full court — coaches stop play to teach situations' },
-          { name: 'End-of-Game Scenarios', duration: 10, description: 'Down 2 with 30 seconds left, inbound plays, free throw situations' }
-        ],
-        coolDown: 'Season goals discussion, stretch'
+        coolDown: 'Passing accuracy challenge (hit targets on wall), cool-down stretch'
       }
     ],
     createdAt: '2025-01-01T00:00:00Z',
     updatedAt: '2025-01-01T00:00:00Z'
   },
   {
-    id: 'template_game_ready',
-    name: 'Game-Ready Practice',
+    id: 'template_team_play',
+    name: 'Team Play & Offensive Sets',
     isTemplate: true,
     status: 'active',
-    duration: 'single',
+    duration: 'weekly',
     focusAreas: ['team-play', 'basketball-iq'],
     sessions: [
       {
         sessionNumber: 1,
         warmUp: 'Dynamic warm-up with ball (layup lines, passing lanes) 8 min',
         drills: [
-          { name: 'Set Plays Walkthrough', duration: 10, description: 'Walk through 2-3 offensive sets at half speed, then full speed' },
-          { name: 'Defensive Rotations', duration: 10, description: 'Shell drill into live 5v5 — focus on help rotations and communication' },
-          { name: 'Press Break', duration: 8, description: 'Practice inbound vs full-court press — 2 different formations' },
-          { name: 'Controlled Scrimmage', duration: 15, description: '5v5 with coach whistles — stop and correct, focus on executing sets' }
+          { name: 'Set Plays Walkthrough', duration: 12, description: 'Walk through 2-3 offensive sets at half speed, then full speed. Focus on timing and spacing.' },
+          { name: '5-on-0 Motion Offence', duration: 10, description: 'Run motion offence principles without defence. Emphasise cuts, screens, and ball reversal.' },
+          { name: 'Screen & Roll Series', duration: 10, description: 'Pick-and-roll, pick-and-pop variations. Ball handler reads defender and makes decision.' }
         ],
-        smallSidedGames: '3v3 king of the court — losers out, winners stay. First to 7.',
-        coolDown: 'Team huddle — go over game plan, free throws, light stretch'
+        coolDown: 'Free throw shooting, team huddle to review sets'
+      },
+      {
+        sessionNumber: 2,
+        warmUp: 'Passing warm-up, 3-man weave (5 min)',
+        drills: [
+          { name: 'Controlled Scrimmage', duration: 15, description: '5v5 with coach whistles — stop and correct. Focus on executing offensive sets.' },
+          { name: 'Press Break', duration: 10, description: 'Practice inbound vs full-court press — 2 different formations. Communication is key.' },
+          { name: 'End-of-Game Scenarios', duration: 8, description: 'Down 2 with 30 seconds left, inbound plays, free throw situations. Clock awareness.' }
+        ],
+        coolDown: 'Team talk on game plan, light jog, stretching'
+      }
+    ],
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'template_game_prep',
+    name: 'Game Day Preparation',
+    isTemplate: true,
+    status: 'active',
+    duration: 'single',
+    focusAreas: ['team-play', 'basketball-iq', 'shooting'],
+    sessions: [
+      {
+        sessionNumber: 1,
+        warmUp: 'Light jog, dynamic stretching, layup lines (10 min). Keep energy controlled — save legs for the game.',
+        drills: [
+          { name: 'Shooting Warm-Up', duration: 8, description: 'Form shots close range, move out to mid-range and 3-point. No rushing — focus on rhythm.' },
+          { name: 'Set Plays Review', duration: 10, description: 'Walk through primary offensive sets and inbound plays at 75% speed. Verbal cues only.' },
+          { name: 'Defensive Assignments', duration: 8, description: 'Review defensive matchups, help-side rotations, and transition responsibilities. Brief and focused.' },
+          { name: 'Free Throw Routine', duration: 5, description: 'Each player shoots 5 free throws with their pre-game routine. Build confidence and consistency.' }
+        ],
+        coolDown: 'Team huddle — game plan summary, positive energy, hydration reminder'
       }
     ],
     createdAt: '2025-01-01T00:00:00Z',

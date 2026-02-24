@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -11,16 +11,27 @@ import {
   Clock,
   TrendingUp
 } from 'lucide-react';
-import { sampleIDPs } from '../data/sampleIDPs';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../services/firebase';
 
 const CoachIDPDashboard = () => {
   const navigate = useNavigate();
   const { players } = useData();
   const { currentUser } = useAuth();
 
+  const [developmentPlans, setDevelopmentPlans] = useState([]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'development_plans'), (snap) => {
+      setDevelopmentPlans(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (err) => {
+      console.error('Development plans subscription error:', err);
+    });
+    return () => unsub();
+  }, []);
+
   const idpStats = useMemo(() => {
-    // Use sample data for now; replace with Firestore query when collection exists
-    const allPlans = sampleIDPs;
+    const allPlans = developmentPlans;
     const activePlans = allPlans.filter(p => p.status === 'active');
     const completedPlans = allPlans.filter(p => p.status === 'completed');
 
@@ -31,14 +42,14 @@ const CoachIDPDashboard = () => {
 
     // Count achieved goals
     const achievedGoals = allPlans.reduce((count, plan) =>
-      count + plan.goals.filter(g => g.status === 'achieved').length, 0
+      count + (plan.goals || []).filter(g => g.status === 'achieved').length, 0
     );
 
     // Find plans with reviews due (mid-season review due if plan is > 6 weeks old with no mid-season review)
     const now = new Date();
     const reviewsDue = activePlans.filter(plan => {
       const planAge = (now - new Date(plan.createdAt)) / (1000 * 60 * 60 * 24);
-      const hasMidReview = plan.reviews.some(r => r.type === 'mid_season');
+      const hasMidReview = (plan.reviews || []).some(r => r.type === 'mid_season');
       return planAge > 42 && !hasMidReview; // 6 weeks
     });
 
@@ -51,7 +62,7 @@ const CoachIDPDashboard = () => {
       reviewsDue: reviewsDue.length,
       recentPlans: activePlans.slice(0, 3)
     };
-  }, [players]);
+  }, [players, developmentPlans]);
 
   return (
     <div

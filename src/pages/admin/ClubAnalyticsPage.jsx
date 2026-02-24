@@ -1,5 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../../services/firebase';
 import { useData } from '../../contexts/DataContext';
 import PageShell from '../../components/PageShell';
 import {
@@ -34,8 +36,18 @@ import {
 
 const ClubAnalyticsPage = () => {
   const navigate = useNavigate();
-  const { players, evaluations, teams, games } = useData();
+  const { players, evaluations, teams } = useData();
   const [timeRange, setTimeRange] = useState('month');
+  const [matchAssessments, setMatchAssessments] = useState([]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'match_assessments'), (snap) => {
+      setMatchAssessments(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (err) => {
+      console.error('Match assessments subscription error:', err);
+    });
+    return () => unsub();
+  }, []);
 
   // Calculate comprehensive club analytics
   const analytics = useMemo(() => {
@@ -71,14 +83,13 @@ const ClubAnalyticsPage = () => {
       return d && d > prevCutoff && d <= cutoffDate;
     });
 
-    // Count match assessments (games collection)
-    const allGames = games || [];
-    const recentGames = allGames.filter(g => {
-      const d = parseDate(g.date || g.createdAt);
+    // Count match assessments from match_assessments collection
+    const recentMatchAssessments = matchAssessments.filter(ma => {
+      const d = parseDate(ma.date || ma.createdAt);
       return d && d > cutoffDate;
     });
-    const prevGames = allGames.filter(g => {
-      const d = parseDate(g.date || g.createdAt);
+    const prevMatchAssessments = matchAssessments.filter(ma => {
+      const d = parseDate(ma.date || ma.createdAt);
       return d && d > prevCutoff && d <= cutoffDate;
     });
 
@@ -160,29 +171,29 @@ const ClubAnalyticsPage = () => {
 
     return {
       totalPlayers: players?.length || 0,
-      totalAssessments: new Set(recentEvals.map(e => e.id)).size + recentGames.length,
-      prevAssessments: new Set(prevEvals.map(e => e.id)).size + prevGames.length,
+      totalAssessments: new Set(recentEvals.map(e => e.id)).size + recentMatchAssessments.length,
+      prevAssessments: new Set(prevEvals.map(e => e.id)).size + prevMatchAssessments.length,
       skillAssessments: new Set(recentEvals.map(e => e.id)).size,
-      matchAssessments: recentGames.length,
+      matchAssessments: recentMatchAssessments.length,
       avgLevel: currentAvg.toFixed(1),
       prevAvgLevel: prevAvg.toFixed(1),
       levelChange: (currentAvg - prevAvg).toFixed(2),
-      assessmentChange: (recentEvals.length + recentGames.length) - (prevEvals.length + prevGames.length),
+      assessmentChange: (recentEvals.length + recentMatchAssessments.length) - (prevEvals.length + prevMatchAssessments.length),
       trendData,
       skillDistribution,
       teamComparison,
       uniquePlayersAssessed: new Set([
         ...recentEvals.map(e => e.playerId),
-        ...recentGames.flatMap(g => Object.keys(g.playerRatings || {}))
+        ...recentMatchAssessments.flatMap(ma => Object.keys(ma.playerRatings || {}))
       ]).size
     };
-  }, [players, evaluations, teams, games, timeRange]);
+  }, [players, evaluations, teams, matchAssessments, timeRange]);
 
   const getChangeIndicator = (change) => {
     const num = parseFloat(change);
     if (num > 0) return { icon: ArrowUpRight, color: 'text-[#00A651]', text: `+${change}` };
     if (num < 0) return { icon: ArrowDownRight, color: 'text-red-400', text: change };
-    return { icon: Minus, color: 'text-gray-400', text: '0' };
+    return null;
   };
 
   return (

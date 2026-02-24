@@ -157,6 +157,20 @@ const NotificationsInboxPage = () => {
     return icons[type] || Bell;
   };
 
+  // Get navigation target based on notification type
+  const getNavigationTarget = (notif) => {
+    switch (notif.type) {
+      case 'game_day':
+        return '/admin/schedule';
+      case 'training_change':
+        return '/coach/training-plans';
+      case 'event':
+        return '/admin/schedule';
+      default:
+        return null; // scoring, announcement, uniform → open modal
+    }
+  };
+
   // Filter notifications
   const filteredNotifications = useMemo(() => {
     let filtered = notifications;
@@ -193,15 +207,24 @@ const NotificationsInboxPage = () => {
 
   // Handle notification click
   const handleNotificationClick = (notif) => {
-    setSelectedNotification(notif);
-
     // Mark as read
     if (!notif.readBy?.includes(currentUser?.uid)) {
+      updateDocument('notifications', notif.id, {
+        readBy: [...(notif.readBy || []), currentUser?.uid]
+      }).catch(err => console.error('Error marking notification read:', err));
       setNotifications(prev => prev.map(n =>
         n.id === notif.id
           ? { ...n, readBy: [...(n.readBy || []), currentUser?.uid] }
           : n
       ));
+    }
+
+    // Navigate or open modal
+    const target = getNavigationTarget(notif);
+    if (target) {
+      navigate(target);
+    } else {
+      setSelectedNotification(notif);
     }
   };
 
@@ -642,9 +665,11 @@ const NotificationsInboxPage = () => {
                         )}
                       </div>
                     </div>
-                    {!isRead && (
+                    {getNavigationTarget(notif) ? (
+                      <ChevronRight className="w-5 h-5 text-gray-300 flex-shrink-0 mt-1" />
+                    ) : !isRead ? (
                       <div className="w-2 h-2 bg-[#005028] rounded-full flex-shrink-0 mt-2" />
-                    )}
+                    ) : null}
                   </div>
                 </button>
               );
