@@ -22,7 +22,9 @@ import {
   Shield,
   Award,
   TrendingUp,
-  BookOpen
+  BookOpen,
+  Trash2,
+  Plus
 } from 'lucide-react';
 import PageShell from '../../components/PageShell';
 
@@ -37,7 +39,7 @@ const parseDate = (val) => {
 const TrainingPlansLibraryPage = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const { trainingPlans, teams, updateDocument, addDocument } = useData();
+  const { trainingPlans, teams, updateDocument, addDocument, deleteDocument } = useData();
 
   // State
   const [searchQuery, setSearchQuery] = useState('');
@@ -51,10 +53,21 @@ const TrainingPlansLibraryPage = () => {
 
   const ageGroups = ['U8', 'U10', 'U12', 'U14', 'U16', 'U18'];
 
-  // Filter out template plans — library view shows coach-created plans only
-  const plans = useMemo(() => {
-    return (trainingPlans || []).filter(p => !p.isTemplate);
+  // Split plans into sections
+  const templates = useMemo(() => {
+    return (trainingPlans || []).filter(p => p.isTemplate || (p.id && p.id.startsWith('template_')));
   }, [trainingPlans]);
+
+  const sharedPlans = useMemo(() => {
+    return (trainingPlans || []).filter(p => p.isShared && !p.isTemplate && !(p.id && p.id.startsWith('template_')));
+  }, [trainingPlans]);
+
+  const coachPlans = useMemo(() => {
+    return (trainingPlans || []).filter(p => !p.isTemplate && !(p.id && p.id.startsWith('template_')) && !p.isShared);
+  }, [trainingPlans]);
+
+  // Combined for stats and filtering
+  const plans = useMemo(() => [...templates, ...sharedPlans, ...coachPlans], [templates, sharedPlans, coachPlans]);
 
   // Build coach list dynamically from unique coaches in plans
   const coaches = useMemo(() => {
@@ -82,7 +95,7 @@ const TrainingPlansLibraryPage = () => {
 
   // Filter plans
   const filteredPlans = useMemo(() => {
-    let result = [...plans];
+    let result = [...coachPlans];
 
     // Filter by coach
     if (selectedCoach !== 'all') {
@@ -120,16 +133,18 @@ const TrainingPlansLibraryPage = () => {
     });
 
     return result;
-  }, [plans, selectedCoach, selectedAgeGroup, selectedApprovalStatus, searchQuery]);
+  }, [coachPlans, selectedCoach, selectedAgeGroup, selectedApprovalStatus, searchQuery]);
 
   // Stats
   const stats = useMemo(() => ({
     total: plans.length,
-    pending: plans.filter(p => p.approvalStatus === 'pending').length,
-    approved: plans.filter(p => p.approvalStatus === 'approved').length,
-    rejected: plans.filter(p => p.approvalStatus === 'rejected').length,
+    templates: templates.length,
+    shared: sharedPlans.length,
+    pending: coachPlans.filter(p => p.approvalStatus === 'pending').length,
+    approved: coachPlans.filter(p => p.approvalStatus === 'approved').length,
+    rejected: coachPlans.filter(p => p.approvalStatus === 'rejected').length,
     totalCoaches: coaches.length
-  }), [plans, coaches]);
+  }), [plans, templates, sharedPlans, coachPlans, coaches]);
 
   // Format date
   const formatDate = (dateValue) => {
@@ -194,6 +209,12 @@ const TrainingPlansLibraryPage = () => {
     alert(`"${plan.name}" has been added to the club template library.`);
   };
 
+  // Handle delete template
+  const handleDeleteTemplate = async (planId) => {
+    if (!window.confirm('Delete this template? This cannot be undone.')) return;
+    await deleteDocument('training_plans', planId);
+  };
+
   return (
     <PageShell
       title="Training Plans Library"
@@ -207,26 +228,22 @@ const TrainingPlansLibraryPage = () => {
     >
       <div className="space-y-6">
         {/* Stats Overview */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
-            <p className="text-[#6B7C6B] text-xs">Total Plans</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="bg-white border-2 border-[#005028]/30 rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-[#005028]">{stats.templates}</p>
+            <p className="text-[#6B7C6B] text-xs">Templates</p>
+          </div>
+          <div className="bg-white border-2 border-blue-500/30 rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-blue-500">{stats.shared}</p>
+            <p className="text-[#6B7C6B] text-xs">Shared Plans</p>
           </div>
           <div className="bg-white border-2 border-yellow-500/30 rounded-xl p-4 text-center">
             <p className="text-2xl font-bold text-yellow-400">{stats.pending}</p>
             <p className="text-[#6B7C6B] text-xs">Pending Review</p>
           </div>
-          <div className="bg-white border-2 border-[#00A651]/30 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-[#00A651]">{stats.approved}</p>
-            <p className="text-[#6B7C6B] text-xs">Approved</p>
-          </div>
-          <div className="bg-white border-2 border-red-500/30 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-red-400">{stats.rejected}</p>
-            <p className="text-[#6B7C6B] text-xs">Needs Revision</p>
-          </div>
           <div className="bg-white border-2 border-[#D4E4D4] rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-gray-800">{stats.totalCoaches}</p>
-            <p className="text-[#6B7C6B] text-xs">Active Coaches</p>
+            <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
+            <p className="text-[#6B7C6B] text-xs">Total Plans</p>
           </div>
         </div>
 
@@ -317,13 +334,87 @@ const TrainingPlansLibraryPage = () => {
           )}
         </div>
 
+        {/* System Templates Section */}
+        {templates.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-gray-800 font-bold flex items-center gap-2">
+                <Shield className="w-5 h-5 text-[#005028]" />
+                System Templates ({templates.length})
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {templates.map(plan => (
+                <div key={plan.id} className="bg-white border-2 border-[#005028]/20 rounded-xl p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="text-gray-800 font-bold text-sm">{plan.name || 'Untitled Template'}</h4>
+                    <button
+                      onClick={() => handleDeleteTemplate(plan.id)}
+                      className="p-1.5 text-red-400/60 hover:text-red-400 transition-colors"
+                      title="Delete template"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                  <p className="text-gray-500 text-xs mb-2 line-clamp-2">{plan.description || ''}</p>
+                  {plan.focusAreas && plan.focusAreas.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {plan.focusAreas.map((area, idx) => (
+                        <span key={idx} className="px-2 py-0.5 bg-[#005028]/10 text-[#00A651] text-[10px] rounded-full">
+                          {area}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Shared Plans Section */}
+        {sharedPlans.length > 0 && (
+          <div className="space-y-3">
+            <h3 className="text-gray-800 font-bold flex items-center gap-2">
+              <Award className="w-5 h-5 text-blue-500" />
+              Shared by Coaches ({sharedPlans.length})
+            </h3>
+            <div className="space-y-3">
+              {sharedPlans.map(plan => (
+                <div key={plan.id} className="bg-white border-2 border-blue-500/20 rounded-xl p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h4 className="text-gray-800 font-bold text-sm">{plan.name || 'Untitled Plan'}</h4>
+                      <p className="text-[#6B7C6B] text-xs">by {plan.coachName || plan.createdBy || 'Unknown Coach'}</p>
+                    </div>
+                    <button
+                      onClick={() => handleCopyToLibrary(plan)}
+                      className="flex items-center gap-1 px-2 py-1 bg-[#005028]/10 text-[#00A651] text-xs rounded-lg hover:bg-[#005028]/20 transition-colors"
+                    >
+                      <Copy size={12} />
+                      Promote to Template
+                    </button>
+                  </div>
+                  <p className="text-gray-500 text-xs line-clamp-2">{plan.description || ''}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Coach Plans for Review */}
+        <h3 className="text-gray-800 font-bold flex items-center gap-2">
+          <BookOpen className="w-5 h-5 text-[#6B7C6B]" />
+          Coach Plans for Review ({coachPlans.length})
+        </h3>
+
         {/* Plans List */}
         {filteredPlans.length === 0 ? (
           <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
             <BookOpen className="w-12 h-12 text-[#6B7C6B] mx-auto mb-3" />
             <h3 className="text-gray-800 font-semibold mb-2">No Training Plans Found</h3>
             <p className="text-[#6B7C6B] text-sm">
-              {plans.length === 0
+              {coachPlans.length === 0
                 ? 'No coach training plans have been submitted yet. Plans will appear here when coaches create and submit them.'
                 : 'Try adjusting your filters'}
             </p>

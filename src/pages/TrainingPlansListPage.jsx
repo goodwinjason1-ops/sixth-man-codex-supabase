@@ -238,6 +238,18 @@ const TrainingPlansListPage = () => {
     }
   };
 
+  const handleToggleShare = async (plan) => {
+    const newShared = !plan.isShared;
+    try {
+      await updateDocument('training_plans', plan.id, {
+        isShared: newShared,
+        sharedAt: newShared ? new Date().toISOString() : null
+      });
+    } catch (err) {
+      console.error('Error toggling share:', err);
+    }
+  };
+
   const handleStatusChange = async (planId, newStatus) => {
     try {
       await updateDocument('training_plans', planId, { status: newStatus, updatedAt: new Date().toISOString() });
@@ -649,6 +661,18 @@ const TrainingPlansListPage = () => {
 
                   {/* Actions */}
                   <div className="flex items-center gap-1 sm:gap-2 relative">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleToggleShare(plan); }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        plan.isShared
+                          ? 'bg-blue-500/20 text-blue-500 hover:bg-blue-500/30'
+                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      }`}
+                      title={plan.isShared ? 'Stop sharing' : 'Share with other coaches'}
+                    >
+                      <Share2 size={14} />
+                      {plan.isShared ? 'Shared' : 'Share'}
+                    </button>
                     <button
                       onClick={() => setSchedulePlanId(plan.id)}
                       className="p-2 text-[#005028] hover:bg-[#005028]/10 rounded-lg transition-colors"

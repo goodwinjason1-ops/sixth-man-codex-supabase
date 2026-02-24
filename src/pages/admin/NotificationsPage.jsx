@@ -570,19 +570,28 @@ const NotificationsPage = () => {
       console.log('[NotificationsPage] Fresh query found:', teamPlayers.length, 'players');
     }
 
-    const parents = teamPlayers.map(p => ({
-      id: p.id,
-      playerId: p.id,
-      name: p.parentName || p.parent1Name || `Parent of ${p.name}`,
-      email: p.parentEmail || p.parent1Email || '',
-      phone: p.parentPhone || p.parent1Phone || '',
-      playerName: p.name,
-      playerAgeGroup: p.ageGroup
-    })).filter(p => p.name && p.name !== 'Parent of undefined');
+    const parents = teamPlayers.map(p => {
+      // Look up the actual parent user by linkedPlayerIds or email match
+      const parentUser = allUsers.find(u =>
+        (u.role === 'parent' && u.linkedPlayerIds?.includes(p.id)) ||
+        (u.role === 'parent' && u.email && p.parentEmail && u.email.toLowerCase() === p.parentEmail.toLowerCase())
+      );
+
+      return {
+        id: parentUser?.id || p.id, // Use parent user ID if found, fallback to player ID
+        playerId: p.id,
+        userId: parentUser?.id || null,
+        name: parentUser?.displayName || parentUser?.name || p.parentName || p.parent1Name || `Parent of ${p.name}`,
+        email: parentUser?.email || p.parentEmail || p.parent1Email || '',
+        phone: p.parentPhone || p.parent1Phone || '',
+        playerName: p.name,
+        playerAgeGroup: p.ageGroup
+      };
+    }).filter(p => p.name && p.name !== 'Parent of undefined');
 
     console.log('[NotificationsPage] Final parents list:', parents.length, parents.map(p => p.name));
     return parents;
-  }, [selectedScoringTeam, availableTeams, players]);
+  }, [selectedScoringTeam, availableTeams, players, allUsers]);
 
   // Store team games debug info
   const [teamGamesDebug, setTeamGamesDebug] = useState({

@@ -5,6 +5,7 @@ import {
   getDoc,
   doc,
   deleteDoc,
+  setDoc,
   updateDoc,
   writeBatch,
   Timestamp
@@ -44,6 +45,7 @@ const DataCleanupPage = () => {
   const [dryRun, setDryRun] = useState(true);
   const [deleteProgress, setDeleteProgress] = useState(null); // { current, total, categoryId }
   const [quickCleanup, setQuickCleanup] = useState({ running: false, done: false, results: null });
+  const [seedingTemplates, setSeedingTemplates] = useState({ running: false, done: false, results: null });
 
   // One-time targeted cleanup for known orphaned data
   const runQuickCleanup = async () => {
@@ -103,6 +105,49 @@ const DataCleanupPage = () => {
       running: false,
       done: true,
       results: { usersDeleted, mvpDeleted, notifsDeleted, errors }
+    });
+  };
+
+  // Seed 6 training plan templates into Firestore
+  const seedTemplates = async () => {
+    setSeedingTemplates({ running: true, done: false, results: null });
+    let created = 0;
+    const errors = [];
+
+    const templates = [
+      { id: 'template_ball_handling', name: 'Ball Handling Fundamentals', focusAreas: ['ball-handling'], duration: '60 minutes', description: 'Foundation session focusing on dribbling control, both hands, change of direction, and ball mastery.' },
+      { id: 'template_defense', name: 'Defensive Fundamentals', focusAreas: ['defense'], duration: '60 minutes', description: 'Defensive stance, footwork, positioning, help defense, and closeouts.' },
+      { id: 'template_shooting', name: 'Shooting & Scoring', focusAreas: ['shooting'], duration: '60 minutes', description: 'Shooting form, layup technique, free throws, mid-range, and shot selection.' },
+      { id: 'template_passing', name: 'Passing & Court Vision', focusAreas: ['passing-receiving'], duration: '60 minutes', description: 'Chest pass, bounce pass, overhead pass, outlet passing, and catching on the move.' },
+      { id: 'template_team_play', name: 'Team Play & Offensive Sets', focusAreas: ['team-play'], duration: '60 minutes', description: 'Spacing, cutting, screening, pick and roll basics, fast break concepts.' },
+      { id: 'template_game_prep', name: 'Game Day Preparation', focusAreas: ['team-play', 'shooting', 'defense'], duration: '45 minutes', description: 'Light warm-up, shooting rhythm, defensive reminders, set play walkthrough.' }
+    ];
+
+    for (const t of templates) {
+      const { id, ...data } = t;
+      try {
+        await setDoc(doc(db, 'training_plans', id), {
+          ...data,
+          isTemplate: true,
+          isShared: false,
+          status: 'approved',
+          createdBy: 'system',
+          ageGroups: ['u8', 'u10', 'u12', 'u14', 'u16', 'u19'],
+          sessions: [],
+          drills: [],
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+        created++;
+      } catch (e) {
+        errors.push(`${t.name}: ${e.message}`);
+      }
+    }
+
+    setSeedingTemplates({
+      running: false,
+      done: true,
+      results: { created, errors }
     });
   };
 
@@ -817,6 +862,60 @@ const DataCleanupPage = () => {
           </div>
         </div>
 
+        {/* Seed Training Plan Templates */}
+        <div className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-[#D4E4D4]/50">
+            <h3 className="text-gray-800 font-bold text-sm flex items-center gap-2">
+              <RefreshCw size={16} className="text-[#00A651]" />
+              Seed Training Plan Templates
+            </h3>
+            <p className="text-gray-400 text-xs mt-1">
+              Write 6 system training plan templates to Firestore. Safe to run multiple times (uses deterministic IDs).
+            </p>
+          </div>
+          <div className="p-4">
+            {!seedingTemplates.done ? (
+              <div className="space-y-3">
+                <div className="text-xs text-gray-500 space-y-0.5">
+                  <p>Templates: Ball Handling, Defense, Shooting, Passing, Team Play, Game Prep</p>
+                </div>
+                <button
+                  onClick={seedTemplates}
+                  disabled={seedingTemplates.running}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#005028] text-white rounded-lg font-semibold text-sm hover:bg-[#00A651] disabled:opacity-50 transition-colors"
+                >
+                  {seedingTemplates.running ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Download size={16} />
+                  )}
+                  {seedingTemplates.running ? 'Seeding...' : 'Seed Templates'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={18} className="text-green-500" />
+                  <span className="text-gray-800 font-medium text-sm">
+                    {seedingTemplates.results?.created} template{seedingTemplates.results?.created !== 1 ? 's' : ''} written to Firestore
+                  </span>
+                </div>
+                {seedingTemplates.results?.errors?.length > 0 && (
+                  <div className="text-xs text-red-500 space-y-1">
+                    {seedingTemplates.results.errors.map((e, i) => <p key={i}>Error: {e}</p>)}
+                  </div>
+                )}
+                <button
+                  onClick={() => setSeedingTemplates({ running: false, done: false, results: null })}
+                  className="text-xs text-gray-400 hover:text-gray-600"
+                >
+                  Reset
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Dry Run Toggle */}
         <div className="flex items-center justify-between bg-white border border-[#D4E4D4] rounded-xl p-4">
           <div>
@@ -987,7 +1086,7 @@ const DataCleanupPage = () => {
                               type: 'deleteCategory',
                               fn: () => deleteAllInCategory(cat),
                               label: cat.deleteLabel,
-                              description: `This will permanently delete ${getDeletableCount(cat.id)} documents from the Firestore users collection. This cannot be undone.`
+                              description: `This will permanently delete ${getDeletableCount(cat.id)} documents from the Firestore ${cat._collection || 'users'} collection. This cannot be undone.`
                             })}
                             disabled={cleaning}
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
