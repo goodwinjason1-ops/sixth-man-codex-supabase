@@ -152,7 +152,7 @@ const DataCleanupPage = () => {
     });
   };
 
-  // Force delete a specific document by collection + ID — with verification
+  // Force delete a specific document by collection + ID — with updateDoc workaround
   const handleForceDelete = async () => {
     const col = forceDelete.collection.trim();
     const id = forceDelete.docId.trim();
@@ -161,7 +161,7 @@ const DataCleanupPage = () => {
     try {
       const docRef = doc(db, col, id);
 
-      // Check if document exists first
+      // Step 1: Verify the doc exists
       const before = await getDoc(docRef);
       if (!before.exists()) {
         setForceDelete(prev => ({ ...prev, running: false, result: { success: false, message: `Document ${col}/${id} does not exist — nothing to delete` } }));
@@ -169,14 +169,27 @@ const DataCleanupPage = () => {
         return;
       }
 
-      // Delete the document
+      // Step 2: Try updateDoc first — this WILL throw permission-denied if rules block it
+      // (deleteDoc silently swallows permission errors in the Firebase JS SDK)
+      try {
+        await updateDoc(docRef, { _markedForDeletion: true });
+      } catch (updateErr) {
+        if (updateErr.code === 'permission-denied') {
+          setForceDelete(prev => ({ ...prev, running: false, result: { success: false, message: `PERMISSION DENIED — your Firestore role does not allow writes to "${col}". Check that your user document has role: "admin" (lowercase). Firestore rules require isAdmin() for delete.` } }));
+          setCleanupLog(prev => [...prev, { type: 'error', message: `Force delete BLOCKED — permission denied on updateDoc for ${col}/${id}. Your user role may not match isAdmin() rules.` }]);
+          return;
+        }
+        throw updateErr; // re-throw non-permission errors
+      }
+
+      // Step 3: updateDoc succeeded — we have write access, now delete
       await deleteDoc(docRef);
 
-      // Verify it's actually gone
+      // Step 4: Verify it's actually gone
       const after = await getDoc(docRef);
       if (after.exists()) {
-        setForceDelete(prev => ({ ...prev, running: false, result: { success: false, message: `DELETE FAILED — document still exists after deleteDoc. Check Firestore rules (need isAdmin role).` } }));
-        setCleanupLog(prev => [...prev, { type: 'error', message: `Force delete FAILED — ${col}/${id} still exists after deleteDoc call. Likely a Firestore security rules issue.` }]);
+        setForceDelete(prev => ({ ...prev, running: false, result: { success: false, message: `DELETE FAILED — document still exists after deleteDoc. Update succeeded but delete was denied. Check Firestore rules: update and delete may have different permissions.` } }));
+        setCleanupLog(prev => [...prev, { type: 'error', message: `Force delete PARTIAL — update worked but delete failed for ${col}/${id}. Different Firestore rules for update vs delete.` }]);
       } else {
         setForceDelete(prev => ({ ...prev, running: false, result: { success: true, message: `VERIFIED DELETED: ${col}/${id}` } }));
         setCleanupLog(prev => [...prev, { type: 'success', message: `Force deleted (verified): ${col}/${id}` }]);
@@ -184,7 +197,7 @@ const DataCleanupPage = () => {
     } catch (err) {
       console.error('Force delete failed:', err);
       const msg = err.code === 'permission-denied'
-        ? `PERMISSION DENIED — your Firestore role does not have delete access for "${col}". Check firestore.rules.`
+        ? `PERMISSION DENIED — your Firestore role does not have access for "${col}". Check firestore.rules and ensure your user doc has role: "admin" (lowercase).`
         : `Failed: ${err.message}`;
       setForceDelete(prev => ({ ...prev, running: false, result: { success: false, message: msg } }));
       setCleanupLog(prev => [...prev, { type: 'error', message: `Force delete failed: ${col}/${id}: ${msg}` }]);
@@ -965,6 +978,47 @@ const DataCleanupPage = () => {
           </div>
         </div>
 
+
+        {/* Fix Plan Names — Strip "(Copy)" */}
+        <div className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-[#D4E4D4]/50">
+            <h3 className="text-gray-800 font-bold text-sm flex items-center gap-2">
+              <RefreshCw size={16} className="text-blue-500" />
+              Fix Plan Names — Strip "(Copy)"
+            </h3>
+            <p className="text-gray-400 text-xs mt-1">
+              Scan all training plans for names containing "(Copy)" and remove that suffix. This fixes promoted templates that inherited the "(Copy)" text from the original plan name.
+            </p>
+          </div>
+          <div className="p-4">
+            <button
+              onClick={async () => {
+                setCleanupLog(prev => [...prev, { type: 'info', message: 'Scanning training plans for "(Copy)" in names...' }]);
+                try {
+                  const plansSnap = await getDocs(collection(db, 'training_plans'));
+                  let fixed = 0;
+                  for (const planDoc of plansSnap.docs) {
+                    const data = planDoc.data();
+                    const name = data.name || '';
+                    if (name.includes('(Copy)')) {
+                      const cleanName = name.replace(/\s*\(Copy\)\s*/gi, '').trim();
+                      await updateDoc(doc(db, 'training_plans', planDoc.id), { name: cleanName });
+                      setCleanupLog(prev => [...prev, { type: 'success', message: `Fixed: "${name}" → "${cleanName}" (${planDoc.id})` }]);
+                      fixed++;
+                    }
+                  }
+                  setCleanupLog(prev => [...prev, { type: fixed > 0 ? 'success' : 'info', message: fixed > 0 ? `Done: Fixed ${fixed} plan name${fixed !== 1 ? 's' : ''}.` : 'No plans found with "(Copy)" in the name.' }]);
+                } catch (err) {
+                  setCleanupLog(prev => [...prev, { type: 'error', message: `Fix plan names failed: ${err.message}` }]);
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold text-sm hover:bg-blue-600 transition-colors"
+            >
+              <RefreshCw size={16} />
+              Fix Plan Names
+            </button>
+          </div>
+        </div>
         {/* Force Delete — Direct Document Removal */}
         <div className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
           <div className="p-4 border-b border-[#D4E4D4]/50">

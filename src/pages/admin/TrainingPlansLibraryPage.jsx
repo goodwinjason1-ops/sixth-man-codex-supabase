@@ -24,7 +24,8 @@ import {
   TrendingUp,
   BookOpen,
   Trash2,
-  Plus
+  Plus,
+  Edit3
 } from 'lucide-react';
 import PageShell from '../../components/PageShell';
 
@@ -201,15 +202,17 @@ const TrainingPlansLibraryPage = () => {
   const handleCopyToLibrary = async (plan) => {
     const { id, ...planData } = plan;
     const templateId = `template_promoted_${id}`;
+    const cleanName = (planData.name || '').replace(/s*(Copy)s*$/i, '').trim() || planData.name;
     await setDocument('training_plans', templateId, {
       ...planData,
+      name: cleanName,
       isTemplate: true,
       isShared: false,
       copiedFrom: id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
-    alert(`"${plan.name}" has been added to the club template library.`);
+    alert(`"${cleanName}" has been added to the club template library.`);
   };
 
   // Handle delete template
@@ -353,19 +356,35 @@ const TrainingPlansLibraryPage = () => {
                     <div>
                       <h4 className="text-gray-800 font-bold text-sm">{plan.name || 'Untitled Template'}</h4>
                       <p className="text-[#6B7C6B] text-[10px] font-mono mt-0.5">{plan.id}</p>
-                      {!plan.id?.startsWith('template_') && (
-                        <span className="inline-block mt-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] rounded font-medium">
-                          Promoted from coach plan
+                      {plan.createdBy && plan.createdBy !== 'system' && (
+                        <span className="inline-block mt-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] rounded font-medium">
+                          Coach Created
                         </span>
                       )}
                     </div>
-                    <button
-                      onClick={() => handleDeleteTemplate(plan.id)}
-                      className="p-1.5 text-red-400/60 hover:text-red-400 transition-colors"
-                      title="Delete template"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setSelectedPlan(plan)}
+                        className="p-1.5 text-[#00A651] hover:bg-[#00A651]/10 rounded transition-colors"
+                        title="View template details"
+                      >
+                        <Eye size={14} />
+                      </button>
+                      <button
+                        onClick={() => navigate(`/coach/training-plans/${plan.id}`)}
+                        className="p-1.5 text-[#005028] hover:bg-[#005028]/10 rounded transition-colors"
+                        title="Edit template"
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteTemplate(plan.id)}
+                        className="p-1.5 text-red-400/60 hover:text-red-400 rounded transition-colors"
+                        title="Delete template"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
                   <p className="text-gray-500 text-xs mb-2 line-clamp-2">{plan.description || ''}</p>
                   {plan.focusAreas && plan.focusAreas.length > 0 && (

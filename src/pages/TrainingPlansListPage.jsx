@@ -30,7 +30,7 @@ import { toJsDate, formatDateShortAU } from '../utils/dateUtils';
 
 const TrainingPlansListPage = () => {
   const navigate = useNavigate();
-  const { currentUser, userProfile, trainingPlans: firestorePlans, teams: firestoreTeams, games, deleteDocument, updateDocument, setDocument, loading: dataLoading } = useFilteredData();
+  const { currentUser, userProfile, trainingPlans: firestorePlans, teams: firestoreTeams, games, schedule, deleteDocument, updateDocument, setDocument, loading: dataLoading } = useFilteredData();
 
   // Seed templates into Firestore on first load (deterministic IDs prevent duplicates)
   const [seeded, setSeeded] = useState(false);
@@ -122,24 +122,46 @@ const TrainingPlansListPage = () => {
   const [schedulePlanId, setSchedulePlanId] = useState(null);
 
   // Upcoming training events that don't already have a plan linked
+  // Check both `games` (type=training) and `schedule` (type=training/practice) collections
   const upcomingTrainings = useMemo(() => {
-    if (!games || games.length === 0) return [];
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    return games
-      .filter(g => {
-        if (g.type !== 'training') return false;
-        if (g.trainingPlanId) return false;
+    const trainingTypes = ['training', 'Training', 'practice', 'Practice'];
+    const results = [];
+
+    // Check games collection
+    if (games && games.length > 0) {
+      games.forEach(g => {
+        if (!trainingTypes.includes(g.type)) return;
+        if (g.trainingPlanId) return;
         const d = toJsDate(g.date);
-        return d && d >= now;
-      })
-      .sort((a, b) => {
-        const da = toJsDate(a.date);
-        const db = toJsDate(b.date);
-        return (da || 0) - (db || 0);
-      })
-      .slice(0, 10);
-  }, [games]);
+        if (d && d >= now) results.push({ ...g, _source: 'games' });
+      });
+    }
+
+    // Check schedule collection
+    if (schedule && schedule.length > 0) {
+      schedule.forEach(s => {
+        if (!trainingTypes.includes(s.type)) return;
+        if (s.trainingPlanId) return;
+        const d = toJsDate(s.date);
+        if (d && d >= now) {
+          // Avoid duplicates if same event is in both collections
+          if (!results.find(r => r.id === s.id)) {
+            results.push({ ...s, _source: 'schedule' });
+          }
+        }
+      });
+    }
+
+    results.sort((a, b) => {
+      const da = toJsDate(a.date);
+      const db = toJsDate(b.date);
+      return (da || 0) - (db || 0);
+    });
+
+    return results.slice(0, 10);
+  }, [games, schedule]);
 
   // Filter helper applied to each section
   const { filteredTemplates, filteredShared, filteredMyPlans } = useMemo(() => {
@@ -481,6 +503,11 @@ const TrainingPlansListPage = () => {
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-medium border bg-[#FFD700]/20 text-[#B8860B] border-[#FFD700]">
                           Template
                         </span>
+                        {plan.createdBy && plan.createdBy !== 'system' && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-medium border bg-purple-500/20 text-purple-600 border-purple-400">
+                            Coach Created
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center gap-3 text-sm text-[#6B7C6B] mb-2 flex-wrap">
                         {plan.teamName && (
@@ -635,6 +662,11 @@ const TrainingPlansListPage = () => {
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${getStatusColor(plan.status)}`}>
                         {plan.status === 'needs-revision' ? 'Needs Revision' : plan.status}
                       </span>
+                      {plan.isShared && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium border bg-blue-500/20 text-blue-500 border-blue-500" title="Other coaches can see this plan in their Shared Plans section">
+                          Shared
+                        </span>
+                      )}
                       {plan.status === 'needs-revision' && (
                         <button
                           onClick={() => handleEdit(plan.id)}
@@ -830,7 +862,8 @@ const TrainingPlansListPage = () => {
                       key={event.id}
                       onClick={async () => {
                         try {
-                          await updateDocument('games', event.id, { trainingPlanId: schedulePlanId });
+                          const targetCollection = event._source === 'schedule' ? 'schedule' : 'games';
+                          await updateDocument(targetCollection, event.id, { trainingPlanId: schedulePlanId });
                           setSchedulePlanId(null);
                         } catch (err) {
                           console.error('Error linking plan to schedule:', err);
