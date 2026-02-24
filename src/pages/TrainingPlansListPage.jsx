@@ -56,6 +56,9 @@ const TrainingPlansListPage = () => {
     return plans;
   }, [firestorePlans]);
 
+  // Helper to get the coach owner ID from a plan (some plans use coachId, others use createdBy)
+  const getPlanOwnerId = (plan) => plan.coachId || plan.createdBy || null;
+
   // Split into sections
   const templatePlans = useMemo(() =>
     allPlans.filter(p => p.isTemplate || (p.id && p.id.startsWith('template_'))),
@@ -67,14 +70,14 @@ const TrainingPlansListPage = () => {
       p.isShared &&
       !p.isTemplate &&
       !(p.id && p.id.startsWith('template_')) &&
-      p.coachId !== currentUser?.uid
+      getPlanOwnerId(p) !== currentUser?.uid
     ),
     [allPlans, currentUser]
   );
 
   const myPlans = useMemo(() =>
     allPlans.filter(p =>
-      p.coachId === currentUser?.uid &&
+      getPlanOwnerId(p) === currentUser?.uid &&
       !p.isTemplate &&
       !(p.id && p.id.startsWith('template_'))
     ),
@@ -241,10 +244,16 @@ const TrainingPlansListPage = () => {
   const handleToggleShare = async (plan) => {
     const newShared = !plan.isShared;
     try {
-      await updateDocument('training_plans', plan.id, {
+      const updates = {
         isShared: newShared,
         sharedAt: newShared ? new Date().toISOString() : null
-      });
+      };
+      // Ensure coachId and coachName are set so other coaches can see who shared it
+      if (newShared) {
+        if (!plan.coachId) updates.coachId = currentUser?.uid || null;
+        if (!plan.coachName) updates.coachName = userProfile?.displayName || currentUser?.displayName || 'Unknown Coach';
+      }
+      await updateDocument('training_plans', plan.id, updates);
     } catch (err) {
       console.error('Error toggling share:', err);
     }

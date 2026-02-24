@@ -39,7 +39,7 @@ const parseDate = (val) => {
 const TrainingPlansLibraryPage = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const { trainingPlans, teams, updateDocument, addDocument, deleteDocument } = useData();
+  const { trainingPlans, teams, updateDocument, addDocument, deleteDocument, setDocument } = useData();
 
   // State
   const [searchQuery, setSearchQuery] = useState('');
@@ -197,14 +197,17 @@ const TrainingPlansLibraryPage = () => {
     setRejectionReason('');
   };
 
-  // Handle copy to library
+  // Handle copy to library — uses a deterministic ID to prevent duplicates
   const handleCopyToLibrary = async (plan) => {
     const { id, ...planData } = plan;
-    await addDocument('training_plans', {
+    const templateId = `template_promoted_${id}`;
+    await setDocument('training_plans', templateId, {
       ...planData,
       isTemplate: true,
+      isShared: false,
       copiedFrom: id,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     });
     alert(`"${plan.name}" has been added to the club template library.`);
   };
@@ -345,9 +348,17 @@ const TrainingPlansLibraryPage = () => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {templates.map(plan => (
-                <div key={plan.id} className="bg-white border-2 border-[#005028]/20 rounded-xl p-4">
+                <div key={plan.id} className={`bg-white border-2 rounded-xl p-4 ${plan.id?.startsWith('template_') ? 'border-[#005028]/20' : 'border-amber-400/40'}`}>
                   <div className="flex items-start justify-between mb-2">
-                    <h4 className="text-gray-800 font-bold text-sm">{plan.name || 'Untitled Template'}</h4>
+                    <div>
+                      <h4 className="text-gray-800 font-bold text-sm">{plan.name || 'Untitled Template'}</h4>
+                      <p className="text-[#6B7C6B] text-[10px] font-mono mt-0.5">{plan.id}</p>
+                      {!plan.id?.startsWith('template_') && (
+                        <span className="inline-block mt-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] rounded font-medium">
+                          Copy (not a system template)
+                        </span>
+                      )}
+                    </div>
                     <button
                       onClick={() => handleDeleteTemplate(plan.id)}
                       className="p-1.5 text-red-400/60 hover:text-red-400 transition-colors"

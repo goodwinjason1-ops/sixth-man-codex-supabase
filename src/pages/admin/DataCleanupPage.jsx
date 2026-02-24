@@ -46,6 +46,7 @@ const DataCleanupPage = () => {
   const [deleteProgress, setDeleteProgress] = useState(null); // { current, total, categoryId }
   const [quickCleanup, setQuickCleanup] = useState({ running: false, done: false, results: null });
   const [seedingTemplates, setSeedingTemplates] = useState({ running: false, done: false, results: null });
+  const [forceDelete, setForceDelete] = useState({ collection: 'notifications', docId: '', running: false, result: null });
 
   // One-time targeted cleanup for known orphaned data
   const runQuickCleanup = async () => {
@@ -149,6 +150,21 @@ const DataCleanupPage = () => {
       done: true,
       results: { created, errors }
     });
+  };
+
+  // Force delete a specific document by collection + ID
+  const handleForceDelete = async () => {
+    if (!forceDelete.collection.trim() || !forceDelete.docId.trim()) return;
+    setForceDelete(prev => ({ ...prev, running: true, result: null }));
+    try {
+      await deleteDoc(doc(db, forceDelete.collection.trim(), forceDelete.docId.trim()));
+      setForceDelete(prev => ({ ...prev, running: false, result: { success: true, message: `Deleted ${forceDelete.collection}/${forceDelete.docId}` } }));
+      setCleanupLog(prev => [...prev, { type: 'success', message: `Force deleted: ${forceDelete.collection}/${forceDelete.docId}` }]);
+    } catch (err) {
+      console.error('Force delete failed:', err);
+      setForceDelete(prev => ({ ...prev, running: false, result: { success: false, message: `Failed: ${err.message}` } }));
+      setCleanupLog(prev => [...prev, { type: 'error', message: `Force delete failed: ${forceDelete.collection}/${forceDelete.docId}: ${err.message}` }]);
+    }
   };
 
   // Run the full scan
@@ -330,6 +346,7 @@ const DataCleanupPage = () => {
 
   // Delete a single document from any collection
   const deleteDocument = async (docId, collectionName = 'users') => {
+    console.log('deleteDocument called:', collectionName, docId, 'dryRun:', dryRun);
     if (dryRun) {
       setCleanupLog(prev => [...prev, { type: 'dry-run', message: `Would delete ${collectionName}/${docId}` }]);
       return true;
@@ -339,6 +356,7 @@ const DataCleanupPage = () => {
       setCleanupLog(prev => [...prev, { type: 'success', message: `Deleted ${collectionName}/${docId}` }]);
       return true;
     } catch (err) {
+      console.error('deleteDocument FAILED:', collectionName, docId, err);
       setCleanupLog(prev => [...prev, { type: 'error', message: `Failed to delete ${collectionName}/${docId}: ${err.message}` }]);
       return false;
     }
@@ -916,6 +934,67 @@ const DataCleanupPage = () => {
           </div>
         </div>
 
+        {/* Force Delete — Direct Document Removal */}
+        <div className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-[#D4E4D4]/50">
+            <h3 className="text-gray-800 font-bold text-sm flex items-center gap-2">
+              <Trash2 size={16} className="text-red-500" />
+              Force Delete — Direct Document Removal
+            </h3>
+            <p className="text-gray-400 text-xs mt-1">
+              Delete any Firestore document by collection name and document ID. Bypasses the scanner. Use with caution.
+            </p>
+          </div>
+          <div className="p-4 space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[#6B7C6B] text-xs font-medium mb-1">Collection</label>
+                <input
+                  type="text"
+                  value={forceDelete.collection}
+                  onChange={(e) => setForceDelete(prev => ({ ...prev, collection: e.target.value, result: null }))}
+                  placeholder="e.g. notifications"
+                  className="w-full bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg px-3 py-2 text-gray-800 text-sm focus:border-[#00A651] focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-[#6B7C6B] text-xs font-medium mb-1">Document ID</label>
+                <input
+                  type="text"
+                  value={forceDelete.docId}
+                  onChange={(e) => setForceDelete(prev => ({ ...prev, docId: e.target.value, result: null }))}
+                  placeholder="e.g. notif_1771906770778_tlhmaxr1c"
+                  className="w-full bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg px-3 py-2 text-gray-800 text-sm focus:border-[#00A651] focus:outline-none"
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setConfirmAction({
+                  type: 'forceDelete',
+                  fn: handleForceDelete,
+                  label: `Force Delete: ${forceDelete.collection}/${forceDelete.docId}`,
+                  description: `This will permanently delete the document "${forceDelete.docId}" from the "${forceDelete.collection}" collection. This cannot be undone.`
+                })}
+                disabled={forceDelete.running || !forceDelete.collection.trim() || !forceDelete.docId.trim()}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg font-semibold text-sm hover:bg-red-600 disabled:opacity-50 transition-colors"
+              >
+                {forceDelete.running ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Trash2 size={16} />
+                )}
+                {forceDelete.running ? 'Deleting...' : 'Force Delete'}
+              </button>
+              {forceDelete.result && (
+                <span className={`text-xs font-medium ${forceDelete.result.success ? 'text-green-500' : 'text-red-500'}`}>
+                  {forceDelete.result.message}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Dry Run Toggle */}
         <div className="flex items-center justify-between bg-white border border-[#D4E4D4] rounded-xl p-4">
           <div>
@@ -1216,7 +1295,7 @@ const DataCleanupPage = () => {
               <h3 className="text-gray-800 font-bold">Confirm Action</h3>
             </div>
             <p className="text-gray-700 text-sm mb-2">{confirmAction.label}</p>
-            {confirmAction.description && (!dryRun || confirmAction.type === 'quickCleanup') && (
+            {confirmAction.description && (!dryRun || confirmAction.type === 'quickCleanup' || confirmAction.type === 'forceDelete') && (
               <p className="text-red-400 text-xs mb-4">{confirmAction.description}</p>
             )}
             {!confirmAction.description && !dryRun && (
@@ -1224,7 +1303,7 @@ const DataCleanupPage = () => {
                 This action will permanently modify Firestore data. This cannot be undone.
               </p>
             )}
-            {dryRun && confirmAction.type !== 'quickCleanup' && (
+            {dryRun && confirmAction.type !== 'quickCleanup' && confirmAction.type !== 'forceDelete' && (
               <p className="text-blue-400 text-xs mb-4">
                 Dry run mode — no data will be changed. Results will appear in the activity log.
               </p>
@@ -1243,12 +1322,12 @@ const DataCleanupPage = () => {
                   await fn();
                 }}
                 className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
-                  dryRun && confirmAction.type !== 'quickCleanup'
+                  dryRun && confirmAction.type !== 'quickCleanup' && confirmAction.type !== 'forceDelete'
                     ? 'bg-[#005028] text-white hover:bg-[#00A651]'
                     : 'bg-red-500 text-white hover:bg-red-600'
                 }`}
               >
-                {dryRun && confirmAction.type !== 'quickCleanup' ? 'Preview' : 'Confirm'}
+                {(dryRun && confirmAction.type !== 'quickCleanup' && confirmAction.type !== 'forceDelete') ? 'Preview' : 'Confirm'}
               </button>
             </div>
           </div>
