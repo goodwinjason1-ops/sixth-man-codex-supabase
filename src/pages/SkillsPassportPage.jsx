@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useData } from '../contexts/DataContext';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useFilteredData } from '../hooks/useFilteredData';
 import {
   CircleDot,
   Target,
@@ -127,14 +126,23 @@ const levelLabels = {
 
 const SkillsPassportPage = () => {
   const navigate = useNavigate();
-  const { userProfile } = useAuth();
-  const { players, evaluations } = useData();
+  const { playerId: paramPlayerId } = useParams();
+  const { userProfile, currentUser, players, evaluations } = useFilteredData();
   const [selectedSkill, setSelectedSkill] = useState(null);
 
-  // Get the player record linked to the current user
+  // Get the player record - support URL param, player's own profile, or parent's linked child
   const playerData = useMemo(() => {
-    return players.find(p => p.id === userProfile?.playerId) || {};
-  }, [players, userProfile]);
+    if (paramPlayerId) {
+      return players.find(p => p.id === paramPlayerId) || {};
+    }
+    if (userProfile?.playerId) {
+      return players.find(p => p.id === userProfile.playerId) || {};
+    }
+    if (userProfile?.role === 'parent' && players.length > 0) {
+      return players[0];
+    }
+    return {};
+  }, [players, userProfile, paramPlayerId]);
 
   // Build skills data from real Firestore evaluations
   const skillsData = useMemo(() => {
@@ -232,7 +240,7 @@ const SkillsPassportPage = () => {
             <div>
               <h1 className="text-2xl font-bold text-gray-800">Skills Passport</h1>
               <p className="text-[#00A651] mt-1">
-                {userProfile?.displayName || 'Player'} • {userProfile?.ageGroup || 'U12'}
+                {playerData.name || playerData.displayName || 'Player'}{playerData.ageGroup ? ` • ${playerData.ageGroup}` : ''}
               </p>
             </div>
           </div>

@@ -6,6 +6,7 @@ import {
   query,
   where,
   onSnapshot,
+  getDocs,
 } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import {
@@ -90,17 +91,64 @@ const StatusBadge = ({ status }) => {
 // ---------------------------------------------------------------------------
 // Assign Modal
 // ---------------------------------------------------------------------------
-const AssignModal = ({ isOpen, onClose, onAssign, game, existingAssignment }) => {
+const AssignModal = ({ isOpen, onClose, onAssign, game, existingAssignment, teamParents }) => {
+  const [selectedParentId, setSelectedParentId] = useState('');
   const [parentName, setParentName] = useState('');
   const [parentEmail, setParentEmail] = useState('');
   const [saving, setSaving] = useState(false);
 
+  const isManualEntry = selectedParentId === '__manual__';
+
+  const hasParents = teamParents && teamParents.length > 0;
+
   useEffect(() => {
     if (isOpen) {
-      setParentName(existingAssignment?.assignedName || '');
-      setParentEmail(existingAssignment?.assignedEmail || '');
+      // If editing an existing assignment, try to match to a known parent
+      if (existingAssignment) {
+        const matchedParent = teamParents?.find(
+          (p) =>
+            p.displayName === existingAssignment.assignedName ||
+            p.email === existingAssignment.assignedEmail
+        );
+        if (matchedParent) {
+          setSelectedParentId(matchedParent.id);
+          setParentName(matchedParent.displayName || '');
+          setParentEmail(matchedParent.email || '');
+        } else {
+          setSelectedParentId('__manual__');
+          setParentName(existingAssignment.assignedName || '');
+          setParentEmail(existingAssignment.assignedEmail || '');
+        }
+      } else if (!hasParents) {
+        // No parents available, default to manual entry
+        setSelectedParentId('__manual__');
+        setParentName('');
+        setParentEmail('');
+      } else {
+        setSelectedParentId('');
+        setParentName('');
+        setParentEmail('');
+      }
     }
-  }, [isOpen, existingAssignment]);
+  }, [isOpen, existingAssignment, teamParents, hasParents]);
+
+  // When a parent is selected from the dropdown, auto-fill name and email
+  const handleParentSelect = (value) => {
+    setSelectedParentId(value);
+    if (value && value !== '__manual__') {
+      const parent = teamParents?.find((p) => p.id === value);
+      if (parent) {
+        setParentName(parent.displayName || '');
+        setParentEmail(parent.email || '');
+      }
+    } else if (value === '__manual__') {
+      setParentName('');
+      setParentEmail('');
+    } else {
+      setParentName('');
+      setParentEmail('');
+    }
+  };
 
   if (!isOpen || !game) return null;
 
@@ -141,32 +189,64 @@ const AssignModal = ({ isOpen, onClose, onAssign, game, existingAssignment }) =>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          {/* Parent selection dropdown */}
           <div>
             <label className="block text-sm font-medium text-gray-800 mb-1">
-              Parent Name <span className="text-red-500">*</span>
+              Select Parent <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              value={parentName}
-              onChange={(e) => setParentName(e.target.value)}
-              placeholder="e.g. Jane Smith"
-              className="w-full px-3 py-2.5 border border-[#D4E4D4] rounded-lg text-gray-800 bg-[#F5F9F5] focus:ring-2 focus:ring-[#00A651] focus:border-transparent outline-none text-sm"
-              autoFocus
-              required
-            />
+            {hasParents ? (
+              <select
+                value={selectedParentId}
+                onChange={(e) => handleParentSelect(e.target.value)}
+                className="w-full px-3 py-2.5 border border-[#D4E4D4] rounded-lg text-gray-800 bg-[#F5F9F5] focus:ring-2 focus:ring-[#00A651] focus:border-transparent outline-none text-sm"
+                autoFocus
+              >
+                <option value="">-- Choose a parent --</option>
+                {teamParents.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.displayName}{p.email ? ` (${p.email})` : ''}
+                  </option>
+                ))}
+                <option value="__manual__">Other (manual entry)</option>
+              </select>
+            ) : (
+              <p className="text-sm text-[#6B7C6B] italic mb-2">
+                No parents registered for this team yet.
+              </p>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">
-              Parent Email <span className="text-[#6B7C6B] text-xs">(optional)</span>
-            </label>
-            <input
-              type="email"
-              value={parentEmail}
-              onChange={(e) => setParentEmail(e.target.value)}
-              placeholder="e.g. jane@example.com"
-              className="w-full px-3 py-2.5 border border-[#D4E4D4] rounded-lg text-gray-800 bg-[#F5F9F5] focus:ring-2 focus:ring-[#00A651] focus:border-transparent outline-none text-sm"
-            />
-          </div>
+
+          {/* Manual entry fields (shown when "Other" selected or no parents exist) */}
+          {(isManualEntry || !hasParents) && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-800 mb-1">
+                  Parent Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={parentName}
+                  onChange={(e) => setParentName(e.target.value)}
+                  placeholder="e.g. Jane Smith"
+                  className="w-full px-3 py-2.5 border border-[#D4E4D4] rounded-lg text-gray-800 bg-[#F5F9F5] focus:ring-2 focus:ring-[#00A651] focus:border-transparent outline-none text-sm"
+                  autoFocus={!hasParents}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-800 mb-1">
+                  Parent Email <span className="text-[#6B7C6B] text-xs">(optional)</span>
+                </label>
+                <input
+                  type="email"
+                  value={parentEmail}
+                  onChange={(e) => setParentEmail(e.target.value)}
+                  placeholder="e.g. jane@example.com"
+                  className="w-full px-3 py-2.5 border border-[#D4E4D4] rounded-lg text-gray-800 bg-[#F5F9F5] focus:ring-2 focus:ring-[#00A651] focus:border-transparent outline-none text-sm"
+                />
+              </div>
+            </>
+          )}
 
           <div className="flex gap-3 pt-2">
             <button
@@ -202,6 +282,7 @@ const ScoringRosterPage = () => {
   const {
     teams,
     schedule,
+    allPlayers,
     loading,
     currentUser,
     userProfile,
@@ -212,6 +293,7 @@ const ScoringRosterPage = () => {
   // Firestore-direct state
   const [assignments, setAssignments] = useState([]);
   const [swapRequests, setSwapRequests] = useState([]);
+  const [teamParents, setTeamParents] = useState([]);
   const [assignmentsLoading, setAssignmentsLoading] = useState(true);
   const [swapsLoading, setSwapsLoading] = useState(true);
 
@@ -290,6 +372,57 @@ const ScoringRosterPage = () => {
 
     return unsub;
   }, [selectedTeamId]);
+
+  // Load parents linked to the selected team
+  useEffect(() => {
+    if (!selectedTeamId || !allPlayers?.length) {
+      setTeamParents([]);
+      return;
+    }
+
+    // Get player IDs that belong to the selected team
+    const teamPlayerIds = allPlayers
+      .filter((p) => {
+        const pTeams = p.teamIds || (p.teamId ? [p.teamId] : []);
+        return pTeams.includes(selectedTeamId);
+      })
+      .map((p) => p.id);
+
+    if (teamPlayerIds.length === 0) {
+      setTeamParents([]);
+      return;
+    }
+
+    // Query all parent users then filter client-side
+    const fetchParents = async () => {
+      try {
+        const q = query(
+          collection(db, 'users'),
+          where('role', '==', 'parent')
+        );
+        const snap = await getDocs(q);
+        const parents = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .filter((parent) => {
+            const linkedIds = parent.linkedPlayerIds || parent.children || [];
+            return linkedIds.some((pid) => teamPlayerIds.includes(pid));
+          })
+          .map((parent) => ({
+            id: parent.id,
+            displayName: parent.displayName || parent.name || 'Unknown Parent',
+            email: parent.email || '',
+          }));
+        // Sort alphabetically by name
+        parents.sort((a, b) => a.displayName.localeCompare(b.displayName));
+        setTeamParents(parents);
+      } catch (err) {
+        console.error('Error fetching team parents:', err);
+        setTeamParents([]);
+      }
+    };
+
+    fetchParents();
+  }, [selectedTeamId, allPlayers]);
 
   // Flash feedback helper
   const showFeedback = useCallback((msg, type = 'success') => {
@@ -751,6 +884,7 @@ const ScoringRosterPage = () => {
         onAssign={(data) => handleAssign(assignModal.game, data)}
         game={assignModal.game}
         existingAssignment={assignModal.existing}
+        teamParents={teamParents}
       />
     </PageShell>
   );

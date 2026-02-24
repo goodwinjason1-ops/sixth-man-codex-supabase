@@ -332,7 +332,7 @@ const ParentDashboard = () => {
               <h3 className="text-gray-800 font-semibold">Skills Progress</h3>
             </div>
             <button
-              onClick={() => navigate('/skills-passport')}
+              onClick={() => navigate(`/skills-passport/${selectedChild?.id || ''}`)}
               className="text-sm text-[#00A651] hover:text-gray-800"
             >
               View All &rarr;

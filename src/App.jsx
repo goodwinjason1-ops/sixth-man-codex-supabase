@@ -32,6 +32,7 @@ const CoachPlayerOverviewPage = lazy(() => import('./pages/CoachPlayerOverviewPa
 const TrainingPlansListPage = lazy(() => import('./pages/TrainingPlansListPage'));
 const TrainingPlanBuilderPage = lazy(() => import('./pages/TrainingPlanBuilderPage'));
 const TrainingHistoryPage = lazy(() => import('./pages/TrainingHistoryPage'));
+const MatchHistoryPage = lazy(() => import('./pages/MatchHistoryPage'));
 
 // Drill chunk
 const DrillLibraryPage = lazy(() => import('./pages/DrillLibraryPage'));
@@ -438,7 +439,7 @@ const AppRoutes = () => {
         />
 
         <Route
-          path="/skills-passport"
+          path="/skills-passport/:playerId?"
           element={
             <ProtectedRoute>
               <ErrorBoundary fallbackMessage="Unable to load skills passport.">
@@ -498,6 +499,17 @@ const AppRoutes = () => {
             <ProtectedRoute allowedRoles={['coach']}>
               <ErrorBoundary fallbackMessage="Unable to load match day assessment.">
                 <MatchDayAssessmentPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/coach/match-history"
+          element={
+            <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load match history.">
+                <MatchHistoryPage />
               </ErrorBoundary>
             </ProtectedRoute>
           }

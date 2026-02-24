@@ -25,26 +25,36 @@ const PlayerPortal = () => {
     return players.find(p => p.id === userProfile?.playerId) || {};
   }, [players, userProfile]);
 
-  // Calculate MVP stats
+  // Calculate MVP stats using 3-2-1 voting system (matches CoachDashboard)
   const mvpStats = useMemo(() => {
     const playerGames = games.filter(g => g.team === playerData.team);
-    const mvpVotes = playerGames.filter(g => g.mvp === playerData.id).length;
 
-    const mvpCounts = {};
+    // Count MVP points using the 3-2-1 voting system
+    const mvpPoints = {};
+
     playerGames.forEach(game => {
-      if (game.mvp) {
-        mvpCounts[game.mvp] = (mvpCounts[game.mvp] || 0) + 1;
-      }
+      const votes = game.mvpVoting?.votes;
+      if (!votes) return;
+
+      Object.entries(votes).forEach(([points, playerId]) => {
+        if (!playerId) return;
+        const pts = parseInt(points, 10);
+        if (isNaN(pts)) return;
+        mvpPoints[playerId] = (mvpPoints[playerId] || 0) + pts;
+      });
     });
 
-    const rankings = Object.entries(mvpCounts)
+    const myPoints = mvpPoints[playerData.id] || 0;
+
+    // Calculate rank
+    const rankings = Object.entries(mvpPoints)
       .sort((a, b) => b[1] - a[1])
       .map(([playerId]) => playerId);
 
     const rank = rankings.indexOf(playerData.id) + 1;
 
     return {
-      votes: mvpVotes,
+      votes: myPoints,
       rank: rank > 0 ? rank : null,
       totalPlayers: rankings.length
     };
@@ -288,7 +298,7 @@ const PlayerPortal = () => {
                         </div>
                       </div>
 
-                      {game.mvp === playerData.id && (
+                      {game.mvpVoting?.votes && Object.values(game.mvpVoting.votes).includes(playerData.id) && (
                         <div className="mt-2 flex items-center gap-2 bg-[#FFD700]/10 px-3 py-2 rounded-lg border border-[#FFD700]">
                           <Award className="w-4 h-4 text-[#FFD700]" />
                           <span className="text-sm font-semibold text-gray-800">MVP of the Game!</span>

@@ -217,7 +217,10 @@ const CoachDashboard = () => {
       return teams.map(t => ({
         ...t,
         displayName: t.name || t.teamName,
-        playerCount: players.filter(p => p.team === (t.name || t.teamName)).length
+        playerCount: players.filter(p =>
+          p.teamId === t.id ||
+          p.team === (t.name || t.teamName)
+        ).length
       }));
     }
     return [];
@@ -253,10 +256,16 @@ const CoachDashboard = () => {
   // Filter players by selected team
   const filteredPlayers = useMemo(() => {
     if (selectedTeam === 'all') {
-      return players.filter(p => coachTeams.includes(p.team));
+      return players; // already filtered to coach's teams by useFilteredData
     }
-    return players.filter(p => p.team === selectedTeam);
-  }, [players, selectedTeam, coachTeams]);
+    // Match by team name OR teamId
+    const teamObj = teams?.find(t => (t.name || t.teamName) === selectedTeam);
+    return players.filter(p =>
+      p.team === selectedTeam ||
+      p.teamId === (teamObj?.id || selectedTeam) ||
+      p.teamName === selectedTeam
+    );
+  }, [players, selectedTeam, teams]);
 
   // Calculate team metrics
   const teamMetrics = useMemo(() => {
@@ -686,6 +695,22 @@ const CoachDashboard = () => {
             <div>
               <h3 className="text-gray-800 font-bold text-sm">Rotation History</h3>
               <p className="text-[#6B7C6B] text-xs">View past game rotation records and fairness scores</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Match History Card */}
+        <div
+          onClick={() => navigate('/coach/match-history')}
+          className="bg-white rounded-xl border border-[#D4E4D4]/30 p-5 mb-6 hover:border-[#00A651]/50 transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 bg-[#FFD700]/10 rounded-lg flex items-center justify-center">
+              <Trophy className="w-5 h-5 text-[#B8860B]" />
+            </div>
+            <div>
+              <h3 className="text-gray-800 font-bold text-sm">Match History</h3>
+              <p className="text-[#6B7C6B] text-xs">Review past game assessments and player performance</p>
             </div>
           </div>
         </div>
