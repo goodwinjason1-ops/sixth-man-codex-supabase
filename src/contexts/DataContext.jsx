@@ -19,52 +19,6 @@ import { useAuth } from './AuthContext';
 
 const DataContext = createContext();
 
-// Sample schedule data for testing - includes a game for TODAY
-const getSampleSchedule = () => {
-  const today = new Date();
-  today.setHours(14, 0, 0, 0); // 2:00 PM today
-
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(10, 0, 0, 0);
-
-  return [
-    {
-      id: 'test-game-today-1',
-      teamId: 'lakers-u12',
-      teamName: 'Lakers U12',
-      opponent: 'Hills Hawks',
-      date: today,
-      time: '2:00 PM',
-      venue: 'Emerald Indoor Courts',
-      homeAway: 'home',
-      status: 'scheduled'
-    },
-    {
-      id: 'test-game-today-2',
-      teamId: 'lakers-u14',
-      teamName: 'Lakers U14',
-      opponent: 'North Stars',
-      date: today,
-      time: '4:30 PM',
-      venue: 'Emerald Indoor Courts',
-      homeAway: 'home',
-      status: 'scheduled'
-    },
-    {
-      id: 'test-game-tomorrow',
-      teamId: 'lakers-u10',
-      teamName: 'Lakers U10',
-      opponent: 'Western Warriors',
-      date: tomorrow,
-      time: '10:00 AM',
-      venue: 'Sports Centre',
-      homeAway: 'away',
-      status: 'scheduled'
-    }
-  ];
-};
-
 // All collection keys for loading/error tracking
 const COLLECTION_KEYS = [
   'players', 'skills', 'evaluations', 'games', 'attendance',
@@ -320,16 +274,8 @@ export const DataProvider = ({ children }) => {
     unsubscribers.push(
       onSnapshot(scheduleQuery, async (snapshot) => {
         const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        if (data.length === 0) {
-          const cached = await dbService.getAll('schedule');
-          if (cached && cached.length > 0) {
-            setSchedule(cached);
-          } else {
-            console.log('[DataContext] No schedule data found, using sample data for testing');
-            setSchedule(getSampleSchedule());
-          }
-        } else {
-          setSchedule(data);
+        setSchedule(data);
+        if (data.length > 0) {
           await dbService.setAll('schedule', data);
         }
         markLoaded('schedule');
@@ -337,11 +283,7 @@ export const DataProvider = ({ children }) => {
         console.error('Schedule snapshot error:', error.code, error.message);
         markError('schedule', error.code || 'unknown');
         const offlineData = await dbService.getAll('schedule');
-        if (offlineData && offlineData.length > 0) {
-          setSchedule(offlineData);
-        } else {
-          setSchedule(getSampleSchedule());
-        }
+        setSchedule(offlineData || []);
       })
     );
 

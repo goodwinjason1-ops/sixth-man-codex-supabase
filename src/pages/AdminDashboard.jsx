@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '../services/firebase';
 import { useData } from '../contexts/DataContext';
 import { fetchRecentActivity, ACTION_TYPES } from '../services/auditService';
 import {
@@ -38,8 +40,9 @@ import TutorialPromptCard from '../components/tutorial/TutorialPromptCard';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { players, evaluations, teams } = useData();
+  const { players, evaluations, teams, schedule } = useData();
   const [recentActivity, setRecentActivity] = useState([]);
+  const [scoringCounts, setScoringCounts] = useState({ unassigned: 0, pending: 0, swapRequests: 0 });
 
   // Calculate club-wide statistics
   const clubStats = useMemo(() => {
@@ -94,6 +97,36 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchRecentActivity(4).then(setRecentActivity);
   }, []);
+
+  // Subscribe to scoring roster data
+  useEffect(() => {
+    // Subscribe to scoring_assignments
+    const assignQ = query(collection(db, 'scoring_assignments'));
+    const unsubAssign = onSnapshot(assignQ, (snap) => {
+      const assignments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const pendingCount = assignments.filter(a => a.status === 'pending').length;
+
+      // Count unassigned = upcoming games with no assignment
+      const now = new Date();
+      const assignedGameIds = new Set(assignments.map(a => a.gameId));
+      const upcomingGames = (schedule || []).filter(ev => {
+        if (ev.type && ev.type !== 'game') return false;
+        const d = ev.date?.toDate ? ev.date.toDate() : new Date(ev.date);
+        return d && d >= now;
+      });
+      const unassignedCount = upcomingGames.filter(g => !assignedGameIds.has(g.id)).length;
+
+      setScoringCounts(prev => ({ ...prev, pending: pendingCount, unassigned: unassignedCount }));
+    }, (err) => console.error('scoring_assignments error:', err));
+
+    // Subscribe to pending swap_requests
+    const swapQ = query(collection(db, 'swap_requests'), where('status', '==', 'pending'));
+    const unsubSwap = onSnapshot(swapQ, (snap) => {
+      setScoringCounts(prev => ({ ...prev, swapRequests: snap.size }));
+    }, (err) => console.error('swap_requests error:', err));
+
+    return () => { unsubAssign(); unsubSwap(); };
+  }, [schedule]);
 
   // Navigation tiles configuration
   const navigationTiles = [
@@ -415,16 +448,16 @@ const AdminDashboard = () => {
 
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-gray-100 rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold text-gray-800">0</p>
+              <p className="text-2xl font-bold text-gray-800">{scoringCounts.unassigned}</p>
               <p className="text-xs text-gray-500">Unassigned</p>
             </div>
             <div className="bg-yellow-500/10 rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold text-yellow-600">0</p>
+              <p className="text-2xl font-bold text-yellow-600">{scoringCounts.pending}</p>
               <p className="text-xs text-gray-500">Pending</p>
             </div>
             <div className="bg-blue-500/10 rounded-lg p-3 text-center cursor-pointer hover:bg-blue-500/20" onClick={() => navigate('/admin/notifications')}>
               <p className="text-2xl font-bold text-blue-600 flex items-center justify-center gap-1">
-                0
+                {scoringCounts.swapRequests}
                 <ArrowRightLeft size={14} />
               </p>
               <p className="text-xs text-gray-500">Swap Requests</p>

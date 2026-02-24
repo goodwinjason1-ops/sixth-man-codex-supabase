@@ -26,164 +26,20 @@ import {
 } from 'lucide-react';
 import PageShell from '../../components/PageShell';
 
-// Sample training plans from all coaches
-const allCoachPlans = [
-  {
-    id: 'plan-1',
-    coachId: 'coach-1',
-    coachName: 'Sarah Mitchell',
-    teamId: 't1',
-    teamName: 'U14 Lakers',
-    ageGroup: 'U14',
-    name: 'Pre-Season Skills Development',
-    description: 'Comprehensive 4-week program focusing on ball handling, shooting mechanics, and defensive positioning.',
-    duration: 'weekly',
-    dateRange: { start: '2026-02-01', end: '2026-02-28' },
-    focusAreas: ['Ball Handling', 'Shooting', 'Defense'],
-    sessions: 4,
-    totalDrills: 15,
-    status: 'active',
-    approvalStatus: 'approved',
-    approvedBy: 'Admin',
-    approvedAt: '2026-01-28T10:00:00Z',
-    rating: 4.5,
-    usageCount: 3,
-    createdAt: '2026-01-25T10:00:00Z',
-    updatedAt: '2026-02-01T14:30:00Z'
-  },
-  {
-    id: 'plan-2',
-    coachId: 'coach-2',
-    coachName: 'Mike Thompson',
-    teamId: 't2',
-    teamName: 'U12 Emerald',
-    ageGroup: 'U12',
-    name: 'Fundamentals Focus Program',
-    description: 'Week-long intensive program for younger players focusing on passing, receiving, and footwork basics.',
-    duration: 'weekly',
-    dateRange: { start: '2026-02-10', end: '2026-02-16' },
-    focusAreas: ['Passing', 'Footwork', 'Basketball IQ'],
-    sessions: 3,
-    totalDrills: 12,
-    status: 'active',
-    approvalStatus: 'pending',
-    approvedBy: null,
-    approvedAt: null,
-    rating: null,
-    usageCount: 0,
-    createdAt: '2026-02-05T09:00:00Z',
-    updatedAt: '2026-02-05T09:00:00Z'
-  },
-  {
-    id: 'plan-3',
-    coachId: 'coach-1',
-    coachName: 'Sarah Mitchell',
-    teamId: 't1',
-    teamName: 'U14 Lakers',
-    ageGroup: 'U14',
-    name: 'Defense Intensive Workshop',
-    description: 'Single-session intensive drill focusing on team defense and individual positioning.',
-    duration: 'single',
-    dateRange: { start: '2026-02-08', end: '2026-02-08' },
-    focusAreas: ['Defense', 'Team Play'],
-    sessions: 1,
-    totalDrills: 8,
-    status: 'draft',
-    approvalStatus: 'pending',
-    approvedBy: null,
-    approvedAt: null,
-    rating: null,
-    usageCount: 0,
-    createdAt: '2026-02-03T16:00:00Z',
-    updatedAt: '2026-02-03T16:00:00Z'
-  },
-  {
-    id: 'plan-4',
-    coachId: 'coach-3',
-    coachName: 'James Wilson',
-    teamId: 't3',
-    teamName: 'U10 Green',
-    ageGroup: 'U10',
-    name: 'Fun Fundamentals for Beginners',
-    description: 'Engaging program designed to make learning basketball basics enjoyable for young players.',
-    duration: 'monthly',
-    dateRange: { start: '2026-02-01', end: '2026-02-28' },
-    focusAreas: ['Ball Handling', 'Shooting', 'Teamwork'],
-    sessions: 8,
-    totalDrills: 24,
-    status: 'active',
-    approvalStatus: 'approved',
-    approvedBy: 'Admin',
-    approvedAt: '2026-01-30T14:00:00Z',
-    rating: 4.8,
-    usageCount: 5,
-    createdAt: '2026-01-20T10:00:00Z',
-    updatedAt: '2026-02-01T18:00:00Z'
-  },
-  {
-    id: 'plan-5',
-    coachId: 'coach-2',
-    coachName: 'Mike Thompson',
-    teamId: 't4',
-    teamName: 'U16 Dragons',
-    ageGroup: 'U16',
-    name: 'Advanced Shooting Mechanics',
-    description: 'Advanced program focusing on shooting form, three-point shooting, and free throw consistency.',
-    duration: 'weekly',
-    dateRange: { start: '2026-02-15', end: '2026-02-28' },
-    focusAreas: ['Shooting', 'Form', 'Mental Focus'],
-    sessions: 6,
-    totalDrills: 18,
-    status: 'active',
-    approvalStatus: 'rejected',
-    approvedBy: 'Admin',
-    approvedAt: '2026-02-01T10:00:00Z',
-    rejectionReason: 'Needs age-appropriate modifications for U16 players. Some drills are too basic.',
-    rating: null,
-    usageCount: 0,
-    createdAt: '2026-01-28T11:00:00Z',
-    updatedAt: '2026-02-01T10:00:00Z'
-  },
-  {
-    id: 'plan-6',
-    coachId: 'coach-4',
-    coachName: 'Lisa Chen',
-    teamId: 't5',
-    teamName: 'U14 Gold',
-    ageGroup: 'U14',
-    name: 'Championship Preparation Plan',
-    description: 'Intensive 2-week plan preparing the team for upcoming championship games.',
-    duration: 'weekly',
-    dateRange: { start: '2026-03-01', end: '2026-03-14' },
-    focusAreas: ['Game Strategy', 'Team Play', 'Mental Toughness'],
-    sessions: 8,
-    totalDrills: 30,
-    status: 'draft',
-    approvalStatus: 'pending',
-    approvedBy: null,
-    approvedAt: null,
-    rating: null,
-    usageCount: 0,
-    createdAt: '2026-02-04T09:00:00Z',
-    updatedAt: '2026-02-04T15:00:00Z'
-  }
-];
-
-// Sample coaches
-const sampleCoaches = [
-  { id: 'coach-1', name: 'Sarah Mitchell', teams: ['U14 Lakers', 'U12 Emerald'] },
-  { id: 'coach-2', name: 'Mike Thompson', teams: ['U12 Emerald', 'U16 Dragons'] },
-  { id: 'coach-3', name: 'James Wilson', teams: ['U10 Green'] },
-  { id: 'coach-4', name: 'Lisa Chen', teams: ['U14 Gold'] }
-];
+// Parse Firestore Timestamps or ISO strings safely
+const parseDate = (val) => {
+  if (!val) return null;
+  if (val.toDate) return val.toDate();
+  const d = new Date(val);
+  return isNaN(d.getTime()) ? null : d;
+};
 
 const TrainingPlansLibraryPage = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const { players } = useData();
+  const { trainingPlans, teams, updateDocument, addDocument } = useData();
 
   // State
-  const [plans, setPlans] = useState(allCoachPlans);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCoach, setSelectedCoach] = useState('all');
   const [selectedAgeGroup, setSelectedAgeGroup] = useState('all');
@@ -195,13 +51,42 @@ const TrainingPlansLibraryPage = () => {
 
   const ageGroups = ['U8', 'U10', 'U12', 'U14', 'U16', 'U18'];
 
+  // Filter out template plans — library view shows coach-created plans only
+  const plans = useMemo(() => {
+    return (trainingPlans || []).filter(p => !p.isTemplate);
+  }, [trainingPlans]);
+
+  // Build coach list dynamically from unique coaches in plans
+  const coaches = useMemo(() => {
+    const coachMap = new Map();
+    plans.forEach(p => {
+      const coachKey = p.coachName || p.createdBy || 'Unknown Coach';
+      if (!coachMap.has(coachKey)) {
+        coachMap.set(coachKey, { id: coachKey, name: coachKey });
+      }
+    });
+    return Array.from(coachMap.values());
+  }, [plans]);
+
+  // Compute session and drill counts from plan data
+  const getSessionCount = (plan) => plan.sessions?.length || 0;
+  const getTotalDrills = (plan) => {
+    if (!plan.sessions || !Array.isArray(plan.sessions)) return 0;
+    return plan.sessions.reduce((total, session) => {
+      if (session.drills && Array.isArray(session.drills)) {
+        return total + session.drills.length;
+      }
+      return total;
+    }, 0);
+  };
+
   // Filter plans
   const filteredPlans = useMemo(() => {
     let result = [...plans];
 
     // Filter by coach
     if (selectedCoach !== 'all') {
-      result = result.filter(p => p.coachId === selectedCoach);
+      result = result.filter(p => (p.coachName || p.createdBy || 'Unknown Coach') === selectedCoach);
     }
 
     // Filter by age group
@@ -218,10 +103,10 @@ const TrainingPlansLibraryPage = () => {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       result = result.filter(p =>
-        p.name.toLowerCase().includes(query) ||
-        p.coachName.toLowerCase().includes(query) ||
-        p.teamName.toLowerCase().includes(query) ||
-        p.description.toLowerCase().includes(query)
+        (p.name || '').toLowerCase().includes(query) ||
+        (p.coachName || '').toLowerCase().includes(query) ||
+        (p.teamName || '').toLowerCase().includes(query) ||
+        (p.description || '').toLowerCase().includes(query)
       );
     }
 
@@ -229,7 +114,9 @@ const TrainingPlansLibraryPage = () => {
     result.sort((a, b) => {
       if (a.approvalStatus === 'pending' && b.approvalStatus !== 'pending') return -1;
       if (b.approvalStatus === 'pending' && a.approvalStatus !== 'pending') return 1;
-      return new Date(b.updatedAt) - new Date(a.updatedAt);
+      const dateA = parseDate(a.updatedAt);
+      const dateB = parseDate(b.updatedAt);
+      return (dateB || 0) - (dateA || 0);
     });
 
     return result;
@@ -241,13 +128,14 @@ const TrainingPlansLibraryPage = () => {
     pending: plans.filter(p => p.approvalStatus === 'pending').length,
     approved: plans.filter(p => p.approvalStatus === 'approved').length,
     rejected: plans.filter(p => p.approvalStatus === 'rejected').length,
-    totalCoaches: [...new Set(plans.map(p => p.coachId))].length
-  }), [plans]);
+    totalCoaches: coaches.length
+  }), [plans, coaches]);
 
   // Format date
-  const formatDate = (dateString) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('en-AU', {
+  const formatDate = (dateValue) => {
+    const d = parseDate(dateValue);
+    if (!d) return '-';
+    return d.toLocaleDateString('en-AU', {
       day: 'numeric',
       month: 'short',
       year: 'numeric'
@@ -269,43 +157,40 @@ const TrainingPlansLibraryPage = () => {
   };
 
   // Handle approval
-  const handleApprove = (planId) => {
-    setPlans(plans.map(p =>
-      p.id === planId
-        ? {
-            ...p,
-            approvalStatus: 'approved',
-            approvedBy: 'Admin',
-            approvedAt: new Date().toISOString()
-          }
-        : p
-    ));
+  const handleApprove = async (planId) => {
+    await updateDocument('training_plans', planId, {
+      approvalStatus: 'approved',
+      approvedBy: currentUser?.displayName || 'Admin',
+      approvedAt: new Date().toISOString()
+    });
     setShowApprovalModal(null);
   };
 
   // Handle rejection
-  const handleReject = (planId) => {
+  const handleReject = async (planId) => {
     if (!rejectionReason.trim()) {
       alert('Please provide a reason for rejection');
       return;
     }
-    setPlans(plans.map(p =>
-      p.id === planId
-        ? {
-            ...p,
-            approvalStatus: 'rejected',
-            approvedBy: 'Admin',
-            approvedAt: new Date().toISOString(),
-            rejectionReason
-          }
-        : p
-    ));
+    await updateDocument('training_plans', planId, {
+      approvalStatus: 'rejected',
+      approvedBy: currentUser?.displayName || 'Admin',
+      approvedAt: new Date().toISOString(),
+      rejectionReason
+    });
     setShowApprovalModal(null);
     setRejectionReason('');
   };
 
   // Handle copy to library
-  const handleCopyToLibrary = (plan) => {
+  const handleCopyToLibrary = async (plan) => {
+    const { id, ...planData } = plan;
+    await addDocument('training_plans', {
+      ...planData,
+      isTemplate: true,
+      copiedFrom: id,
+      createdAt: new Date().toISOString()
+    });
     alert(`"${plan.name}" has been added to the club template library.`);
   };
 
@@ -393,7 +278,7 @@ const TrainingPlansLibraryPage = () => {
                   className="w-full bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg px-3 py-2 text-gray-800 focus:border-[#00A651] focus:outline-none"
                 >
                   <option value="all">All Coaches</option>
-                  {sampleCoaches.map(coach => (
+                  {coaches.map(coach => (
                     <option key={coach.id} value={coach.id}>{coach.name}</option>
                   ))}
                 </select>
@@ -437,7 +322,11 @@ const TrainingPlansLibraryPage = () => {
           <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-8 text-center">
             <BookOpen className="w-12 h-12 text-[#6B7C6B] mx-auto mb-3" />
             <h3 className="text-gray-800 font-semibold mb-2">No Training Plans Found</h3>
-            <p className="text-[#6B7C6B] text-sm">Try adjusting your filters</p>
+            <p className="text-[#6B7C6B] text-sm">
+              {plans.length === 0
+                ? 'No coach training plans have been submitted yet. Plans will appear here when coaches create and submit them.'
+                : 'Try adjusting your filters'}
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -454,7 +343,7 @@ const TrainingPlansLibraryPage = () => {
                   {/* Plan Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
-                      <h3 className="text-gray-800 font-bold text-lg">{plan.name}</h3>
+                      <h3 className="text-gray-800 font-bold text-lg">{plan.name || 'Untitled Plan'}</h3>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${getApprovalBadge(plan.approvalStatus)}`}>
                         {plan.approvalStatus === 'pending' ? 'Pending Review' :
                          plan.approvalStatus === 'approved' ? 'Approved' : 'Needs Revision'}
@@ -467,38 +356,40 @@ const TrainingPlansLibraryPage = () => {
                       )}
                     </div>
 
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">{plan.description}</p>
+                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">{plan.description || ''}</p>
 
                     <div className="flex items-center gap-4 text-sm text-[#6B7C6B] mb-3 flex-wrap">
                       <span className="flex items-center gap-1">
                         <User className="w-4 h-4" />
-                        {plan.coachName}
+                        {plan.coachName || plan.createdBy || 'Unknown'}
                       </span>
                       <span className="flex items-center gap-1">
                         <Users className="w-4 h-4" />
-                        {plan.teamName}
+                        {plan.teamName || 'No Team'}
                       </span>
                       <span className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
-                        {formatDate(plan.dateRange.start)}
+                        {formatDate(plan.createdAt)}
                       </span>
                       <span className="flex items-center gap-1">
                         <Dumbbell className="w-4 h-4" />
-                        {plan.sessions} sessions • {plan.totalDrills} drills
+                        {getSessionCount(plan)} sessions • {getTotalDrills(plan)} drills
                       </span>
                     </div>
 
                     {/* Focus Areas */}
-                    <div className="flex flex-wrap gap-2">
-                      {plan.focusAreas.map((area, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-1 bg-[#005028]/20 text-[#00A651] text-xs rounded-full"
-                        >
-                          {area}
-                        </span>
-                      ))}
-                    </div>
+                    {plan.focusAreas && plan.focusAreas.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {plan.focusAreas.map((area, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2 py-1 bg-[#005028]/20 text-[#00A651] text-xs rounded-full"
+                          >
+                            {area}
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
                     {/* Rejection Reason */}
                     {plan.approvalStatus === 'rejected' && plan.rejectionReason && (
@@ -575,48 +466,58 @@ const TrainingPlansLibraryPage = () => {
             className="relative bg-white border-2 border-[#D4E4D4] rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">{selectedPlan.name}</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">{selectedPlan.name || 'Untitled Plan'}</h2>
 
             <div className="space-y-4">
               <div>
                 <p className="text-[#6B7C6B] text-sm mb-1">Description</p>
-                <p className="text-gray-800">{selectedPlan.description}</p>
+                <p className="text-gray-800">{selectedPlan.description || 'No description provided.'}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-[#6B7C6B] text-sm mb-1">Coach</p>
-                  <p className="text-gray-800">{selectedPlan.coachName}</p>
+                  <p className="text-gray-800">{selectedPlan.coachName || selectedPlan.createdBy || 'Unknown'}</p>
                 </div>
                 <div>
                   <p className="text-[#6B7C6B] text-sm mb-1">Team</p>
-                  <p className="text-gray-800">{selectedPlan.teamName}</p>
+                  <p className="text-gray-800">{selectedPlan.teamName || 'No Team'}</p>
                 </div>
                 <div>
-                  <p className="text-[#6B7C6B] text-sm mb-1">Duration</p>
-                  <p className="text-gray-800">{formatDate(selectedPlan.dateRange.start)} - {formatDate(selectedPlan.dateRange.end)}</p>
+                  <p className="text-[#6B7C6B] text-sm mb-1">Age Group</p>
+                  <p className="text-gray-800">{selectedPlan.ageGroup || '-'}</p>
                 </div>
                 <div>
                   <p className="text-[#6B7C6B] text-sm mb-1">Sessions & Drills</p>
-                  <p className="text-gray-800">{selectedPlan.sessions} sessions • {selectedPlan.totalDrills} drills</p>
+                  <p className="text-gray-800">{getSessionCount(selectedPlan)} sessions • {getTotalDrills(selectedPlan)} drills</p>
                 </div>
               </div>
 
-              <div>
-                <p className="text-[#6B7C6B] text-sm mb-2">Focus Areas</p>
-                <div className="flex flex-wrap gap-2">
-                  {selectedPlan.focusAreas.map((area, idx) => (
-                    <span key={idx} className="px-3 py-1 bg-[#005028]/20 text-[#00A651] rounded-full text-sm">
-                      {area}
-                    </span>
-                  ))}
+              {selectedPlan.focusAreas && selectedPlan.focusAreas.length > 0 && (
+                <div>
+                  <p className="text-[#6B7C6B] text-sm mb-2">Focus Areas</p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedPlan.focusAreas.map((area, idx) => (
+                      <span key={idx} className="px-3 py-1 bg-[#005028]/20 text-[#00A651] rounded-full text-sm">
+                        {area}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {selectedPlan.approvalStatus === 'approved' && selectedPlan.approvedAt && (
                 <div className="p-3 bg-[#005028]/10 border border-[#00A651]/30 rounded-lg">
                   <p className="text-[#00A651] text-sm">
                     Approved by {selectedPlan.approvedBy} on {formatDate(selectedPlan.approvedAt)}
+                  </p>
+                </div>
+              )}
+
+              {selectedPlan.approvalStatus === 'rejected' && selectedPlan.rejectionReason && (
+                <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                  <p className="text-red-400 text-sm">
+                    <strong>Revision needed:</strong> {selectedPlan.rejectionReason}
                   </p>
                 </div>
               )}
@@ -655,7 +556,7 @@ const TrainingPlansLibraryPage = () => {
           >
             <h3 className="text-xl font-bold text-gray-800 mb-4">Request Revision</h3>
             <p className="text-gray-600 text-sm mb-4">
-              Please provide feedback for Coach {showApprovalModal.coachName} on what needs to be revised:
+              Please provide feedback for Coach {showApprovalModal.coachName || showApprovalModal.createdBy || 'Unknown'} on what needs to be revised:
             </p>
 
             <textarea

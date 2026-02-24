@@ -18,6 +18,7 @@
     "@playwright/test": "^1.58.2",
     "@vitejs/plugin-react": "^4.2.0",
     "autoprefixer": "^10.4.16",
+    "firebase-admin": "^13.6.1",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.3.6",
     "vite": "^5.0.0",

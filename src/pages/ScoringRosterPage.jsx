@@ -162,6 +162,7 @@ const AssignModal = ({ isOpen, onClose, onAssign, game, existingAssignment, team
       await onAssign({
         assignedName: parentName.trim(),
         assignedEmail: parentEmail.trim() || null,
+        assignedTo: (selectedParentId && selectedParentId !== '__manual__') ? selectedParentId : null,
       });
       onClose();
     } catch (err) {
@@ -486,7 +487,7 @@ const ScoringRosterPage = () => {
   // -----------------------------------------------------------------------
 
   const handleAssign = useCallback(
-    async (game, { assignedName, assignedEmail }) => {
+    async (game, { assignedName, assignedEmail, assignedTo }) => {
       const existing = assignmentByGame[game.id];
       const gameDateParsed = parseDate(game.date);
 
@@ -495,6 +496,7 @@ const ScoringRosterPage = () => {
         const res = await updateDocument('scoring_assignments', existing.id, {
           assignedName,
           assignedEmail: assignedEmail || null,
+          assignedTo: assignedTo || null,
           status: 'pending',
         });
         if (res.success) {
@@ -510,7 +512,7 @@ const ScoringRosterPage = () => {
           gameDate: gameDateParsed ? gameDateParsed.toISOString() : game.date,
           gameTime: game.time || null,
           opponent: game.opponent || null,
-          assignedTo: null,
+          assignedTo: assignedTo || null,
           assignedName,
           assignedEmail: assignedEmail || null,
           status: 'pending',
@@ -623,6 +625,24 @@ const ScoringRosterPage = () => {
             </div>
           </div>
         </div>
+
+        {/* 3-day deadline warning */}
+        {!isPast && (() => {
+          const now = new Date();
+          const msUntil = gameDateParsed - now;
+          const daysUntil = Math.ceil(msUntil / (1000 * 60 * 60 * 24));
+          if (daysUntil <= 3 && daysUntil >= 0 && (!assignment || assignment.status === 'pending')) {
+            return (
+              <div className="flex items-center gap-2 mb-2 px-1">
+                <AlertCircle className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                <span className="text-xs text-orange-600 font-medium">
+                  Game in {daysUntil} day{daysUntil !== 1 ? 's' : ''} — {assignment ? 'not confirmed' : 'no scorer assigned'}
+                </span>
+              </div>
+            );
+          }
+          return null;
+        })()}
 
         {/* Assignment Row */}
         <div className="bg-[#F5F9F5] rounded-lg p-3">

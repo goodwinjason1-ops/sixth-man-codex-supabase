@@ -37,7 +37,7 @@ import { STAFF_ROLES } from '../constants/roles';
 const PlayerIDPPage = () => {
   const { playerId } = useParams();
   const navigate = useNavigate();
-  const { players } = useData();
+  const { players, updateDocument } = useData();
   const { userProfile } = useAuth();
 
   const [expandedReviews, setExpandedReviews] = useState({});
@@ -104,9 +104,12 @@ const PlayerIDPPage = () => {
   };
 
   // Handle parent visible toggle
-  const handleToggleParentVisible = () => {
-    setParentVisible(prev => !prev);
-    // In the future this would call updateDocument('development_plans', idp.id, { parentVisible: !parentVisible })
+  const handleToggleParentVisible = async () => {
+    const newValue = !parentVisible;
+    setParentVisible(newValue);
+    if (idp?.id) {
+      await updateDocument('development_plans', idp.id, { parentVisible: newValue });
+    }
   };
 
   // Get status badge styling

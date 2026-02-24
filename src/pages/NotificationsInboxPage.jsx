@@ -3,6 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import {
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  limit,
+} from 'firebase/firestore';
+import { db } from '../services/firebase';
+import {
   ArrowLeft,
   ChevronRight,
   Bell,
@@ -62,140 +71,78 @@ const NotificationsInboxPage = () => {
   const [selectedReceivedSwap, setSelectedReceivedSwap] = useState(null);
   const [isRespondingToSwap, setIsRespondingToSwap] = useState(false);
 
-  // Sample notifications data
+  // Subscribe to notifications from Firestore
   useEffect(() => {
-    // In real app, this would come from Firestore listener
-    setNotifications([
-      {
-        id: 'n1',
-        type: 'scoring',
-        subject: 'Scoring Duty Reminder - U12 Emerald vs Hawks',
-        message: `Hi Parent,
+    if (!currentUser?.uid) return;
 
-You're scheduled to score for U12 Emerald vs Hawks on Saturday, February 10th at 9:00 AM.
+    // Get notifications targeted to this user or to all users
+    const notifsQ = query(
+      collection(db, 'notifications'),
+      orderBy('sentAt', 'desc'),
+      limit(50)
+    );
 
-Venue: Emerald Indoor Courts
+    const unsubNotifs = onSnapshot(notifsQ, (snap) => {
+      const allNotifs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Filter to notifications targeted to this user or broadcast
+      const userNotifs = allNotifs.filter(n => {
+        const audience = n.targetAudience;
+        if (!audience) return true; // no targeting = broadcast
+        if (audience.type === 'all') return true;
+        if (audience.type === 'individual' && audience.userIds?.includes(currentUser.uid)) return true;
+        if (audience.type === 'role' && audience.roles?.includes(userProfile?.role)) return true;
+        if (audience.type === 'team' && audience.teamIds) return true; // could refine further
+        return false;
+      });
+      setNotifications(userNotifs);
+    }, (err) => {
+      console.error('Notifications subscription error:', err);
+    });
 
-Please confirm your availability or request a swap if you're unable to attend.
+    return () => unsubNotifs();
+  }, [currentUser?.uid, userProfile?.role]);
 
-Thank you for your support!
+  // Subscribe to scoring assignments for this user
+  useEffect(() => {
+    if (!currentUser?.uid) return;
 
-Emerald Lakers Basketball Club`,
-        priority: 'normal',
-        sentAt: '2024-02-05T08:00:00Z',
-        status: 'sent',
-        readBy: [],
-        gameData: {
-          gameId: 'g1',
-          teamId: 'u12-emerald',
-          team: 'U12 Emerald',
-          opponent: 'Hawks',
-          date: '2024-02-10',
-          time: '09:00',
-          venue: 'Emerald Indoor Courts'
-        },
-        scoringAssignmentId: 'sa1'
-      },
-      {
-        id: 'n2',
-        type: 'announcement',
-        subject: 'Club Photos This Saturday',
-        message: `Hi Lakers Families,
+    const assignQ = query(
+      collection(db, 'scoring_assignments')
+    );
 
-Reminder that team photos will be taken this Saturday at the club.
+    const unsubAssign = onSnapshot(assignQ, (snap) => {
+      const allAssignments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Filter to assignments for this user (by userId or email)
+      const myAssignments = allAssignments.filter(a =>
+        a.assignedTo === currentUser.uid ||
+        a.assignedEmail === userProfile?.email
+      );
+      setScoringAssignments(myAssignments);
+    }, (err) => {
+      console.error('Scoring assignments subscription error:', err);
+    });
 
-Please ensure your player wears their full uniform.
+    return () => unsubAssign();
+  }, [currentUser?.uid, userProfile?.email]);
 
-Schedule:
-- U8/U10: 8:00 AM - 9:00 AM
-- U12/U14: 9:00 AM - 10:00 AM
-- U16/U18: 10:00 AM - 11:00 AM
+  // Subscribe to received swap requests for this user
+  useEffect(() => {
+    if (!currentUser?.uid) return;
 
-See you there!
+    const swapQ = query(
+      collection(db, 'swap_requests'),
+      where('swapToId', '==', currentUser.uid),
+      where('status', '==', 'pending')
+    );
 
-Emerald Lakers Basketball Club`,
-        priority: 'normal',
-        sentAt: '2024-02-01T10:00:00Z',
-        status: 'sent',
-        readBy: ['user123'],
-        attachments: [{ name: 'Photo Schedule', url: '#' }]
-      },
-      {
-        id: 'n3',
-        type: 'training_change',
-        subject: 'Training Cancelled - Thursday 8th Feb',
-        message: `Hi Lakers Families,
+    const unsubSwap = onSnapshot(swapQ, (snap) => {
+      setReceivedSwapRequests(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (err) => {
+      console.error('Swap requests subscription error:', err);
+    });
 
-Due to scheduled court maintenance, training this Thursday (8th February) is CANCELLED.
-
-Training will resume as normal the following week.
-
-Apologies for any inconvenience.
-
-Emerald Lakers Basketball Club`,
-        priority: 'urgent',
-        sentAt: '2024-02-06T14:00:00Z',
-        status: 'sent',
-        readBy: []
-      },
-      {
-        id: 'n4',
-        type: 'uniform',
-        subject: 'Uniform Orders Now Open',
-        message: `Hi Lakers Families,
-
-Uniform orders for the 2024 season are now open!
-
-Order Deadline: February 28th, 2024
-Collection: Will be available at training from March 15th
-
-Click the link below to order:
-
-Sizing guides are available at the shop.
-
-Emerald Lakers Basketball Club`,
-        priority: 'normal',
-        sentAt: '2024-01-25T09:00:00Z',
-        status: 'sent',
-        readBy: ['user123'],
-        attachments: [{ name: 'Shop Now', url: 'https://example.com/shop' }]
-      },
-      {
-        id: 'n5',
-        type: 'event',
-        subject: 'End of Season Presentation Night',
-        message: `Hi Lakers Families,
-
-Save the date for our End of Season Presentation Night!
-
-Date: Saturday, September 14th
-Time: 6:00 PM
-Venue: Emerald Community Hall
-
-More details to follow.
-
-Emerald Lakers Basketball Club`,
-        priority: 'normal',
-        sentAt: '2024-01-20T11:00:00Z',
-        status: 'sent',
-        readBy: []
-      }
-    ]);
-
-    // Sample scoring assignment
-    setScoringAssignments([
-      {
-        id: 'sa1',
-        gameId: 'g1',
-        teamId: 'u12-emerald',
-        parentId: currentUser?.uid,
-        status: 'pending',
-        gameDate: '2024-02-10',
-        opponent: 'Hawks',
-        venue: 'Emerald Indoor Courts'
-      }
-    ]);
-  }, [currentUser]);
+    return () => unsubSwap();
+  }, [currentUser?.uid]);
 
   // Get type icon
   const getTypeIcon = (type) => {
@@ -231,8 +178,12 @@ Emerald Lakers Basketball Club`,
       );
     }
 
-    // Sort by date (newest first)
-    return filtered.sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
+    // Sort by date (newest first) — handle Firestore Timestamps
+    return filtered.sort((a, b) => {
+      const da = a.sentAt?.toDate ? a.sentAt.toDate() : new Date(a.sentAt || 0);
+      const db2 = b.sentAt?.toDate ? b.sentAt.toDate() : new Date(b.sentAt || 0);
+      return db2 - da;
+    });
   }, [notifications, filter, searchTerm, currentUser]);
 
   // Unread count
@@ -254,8 +205,14 @@ Emerald Lakers Basketball Club`,
     }
   };
 
-  // Handle delete
-  const handleDelete = (notifId) => {
+  // Handle delete — mark as deleted in Firestore
+  const handleDelete = async (notifId) => {
+    try {
+      await updateDocument('notifications', notifId, { deletedBy: [...(notifications.find(n => n.id === notifId)?.deletedBy || []), currentUser?.uid] });
+    } catch (err) {
+      console.error('Error deleting notification:', err);
+    }
+    // Also remove from local state immediately for responsiveness
     setNotifications(prev => prev.filter(n => n.id !== notifId));
     setSelectedNotification(null);
   };
@@ -277,12 +234,10 @@ Emerald Lakers Basketball Club`,
       setSelectedNotification(prev => prev ? { ...prev, readBy: newReadBy } : prev);
     }
 
-    // Write to Firestore if the notification has a real ID (not sample data)
+    // Write to Firestore
     setTogglingRead(notif.id);
     try {
-      if (notif.id && !notif.id.startsWith('n')) {
-        await updateDocument('notifications', notif.id, { readBy: newReadBy });
-      }
+      await updateDocument('notifications', notif.id, { readBy: newReadBy });
     } catch (error) {
       console.error('Error updating read status:', error);
     } finally {
@@ -387,12 +342,12 @@ Emerald Lakers Basketball Club`,
         gameTime: gameData?.time,
         teamId: gameData?.teamId,
         assignmentId: selectedNotification.scoringAssignmentId,
-        requestingParentId: currentUser?.uid,
-        requestingParentName: userProfile?.name || userProfile?.displayName || 'Parent',
-        requestingParentEmail: userProfile?.email,
-        requestedParentId: swapTarget.id,
-        requestedParentName: swapTarget.name,
-        requestedParentEmail: swapTarget.email,
+        requestedById: currentUser?.uid,
+        requestedByName: userProfile?.name || userProfile?.displayName || 'Parent',
+        requestedByEmail: userProfile?.email,
+        swapToId: swapTarget.id,
+        swapToName: swapTarget.name,
+        swapToEmail: swapTarget.email,
         message: swapMessage.trim() || null,
         status: 'pending',
         requestedAt: new Date().toISOString(),
@@ -412,6 +367,13 @@ Emerald Lakers Basketball Club`,
         status: 'sent',
         swapRequestData: swapRequest
       });
+
+      // Update scoring assignment status in Firestore
+      if (selectedNotification.scoringAssignmentId) {
+        await updateDocument('scoring_assignments', selectedNotification.scoringAssignmentId, {
+          status: 'swap_requested'
+        });
+      }
 
       // Update assignment status
       if (assignment) {
@@ -449,13 +411,23 @@ Emerald Lakers Basketball Club`,
         });
       }
 
+      // Update the scoring assignment to reflect the new scorer
+      if (swap.assignmentId) {
+        await updateDocument('scoring_assignments', swap.assignmentId, {
+          assignedTo: currentUser.uid,
+          assignedName: userProfile?.name || userProfile?.displayName || 'Parent',
+          assignedEmail: userProfile?.email,
+          status: 'confirmed'
+        });
+      }
+
       // Send notification to requesting parent
       await addDocument('notifications', {
         type: 'info',
         subject: 'Swap Request Accepted',
         message: `${userProfile?.name || 'The parent'} has accepted your swap request for ${swap.gameName}. They will now handle scoring duty for this game.`,
         priority: 'normal',
-        targetAudience: { type: 'individual', userIds: [swap.requestingParentId] },
+        targetAudience: { type: 'individual', userIds: [swap.requestedById] },
         sentAt: new Date().toISOString(),
         status: 'sent'
       });
@@ -494,7 +466,7 @@ Emerald Lakers Basketball Club`,
         subject: 'Swap Request Declined',
         message: `${userProfile?.name || 'The parent'} has declined your swap request for ${swap.gameName}. You are still assigned to score for this game.`,
         priority: 'normal',
-        targetAudience: { type: 'individual', userIds: [swap.requestingParentId] },
+        targetAudience: { type: 'individual', userIds: [swap.requestedById] },
         sentAt: new Date().toISOString(),
         status: 'sent'
       });
@@ -519,7 +491,7 @@ Emerald Lakers Basketball Club`,
 
   // Format date
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = dateString?.toDate ? dateString.toDate() : new Date(dateString);
     const now = new Date();
     const diff = now - date;
 
@@ -711,7 +683,7 @@ Emerald Lakers Basketball Club`,
                     {NOTIFICATION_TYPE_CONFIG[selectedNotification.type]?.label}
                   </span>
                   <p className="text-xs text-gray-400">
-                    {new Date(selectedNotification.sentAt).toLocaleDateString('en-AU', {
+                    {(selectedNotification.sentAt?.toDate ? selectedNotification.sentAt.toDate() : new Date(selectedNotification.sentAt)).toLocaleDateString('en-AU', {
                       weekday: 'long',
                       day: 'numeric',
                       month: 'long',

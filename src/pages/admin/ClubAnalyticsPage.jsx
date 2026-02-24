@@ -224,10 +224,10 @@ const ClubAnalyticsPage = () => {
         <div className="grid grid-cols-2 gap-4">
           <MetricCard
             icon={Target}
-            label="Assessments"
+            label="Total Activity"
             value={analytics.totalAssessments}
             change={getChangeIndicator(analytics.assessmentChange)}
-            subtext={`vs previous ${timeRange}`}
+            subtext={`${analytics.skillAssessments} skill evals + ${analytics.matchAssessments} match days`}
           />
           <MetricCard
             icon={Award}
@@ -308,6 +308,7 @@ const ClubAnalyticsPage = () => {
           <h3 className="font-bold mb-4 flex items-center gap-2">
             <Users size={18} />
             Team Performance Comparison
+            <span className="text-xs font-normal text-gray-400">(Skill Evals)</span>
           </h3>
           {analytics.teamComparison.length > 0 ? (
             <div className="space-y-3">
