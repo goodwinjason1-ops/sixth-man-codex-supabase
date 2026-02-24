@@ -316,6 +316,15 @@ service cloud.firestore {
     }
 
     // ───────────────────────────────────────
+    // MVP VOTES
+    // ───────────────────────────────────────
+    match /mvp_votes/{voteId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
     // CATCH-ALL: DENY EVERYTHING ELSE
     // ───────────────────────────────────────
     match /{document=**} {

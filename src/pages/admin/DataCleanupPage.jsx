@@ -6,6 +6,7 @@ import {
   doc,
   deleteDoc,
   updateDoc,
+  writeBatch,
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../../services/firebase';
@@ -42,6 +43,68 @@ const DataCleanupPage = () => {
   const [detailDoc, setDetailDoc] = useState(null);
   const [dryRun, setDryRun] = useState(true);
   const [deleteProgress, setDeleteProgress] = useState(null); // { current, total, categoryId }
+  const [quickCleanup, setQuickCleanup] = useState({ running: false, done: false, results: null });
+
+  // One-time targeted cleanup for known orphaned data
+  const runQuickCleanup = async () => {
+    setQuickCleanup({ running: true, done: false, results: null });
+    let usersDeleted = 0, mvpDeleted = 0, notifsDeleted = 0;
+    const errors = [];
+
+    // 1. Delete known orphaned user accounts
+    const orphanIds = [
+      'TnMt2cRw1fZEye9i2MWhfTtlQf53',
+      '9e2Kg5TzjSQm6a8M7s6D2Wtmw7g1',
+      'D3Mzi8UbwRXvIPLZ2K1zDYqFmD43',
+    ];
+    for (const uid of orphanIds) {
+      try {
+        await deleteDoc(doc(db, 'users', uid));
+        usersDeleted++;
+      } catch (e) {
+        if (e.code !== 'not-found') errors.push(`user ${uid}: ${e.message}`);
+      }
+    }
+
+    // 2. Delete all mvp_votes
+    try {
+      const mvpSnap = await getDocs(collection(db, 'mvp_votes'));
+      if (mvpSnap.size > 0) {
+        const batch = writeBatch(db);
+        mvpSnap.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        mvpDeleted = mvpSnap.size;
+      }
+    } catch (e) {
+      errors.push(`mvp_votes: ${e.message}`);
+    }
+
+    // 3. Delete phantom notifications
+    try {
+      const notifSnap = await getDocs(collection(db, 'notifications'));
+      for (const ndoc of notifSnap.docs) {
+        const data = ndoc.data();
+        const recipientId = data.recipientId || data.targetId || '';
+        const title = data.title || data.subject || data.message || '';
+        if (recipientId === 'p3' || recipientId === 'p4' || title.includes('undefined')) {
+          try {
+            await deleteDoc(ndoc.ref);
+            notifsDeleted++;
+          } catch (e) {
+            errors.push(`notification ${ndoc.id}: ${e.message}`);
+          }
+        }
+      }
+    } catch (e) {
+      errors.push(`notifications scan: ${e.message}`);
+    }
+
+    setQuickCleanup({
+      running: false,
+      done: true,
+      results: { usersDeleted, mvpDeleted, notifsDeleted, errors }
+    });
+  };
 
   // Run the full scan
   const scanForIssues = async () => {
@@ -133,8 +196,64 @@ const DataCleanupPage = () => {
         }
       });
 
+      // --- Cross-collection orphan scan ---
+      const validUserIds = new Set(allUsers.map(u => u.id));
+      const playersSnapshot = await getDocs(collection(db, 'players'));
+      const validPlayerIds = new Set(playersSnapshot.docs.map(d => d.id));
+
+      // Evaluations referencing non-existent players
+      const evalsSnapshot = await getDocs(collection(db, 'evaluations'));
+      issues.orphanedEvals = [];
+      evalsSnapshot.docs.forEach(d => {
+        const data = d.data();
+        if (data.playerId && !validPlayerIds.has(data.playerId)) {
+          issues.orphanedEvals.push({
+            id: d.id, _collection: 'evaluations', ...data,
+            problem: `References non-existent player: ${data.playerId}`
+          });
+        }
+      });
+
+      // Notifications with all-phantom targetAudience userIds
+      const notifsSnapshot = await getDocs(collection(db, 'notifications'));
+      issues.phantomNotifs = [];
+      notifsSnapshot.docs.forEach(d => {
+        const data = d.data();
+        const ta = data.targetAudience;
+        if (ta && Array.isArray(ta.userIds) && ta.userIds.length > 0) {
+          const valid = ta.userIds.filter(id => validUserIds.has(id));
+          if (valid.length === 0) {
+            issues.phantomNotifs.push({
+              id: d.id, _collection: 'notifications', ...data,
+              problem: `All ${ta.userIds.length} target user(s) don't exist`
+            });
+          }
+        }
+      });
+
+      // Scoring assignments referencing non-existent users
+      const scoringSnapshot = await getDocs(collection(db, 'scoring_assignments'));
+      issues.orphanedScoring = [];
+      scoringSnapshot.docs.forEach(d => {
+        const data = d.data();
+        if (data.assignedTo && !validUserIds.has(data.assignedTo)) {
+          issues.orphanedScoring.push({
+            id: d.id, _collection: 'scoring_assignments', ...data,
+            problem: `Assigned to non-existent user: ${data.assignedTo}`
+          });
+        }
+      });
+
+      // Remaining mvp_votes (should be empty after cleanup)
+      const mvpSnapshot = await getDocs(collection(db, 'mvp_votes'));
+      issues.orphanedMvp = mvpSnapshot.docs.map(d => ({
+        id: d.id, _collection: 'mvp_votes', ...d.data(),
+        problem: 'Orphaned MVP vote'
+      }));
+
       setScanResults({
         totalUsers: allUsers.length,
+        totalPlayers: validPlayerIds.size,
         issues,
         scannedAt: new Date().toISOString()
       });
@@ -156,22 +275,26 @@ const DataCleanupPage = () => {
       issues.missingFields.length +
       issues.parentsNoChildren.length +
       issues.uidMismatch.length +
-      issues.orphanedDocs.length
+      issues.orphanedDocs.length +
+      (issues.orphanedEvals?.length || 0) +
+      (issues.phantomNotifs?.length || 0) +
+      (issues.orphanedScoring?.length || 0) +
+      (issues.orphanedMvp?.length || 0)
     );
   }, [scanResults]);
 
-  // Delete a single document
-  const deleteDocument = async (docId) => {
+  // Delete a single document from any collection
+  const deleteDocument = async (docId, collectionName = 'users') => {
     if (dryRun) {
-      setCleanupLog(prev => [...prev, { type: 'dry-run', message: `Would delete doc: ${docId}` }]);
+      setCleanupLog(prev => [...prev, { type: 'dry-run', message: `Would delete ${collectionName}/${docId}` }]);
       return true;
     }
     try {
-      await deleteDoc(doc(db, 'users', docId));
-      setCleanupLog(prev => [...prev, { type: 'success', message: `Deleted doc: ${docId}` }]);
+      await deleteDoc(doc(db, collectionName, docId));
+      setCleanupLog(prev => [...prev, { type: 'success', message: `Deleted ${collectionName}/${docId}` }]);
       return true;
     } catch (err) {
-      setCleanupLog(prev => [...prev, { type: 'error', message: `Failed to delete ${docId}: ${err.message}` }]);
+      setCleanupLog(prev => [...prev, { type: 'error', message: `Failed to delete ${collectionName}/${docId}: ${err.message}` }]);
       return false;
     }
   };
@@ -326,7 +449,7 @@ const DataCleanupPage = () => {
 
     for (let i = 0; i < docIds.length; i++) {
       setDeleteProgress({ current: i + 1, total, categoryId: cat.id });
-      const ok = await deleteDocument(docIds[i]);
+      const ok = await deleteDocument(docIds[i], cat._collection || 'users');
       if (ok) deleted++;
       else failed++;
     }
@@ -497,6 +620,87 @@ const DataCleanupPage = () => {
         details: d,
       }))
     },
+    // --- Cross-Collection Orphans ---
+    {
+      id: 'orphanedEvals',
+      label: 'Orphaned Evaluations',
+      icon: FileWarning,
+      color: 'text-purple-400',
+      bgColor: 'bg-purple-500/10',
+      count: (scanResults.issues.orphanedEvals || []).length,
+      description: 'Evaluations referencing non-existent players',
+      action: null,
+      actionLabel: null,
+      _collection: 'evaluations',
+      deleteLabel: `Delete All (${(scanResults.issues.orphanedEvals || []).length})`,
+      items: (scanResults.issues.orphanedEvals || []).map(d => ({
+        id: d.id,
+        _collection: 'evaluations',
+        label: d.playerName || d.playerId || d.id,
+        sublabel: d.problem,
+        details: d,
+      }))
+    },
+    {
+      id: 'phantomNotifs',
+      label: 'Phantom Notifications',
+      icon: AlertTriangle,
+      color: 'text-pink-400',
+      bgColor: 'bg-pink-500/10',
+      count: (scanResults.issues.phantomNotifs || []).length,
+      description: 'Notifications targeting only non-existent users',
+      action: null,
+      actionLabel: null,
+      _collection: 'notifications',
+      deleteLabel: `Delete All (${(scanResults.issues.phantomNotifs || []).length})`,
+      items: (scanResults.issues.phantomNotifs || []).map(d => ({
+        id: d.id,
+        _collection: 'notifications',
+        label: d.title || d.message || d.id,
+        sublabel: d.problem,
+        details: d,
+      }))
+    },
+    {
+      id: 'orphanedScoring',
+      label: 'Orphaned Scoring Assignments',
+      icon: UserX,
+      color: 'text-indigo-400',
+      bgColor: 'bg-indigo-500/10',
+      count: (scanResults.issues.orphanedScoring || []).length,
+      description: 'Scoring assignments referencing non-existent users',
+      action: null,
+      actionLabel: null,
+      _collection: 'scoring_assignments',
+      deleteLabel: `Delete All (${(scanResults.issues.orphanedScoring || []).length})`,
+      items: (scanResults.issues.orphanedScoring || []).map(d => ({
+        id: d.id,
+        _collection: 'scoring_assignments',
+        label: d.assignedName || d.assignedEmail || d.id,
+        sublabel: d.problem,
+        details: d,
+      }))
+    },
+    {
+      id: 'orphanedMvp',
+      label: 'Orphaned MVP Votes',
+      icon: AlertTriangle,
+      color: 'text-rose-400',
+      bgColor: 'bg-rose-500/10',
+      count: (scanResults.issues.orphanedMvp || []).length,
+      description: 'MVP vote documents (collection should be empty)',
+      action: null,
+      actionLabel: null,
+      _collection: 'mvp_votes',
+      deleteLabel: `Delete All (${(scanResults.issues.orphanedMvp || []).length})`,
+      items: (scanResults.issues.orphanedMvp || []).map(d => ({
+        id: d.id,
+        _collection: 'mvp_votes',
+        label: d.voterId || d.playerId || d.id,
+        sublabel: d.problem,
+        details: d,
+      }))
+    },
   ] : [];
 
   return (
@@ -537,6 +741,82 @@ const DataCleanupPage = () => {
       }
     >
       <div className="space-y-6">
+        {/* One-Time Quick Cleanup */}
+        <div className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-[#D4E4D4]/50">
+            <h3 className="text-gray-800 font-bold text-sm flex items-center gap-2">
+              <Trash2 size={16} className="text-rose-500" />
+              Quick Cleanup &mdash; Known Orphaned Data
+            </h3>
+            <p className="text-gray-400 text-xs mt-1">
+              Delete known test accounts, orphaned MVP votes, and phantom notifications in one click.
+            </p>
+          </div>
+          <div className="p-4">
+            {!quickCleanup.done ? (
+              <div className="space-y-3">
+                <div className="text-xs text-gray-500 space-y-1">
+                  <p>This will delete:</p>
+                  <ul className="list-disc list-inside ml-2 space-y-0.5">
+                    <li>3 orphaned user accounts (Frank Lewis, test mc test, Test)</li>
+                    <li>All documents in the <code className="bg-gray-100 px-1 rounded text-gray-700">mvp_votes</code> collection</li>
+                    <li>Notifications with phantom recipient IDs or &ldquo;undefined&rdquo; in the title</li>
+                  </ul>
+                </div>
+                <button
+                  onClick={() => setConfirmAction({
+                    type: 'quickCleanup',
+                    fn: runQuickCleanup,
+                    label: 'Run Quick Cleanup',
+                    description: 'This will permanently delete orphaned users, MVP votes, and phantom notifications from Firestore.'
+                  })}
+                  disabled={quickCleanup.running}
+                  className="flex items-center gap-2 px-4 py-2 bg-rose-500 text-white rounded-lg font-semibold text-sm hover:bg-rose-600 disabled:opacity-50 transition-colors"
+                >
+                  {quickCleanup.running ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Trash2 size={16} />
+                  )}
+                  {quickCleanup.running ? 'Cleaning...' : 'Run Quick Cleanup'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={18} className="text-green-500" />
+                  <span className="text-gray-800 font-medium text-sm">Cleanup Complete</span>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-gray-50 rounded-lg p-3 text-center">
+                    <p className="text-xl font-bold text-gray-800">{quickCleanup.results?.usersDeleted}</p>
+                    <p className="text-xs text-gray-500">Users Deleted</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3 text-center">
+                    <p className="text-xl font-bold text-gray-800">{quickCleanup.results?.mvpDeleted}</p>
+                    <p className="text-xs text-gray-500">MVP Votes Deleted</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3 text-center">
+                    <p className="text-xl font-bold text-gray-800">{quickCleanup.results?.notifsDeleted}</p>
+                    <p className="text-xs text-gray-500">Notifications Deleted</p>
+                  </div>
+                </div>
+                {quickCleanup.results?.errors?.length > 0 && (
+                  <div className="text-xs text-red-500 space-y-1">
+                    {quickCleanup.results.errors.map((e, i) => <p key={i}>Error: {e}</p>)}
+                  </div>
+                )}
+                <button
+                  onClick={() => setQuickCleanup({ running: false, done: false, results: null })}
+                  className="text-xs text-gray-400 hover:text-gray-600"
+                >
+                  Reset
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Dry Run Toggle */}
         <div className="flex items-center justify-between bg-white border border-[#D4E4D4] rounded-xl p-4">
           <div>
@@ -752,7 +1032,7 @@ const DataCleanupPage = () => {
                                 <button
                                   onClick={() => setConfirmAction({
                                     type: 'deleteSingle',
-                                    fn: () => deleteDocument(item.id),
+                                    fn: () => deleteDocument(item.id, item._collection || 'users'),
                                     label: `${dryRun ? '[DRY RUN] ' : ''}Delete document ${item.id}`
                                   })}
                                   disabled={cleaning}
@@ -821,7 +1101,7 @@ const DataCleanupPage = () => {
         {scanning && (
           <div className="text-center py-12">
             <Loader2 className="w-10 h-10 text-[#00A651] animate-spin mx-auto mb-3" />
-            <p className="text-gray-500 text-sm">Scanning Firestore users collection...</p>
+            <p className="text-gray-500 text-sm">Scanning Firestore collections for issues...</p>
           </div>
         )}
       </div>
@@ -837,16 +1117,16 @@ const DataCleanupPage = () => {
               <h3 className="text-gray-800 font-bold">Confirm Action</h3>
             </div>
             <p className="text-gray-700 text-sm mb-2">{confirmAction.label}</p>
-            {confirmAction.description && !dryRun && (
-              <p className="text-red-300 text-xs mb-4">{confirmAction.description}</p>
+            {confirmAction.description && (!dryRun || confirmAction.type === 'quickCleanup') && (
+              <p className="text-red-400 text-xs mb-4">{confirmAction.description}</p>
             )}
             {!confirmAction.description && !dryRun && (
-              <p className="text-red-300 text-xs mb-4">
+              <p className="text-red-400 text-xs mb-4">
                 This action will permanently modify Firestore data. This cannot be undone.
               </p>
             )}
-            {dryRun && (
-              <p className="text-blue-300 text-xs mb-4">
+            {dryRun && confirmAction.type !== 'quickCleanup' && (
+              <p className="text-blue-400 text-xs mb-4">
                 Dry run mode — no data will be changed. Results will appear in the activity log.
               </p>
             )}
@@ -864,12 +1144,12 @@ const DataCleanupPage = () => {
                   await fn();
                 }}
                 className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
-                  dryRun
+                  dryRun && confirmAction.type !== 'quickCleanup'
                     ? 'bg-[#005028] text-white hover:bg-[#00A651]'
                     : 'bg-red-500 text-white hover:bg-red-600'
                 }`}
               >
-                {dryRun ? 'Preview' : 'Confirm'}
+                {dryRun && confirmAction.type !== 'quickCleanup' ? 'Preview' : 'Confirm'}
               </button>
             </div>
           </div>
