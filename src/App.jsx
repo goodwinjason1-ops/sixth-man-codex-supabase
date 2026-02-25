@@ -551,7 +551,7 @@ const AppRoutes = () => {
         <Route
           path="/admin/schedule"
           element={
-            <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
+            <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
               <ErrorBoundary fallbackMessage="Unable to load schedule management.">
                 <ScheduleManagementPage />
               </ErrorBoundary>

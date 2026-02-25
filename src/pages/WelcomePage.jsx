@@ -232,6 +232,13 @@ const WelcomePage = () => {
           description: 'Create and manage plans'
         },
         {
+          id: 'schedule',
+          title: 'Schedule',
+          icon: Calendar,
+          path: '/admin/schedule',
+          description: 'Games and training'
+        },
+        {
           id: 'profile',
           title: 'My Profile',
           icon: User,
