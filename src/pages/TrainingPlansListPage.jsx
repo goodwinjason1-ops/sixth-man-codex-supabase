@@ -30,7 +30,7 @@ import { toJsDate, formatDateShortAU } from '../utils/dateUtils';
 
 const TrainingPlansListPage = () => {
   const navigate = useNavigate();
-  const { currentUser, userProfile, trainingPlans: firestorePlans, teams: firestoreTeams, games, schedule, deleteDocument, updateDocument, setDocument, loading: dataLoading } = useFilteredData();
+  const { currentUser, userProfile, trainingPlans: firestorePlans, teams: firestoreTeams, games, deleteDocument, updateDocument, setDocument, loading: dataLoading } = useFilteredData();
 
   // Seed templates into Firestore on first load (deterministic IDs prevent duplicates)
   const [seeded, setSeeded] = useState(false);
@@ -122,37 +122,26 @@ const TrainingPlansListPage = () => {
   const [schedulePlanId, setSchedulePlanId] = useState(null);
 
   // Upcoming training events that don't already have a plan linked
-  // Check both `games` (type=training) and `schedule` (type=training/practice) collections
+  // All schedule data (games + training) lives in the `games` collection
   const upcomingTrainings = useMemo(() => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    const trainingTypes = ['training', 'Training', 'practice', 'Practice'];
     const results = [];
 
-    // Check games collection
+    console.log('[TrainingPlans] games collection count:', (games || []).length);
+
     if (games && games.length > 0) {
-      games.forEach(g => {
-        if (!trainingTypes.includes(g.type)) return;
+      const trainingEntries = games.filter(g => g.type === 'training');
+      console.log('[TrainingPlans] type=training count:', trainingEntries.length);
+
+      trainingEntries.forEach(g => {
         if (g.trainingPlanId) return;
         const d = toJsDate(g.date);
-        if (d && d >= now) results.push({ ...g, _source: 'games' });
+        if (d && d >= now) results.push(g);
       });
     }
 
-    // Check schedule collection
-    if (schedule && schedule.length > 0) {
-      schedule.forEach(s => {
-        if (!trainingTypes.includes(s.type)) return;
-        if (s.trainingPlanId) return;
-        const d = toJsDate(s.date);
-        if (d && d >= now) {
-          // Avoid duplicates if same event is in both collections
-          if (!results.find(r => r.id === s.id)) {
-            results.push({ ...s, _source: 'schedule' });
-          }
-        }
-      });
-    }
+    console.log('[TrainingPlans] upcoming unlinked training sessions:', results.length);
 
     results.sort((a, b) => {
       const da = toJsDate(a.date);
@@ -161,7 +150,7 @@ const TrainingPlansListPage = () => {
     });
 
     return results.slice(0, 10);
-  }, [games, schedule]);
+  }, [games]);
 
   // Filter helper applied to each section
   const { filteredTemplates, filteredShared, filteredMyPlans } = useMemo(() => {
@@ -862,8 +851,7 @@ const TrainingPlansListPage = () => {
                       key={event.id}
                       onClick={async () => {
                         try {
-                          const targetCollection = event._source === 'schedule' ? 'schedule' : 'games';
-                          await updateDocument(targetCollection, event.id, { trainingPlanId: schedulePlanId });
+                          await updateDocument('games', event.id, { trainingPlanId: schedulePlanId });
                           setSchedulePlanId(null);
                         } catch (err) {
                           console.error('Error linking plan to schedule:', err);
