@@ -123,25 +123,54 @@ const TrainingPlansListPage = () => {
 
   // Upcoming training events that don't already have a plan linked
   // All schedule data (games + training) lives in the `games` collection
+  const debugInfo = useMemo(() => ({ gamesCount: 0, trainingCount: 0, futureUnlinked: 0, allTypes: [] }), []);
   const upcomingTrainings = useMemo(() => {
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
+    // Compare using YYYY-MM-DD strings to avoid UTC vs local timezone issues
+    const todayStr = new Date().toISOString().split('T')[0]; // "2026-02-25"
     const results = [];
 
-    console.log('[TrainingPlans] games collection count:', (games || []).length);
+    const gamesArr = games || [];
+    debugInfo.gamesCount = gamesArr.length;
 
-    if (games && games.length > 0) {
-      const trainingEntries = games.filter(g => g.type === 'training');
+    // Log every game's type + date for diagnosis
+    console.log('[TrainingPlans] === DEBUG START ===');
+    console.log('[TrainingPlans] games received:', gamesArr.length);
+    console.log('[TrainingPlans] todayStr:', todayStr);
+
+    if (gamesArr.length > 0) {
+      // Collect all unique types for debug
+      const typeSet = new Set(gamesArr.map(g => g.type || '(undefined)'));
+      debugInfo.allTypes = [...typeSet];
+      console.log('[TrainingPlans] all types in games:', [...typeSet]);
+
+      // Log first 10 games for quick inspection
+      gamesArr.slice(0, 10).forEach((g, i) => {
+        console.log(`[TrainingPlans] game[${i}]: id=${g.id}, type=${g.type}, date=${JSON.stringify(g.date)}, trainingPlanId=${g.trainingPlanId || 'none'}`);
+      });
+
+      // Filter: type is 'training' (case-insensitive)
+      const trainingEntries = gamesArr.filter(g => (g.type || '').toLowerCase() === 'training');
+      debugInfo.trainingCount = trainingEntries.length;
       console.log('[TrainingPlans] type=training count:', trainingEntries.length);
 
       trainingEntries.forEach(g => {
-        if (g.trainingPlanId) return;
+        if (g.trainingPlanId) {
+          console.log(`[TrainingPlans] SKIP (already linked): ${g.id}, planId=${g.trainingPlanId}`);
+          return;
+        }
+        // Convert date to comparable string
         const d = toJsDate(g.date);
-        if (d && d >= now) results.push(g);
+        const dateStr = d ? d.toISOString().split('T')[0] : null;
+        console.log(`[TrainingPlans] checking: id=${g.id}, dateRaw=${JSON.stringify(g.date)}, parsed=${d}, dateStr=${dateStr}, today=${todayStr}, future=${dateStr >= todayStr}`);
+        if (dateStr && dateStr >= todayStr) {
+          results.push(g);
+        }
       });
     }
 
+    debugInfo.futureUnlinked = results.length;
     console.log('[TrainingPlans] upcoming unlinked training sessions:', results.length);
+    console.log('[TrainingPlans] === DEBUG END ===');
 
     results.sort((a, b) => {
       const da = toJsDate(a.date);
@@ -150,7 +179,7 @@ const TrainingPlansListPage = () => {
     });
 
     return results.slice(0, 10);
-  }, [games]);
+  }, [games, debugInfo]);
 
   // Filter helper applied to each section
   const { filteredTemplates, filteredShared, filteredMyPlans } = useMemo(() => {
@@ -841,6 +870,14 @@ const TrainingPlansListPage = () => {
                   <p className="text-[#6B7C6B] text-xs mt-1">
                     Add training events in Schedule Management first.
                   </p>
+                  <div className="mt-3 p-2 bg-yellow-50 border border-yellow-300 rounded-lg text-left">
+                    <p className="text-yellow-800 text-[10px] font-mono font-bold">DEBUG INFO:</p>
+                    <p className="text-yellow-700 text-[10px] font-mono">games count: {debugInfo.gamesCount}</p>
+                    <p className="text-yellow-700 text-[10px] font-mono">type=training: {debugInfo.trainingCount}</p>
+                    <p className="text-yellow-700 text-[10px] font-mono">future unlinked: {debugInfo.futureUnlinked}</p>
+                    <p className="text-yellow-700 text-[10px] font-mono">all types: {debugInfo.allTypes.join(', ') || 'none'}</p>
+                    <p className="text-yellow-700 text-[10px] font-mono">today: {new Date().toISOString().split('T')[0]}</p>
+                  </div>
                 </div>
               ) : (
                 upcomingTrainings.map(event => {
