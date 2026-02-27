@@ -239,6 +239,13 @@ const WelcomePage = () => {
           description: 'Create and manage plans'
         },
         {
+          id: 'record-training',
+          title: 'Record Training',
+          icon: ClipboardCheck,
+          path: '/coach/schedule',
+          description: 'Log attendance & notes'
+        },
+        {
           id: 'schedule',
           title: 'My Schedule',
           icon: Calendar,

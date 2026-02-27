@@ -108,27 +108,20 @@ const TrainingPlansListPage = () => {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [schedulePlanId, setSchedulePlanId] = useState(null);
 
-  // Upcoming training events that don't already have a plan linked
-  // All schedule data (games + training) lives in the `games` collection
-  // Filter by coach's assigned teams so they only see their own sessions
+  // Future training sessions — include ALL (even already-linked) for the scheduling dialog
+  // Already-linked sessions are shown greyed-out so the coach can see the full picture
   const upcomingTrainings = useMemo(() => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     const results = [];
     const gamesArr = games || [];
-    const teamIdSet = new Set(userTeamIds || []);
 
-    if (gamesArr.length > 0) {
-      gamesArr.forEach(g => {
-        if ((g.type || '').toLowerCase() !== 'training') return;
-        if (g.trainingPlanId) return;
-        // Only show sessions for the coach's assigned teams
-        if (teamIdSet.size > 0 && !teamIdSet.has(g.teamId)) return;
-        const d = toJsDate(g.date);
-        if (!d || d < now) return;
-        results.push(g);
-      });
-    }
+    gamesArr.forEach(g => {
+      if ((g.type || '').toLowerCase() !== 'training') return;
+      const d = toJsDate(g.date);
+      if (!d || d < now) return;
+      results.push({ ...g, _isLinked: !!g.trainingPlanId });
+    });
 
     results.sort((a, b) => {
       const da = toJsDate(a.date);
@@ -137,7 +130,7 @@ const TrainingPlansListPage = () => {
     });
 
     return results;
-  }, [games, userTeamIds]);
+  }, [games]);
 
   // Filter helper applied to each section
   const { filteredTemplates, filteredShared, filteredMyPlans } = useMemo(() => {
@@ -869,14 +862,37 @@ const TrainingPlansListPage = () => {
                 upcomingTrainings.map(event => {
                   const eventDate = toJsDate(event.date);
                   const teamName = teamsList.find(t => t.id === event.teamId)?.name || event.teamName || 'Unknown Team';
+                  const isLinked = event._isLinked;
+                  const linkedPlanName = isLinked
+                    ? (allPlans.find(p => p.id === event.trainingPlanId)?.name || 'Another plan')
+                    : null;
+
+                  if (isLinked) {
+                    return (
+                      <div
+                        key={event.id}
+                        className="w-full text-left bg-gray-50 border border-gray-200 rounded-xl p-3 opacity-60"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-gray-500 font-medium text-sm">
+                              {eventDate ? formatDateShortAU(eventDate) : 'Unknown date'}
+                            </p>
+                            <p className="text-gray-400 text-xs">{teamName}</p>
+                            <p className="text-gray-400 text-[10px] mt-0.5">Linked to: {linkedPlanName}</p>
+                          </div>
+                          <span className="text-[10px] text-gray-400 bg-gray-200 px-2 py-0.5 rounded-full">Linked</span>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <button
                       key={event.id}
                       onClick={async () => {
                         try {
-                          // Link the plan to the training session
                           await updateDocument('games', event.id, { trainingPlanId: schedulePlanId });
-                          // Update the plan's date to reflect the linked session date
                           const sessionDate = toJsDate(event.date);
                           if (sessionDate) {
                             const dateStr = sessionDate.toISOString().split('T')[0];

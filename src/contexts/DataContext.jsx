@@ -22,7 +22,8 @@ const DataContext = createContext();
 // All collection keys for loading/error tracking
 const COLLECTION_KEYS = [
   'players', 'skills', 'evaluations', 'games', 'attendance',
-  'trainingNotes', 'schedule', 'notifications', 'teams', 'trainingPlans'
+  'trainingNotes', 'schedule', 'notifications', 'teams', 'trainingPlans',
+  'trainingRecords'
 ];
 
 const initialLoadingStates = Object.fromEntries(COLLECTION_KEYS.map(k => [k, true]));
@@ -48,6 +49,7 @@ export const DataProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [teams, setTeams] = useState([]);
   const [trainingPlans, setTrainingPlans] = useState([]);
+  const [trainingRecords, setTrainingRecords] = useState([]);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pendingSync, setPendingSync] = useState([]);
 
@@ -339,6 +341,22 @@ export const DataProvider = ({ children }) => {
       })
     );
 
+    // Training Records
+    const trainingRecordsQuery = query(collection(db, 'training_records'));
+    unsubscribers.push(
+      onSnapshot(trainingRecordsQuery, async (snapshot) => {
+        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        setTrainingRecords(data);
+        markLoaded('trainingRecords');
+        await dbService.setAll('trainingRecords', data);
+      }, async (error) => {
+        console.error('Training records snapshot error:', error.code, error.message);
+        markError('trainingRecords', error.code || 'unknown');
+        const offlineData = await dbService.getAll('trainingRecords');
+        setTrainingRecords(offlineData || []);
+      })
+    );
+
     // NO synchronous setLoading(false) here — loading is derived from loadingStates
 
     return () => {
@@ -478,6 +496,7 @@ export const DataProvider = ({ children }) => {
     notifications,
     teams,
     trainingPlans,
+    trainingRecords,
     loading,
     loadingStates,
     errors,

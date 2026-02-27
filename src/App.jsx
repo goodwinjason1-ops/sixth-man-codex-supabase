@@ -97,8 +97,9 @@ const YouthCoachPage = lazy(() => import('./pages/YouthCoachPage'));
 const SessionSummaryForm = lazy(() => import('./pages/youth/SessionSummaryForm'));
 const SessionSummaryHistory = lazy(() => import('./pages/youth/SessionSummaryHistory'));
 
-// Coach schedule (read-only)
+// Coach schedule (read-only) + training recording
 const CoachSchedulePage = lazy(() => import('./pages/CoachSchedulePage'));
+const RecordTrainingPage = lazy(() => import('./pages/coach/RecordTrainingPage'));
 
 // Parent chunk
 const ParentDashboard = lazy(() => import('./pages/ParentDashboard'));
@@ -246,6 +247,17 @@ const AppRoutes = () => {
             <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
               <ErrorBoundary fallbackMessage="Unable to load schedule.">
                 <CoachSchedulePage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/coach/training-session/:gameId"
+          element={
+            <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load training session.">
+                <RecordTrainingPage />
               </ErrorBoundary>
             </ProtectedRoute>
           }

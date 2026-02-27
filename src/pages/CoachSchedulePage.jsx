@@ -12,8 +12,10 @@ import {
   Dumbbell,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
   AlertCircle,
   FileText,
+  ClipboardList,
 } from 'lucide-react';
 
 const CoachSchedulePage = () => {
@@ -91,64 +93,87 @@ const CoachSchedulePage = () => {
 
   const renderEvent = (event) => {
     const isGame = (event.type || 'game') === 'game';
+    const isTraining = !isGame;
     const teamDoc = teams.find(t => t.id === event.teamId);
     const teamLabel = teamDoc?.name || event.teamName || '';
     const linkedPlan = event.trainingPlanId ? planMap[event.trainingPlanId] : null;
 
+    const card = (
+      <div className="flex items-start gap-3">
+        <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
+          isGame ? 'bg-[#FFD700]/20' : 'bg-blue-100'
+        }`}>
+          {isGame ? (
+            <Trophy className="w-4 h-4 text-[#FFD700]" />
+          ) : (
+            <Dumbbell className="w-4 h-4 text-blue-500" />
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+              isGame
+                ? 'bg-[#FFD700]/20 text-[#B8860B]'
+                : 'bg-blue-100 text-blue-700'
+            }`}>
+              {isGame ? 'Game' : 'Training'}
+            </span>
+            {isTraining && (
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#00A651]/15 text-[#00A651]">
+                <ClipboardList className="w-3 h-3 inline mr-0.5" />
+                Record
+              </span>
+            )}
+            {teamLabel && (
+              <span className="text-xs text-[#6B7C6B] truncate">{teamLabel}</span>
+            )}
+          </div>
+          <p className="text-gray-800 font-medium text-sm">
+            {event.opponent ? `vs ${event.opponent}` : event.title || (isGame ? 'Game Day' : 'Training Session')}
+          </p>
+          <div className="flex flex-wrap items-center gap-3 text-xs text-[#6B7C6B] mt-1">
+            {event.time && (
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {event.time}
+              </span>
+            )}
+            {event.venue && (
+              <span className="flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                {event.venue}
+              </span>
+            )}
+          </div>
+          {linkedPlan && (
+            <div className="mt-1.5 flex items-center gap-1.5 text-xs text-[#00A651]">
+              <FileText className="w-3 h-3" />
+              Plan: {linkedPlan.name}
+            </div>
+          )}
+        </div>
+        {isTraining && (
+          <ChevronRight className="w-5 h-5 text-[#6B7C6B] flex-shrink-0 mt-2" />
+        )}
+      </div>
+    );
+
+    // Training sessions navigate to record page; games are display-only
+    if (isTraining) {
+      return (
+        <button
+          key={event.id}
+          onClick={() => navigate(`/coach/training-session/${event.id}`)}
+          className="w-full text-left bg-[#F5F9F5] rounded-lg p-3 hover:border-[#00A651] border border-transparent transition-colors"
+        >
+          {card}
+        </button>
+      );
+    }
+
     return (
       <div key={event.id} className="bg-[#F5F9F5] rounded-lg p-3">
-        <div className="flex items-start gap-3">
-          <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
-            isGame ? 'bg-[#FFD700]/20' : 'bg-blue-100'
-          }`}>
-            {isGame ? (
-              <Trophy className="w-4 h-4 text-[#FFD700]" />
-            ) : (
-              <Dumbbell className="w-4 h-4 text-blue-500" />
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                isGame
-                  ? 'bg-[#FFD700]/20 text-[#B8860B]'
-                  : 'bg-blue-100 text-blue-700'
-              }`}>
-                {isGame ? 'Game' : 'Training'}
-              </span>
-              {teamLabel && (
-                <span className="text-xs text-[#6B7C6B] truncate">{teamLabel}</span>
-              )}
-            </div>
-            <p className="text-gray-800 font-medium text-sm">
-              {event.opponent ? `vs ${event.opponent}` : event.title || (isGame ? 'Game Day' : 'Training Session')}
-            </p>
-            <div className="flex flex-wrap items-center gap-3 text-xs text-[#6B7C6B] mt-1">
-              {event.time && (
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {event.time}
-                </span>
-              )}
-              {event.venue && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
-                  {event.venue}
-                </span>
-              )}
-            </div>
-            {/* Show linked training plan for training sessions */}
-            {linkedPlan && (
-              <button
-                onClick={() => navigate(`/coach/training-plans/${linkedPlan.id}`)}
-                className="mt-2 flex items-center gap-1.5 text-xs text-[#00A651] hover:underline"
-              >
-                <FileText className="w-3 h-3" />
-                Plan: {linkedPlan.name}
-              </button>
-            )}
-          </div>
-        </div>
+        {card}
       </div>
     );
   };
