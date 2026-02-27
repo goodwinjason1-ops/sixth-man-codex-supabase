@@ -141,13 +141,28 @@ const ClubAnalyticsPage = () => {
     const teamStats = {};
     const teamList = teams?.length ? teams : [];
 
+    // Debug: log team/player matching info
+    console.log('[ClubAnalytics] teams:', teamList.map(t => ({ id: t.id, name: t.name, ageGroup: t.ageGroup })));
+    console.log('[ClubAnalytics] players sample:', (players || []).slice(0, 5).map(p => ({ id: p.id, name: p.name || p.displayName, teamId: p.teamId, ageGroup: p.ageGroup })));
+
     teamList.forEach(team => {
       const teamId = team.id;
       const teamName = team.name || team;
-      const teamPlayers = players.filter(p => {
+      let teamPlayers = players.filter(p => {
         const pTeams = p.teamIds || (p.teamId ? [p.teamId] : []);
         return pTeams.includes(teamId);
       });
+
+      // Fallback: if no players matched via teamId, try matching by ageGroup
+      if (teamPlayers.length === 0 && team.ageGroup) {
+        teamPlayers = players.filter(p => {
+          const pAgeGroup = (p.ageGroup || '').toUpperCase();
+          return pAgeGroup === (team.ageGroup || '').toUpperCase();
+        });
+        if (teamPlayers.length > 0) {
+          console.log(`[ClubAnalytics] ${teamName}: used ageGroup fallback, found ${teamPlayers.length} players`);
+        }
+      }
       const teamEvals = recentEvals.filter(e =>
         teamPlayers.some(p => p.id === e.playerId)
       );

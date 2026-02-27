@@ -53,12 +53,12 @@ const getTimeMinutes = (timeStr) => {
  * @returns {Object} Game day detection result
  */
 export const useGameDayDetection = () => {
-  const { schedule, loading: dataLoading } = useData();
+  const { games, loading: dataLoading } = useData();
   const { userProfile, loading: authLoading } = useAuth();
 
   // Determine if we're still waiting for data
   const isDataReady = !dataLoading && !authLoading && userProfile !== null;
-  const hasScheduleData = schedule && schedule.length > 0;
+  const hasScheduleData = games && games.length > 0;
 
   // Debug logging
   useEffect(() => {
@@ -67,11 +67,11 @@ export const useGameDayDetection = () => {
       dataLoading,
       userProfileReady: !!userProfile,
       userRole: userProfile?.role,
-      scheduleCount: schedule?.length || 0,
+      gamesCount: games?.length || 0,
       isDataReady,
       hasScheduleData
     });
-  }, [authLoading, dataLoading, userProfile, schedule, isDataReady, hasScheduleData]);
+  }, [authLoading, dataLoading, userProfile, games, isDataReady, hasScheduleData]);
 
   const result = useMemo(() => {
     // Still loading - return loading state
@@ -87,9 +87,9 @@ export const useGameDayDetection = () => {
       };
     }
 
-    // Data ready but no schedule
+    // Data ready but no games
     if (!hasScheduleData) {
-      console.log('[GameDay] No schedule data available');
+      console.log('[GameDay] No games data available');
       return {
         isGameDay: false,
         todaysGames: [],
@@ -120,7 +120,7 @@ export const useGameDayDetection = () => {
     console.log('[GameDay] Filtering games for teams:', coachTeams || 'ALL (admin)');
 
     // Filter for today's scheduled games
-    const todaysGames = schedule.filter(game => {
+    const todaysGames = games.filter(game => {
       // Must be a game (not training)
       if (game.type && game.type !== 'game') return false;
 
@@ -165,7 +165,7 @@ export const useGameDayDetection = () => {
       loading: false,
       dataReady: true
     };
-  }, [schedule, isDataReady, hasScheduleData, userProfile, authLoading, dataLoading]);
+  }, [games, isDataReady, hasScheduleData, userProfile, authLoading, dataLoading]);
 
   return result;
 };

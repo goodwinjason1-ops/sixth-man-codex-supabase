@@ -48,6 +48,9 @@ const DataCleanupPage = () => {
   const [seedingTemplates, setSeedingTemplates] = useState({ running: false, done: false, results: null });
   const [forceDelete, setForceDelete] = useState({ collection: 'notifications', docId: '', running: false, result: null });
   const [scoringCleanup, setScoringCleanup] = useState({ running: false, done: false, results: null });
+  const [notifCleanup, setNotifCleanup] = useState({ running: false, done: false, results: null });
+  const [scheduleCleanup, setScheduleCleanup] = useState({ running: false, done: false, results: null });
+  const [trainingLinkCleanup, setTrainingLinkCleanup] = useState({ running: false, done: false, results: null });
 
   // One-time targeted cleanup for known orphaned data
   const runQuickCleanup = async () => {
@@ -145,6 +148,75 @@ const DataCleanupPage = () => {
       done: true,
       results: { assignmentsDeleted, swapsDeleted, errors }
     });
+  };
+
+  // Clear all notifications from Firestore
+  const runNotifCleanup = async () => {
+    setNotifCleanup({ running: true, done: false, results: null });
+    let deleted = 0;
+    const errors = [];
+    try {
+      const snap = await getDocs(collection(db, 'notifications'));
+      if (snap.size > 0) {
+        // writeBatch has a 500 doc limit, so chunk if needed
+        const docs = snap.docs;
+        for (let i = 0; i < docs.length; i += 400) {
+          const batch = writeBatch(db);
+          docs.slice(i, i + 400).forEach(d => batch.delete(d.ref));
+          await batch.commit();
+          deleted += Math.min(400, docs.length - i);
+        }
+      }
+    } catch (e) {
+      errors.push(`notifications: ${e.message}`);
+    }
+    setNotifCleanup({ running: false, done: true, results: { deleted, errors } });
+  };
+
+  // Clear all documents in the deprecated schedule collection
+  const runScheduleCleanup = async () => {
+    setScheduleCleanup({ running: true, done: false, results: null });
+    let deleted = 0;
+    const errors = [];
+    try {
+      const snap = await getDocs(collection(db, 'schedule'));
+      if (snap.size > 0) {
+        const docs = snap.docs;
+        for (let i = 0; i < docs.length; i += 400) {
+          const batch = writeBatch(db);
+          docs.slice(i, i + 400).forEach(d => batch.delete(d.ref));
+          await batch.commit();
+          deleted += Math.min(400, docs.length - i);
+        }
+      }
+    } catch (e) {
+      errors.push(`schedule: ${e.message}`);
+    }
+    setScheduleCleanup({ running: false, done: true, results: { deleted, errors } });
+  };
+
+  // Clear all trainingPlanId links from games collection
+  const runTrainingLinkCleanup = async () => {
+    setTrainingLinkCleanup({ running: true, done: false, results: null });
+    let cleared = 0;
+    const errors = [];
+    try {
+      const snap = await getDocs(collection(db, 'games'));
+      for (const gameDoc of snap.docs) {
+        const data = gameDoc.data();
+        if (data.trainingPlanId) {
+          try {
+            await updateDoc(doc(db, 'games', gameDoc.id), { trainingPlanId: '' });
+            cleared++;
+          } catch (e) {
+            errors.push(`game ${gameDoc.id}: ${e.message}`);
+          }
+        }
+      }
+    } catch (e) {
+      errors.push(`games scan: ${e.message}`);
+    }
+    setTrainingLinkCleanup({ running: false, done: true, results: { cleared, errors } });
   };
 
   // Seed 6 training plan templates into Firestore
@@ -898,67 +970,60 @@ const DataCleanupPage = () => {
             </p>
           </div>
           <div className="p-4">
-            {!quickCleanup.done ? (
-              <div className="space-y-3">
-                <div className="text-xs text-gray-500 space-y-1">
-                  <p>This will delete:</p>
-                  <ul className="list-disc list-inside ml-2 space-y-0.5">
-                    <li>3 orphaned user accounts (Frank Lewis, test mc test, Test)</li>
-                    <li>All documents in the <code className="bg-gray-100 px-1 rounded text-gray-700">mvp_votes</code> collection</li>
-                    <li>Notifications with phantom recipient IDs or &ldquo;undefined&rdquo; in the title</li>
-                  </ul>
-                </div>
-                <button
-                  onClick={() => setConfirmAction({
-                    type: 'quickCleanup',
-                    fn: runQuickCleanup,
-                    label: 'Run Quick Cleanup',
-                    description: 'This will permanently delete orphaned users, MVP votes, and phantom notifications from Firestore.'
-                  })}
-                  disabled={quickCleanup.running}
-                  className="flex items-center gap-2 px-4 py-2 bg-rose-500 text-white rounded-lg font-semibold text-sm hover:bg-rose-600 disabled:opacity-50 transition-colors"
-                >
-                  {quickCleanup.running ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <Trash2 size={16} />
+            <div className="space-y-3">
+              <div className="text-xs text-gray-500 space-y-1">
+                <p>This will delete:</p>
+                <ul className="list-disc list-inside ml-2 space-y-0.5">
+                  <li>3 orphaned user accounts (Frank Lewis, test mc test, Test)</li>
+                  <li>All documents in the <code className="bg-gray-100 px-1 rounded text-gray-700">mvp_votes</code> collection</li>
+                  <li>Notifications with phantom recipient IDs or &ldquo;undefined&rdquo; in the title</li>
+                </ul>
+              </div>
+              {quickCleanup.done && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={18} className="text-green-500" />
+                    <span className="text-gray-800 font-medium text-sm">Cleanup Complete</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-gray-50 rounded-lg p-3 text-center">
+                      <p className="text-xl font-bold text-gray-800">{quickCleanup.results?.usersDeleted}</p>
+                      <p className="text-xs text-gray-500">Users Deleted</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3 text-center">
+                      <p className="text-xl font-bold text-gray-800">{quickCleanup.results?.mvpDeleted}</p>
+                      <p className="text-xs text-gray-500">MVP Votes Deleted</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3 text-center">
+                      <p className="text-xl font-bold text-gray-800">{quickCleanup.results?.notifsDeleted}</p>
+                      <p className="text-xs text-gray-500">Notifications Deleted</p>
+                    </div>
+                  </div>
+                  {quickCleanup.results?.errors?.length > 0 && (
+                    <div className="text-xs text-red-500 space-y-1">
+                      {quickCleanup.results.errors.map((e, i) => <p key={i}>Error: {e}</p>)}
+                    </div>
                   )}
-                  {quickCleanup.running ? 'Cleaning...' : 'Run Quick Cleanup'}
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 size={18} className="text-green-500" />
-                  <span className="text-gray-800 font-medium text-sm">Cleanup Complete</span>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <p className="text-xl font-bold text-gray-800">{quickCleanup.results?.usersDeleted}</p>
-                    <p className="text-xs text-gray-500">Users Deleted</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <p className="text-xl font-bold text-gray-800">{quickCleanup.results?.mvpDeleted}</p>
-                    <p className="text-xs text-gray-500">MVP Votes Deleted</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <p className="text-xl font-bold text-gray-800">{quickCleanup.results?.notifsDeleted}</p>
-                    <p className="text-xs text-gray-500">Notifications Deleted</p>
-                  </div>
-                </div>
-                {quickCleanup.results?.errors?.length > 0 && (
-                  <div className="text-xs text-red-500 space-y-1">
-                    {quickCleanup.results.errors.map((e, i) => <p key={i}>Error: {e}</p>)}
-                  </div>
+              )}
+              <button
+                onClick={() => setConfirmAction({
+                  type: 'quickCleanup',
+                  fn: runQuickCleanup,
+                  label: 'Run Quick Cleanup',
+                  description: 'This will permanently delete orphaned users, MVP votes, and phantom notifications from Firestore.'
+                })}
+                disabled={quickCleanup.running}
+                className="flex items-center gap-2 px-4 py-2 bg-rose-500 text-white rounded-lg font-semibold text-sm hover:bg-rose-600 disabled:opacity-50 transition-colors"
+              >
+                {quickCleanup.running ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Trash2 size={16} />
                 )}
-                <button
-                  onClick={() => setQuickCleanup({ running: false, done: false, results: null })}
-                  className="text-xs text-gray-400 hover:text-gray-600"
-                >
-                  Reset
-                </button>
-              </div>
-            )}
+                {quickCleanup.running ? 'Cleaning...' : 'Run Quick Cleanup'}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -974,62 +1039,194 @@ const DataCleanupPage = () => {
             </p>
           </div>
           <div className="p-4">
-            {!scoringCleanup.done ? (
-              <div className="space-y-3">
-                <div className="text-xs text-gray-500 space-y-0.5">
-                  <p>This will delete all documents in:</p>
-                  <ul className="list-disc list-inside ml-2 space-y-0.5">
-                    <li><code className="bg-gray-100 px-1 rounded text-gray-700">scoring_assignments</code></li>
-                    <li><code className="bg-gray-100 px-1 rounded text-gray-700">swap_requests</code></li>
-                  </ul>
-                </div>
-                <button
-                  onClick={() => setConfirmAction({
-                    type: 'scoringCleanup',
-                    fn: runScoringCleanup,
-                    label: 'Clear All Scoring Data',
-                    description: 'This will permanently delete ALL scoring assignments and swap requests from Firestore. They will need to be re-created.'
-                  })}
-                  disabled={scoringCleanup.running}
-                  className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg font-semibold text-sm hover:bg-orange-600 disabled:opacity-50 transition-colors"
-                >
-                  {scoringCleanup.running ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <Trash2 size={16} />
+            <div className="space-y-3">
+              <div className="text-xs text-gray-500 space-y-0.5">
+                <p>This will delete all documents in:</p>
+                <ul className="list-disc list-inside ml-2 space-y-0.5">
+                  <li><code className="bg-gray-100 px-1 rounded text-gray-700">scoring_assignments</code></li>
+                  <li><code className="bg-gray-100 px-1 rounded text-gray-700">swap_requests</code></li>
+                </ul>
+              </div>
+              {scoringCleanup.done && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={18} className="text-green-500" />
+                    <span className="text-gray-800 font-medium text-sm">
+                      {scoringCleanup.results?.assignmentsDeleted} assignments, {scoringCleanup.results?.swapsDeleted} swaps deleted
+                    </span>
+                  </div>
+                  {scoringCleanup.results?.errors?.length > 0 && (
+                    <div className="text-xs text-red-500 space-y-1">
+                      {scoringCleanup.results.errors.map((e, i) => <p key={i}>Error: {e}</p>)}
+                    </div>
                   )}
-                  {scoringCleanup.running ? 'Clearing...' : 'Clear Scoring Data'}
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 size={18} className="text-green-500" />
-                  <span className="text-gray-800 font-medium text-sm">Scoring Data Cleared</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <p className="text-xl font-bold text-gray-800">{scoringCleanup.results?.assignmentsDeleted}</p>
-                    <p className="text-xs text-gray-500">Assignments Deleted</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <p className="text-xl font-bold text-gray-800">{scoringCleanup.results?.swapsDeleted}</p>
-                    <p className="text-xs text-gray-500">Swaps Deleted</p>
-                  </div>
-                </div>
-                {scoringCleanup.results?.errors?.length > 0 && (
-                  <div className="text-xs text-red-500 space-y-1">
-                    {scoringCleanup.results.errors.map((e, i) => <p key={i}>Error: {e}</p>)}
-                  </div>
+              )}
+              <button
+                onClick={() => setConfirmAction({
+                  type: 'scoringCleanup',
+                  fn: runScoringCleanup,
+                  label: 'Clear All Scoring Data',
+                  description: 'This will permanently delete ALL scoring assignments and swap requests from Firestore. They will need to be re-created.'
+                })}
+                disabled={scoringCleanup.running}
+                className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg font-semibold text-sm hover:bg-orange-600 disabled:opacity-50 transition-colors"
+              >
+                {scoringCleanup.running ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Trash2 size={16} />
                 )}
-                <button
-                  onClick={() => setScoringCleanup({ running: false, done: false, results: null })}
-                  className="text-xs text-gray-400 hover:text-gray-600"
-                >
-                  Reset
-                </button>
-              </div>
-            )}
+                {scoringCleanup.running ? 'Clearing...' : 'Clear Scoring Data'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Clear All Notifications */}
+        <div className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-[#D4E4D4]/50">
+            <h3 className="text-gray-800 font-bold text-sm flex items-center gap-2">
+              <AlertTriangle size={16} className="text-pink-500" />
+              Clear All Notifications
+            </h3>
+            <p className="text-gray-400 text-xs mt-1">
+              Delete all documents in the <code className="bg-gray-100 px-1 rounded text-gray-700">notifications</code> collection. Resets notification badge to 0.
+            </p>
+          </div>
+          <div className="p-4">
+            <div className="space-y-3">
+              {notifCleanup.done && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={18} className="text-green-500" />
+                    <span className="text-gray-800 font-medium text-sm">
+                      {notifCleanup.results?.deleted} notification{notifCleanup.results?.deleted !== 1 ? 's' : ''} deleted
+                    </span>
+                  </div>
+                  {notifCleanup.results?.errors?.length > 0 && (
+                    <div className="text-xs text-red-500 space-y-1">
+                      {notifCleanup.results.errors.map((e, i) => <p key={i}>Error: {e}</p>)}
+                    </div>
+                  )}
+                </div>
+              )}
+              <button
+                onClick={() => setConfirmAction({
+                  type: 'notifCleanup',
+                  fn: runNotifCleanup,
+                  label: 'Clear All Notifications',
+                  description: 'This will permanently delete ALL notification documents from Firestore. Notification badge will reset to 0.'
+                })}
+                disabled={notifCleanup.running}
+                className="flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-lg font-semibold text-sm hover:bg-pink-600 disabled:opacity-50 transition-colors"
+              >
+                {notifCleanup.running ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Trash2 size={16} />
+                )}
+                {notifCleanup.running ? 'Clearing...' : 'Clear All Notifications'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Clear Deprecated Schedule Collection */}
+        <div className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-[#D4E4D4]/50">
+            <h3 className="text-gray-800 font-bold text-sm flex items-center gap-2">
+              <Trash2 size={16} className="text-purple-500" />
+              Clear Deprecated Schedule Collection
+            </h3>
+            <p className="text-gray-400 text-xs mt-1">
+              Delete all documents in the deprecated <code className="bg-gray-100 px-1 rounded text-gray-700">schedule</code> collection. The app now uses the <code className="bg-gray-100 px-1 rounded text-gray-700">games</code> collection instead. This removes phantom "Game Day" entries.
+            </p>
+          </div>
+          <div className="p-4">
+            <div className="space-y-3">
+              {scheduleCleanup.done && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={18} className="text-green-500" />
+                    <span className="text-gray-800 font-medium text-sm">
+                      {scheduleCleanup.results?.deleted} schedule document{scheduleCleanup.results?.deleted !== 1 ? 's' : ''} deleted
+                    </span>
+                  </div>
+                  {scheduleCleanup.results?.errors?.length > 0 && (
+                    <div className="text-xs text-red-500 space-y-1">
+                      {scheduleCleanup.results.errors.map((e, i) => <p key={i}>Error: {e}</p>)}
+                    </div>
+                  )}
+                </div>
+              )}
+              <button
+                onClick={() => setConfirmAction({
+                  type: 'scheduleCleanup',
+                  fn: runScheduleCleanup,
+                  label: 'Clear Deprecated Schedule Collection',
+                  description: 'This will permanently delete ALL documents in the deprecated "schedule" collection. The app uses "games" collection now. This removes phantom Game Day entries like "Western Warriors".'
+                })}
+                disabled={scheduleCleanup.running}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg font-semibold text-sm hover:bg-purple-600 disabled:opacity-50 transition-colors"
+              >
+                {scheduleCleanup.running ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Trash2 size={16} />
+                )}
+                {scheduleCleanup.running ? 'Clearing...' : 'Clear Schedule Collection'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Clear Training Plan Links */}
+        <div className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-[#D4E4D4]/50">
+            <h3 className="text-gray-800 font-bold text-sm flex items-center gap-2">
+              <RefreshCw size={16} className="text-teal-500" />
+              Clear All Training Plan Links
+            </h3>
+            <p className="text-gray-400 text-xs mt-1">
+              Remove <code className="bg-gray-100 px-1 rounded text-gray-700">trainingPlanId</code> from all documents in the <code className="bg-gray-100 px-1 rounded text-gray-700">games</code> collection. This unlinks all training sessions from their plans so they can be re-linked.
+            </p>
+          </div>
+          <div className="p-4">
+            <div className="space-y-3">
+              {trainingLinkCleanup.done && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={18} className="text-green-500" />
+                    <span className="text-gray-800 font-medium text-sm">
+                      {trainingLinkCleanup.results?.cleared} training link{trainingLinkCleanup.results?.cleared !== 1 ? 's' : ''} cleared
+                    </span>
+                  </div>
+                  {trainingLinkCleanup.results?.errors?.length > 0 && (
+                    <div className="text-xs text-red-500 space-y-1">
+                      {trainingLinkCleanup.results.errors.map((e, i) => <p key={i}>Error: {e}</p>)}
+                    </div>
+                  )}
+                </div>
+              )}
+              <button
+                onClick={() => setConfirmAction({
+                  type: 'trainingLinkCleanup',
+                  fn: runTrainingLinkCleanup,
+                  label: 'Clear All Training Plan Links',
+                  description: 'This will remove trainingPlanId from all games documents. Training sessions will become "unlinked" and available for re-linking to plans.'
+                })}
+                disabled={trainingLinkCleanup.running}
+                className="flex items-center gap-2 px-4 py-2 bg-teal-500 text-white rounded-lg font-semibold text-sm hover:bg-teal-600 disabled:opacity-50 transition-colors"
+              >
+                {trainingLinkCleanup.running ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <RefreshCw size={16} />
+                )}
+                {trainingLinkCleanup.running ? 'Clearing...' : 'Clear Training Plan Links'}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1045,45 +1242,38 @@ const DataCleanupPage = () => {
             </p>
           </div>
           <div className="p-4">
-            {!seedingTemplates.done ? (
-              <div className="space-y-3">
-                <div className="text-xs text-gray-500 space-y-0.5">
-                  <p>Templates: Ball Handling, Defense, Shooting, Passing, Team Play, Game Prep</p>
-                </div>
-                <button
-                  onClick={seedTemplates}
-                  disabled={seedingTemplates.running}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#005028] text-white rounded-lg font-semibold text-sm hover:bg-[#00A651] disabled:opacity-50 transition-colors"
-                >
-                  {seedingTemplates.running ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <Download size={16} />
-                  )}
-                  {seedingTemplates.running ? 'Seeding...' : 'Seed Templates'}
-                </button>
+            <div className="space-y-3">
+              <div className="text-xs text-gray-500 space-y-0.5">
+                <p>Templates: Ball Handling, Defense, Shooting, Passing, Team Play, Game Prep</p>
               </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 size={18} className="text-green-500" />
-                  <span className="text-gray-800 font-medium text-sm">
-                    {seedingTemplates.results?.created} template{seedingTemplates.results?.created !== 1 ? 's' : ''} written to Firestore
-                  </span>
-                </div>
-                {seedingTemplates.results?.errors?.length > 0 && (
-                  <div className="text-xs text-red-500 space-y-1">
-                    {seedingTemplates.results.errors.map((e, i) => <p key={i}>Error: {e}</p>)}
+              {seedingTemplates.done && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={18} className="text-green-500" />
+                    <span className="text-gray-800 font-medium text-sm">
+                      {seedingTemplates.results?.created} template{seedingTemplates.results?.created !== 1 ? 's' : ''} written to Firestore
+                    </span>
                   </div>
+                  {seedingTemplates.results?.errors?.length > 0 && (
+                    <div className="text-xs text-red-500 space-y-1">
+                      {seedingTemplates.results.errors.map((e, i) => <p key={i}>Error: {e}</p>)}
+                    </div>
+                  )}
+                </div>
+              )}
+              <button
+                onClick={seedTemplates}
+                disabled={seedingTemplates.running}
+                className="flex items-center gap-2 px-4 py-2 bg-[#005028] text-white rounded-lg font-semibold text-sm hover:bg-[#00A651] disabled:opacity-50 transition-colors"
+              >
+                {seedingTemplates.running ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Download size={16} />
                 )}
-                <button
-                  onClick={() => setSeedingTemplates({ running: false, done: false, results: null })}
-                  className="text-xs text-gray-400 hover:text-gray-600"
-                >
-                  Reset
-                </button>
-              </div>
-            )}
+                {seedingTemplates.running ? 'Seeding...' : 'Seed Templates'}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1489,7 +1679,7 @@ const DataCleanupPage = () => {
               <h3 className="text-gray-800 font-bold">Confirm Action</h3>
             </div>
             <p className="text-gray-700 text-sm mb-2">{confirmAction.label}</p>
-            {confirmAction.description && (!dryRun || confirmAction.type === 'quickCleanup' || confirmAction.type === 'forceDelete') && (
+            {confirmAction.description && (
               <p className="text-red-400 text-xs mb-4">{confirmAction.description}</p>
             )}
             {!confirmAction.description && !dryRun && (
@@ -1497,7 +1687,7 @@ const DataCleanupPage = () => {
                 This action will permanently modify Firestore data. This cannot be undone.
               </p>
             )}
-            {dryRun && confirmAction.type !== 'quickCleanup' && confirmAction.type !== 'forceDelete' && (
+            {!confirmAction.description && dryRun && !['quickCleanup', 'forceDelete', 'scoringCleanup', 'notifCleanup', 'scheduleCleanup', 'trainingLinkCleanup'].includes(confirmAction.type) && (
               <p className="text-blue-400 text-xs mb-4">
                 Dry run mode — no data will be changed. Results will appear in the activity log.
               </p>
@@ -1516,12 +1706,12 @@ const DataCleanupPage = () => {
                   await fn();
                 }}
                 className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
-                  dryRun && confirmAction.type !== 'quickCleanup' && confirmAction.type !== 'forceDelete'
+                  dryRun && !['quickCleanup', 'forceDelete', 'scoringCleanup', 'notifCleanup', 'scheduleCleanup', 'trainingLinkCleanup'].includes(confirmAction.type)
                     ? 'bg-[#005028] text-white hover:bg-[#00A651]'
                     : 'bg-red-500 text-white hover:bg-red-600'
                 }`}
               >
-                {(dryRun && confirmAction.type !== 'quickCleanup' && confirmAction.type !== 'forceDelete') ? 'Preview' : 'Confirm'}
+                {dryRun && !['quickCleanup', 'forceDelete', 'scoringCleanup', 'notifCleanup', 'scheduleCleanup', 'trainingLinkCleanup'].includes(confirmAction.type) ? 'Preview' : 'Confirm'}
               </button>
             </div>
           </div>
