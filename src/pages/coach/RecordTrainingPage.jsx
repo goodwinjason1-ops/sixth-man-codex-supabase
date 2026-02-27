@@ -250,7 +250,7 @@ const RecordTrainingPage = () => {
         ) : null
       }
     >
-      <div className="space-y-4 pb-24">
+      <div className="space-y-4 pb-40">
         {/* Existing record indicator */}
         {existingRecord && (
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center gap-2">
@@ -488,7 +488,7 @@ const RecordTrainingPage = () => {
       </div>
 
       {/* Sticky Save Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-[#D4E4D4] z-20">
+      <div className="fixed bottom-16 left-0 right-0 p-4 bg-white border-t border-[#D4E4D4] z-20 lg:bottom-0">
         <button
           onClick={handleSave}
           disabled={saving}

@@ -22,7 +22,8 @@ import {
   Dumbbell,
   Zap,
   BookOpen,
-  History
+  History,
+  ClipboardList
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
 import EmptyState from '../components/EmptyState';
@@ -59,7 +60,7 @@ ChartJS.register(
 const CoachDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { players, games, evaluations, attendance, teams, trainingPlans, loading: dataLoading, currentUser, userProfile } = useFilteredData();
+  const { players, games, evaluations, attendance, teams, trainingPlans, trainingRecords, loading: dataLoading, currentUser, userProfile } = useFilteredData();
   const { loading: authLoading } = useAuth();
   const [selectedTeam, setSelectedTeam] = useState('all');
   const [pendingDrafts, setPendingDrafts] = useState([]);
@@ -277,12 +278,19 @@ const CoachDashboard = () => {
     const total = teamGames.length;
     const winRate = total > 0 ? (wins / total * 100).toFixed(1) : 0;
 
-    const teamAttendance = selectedTeam === 'all'
-      ? attendance.filter(a => coachTeams.includes(a.team))
-      : attendance.filter(a => a.team === selectedTeam);
+    // Compute average attendance from training_records
+    const teamIds = teams.map(t => t.id);
+    const relevantRecords = (trainingRecords || []).filter(r => {
+      if (selectedTeam === 'all') return teamIds.includes(r.teamId);
+      const teamObj = teams?.find(t => (t.name || t.teamName) === selectedTeam);
+      return r.teamId === (teamObj?.id || selectedTeam);
+    });
 
-    const avgAttendance = teamAttendance.length > 0
-      ? (teamAttendance.reduce((sum, a) => sum + (a.present?.length || 0), 0) / teamAttendance.length).toFixed(1)
+    const avgAttendance = relevantRecords.length > 0
+      ? (relevantRecords.reduce((sum, r) => {
+          const att = r.attendance || {};
+          return sum + Object.values(att).filter(v => v === 'present' || v === 'late').length;
+        }, 0) / relevantRecords.length).toFixed(1)
       : 0;
 
     const playerIds = filteredPlayers.map(p => p.id);
@@ -298,7 +306,7 @@ const CoachDashboard = () => {
       avgAttendance,
       avgSkillLevel
     };
-  }, [selectedTeam, games, attendance, evaluations, filteredPlayers, coachTeams]);
+  }, [selectedTeam, games, trainingRecords, evaluations, filteredPlayers, coachTeams, teams]);
 
   // MVP Leaderboard — reads from mvpVoting.votes (3-2-1 system) in games collection
   const mvpLeaderboard = useMemo(() => {
@@ -332,23 +340,35 @@ const CoachDashboard = () => {
       .slice(0, 5);
   }, [games, players, selectedTeam, coachTeams]);
 
-  // Attendance trend chart
+  // Attendance trend chart from training records
   const attendanceTrendData = useMemo(() => {
-    const last10Sessions = attendance
-      .filter(a => selectedTeam === 'all' || a.team === selectedTeam)
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
+    const teamIds = teams.map(t => t.id);
+    const records = (trainingRecords || [])
+      .filter(r => {
+        if (selectedTeam === 'all') return teamIds.includes(r.teamId);
+        const teamObj = teams?.find(t => (t.name || t.teamName) === selectedTeam);
+        return r.teamId === (teamObj?.id || selectedTeam);
+      })
+      .map(r => {
+        const d = r.date?.toDate ? r.date.toDate() : new Date(r.date);
+        const att = r.attendance || {};
+        const presentCount = Object.values(att).filter(v => v === 'present' || v === 'late').length;
+        return { date: d, present: presentCount };
+      })
+      .filter(r => r.date && !isNaN(r.date.getTime()))
+      .sort((a, b) => b.date - a.date)
       .slice(0, 10)
       .reverse();
 
     return {
-      labels: last10Sessions.map(a => new Date(a.date).toLocaleDateString('en-AU', { month: 'short', day: 'numeric' })),
+      labels: records.map(r => r.date.toLocaleDateString('en-AU', { month: 'short', day: 'numeric' })),
       datasets: [{
         label: 'Attendance',
-        data: last10Sessions.map(a => a.present?.length || 0),
+        data: records.map(r => r.present),
         backgroundColor: 'rgba(0, 166, 81, 0.7)',
       }]
     };
-  }, [attendance, selectedTeam]);
+  }, [trainingRecords, selectedTeam, teams]);
 
   // Show loading state while waiting for data
   if (isLoading || !gameDayCheckComplete) {
@@ -390,8 +410,19 @@ const CoachDashboard = () => {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
+              {/* Record Training Button */}
+              <HelpTooltip text="Record attendance, drill completion, and notes for training sessions.">
+                <button
+                  onClick={() => navigate('/coach/schedule')}
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-[#00A651]/30 hover:bg-[#00A651]/50 border border-[#00A651]/40 text-white rounded-lg transition-colors"
+                >
+                  <ClipboardList className="w-5 h-5" />
+                  <span className="hidden sm:inline">Record</span>
+                </button>
+              </HelpTooltip>
+
               {/* Drill Library Button */}
-              <FirstTimeHint hintKey="drill-library">
+              <HelpTooltip text="Browse the drill library for training exercises and activities.">
                 <button
                   onClick={() => navigate('/drills')}
                   className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors"
@@ -399,28 +430,32 @@ const CoachDashboard = () => {
                   <BookOpen className="w-5 h-5" />
                   <span className="hidden sm:inline">Drills</span>
                 </button>
-              </FirstTimeHint>
+              </HelpTooltip>
 
               {/* Training Plans Button */}
-              <button
-                onClick={() => navigate('/coach/training-plans')}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors"
-              >
-                <Dumbbell className="w-5 h-5" />
-                <span className="hidden sm:inline">Plans</span>
-              </button>
+              <HelpTooltip text="Create, manage, and schedule training plans with drills for your team.">
+                <button
+                  onClick={() => navigate('/coach/training-plans')}
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors"
+                >
+                  <Dumbbell className="w-5 h-5" />
+                  <span className="hidden sm:inline">Plans</span>
+                </button>
+              </HelpTooltip>
 
               {/* Training History Button */}
-              <button
-                onClick={() => navigate('/coach/training-history')}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors"
-              >
-                <History className="w-5 h-5" />
-                <span className="hidden sm:inline">History</span>
-              </button>
+              <HelpTooltip text="Review past training session records and attendance.">
+                <button
+                  onClick={() => navigate('/coach/training-history')}
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors"
+                >
+                  <History className="w-5 h-5" />
+                  <span className="hidden sm:inline">History</span>
+                </button>
+              </HelpTooltip>
 
               {/* Assess Skills Button */}
-              <FirstTimeHint hintKey="coach_assess_skills">
+              <HelpTooltip text="Assess and track your players' skill levels across key basketball competencies.">
                 <button
                   onClick={() => navigate('/coach-assessment')}
                   className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors"
@@ -428,7 +463,7 @@ const CoachDashboard = () => {
                   <ClipboardCheck className="w-5 h-5" />
                   <span className="hidden sm:inline">Skills</span>
                 </button>
-              </FirstTimeHint>
+              </HelpTooltip>
 
               {/* Match Day Assessment Button */}
               <HelpTooltip text="Record live game performance observations for your players during match day.">

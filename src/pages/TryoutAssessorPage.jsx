@@ -754,7 +754,7 @@ const TryoutAssessorPage = () => {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#D4E4D4] px-4 py-3 z-20">
+      <div className="fixed bottom-16 left-0 right-0 bg-white border-t border-[#D4E4D4] px-4 py-3 z-20 lg:bottom-0">
         <div className="flex items-center justify-between gap-3">
           {/* Save Status */}
           <div className="flex items-center gap-2 text-xs min-w-0">

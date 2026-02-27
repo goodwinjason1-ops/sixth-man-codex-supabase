@@ -1,24 +1,18 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useFilteredData } from '../hooks/useFilteredData';
 import {
   Calendar, Clock, Users, ChevronRight, ArrowLeft,
-  CheckCircle2, XCircle, AlertCircle, Dumbbell, FileText, Search
+  CheckCircle2, XCircle, AlertCircle, Dumbbell, FileText, Search, MessageSquare
 } from 'lucide-react';
 import PageShell from '../components/PageShell';
-import { collection, query, orderBy, getDocs, doc, getDoc } from 'firebase/firestore';
-import { db } from '../services/firebase';
 import { toJsDate, formatDateShortAU } from '../utils/dateUtils';
 
 const TrainingHistoryPage = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
-  const { currentUser, userProfile, teams: coachTeams, players, trainingPlans } = useFilteredData();
+  const { currentUser, userProfile, teams: coachTeams, players, trainingPlans, trainingRecords, loading: dataLoading } = useFilteredData();
 
-  const [sessions, setSessions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedSession, setSelectedSession] = useState(null);
-  const [detailLoading, setDetailLoading] = useState(!!sessionId);
   const [teamFilter, setTeamFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -29,76 +23,28 @@ const TrainingHistoryPage = () => {
     return team ? (team.name || team.teamName || 'Unknown Team') : teamId;
   };
 
-  // Load all training sessions from Firestore
-  useEffect(() => {
-    const loadSessions = async () => {
-      setLoading(true);
-      try {
-        // Try with ordering first, fall back to unordered if index doesn't exist
-        let snapshot;
-        try {
-          const q = query(collection(db, 'training_sessions'), orderBy('date', 'desc'));
-          snapshot = await getDocs(q);
-        } catch (indexErr) {
-          console.warn('orderBy index missing, fetching unordered:', indexErr);
-          snapshot = await getDocs(collection(db, 'training_sessions'));
-        }
-        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        // Sort client-side as fallback
-        data.sort((a, b) => {
-          const da = toJsDate(a.date);
-          const db2 = toJsDate(b.date);
-          return (db2 || 0) - (da || 0);
-        });
-        setSessions(data);
-      } catch (err) {
-        console.error('Error loading training sessions:', err);
-        setSessions([]);
-      }
-      setLoading(false);
-    };
-    loadSessions();
-  }, []);
+  // Get plan name helper
+  const getPlanName = (planId) => {
+    if (!planId) return null;
+    const plan = (trainingPlans || []).find(p => p.id === planId);
+    return plan?.name || null;
+  };
 
-  // Load detail when sessionId param changes
-  useEffect(() => {
-    if (!sessionId) {
-      setSelectedSession(null);
-      setDetailLoading(false);
-      return;
-    }
-    // Try to find in already-loaded sessions first
-    const found = sessions.find(s => s.id === sessionId);
-    if (found) {
-      setSelectedSession(found);
-      setDetailLoading(false);
-      return;
-    }
-    // If sessions are still loading, wait for them
-    if (loading) return;
-    // Otherwise fetch individually
-    const loadDetail = async () => {
-      setDetailLoading(true);
-      try {
-        const docSnap = await getDoc(doc(db, 'training_sessions', sessionId));
-        if (docSnap.exists()) {
-          setSelectedSession({ id: docSnap.id, ...docSnap.data() });
-        } else {
-          setSelectedSession(null);
-        }
-      } catch (err) {
-        console.error('Error loading session detail:', err);
-        setSelectedSession(null);
-      }
-      setDetailLoading(false);
-    };
-    loadDetail();
-  }, [sessionId, sessions, loading]);
+  // Sort and filter training records
+  const sortedRecords = useMemo(() => {
+    const records = [...(trainingRecords || [])];
+    records.sort((a, b) => {
+      const da = toJsDate(a.date);
+      const db2 = toJsDate(b.date);
+      return (db2 || 0) - (da || 0);
+    });
+    return records;
+  }, [trainingRecords]);
 
   // Filter sessions
   const filteredSessions = useMemo(() => {
-    let result = [...sessions];
-    // Filter by coach's teams (already role-filtered by useFilteredData)
+    let result = [...sortedRecords];
+    // Filter by coach's teams
     const coachTeamIds = coachTeams.map(t => t.id);
     if (coachTeamIds.length > 0) {
       result = result.filter(s => coachTeamIds.includes(s.teamId));
@@ -109,20 +55,19 @@ const TrainingHistoryPage = () => {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(s =>
-        (s.notes || '').toLowerCase().includes(q) ||
+        (s.sessionNotes || '').toLowerCase().includes(q) ||
         getTeamName(s.teamId).toLowerCase().includes(q) ||
-        (s.planName || '').toLowerCase().includes(q)
+        (getPlanName(s.trainingPlanId) || '').toLowerCase().includes(q)
       );
     }
     return result;
-  }, [sessions, teamFilter, searchQuery, coachTeams]);
+  }, [sortedRecords, teamFilter, searchQuery, coachTeams]);
 
   // Format a date value safely
   const formatDate = (dateVal) => {
     if (!dateVal) return 'Unknown date';
     const d = toJsDate(dateVal);
     if (d && !isNaN(d.getTime())) return formatDateShortAU(d);
-    // Fallback for string dates
     try {
       const parsed = new Date(dateVal);
       if (!isNaN(parsed.getTime())) return formatDateShortAU(parsed);
@@ -142,8 +87,7 @@ const TrainingHistoryPage = () => {
 
   // Detail view
   if (sessionId) {
-    // Show loading while sessions are being fetched OR while detail is being resolved
-    if (loading || detailLoading) {
+    if (dataLoading) {
       return (
         <PageShell title="Training Session" backTo="/coach/training-history" maxWidth="3xl">
           <div className="flex items-center justify-center py-20">
@@ -152,6 +96,8 @@ const TrainingHistoryPage = () => {
         </PageShell>
       );
     }
+
+    const selectedSession = (trainingRecords || []).find(r => r.id === sessionId) || null;
 
     if (!selectedSession) {
       return (
@@ -176,6 +122,17 @@ const TrainingHistoryPage = () => {
       ? (trainingPlans || []).find(p => p.id === selectedSession.trainingPlanId)
       : null;
 
+    // Resolve drills from linked plan
+    const allDrills = [];
+    if (linkedPlan?.sessions) {
+      linkedPlan.sessions.forEach((sess, sIdx) => {
+        (sess.drills || []).forEach((drill, dIdx) => {
+          allDrills.push({ ...drill, key: `${sIdx}-${dIdx}` });
+        });
+      });
+    }
+    const completedKeys = new Set(selectedSession.drillsCompleted || []);
+
     return (
       <PageShell
         title="Training Session"
@@ -198,7 +155,10 @@ const TrainingHistoryPage = () => {
               </div>
               <div>
                 <h2 className="text-lg font-bold text-gray-800">{getTeamName(selectedSession.teamId)}</h2>
-                <p className="text-sm text-[#6B7C6B]">{formatDate(selectedSession.date)}</p>
+                <p className="text-sm text-[#6B7C6B]">
+                  {formatDate(selectedSession.date)}
+                  {selectedSession.coachName && ` · Coach: ${selectedSession.coachName}`}
+                </p>
               </div>
             </div>
 
@@ -276,39 +236,75 @@ const TrainingHistoryPage = () => {
           )}
 
           {/* Drills Completed */}
-          {selectedSession.drills && selectedSession.drills.length > 0 && (
+          {allDrills.length > 0 && (
             <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
               <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-3">
-                <Dumbbell className="w-5 h-5 text-[#00A651]" /> Drills ({selectedSession.drills.length})
+                <Dumbbell className="w-5 h-5 text-[#00A651]" /> Drills ({completedKeys.size}/{allDrills.length} completed)
               </h3>
               <div className="space-y-2">
-                {selectedSession.drills.map((drill, i) => (
-                  <div key={i} className="flex items-center gap-3 py-2 px-3 bg-[#F5F9F5] rounded-lg">
-                    <div className="w-7 h-7 bg-[#005028] text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
-                      {i + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-800 truncate">{drill.name || 'Unnamed Drill'}</p>
-                      {drill.description && (
-                        <p className="text-xs text-[#6B7C6B] truncate">{drill.description}</p>
+                {allDrills.map((drill, i) => {
+                  const isCompleted = completedKeys.has(drill.key);
+                  const drillNote = selectedSession.drillNotes?.[drill.key];
+                  return (
+                    <div key={drill.key} className="py-2 px-3 bg-[#F5F9F5] rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                          isCompleted ? 'bg-[#00A651] text-white' : 'bg-[#D4E4D4] text-[#6B7C6B]'
+                        }`}>
+                          {i + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm font-medium truncate ${isCompleted ? 'text-gray-800' : 'text-[#6B7C6B]'}`}>
+                            {drill.name || 'Unnamed Drill'}
+                          </p>
+                          {drill.description && (
+                            <p className="text-xs text-[#6B7C6B] truncate">{drill.description}</p>
+                          )}
+                        </div>
+                        {isCompleted && (
+                          <CheckCircle2 className="w-5 h-5 text-[#00A651] flex-shrink-0" />
+                        )}
+                      </div>
+                      {drillNote && (
+                        <div className="mt-1.5 ml-10 flex items-start gap-1.5 text-xs text-[#6B7C6B]">
+                          <MessageSquare className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                          <span>{drillNote}</span>
+                        </div>
                       )}
                     </div>
-                    {drill.completed && (
-                      <CheckCircle2 className="w-5 h-5 text-[#00A651] flex-shrink-0" />
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {/* Notes */}
-          {selectedSession.notes && (
+          {/* Session Notes */}
+          {selectedSession.sessionNotes && (
             <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
               <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-3">
                 <FileText className="w-5 h-5 text-[#005028]" /> Session Notes
               </h3>
-              <p className="text-gray-700 text-sm whitespace-pre-wrap">{selectedSession.notes}</p>
+              <p className="text-gray-700 text-sm whitespace-pre-wrap">{selectedSession.sessionNotes}</p>
+            </div>
+          )}
+
+          {/* Player Notes */}
+          {selectedSession.playerNotes && Object.keys(selectedSession.playerNotes).length > 0 && (
+            <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl p-5">
+              <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-3">
+                <MessageSquare className="w-5 h-5 text-[#005028]" /> Player Notes
+              </h3>
+              <div className="space-y-2">
+                {Object.entries(selectedSession.playerNotes).map(([playerId, note]) => {
+                  const player = (players || []).find(p => p.id === playerId);
+                  return (
+                    <div key={playerId} className="py-2 px-3 bg-[#F5F9F5] rounded-lg">
+                      <p className="text-sm font-medium text-gray-800">{player?.name || player?.displayName || playerId}</p>
+                      <p className="text-xs text-[#6B7C6B] mt-0.5">{note}</p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
@@ -372,7 +368,7 @@ const TrainingHistoryPage = () => {
         </div>
 
         {/* Loading */}
-        {loading ? (
+        {dataLoading ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
               <div className="w-12 h-12 border-4 border-[#D4E4D4] border-t-[#00A651] rounded-full animate-spin mx-auto mb-4" />
@@ -386,13 +382,14 @@ const TrainingHistoryPage = () => {
             <p className="text-[#6B7C6B] text-sm">
               {searchQuery || teamFilter !== 'all'
                 ? 'No sessions match your filters. Try adjusting them.'
-                : 'No training sessions recorded yet. Record a session from the training page.'}
+                : 'No training sessions recorded yet. Record a session from your schedule.'}
             </p>
           </div>
         ) : (
           <div className="space-y-3">
             {filteredSessions.map(session => {
               const att = getAttendanceSummary(session);
+              const planName = getPlanName(session.trainingPlanId);
               return (
                 <button
                   key={session.id}
@@ -416,15 +413,15 @@ const TrainingHistoryPage = () => {
                           <Users className="w-3 h-3" />
                           {att.present}/{att.total} present
                         </span>
-                        {session.planName && (
+                        {planName && (
                           <span className="flex items-center gap-1">
                             <Dumbbell className="w-3 h-3" />
-                            {session.planName}
+                            {planName}
                           </span>
                         )}
                       </div>
-                      {session.notes && (
-                        <p className="text-xs text-[#6B7C6B] mt-1 truncate">{session.notes.slice(0, 80)}{session.notes.length > 80 ? '...' : ''}</p>
+                      {session.sessionNotes && (
+                        <p className="text-xs text-[#6B7C6B] mt-1 truncate">{session.sessionNotes.slice(0, 80)}{session.sessionNotes.length > 80 ? '...' : ''}</p>
                       )}
                     </div>
                     <ChevronRight className="w-5 h-5 text-[#D4E4D4] group-hover:text-[#00A651] transition-colors flex-shrink-0 mt-3" />
