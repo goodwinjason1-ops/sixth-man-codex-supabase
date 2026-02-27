@@ -51,19 +51,49 @@ const AgeGroupDetailReportPage = () => {
 
   const ageGroupConfig = AGE_GROUP_CONFIG[ageGroupId] || { name: ageGroupId?.toUpperCase() || 'Unknown' };
 
+  // Get team IDs that belong to this age group
+  const ageGroupTeamIds = useMemo(() => {
+    return (teams || [])
+      .filter(t => {
+        const teamName = (t.name || '').toUpperCase();
+        const teamAgeGroup = (t.ageGroup || '').toUpperCase();
+        const groupUpper = (ageGroupId || '').toUpperCase();
+        return teamName.includes(groupUpper) ||
+               teamAgeGroup === groupUpper;
+      })
+      .map(t => t.id);
+  }, [teams, ageGroupId]);
+
   // Get players in this age group
   const ageGroupPlayers = useMemo(() => {
-    return (players || []).filter(p => {
-      const team = (p.team || '').toUpperCase();
-      return team.includes(ageGroupId?.toUpperCase() || '');
+    // Primary: match via teamId/teamIds against team objects
+    let matched = (players || []).filter(p => {
+      const pTeams = p.teamIds || (p.teamId ? [p.teamId] : []);
+      return pTeams.some(tid => ageGroupTeamIds.includes(tid));
     });
-  }, [players, ageGroupId]);
+
+    // Fallback: if no players found via team matching, try player's own ageGroup field
+    if (matched.length === 0 && (players || []).length > 0) {
+      const groupUpper = (ageGroupId || '').toUpperCase();
+      matched = (players || []).filter(p => {
+        const pAgeGroup = (p.ageGroup || '').toUpperCase();
+        return pAgeGroup === groupUpper || pAgeGroup.includes(groupUpper);
+      });
+    }
+
+    return matched;
+  }, [players, ageGroupId, ageGroupTeamIds]);
 
   // Get teams in this age group
   const ageGroupTeams = useMemo(() => {
-    const teamNames = [...new Set(ageGroupPlayers.map(p => p.team))].filter(Boolean);
-    return teamNames.map(teamName => {
-      const teamPlayers = ageGroupPlayers.filter(p => p.team === teamName);
+    // Use actual team objects from Firestore
+    const matchedTeams = (teams || []).filter(t => ageGroupTeamIds.includes(t.id));
+
+    return matchedTeams.map(team => {
+      const teamPlayers = ageGroupPlayers.filter(p => {
+        const pTeams = p.teamIds || (p.teamId ? [p.teamId] : []);
+        return pTeams.includes(team.id);
+      });
       const teamEvals = Object.values(evaluations || {}).filter(e =>
         teamPlayers.some(p => p.id === e.playerId)
       );
@@ -72,13 +102,13 @@ const AgeGroupDetailReportPage = () => {
         : 0;
 
       return {
-        name: teamName,
+        name: team.name || 'Unknown Team',
         playerCount: teamPlayers.length,
         assessmentCount: teamEvals.length,
         avgLevel: avgLevel.toFixed(1)
       };
     });
-  }, [ageGroupPlayers, evaluations]);
+  }, [teams, ageGroupTeamIds, ageGroupPlayers, evaluations]);
 
   // Get evaluations for this age group
   const ageGroupEvals = useMemo(() => {

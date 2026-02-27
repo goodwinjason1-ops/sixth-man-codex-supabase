@@ -176,6 +176,41 @@ service cloud.firestore {
     }
 
     // ───────────────────────────────────────
+    // CURRICULUM (skills definitions)
+    // ───────────────────────────────────────
+    match /curriculum/{docId} {
+      allow read: if isSignedIn();
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // TRAINING NOTES
+    // ───────────────────────────────────────
+    match /training_notes/{noteId} {
+      allow read: if isCoach();
+      allow create, update: if isCoach();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // TRAINING RECORDS (session tracking)
+    // ───────────────────────────────────────
+    match /training_records/{recordId} {
+      allow read: if isCoach();
+      allow create, update: if isCoach();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // ASSESSMENT CONFIG
+    // ───────────────────────────────────────
+    match /assessment_config/{configId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
     // ATTENDANCE
     // ───────────────────────────────────────
     match /attendance/{attendanceId} {

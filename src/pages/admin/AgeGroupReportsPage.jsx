@@ -45,10 +45,6 @@ const AgeGroupReportsPage = () => {
   const ageGroupStats = useMemo(() => {
     const stats = {};
 
-    // Debug: log all teams and players for diagnosis
-    console.log('[AgeGroups] teams:', (teams || []).map(t => ({ id: t.id, name: t.name, ageGroup: t.ageGroup })));
-    console.log('[AgeGroups] players sample:', (players || []).slice(0, 5).map(p => ({ id: p.id, name: p.name || p.displayName, teamId: p.teamId, teamIds: p.teamIds, ageGroup: p.ageGroup })));
-
     ageGroups.forEach(group => {
       // Get players in age group — match via teamId/teamIds against team objects
       const ageGroupTeamIds = (teams || [])
@@ -74,12 +70,7 @@ const AgeGroupReportsPage = () => {
           return pAgeGroup === group.id.toUpperCase() ||
                  pAgeGroup === group.name.toUpperCase().replace(' ', '');
         });
-        if (groupPlayers.length > 0) {
-          console.log(`[AgeGroups] ${group.id}: used ageGroup fallback, found ${groupPlayers.length} players`);
-        }
       }
-
-      console.log(`[AgeGroups] ${group.id}: teamIds=${JSON.stringify(ageGroupTeamIds)}, players=${groupPlayers.length}`);
 
       // Get evaluations for these players
       const groupEvals = Object.values(evaluations || {}).filter(e =>
