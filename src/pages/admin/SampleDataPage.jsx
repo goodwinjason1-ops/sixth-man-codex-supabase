@@ -801,6 +801,17 @@ const SampleDataPage = () => {
       ]}
     >
       <div className="max-w-4xl mx-auto space-y-6">
+        {/* Warning Banner */}
+        <div className="p-4 bg-red-50 border-2 border-red-400 rounded-xl flex items-start gap-3">
+          <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={22} />
+          <div>
+            <p className="text-red-700 font-bold text-sm">WARNING: Test Data Tool</p>
+            <p className="text-red-600 text-xs mt-1">
+              This tool creates test data. Only use during development. Running &quot;Populate&quot; will create fake teams, players, and games that will appear throughout the app. Use &quot;Clear All&quot; to remove test data when done.
+            </p>
+          </div>
+        </div>
+
         {/* Status Message */}
         {statusMessage && (
           <div className={`p-4 rounded-xl flex items-start gap-3 ${

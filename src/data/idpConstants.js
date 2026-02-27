@@ -1,0 +1,29 @@
+/**
+ * IDP (Individual Development Plan) constants.
+ * Moved from sampleIDPs.js to eliminate fake data dependency.
+ */
+
+export const SKILL_CATEGORIES = [
+  { id: 'ball_handling', label: 'Ball Handling' },
+  { id: 'passing', label: 'Passing & Receiving' },
+  { id: 'shooting', label: 'Shooting' },
+  { id: 'footwork', label: 'Footwork' },
+  { id: 'defense', label: 'Defense' },
+  { id: 'off_ball', label: 'Off-Ball Movement' },
+  { id: 'team_play', label: 'Team Play' },
+  { id: 'basketball_iq', label: 'Basketball IQ' }
+];
+
+export const GOAL_STATUSES = [
+  { id: 'not_started', label: 'Not Started', color: 'bg-gray-400' },
+  { id: 'in_progress', label: 'In Progress', color: 'bg-blue-500' },
+  { id: 'achieved', label: 'Achieved', color: 'bg-[#00A651]' },
+  { id: 'needs_more_time', label: 'Needs More Time', color: 'bg-amber-500' }
+];
+
+export const REVIEW_TYPES = [
+  { id: 'start_of_season', label: 'Start of Season' },
+  { id: 'mid_season', label: 'Mid-Season' },
+  { id: 'end_of_season', label: 'End of Season' },
+  { id: 'ad_hoc', label: 'Ad Hoc' }
+];

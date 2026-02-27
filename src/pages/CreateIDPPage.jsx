@@ -17,7 +17,7 @@ import {
   Home as HomeIcon,
   AlertCircle
 } from 'lucide-react';
-import { SKILL_CATEGORIES } from '../data/sampleIDPs';
+import { SKILL_CATEGORIES } from '../data/idpConstants';
 import HelpTooltip from '../components/tutorial/HelpTooltip';
 import { fetchDrills } from '../services/drillService';
 

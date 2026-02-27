@@ -77,8 +77,7 @@ import {
   formatDateLongAU,
   formatTimeStringAU,
   formatGameDateTime,
-  formatDateForStorage,
-  getNextSaturday
+  formatDateForStorage
 } from '../../utils/dateUtils';
 
 const NotificationsPage = () => {
@@ -366,27 +365,7 @@ const NotificationsPage = () => {
       });
     }
 
-    // Use dynamic future dates (next 4 Saturdays) - sample data
-    console.log('Using sample game data (no games in context)');
-    const getNextSaturday = (weeksFromNow) => {
-      const today = new Date();
-      const daysUntilSat = (6 - today.getDay() + 7) % 7 || 7;
-      const nextSat = new Date(today);
-      nextSat.setDate(today.getDate() + daysUntilSat + (weeksFromNow * 7));
-      return nextSat.toISOString().split('T')[0];
-    };
-
-    setRawGamesDebug({ total: 0, sample: null, allTeamIds: [], fieldNames: [], usingSampleData: true });
-
-    return [
-      { id: 'g1', date: getNextSaturday(0), time: '9:00 AM', teamId: 'lakers-u12', team: 'Lakers U12', opponent: 'Hills Hawks', venue: 'Emerald Indoor Courts' },
-      { id: 'g2', date: getNextSaturday(0), time: '11:00 AM', teamId: 'lakers-u14', team: 'Lakers U14', opponent: 'North Stars', venue: 'Emerald Indoor Courts' },
-      { id: 'g3', date: getNextSaturday(1), time: '10:00 AM', teamId: 'lakers-u10', team: 'Lakers U10', opponent: 'Western Warriors', venue: 'Sports Centre' },
-      { id: 'g4', date: getNextSaturday(1), time: '2:00 PM', teamId: 'lakers-u8', team: 'Lakers U8', opponent: 'South Side', venue: 'Emerald Indoor Courts' },
-      { id: 'g5', date: getNextSaturday(2), time: '9:00 AM', teamId: 'lakers-u16', team: 'Lakers U16', opponent: 'Eastern Eagles', venue: 'Sports Centre' },
-      { id: 'g6', date: getNextSaturday(2), time: '11:00 AM', teamId: 'lakers-u12', team: 'Lakers U12', opponent: 'North Stars', venue: 'Sports Centre' },
-      { id: 'g7', date: getNextSaturday(3), time: '9:00 AM', teamId: 'lakers-u14', team: 'Lakers U14', opponent: 'Western Warriors', venue: 'Emerald Indoor Courts' }
-    ];
+    return [];
   }, [games]);
 
   // Searchable individuals list
@@ -456,53 +435,6 @@ const NotificationsPage = () => {
     })) || [];
   }, [selectedAgeGroups, players]);
 
-  // Sample notification history
-  useEffect(() => {
-    setNotifications([
-      {
-        id: 'n1',
-        type: 'announcement',
-        subject: 'Club Photos This Saturday',
-        message: 'Reminder that team photos will be taken this Saturday...',
-        priority: 'normal',
-        targetAudience: { type: 'all' },
-        sentAt: '2024-02-01T10:00:00Z',
-        status: 'sent',
-        readCount: 45,
-        totalRecipients: 60,
-        deliveryStats: { inApp: 60, email: 45, sms: 0 },
-        recipients: [
-          { name: 'John Smith', email: 'john@test.com', inApp: 'delivered', emailStatus: 'sent', readAt: '2024-02-01T12:00:00Z' },
-          { name: 'Sarah Jones', email: 'sarah@test.com', inApp: 'delivered', emailStatus: 'sent', readAt: null }
-        ]
-      },
-      {
-        id: 'n2',
-        type: 'scoring',
-        subject: 'Scoring Duty - Lakers U12 vs Hawks',
-        message: 'You are scheduled to score...',
-        priority: 'normal',
-        targetAudience: { type: 'individual', userIds: ['parent1'] },
-        sentAt: '2024-02-05T08:00:00Z',
-        status: 'sent',
-        readCount: 1,
-        totalRecipients: 1,
-        deliveryStats: { inApp: 1, email: 1, sms: 0 }
-      }
-    ]);
-
-    // Dynamic dates for sample scoring assignments using imported utility
-    setScoringAssignments([
-      { id: 'sample-sa1', gameId: 'g1', game: 'Lakers U12 vs Hawks', date: formatDateForStorage(getNextSaturday(0)), time: '9:00 AM', parentId: 'p1', parentName: 'John Smith', status: 'confirmed', teamId: 'lakers-u12', teamName: 'Lakers U12', venue: 'Emerald Indoor Courts' },
-      { id: 'sample-sa2', gameId: 'g2', game: 'Lakers U14 vs Stars', date: formatDateForStorage(getNextSaturday(0)), time: '11:00 AM', parentId: 'p2', parentName: 'Sarah Jones', status: 'pending', teamId: 'lakers-u14', teamName: 'Lakers U14', venue: 'Emerald Indoor Courts' },
-      { id: 'sample-sa3', gameId: 'g3', game: 'Lakers U10 vs Warriors', date: formatDateForStorage(getNextSaturday(1)), time: '10:00 AM', parentId: 'p3', parentName: 'Mike Brown', status: 'pending', teamId: 'lakers-u10', teamName: 'Lakers U10', venue: 'Sports Centre' }
-    ]);
-
-    setSwapRequests([
-      { id: 'sample-sr1', gameId: 'g3', gameName: 'Lakers U10 vs Warriors', gameDate: formatDateForStorage(getNextSaturday(1)), assignmentId: 'sample-sa3', requestingParentId: 'p3', requestingParentName: 'Mike Brown', targetParentId: 'p4', targetParentName: 'Lisa Wilson', reason: 'Can you cover for me? I have a work conflict.', status: 'pending', createdAt: new Date().toISOString() }
-    ]);
-  }, []);
-
   // Fetch scoring_assignments and swap_requests from Firestore
   useEffect(() => {
     // Subscribe to scoring_assignments collection
@@ -514,9 +446,7 @@ const NotificationsPage = () => {
         id: doc.id  // Must come AFTER spread to use real Firestore doc ID
       }));
       console.log('[ScoringRoster] Loaded scoring_assignments:', firestoreAssignments.length, firestoreAssignments.map(a => ({ id: a.id, game: a.game, status: a.status })));
-      if (firestoreAssignments.length > 0) {
-        setScoringAssignments(firestoreAssignments);
-      }
+      setScoringAssignments(firestoreAssignments);
     }, (error) => {
       console.error('[ScoringRoster] Error loading scoring_assignments:', error?.code, error?.message);
     });
@@ -529,9 +459,7 @@ const NotificationsPage = () => {
         id: doc.id  // Must come AFTER spread to use real Firestore doc ID
       }));
       console.log('[ScoringRoster] Loaded swap_requests:', firestoreSwaps.length, firestoreSwaps.map(s => ({ id: s.id, status: s.status })));
-      if (firestoreSwaps.length > 0) {
-        setSwapRequests(firestoreSwaps);
-      }
+      setSwapRequests(firestoreSwaps);
     }, (error) => {
       console.error('[ScoringRoster] Error loading swap_requests:', error?.code, error?.message);
     });

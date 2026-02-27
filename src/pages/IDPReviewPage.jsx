@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,12 +15,9 @@ import {
   ArrowRight,
   MessageSquare
 } from 'lucide-react';
-import {
-  SKILL_CATEGORIES,
-  GOAL_STATUSES,
-  REVIEW_TYPES,
-  sampleIDPs
-} from '../data/sampleIDPs';
+import { SKILL_CATEGORIES, GOAL_STATUSES, REVIEW_TYPES } from '../data/idpConstants';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../services/firebase';
 
 const LEVEL_LABELS = {
   1: 'Emerging',
@@ -47,11 +44,23 @@ const IDPReviewPage = () => {
   const { planId } = useParams();
   const navigate = useNavigate();
   const { userProfile } = useAuth();
+  const [developmentPlans, setDevelopmentPlans] = useState([]);
 
-  // Find the plan from sample data
+  // Load development plans from Firestore
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'development_plans'), (snap) => {
+      setDevelopmentPlans(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (err) => {
+      console.error('Development plans subscription error:', err);
+    });
+    return () => unsub();
+  }, []);
+
+  // Find the plan from Firestore data
   const plan = useMemo(() => {
-    return sampleIDPs.find(p => p.id === planId) || null;
-  }, [planId]);
+    if (!developmentPlans || developmentPlans.length === 0) return null;
+    return developmentPlans.find(p => p.id === planId) || null;
+  }, [developmentPlans, planId]);
 
   // State for the review form
   const [reviewType, setReviewType] = useState('mid_season');

@@ -1,6 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../contexts/DataContext';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../../services/firebase';
 import PageShell from '../../components/PageShell';
 import {
   GraduationCap,
@@ -27,31 +29,33 @@ import {
 
 const CoachingEffectivenessPage = () => {
   const navigate = useNavigate();
-  const { players, evaluations } = useData();
+  const { players, evaluations, teams } = useData();
   const [selectedCoach, setSelectedCoach] = useState('all');
   const [expandedCoach, setExpandedCoach] = useState(null);
+  const [users, setUsers] = useState([]);
 
-  // Sample coach data (in real app, this would come from database)
+  // Fetch users from Firestore (coaches are in users collection, not players)
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'users'), (snap) => {
+      setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (err) => {
+      console.error('Users subscription error:', err);
+    });
+    return () => unsub();
+  }, []);
+
+  // Get coaches from users collection
   const coaches = useMemo(() => {
-    // Extract coaches from players with coach role
-    const coachPlayers = players.filter(p => p.role === 'coach');
-
-    // If no coaches found, use sample data
-    if (coachPlayers.length === 0) {
-      return [
-        { id: 'coach1', name: 'Michael Chen', teams: ['U12 Boys', 'U14 Boys'] },
-        { id: 'coach2', name: 'Sarah Williams', teams: ['U10 Girls', 'U12 Girls'] },
-        { id: 'coach3', name: 'David Thompson', teams: ['U14 Girls', 'U16 Girls'] },
-        { id: 'coach4', name: 'Emma Davis', teams: ['U8 Mixed', 'U10 Boys'] }
-      ];
-    }
-
-    return coachPlayers.map(c => ({
-      id: c.id,
-      name: c.name,
-      teams: [c.team].filter(Boolean)
-    }));
-  }, [players]);
+    if (!users || users.length === 0) return [];
+    return users
+      .filter(u => u.role === 'coach' || u.role === 'youth_coach' || u.role === 'youth_head_coach')
+      .map(coach => ({
+        id: coach.id,
+        name: coach.displayName || coach.name || coach.email,
+        teams: (teams || []).filter(t => t.coachId === coach.id).map(t => t.name || t.teamName),
+        assignedTeams: coach.assignedTeams || []
+      }));
+  }, [users, teams]);
 
   // Calculate coach statistics
   const coachStats = useMemo(() => {
@@ -184,7 +188,7 @@ const CoachingEffectivenessPage = () => {
               <span className="text-gray-500 text-sm">Avg Improvement</span>
             </div>
             <p className="text-2xl font-bold">
-              {(Object.values(coachStats).reduce((sum, c) => sum + parseFloat(c.avgImprovement), 0) / coaches.length || 0).toFixed(2)}
+              {coaches.length > 0 ? (Object.values(coachStats).reduce((sum, c) => sum + parseFloat(c.avgImprovement), 0) / coaches.length).toFixed(2) : '0.00'}
             </p>
           </div>
         </div>
@@ -210,7 +214,15 @@ const CoachingEffectivenessPage = () => {
         {/* Individual Coach Cards */}
         <div className="space-y-3">
           <h3 className="font-bold">Coach Details</h3>
-          {coaches.map(coach => {
+          {coaches.length === 0 ? (
+            <div className="bg-white rounded-xl p-6 text-center">
+              <GraduationCap className="w-10 h-10 text-[#6B7C6B] mx-auto mb-2" />
+              <p className="text-gray-800 font-medium text-sm">No coaches found</p>
+              <p className="text-[#6B7C6B] text-xs mt-1">
+                Assign coaches to teams in Team Management to see effectiveness data.
+              </p>
+            </div>
+          ) : coaches.map(coach => {
             const stats = coachStats[coach.id];
             const isExpanded = expandedCoach === coach.id;
 
@@ -314,7 +326,8 @@ const CoachingEffectivenessPage = () => {
                 )}
               </div>
             );
-          })}
+          })
+          }
         </div>
 
         {/* Insights */}

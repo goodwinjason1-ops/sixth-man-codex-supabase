@@ -31,7 +31,9 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
-import { SKILL_CATEGORIES, GOAL_STATUSES, sampleIDPs } from '../data/sampleIDPs';
+import { SKILL_CATEGORIES, GOAL_STATUSES } from '../data/idpConstants';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../services/firebase';
 import { STAFF_ROLES } from '../constants/roles';
 
 const PlayerIDPPage = () => {
@@ -42,11 +44,23 @@ const PlayerIDPPage = () => {
 
   const [expandedReviews, setExpandedReviews] = useState({});
   const [parentVisible, setParentVisible] = useState(false);
+  const [developmentPlans, setDevelopmentPlans] = useState([]);
 
-  // Load IDP from sample data (will switch to Firestore collection later)
+  // Load development plans from Firestore
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'development_plans'), (snap) => {
+      setDevelopmentPlans(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (err) => {
+      console.error('Development plans subscription error:', err);
+    });
+    return () => unsub();
+  }, []);
+
+  // Find IDP for this player from Firestore
   const idp = useMemo(() => {
-    return sampleIDPs.find(plan => plan.playerId === playerId) || null;
-  }, [playerId]);
+    if (!developmentPlans || developmentPlans.length === 0) return null;
+    return developmentPlans.find(plan => plan.playerId === playerId) || null;
+  }, [developmentPlans, playerId]);
 
   // Sync parentVisible state with IDP data
   useEffect(() => {
