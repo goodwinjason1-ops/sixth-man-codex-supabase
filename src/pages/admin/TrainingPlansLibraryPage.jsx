@@ -25,7 +25,9 @@ import {
   BookOpen,
   Trash2,
   Plus,
-  Edit3
+  Edit3,
+  X,
+  Share2
 } from 'lucide-react';
 import PageShell from '../../components/PageShell';
 
@@ -355,12 +357,22 @@ const TrainingPlansLibraryPage = () => {
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <h4 className="text-gray-800 font-bold text-sm">{plan.name || 'Untitled Template'}</h4>
-                      <p className="text-[#6B7C6B] text-[10px] font-mono mt-0.5">{plan.id}</p>
-                      {plan.createdBy && plan.createdBy !== 'system' && (
-                        <span className="inline-block mt-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] rounded font-medium">
-                          Coach Created
-                        </span>
-                      )}
+                      <div className="flex items-center gap-1.5 mt-1">
+                        {plan.id?.includes('promoted') ? (
+                          <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] rounded font-medium">
+                            Promoted
+                          </span>
+                        ) : (
+                          <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] rounded font-medium">
+                            Template
+                          </span>
+                        )}
+                        {plan.focusAreas?.length > 0 && (
+                          <span className="text-[#6B7C6B] text-[10px]">
+                            {getSessionCount(plan)} sessions &bull; {getTotalDrills(plan)} drills
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center gap-1">
                       <button
@@ -402,35 +414,65 @@ const TrainingPlansLibraryPage = () => {
           </div>
         )}
 
-        {/* Shared Plans Section */}
-        {sharedPlans.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-gray-800 font-bold flex items-center gap-2">
-              <Award className="w-5 h-5 text-blue-500" />
-              Shared by Coaches ({sharedPlans.length})
-            </h3>
+        {/* Shared Plans Section — always visible */}
+        <div className="space-y-3">
+          <h3 className="text-gray-800 font-bold flex items-center gap-2">
+            <Share2 className="w-5 h-5 text-blue-500" />
+            Shared by Coaches ({sharedPlans.length})
+          </h3>
+          {sharedPlans.length === 0 ? (
+            <div className="bg-white border-2 border-blue-500/10 rounded-xl p-6 text-center">
+              <Share2 className="w-10 h-10 text-[#D4E4D4] mx-auto mb-2" />
+              <p className="text-[#6B7C6B] text-sm">No shared plans yet. When coaches share their plans, they will appear here for review and promotion.</p>
+            </div>
+          ) : (
             <div className="space-y-3">
               {sharedPlans.map(plan => (
-                <div key={plan.id} className="bg-white border-2 border-blue-500/20 rounded-xl p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
+                <div key={plan.id} className="bg-white border-2 border-blue-500/20 rounded-xl p-4 hover:border-blue-500/40 transition-colors">
+                  <div className="flex items-start justify-between mb-2 gap-3">
+                    <div className="flex-1 min-w-0">
                       <h4 className="text-gray-800 font-bold text-sm">{plan.name || 'Untitled Plan'}</h4>
-                      <p className="text-[#6B7C6B] text-xs">by {plan.coachName || plan.createdBy || 'Unknown Coach'}</p>
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                        <span className="text-[#6B7C6B] text-xs">by {plan.coachName || plan.createdBy || 'Unknown Coach'}</span>
+                        <span className="text-[#6B7C6B] text-[10px]">&bull; {getSessionCount(plan)} sessions &bull; {getTotalDrills(plan)} drills</span>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => handleCopyToLibrary(plan)}
-                      className="flex items-center gap-1 px-2 py-1 bg-[#005028]/10 text-[#00A651] text-xs rounded-lg hover:bg-[#005028]/20 transition-colors"
-                    >
-                      <Copy size={12} />
-                      Promote to Template
-                    </button>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        onClick={() => setSelectedPlan(plan)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs rounded-lg transition-colors"
+                        title="View full plan details"
+                      >
+                        <Eye size={14} />
+                        View
+                      </button>
+                      <button
+                        onClick={() => handleCopyToLibrary(plan)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 text-xs rounded-lg transition-colors"
+                        title="Promote to club template"
+                      >
+                        <Copy size={14} />
+                        Promote
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-gray-500 text-xs line-clamp-2">{plan.description || ''}</p>
+                  {plan.description && (
+                    <p className="text-gray-500 text-xs line-clamp-2">{plan.description}</p>
+                  )}
+                  {plan.focusAreas && plan.focusAreas.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {plan.focusAreas.map((area, idx) => (
+                        <span key={idx} className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] rounded-full">
+                          {area}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Coach Plans for Review */}
         <h3 className="text-gray-800 font-bold flex items-center gap-2">
@@ -579,85 +621,192 @@ const TrainingPlansLibraryPage = () => {
         )}
       </div>
 
-      {/* Plan Detail Modal */}
+      {/* Full Plan Preview Modal */}
       {selectedPlan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelectedPlan(null)}>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setSelectedPlan(null)}>
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
           <div
-            className="relative bg-white border-2 border-[#D4E4D4] rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            className="relative w-full sm:max-w-2xl max-h-[95vh] bg-white rounded-t-3xl sm:rounded-2xl overflow-hidden"
             onClick={e => e.stopPropagation()}
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">{selectedPlan.name || 'Untitled Plan'}</h2>
-
-            <div className="space-y-4">
-              <div>
-                <p className="text-[#6B7C6B] text-sm mb-1">Description</p>
-                <p className="text-gray-800">{selectedPlan.description || 'No description provided.'}</p>
+            {/* Header */}
+            <div className="sticky top-0 bg-[#F5F9F5] p-4 z-10 border-b border-[#D4E4D4]">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-xl font-bold text-gray-800 truncate">{selectedPlan.name || 'Untitled Plan'}</h2>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    {selectedPlan.isTemplate || selectedPlan.id?.startsWith('template_') ? (
+                      <span className={`px-1.5 py-0.5 text-[10px] rounded font-medium ${
+                        selectedPlan.id?.includes('promoted') ? 'bg-purple-100 text-purple-700' : 'bg-amber-100 text-amber-700'
+                      }`}>
+                        {selectedPlan.id?.includes('promoted') ? 'Promoted' : 'Template'}
+                      </span>
+                    ) : selectedPlan.isShared ? (
+                      <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded font-medium">
+                        Shared
+                      </span>
+                    ) : null}
+                    <span className="text-[#00A651] text-sm">
+                      {getSessionCount(selectedPlan)} session{getSessionCount(selectedPlan) !== 1 ? 's' : ''} &bull; {getTotalDrills(selectedPlan)} drills
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedPlan(null)}
+                  className="w-10 h-10 bg-white border border-[#D4E4D4] rounded-full flex items-center justify-center hover:border-[#00A651] transition-colors flex-shrink-0 ml-3"
+                >
+                  <X className="w-5 h-5 text-gray-800" />
+                </button>
               </div>
+            </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-[#6B7C6B] text-sm mb-1">Coach</p>
-                  <p className="text-gray-800">{selectedPlan.coachName || selectedPlan.createdBy || 'Unknown'}</p>
+            {/* Content */}
+            <div className="overflow-y-auto max-h-[calc(95vh-160px)] p-6 bg-white">
+              {/* Plan Info */}
+              <div className="mb-6 pb-6 border-b border-gray-200">
+                {selectedPlan.description && (
+                  <p className="text-gray-600 text-sm mb-4">{selectedPlan.description}</p>
+                )}
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-[#6B7C6B]">Coach:</span>
+                    <p className="text-gray-800 font-medium">{selectedPlan.coachName || selectedPlan.createdBy || 'System'}</p>
+                  </div>
+                  <div>
+                    <span className="text-[#6B7C6B]">Team:</span>
+                    <p className="text-gray-800 font-medium">{selectedPlan.teamName || selectedPlan.ageGroup || '-'}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[#6B7C6B] text-sm mb-1">Team</p>
-                  <p className="text-gray-800">{selectedPlan.teamName || 'No Team'}</p>
-                </div>
-                <div>
-                  <p className="text-[#6B7C6B] text-sm mb-1">Age Group</p>
-                  <p className="text-gray-800">{selectedPlan.ageGroup || '-'}</p>
-                </div>
-                <div>
-                  <p className="text-[#6B7C6B] text-sm mb-1">Sessions & Drills</p>
-                  <p className="text-gray-800">{getSessionCount(selectedPlan)} sessions • {getTotalDrills(selectedPlan)} drills</p>
-                </div>
-              </div>
 
-              {selectedPlan.focusAreas && selectedPlan.focusAreas.length > 0 && (
-                <div>
-                  <p className="text-[#6B7C6B] text-sm mb-2">Focus Areas</p>
-                  <div className="flex flex-wrap gap-2">
+                {selectedPlan.focusAreas && selectedPlan.focusAreas.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
                     {selectedPlan.focusAreas.map((area, idx) => (
-                      <span key={idx} className="px-3 py-1 bg-[#005028]/20 text-[#00A651] rounded-full text-sm">
+                      <span key={idx} className="px-3 py-1 bg-[#005028]/10 text-[#00A651] rounded-full text-xs">
                         {area}
                       </span>
                     ))}
                   </div>
-                </div>
-              )}
+                )}
 
-              {selectedPlan.approvalStatus === 'approved' && selectedPlan.approvedAt && (
-                <div className="p-3 bg-[#005028]/10 border border-[#00A651]/30 rounded-lg">
-                  <p className="text-[#00A651] text-sm">
-                    Approved by {selectedPlan.approvedBy} on {formatDate(selectedPlan.approvedAt)}
-                  </p>
-                </div>
-              )}
+                {selectedPlan.approvalStatus === 'approved' && selectedPlan.approvedAt && (
+                  <div className="mt-3 p-3 bg-[#005028]/10 border border-[#00A651]/30 rounded-lg">
+                    <p className="text-[#00A651] text-sm">
+                      Approved by {selectedPlan.approvedBy} on {formatDate(selectedPlan.approvedAt)}
+                    </p>
+                  </div>
+                )}
 
-              {selectedPlan.approvalStatus === 'rejected' && selectedPlan.rejectionReason && (
-                <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                  <p className="text-red-400 text-sm">
-                    <strong>Revision needed:</strong> {selectedPlan.rejectionReason}
-                  </p>
+                {selectedPlan.approvalStatus === 'rejected' && selectedPlan.rejectionReason && (
+                  <div className="mt-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                    <p className="text-red-500 text-sm">
+                      <strong>Revision needed:</strong> {selectedPlan.rejectionReason}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Sessions & Drills */}
+              {selectedPlan.sessions && selectedPlan.sessions.length > 0 ? (
+                selectedPlan.sessions.map((session, index) => (
+                  <div key={index} className="mb-6 pb-6 border-b border-gray-200 last:border-0">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-[#005028] rounded-lg flex items-center justify-center text-white font-bold">
+                        {session.sessionNumber || index + 1}
+                      </div>
+                      <div>
+                        <h4 className="text-gray-800 font-bold">{session.name || `Session ${index + 1}`}</h4>
+                        <p className="text-[#6B7C6B] text-sm">
+                          {session.date ? new Date(session.date).toLocaleDateString('en-AU') : 'No date'}
+                          {session.duration ? ` \u2022 ${session.duration} mins` : ''}
+                        </p>
+                      </div>
+                    </div>
+
+                    {session.warmUp && (
+                      <div className="mb-3">
+                        <h5 className="text-sm font-semibold text-gray-700 mb-1">Warm-up</h5>
+                        <p className="text-gray-600 text-sm whitespace-pre-wrap">{session.warmUp}</p>
+                      </div>
+                    )}
+
+                    {session.drills && session.drills.length > 0 && (
+                      <div className="mb-3">
+                        <h5 className="text-sm font-semibold text-gray-700 mb-2">Drills ({session.drills.length})</h5>
+                        <div className="space-y-2">
+                          {session.drills.map((drill, di) => (
+                            <div key={di} className="bg-[#F5F9F5] rounded-lg p-3">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="font-medium text-gray-800 text-sm">{drill.name}</span>
+                                {drill.duration && (
+                                  <span className="text-[#6B7C6B] text-xs">{drill.duration} mins</span>
+                                )}
+                              </div>
+                              {drill.description && (
+                                <p className="text-gray-600 text-xs">{drill.description}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {session.smallSidedGames && (
+                      <div className="mb-3">
+                        <h5 className="text-sm font-semibold text-gray-700 mb-1">Games</h5>
+                        <p className="text-gray-600 text-sm whitespace-pre-wrap">{session.smallSidedGames}</p>
+                      </div>
+                    )}
+
+                    {session.coolDown && (
+                      <div className="mb-3">
+                        <h5 className="text-sm font-semibold text-gray-700 mb-1">Cool-down</h5>
+                        <p className="text-gray-600 text-sm whitespace-pre-wrap">{session.coolDown}</p>
+                      </div>
+                    )}
+
+                    {session.notes && (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <h5 className="text-sm font-semibold text-yellow-800 mb-1">Coach Notes</h5>
+                        <p className="text-yellow-700 text-sm whitespace-pre-wrap">{session.notes}</p>
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Dumbbell className="w-10 h-10 text-[#6B7C6B] mx-auto mb-2" />
+                  <p className="text-[#6B7C6B] text-sm">No sessions defined in this plan</p>
                 </div>
               )}
             </div>
 
-            <div className="mt-6 flex gap-3">
+            {/* Footer Actions */}
+            <div className="sticky bottom-0 bg-white border-t border-[#D4E4D4] p-4 flex gap-3">
               <button
                 onClick={() => setSelectedPlan(null)}
                 className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-800 font-medium transition-colors"
               >
                 Close
               </button>
+              {selectedPlan.isShared && !selectedPlan.isTemplate && (
+                <button
+                  onClick={() => {
+                    handleCopyToLibrary(selectedPlan);
+                    setSelectedPlan(null);
+                  }}
+                  className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl text-white font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  <Copy className="w-4 h-4" />
+                  Promote to Template
+                </button>
+              )}
               {selectedPlan.approvalStatus === 'pending' && (
                 <button
                   onClick={() => {
                     handleApprove(selectedPlan.id);
                     setSelectedPlan(null);
                   }}
-                  className="flex-1 py-3 bg-[#005028] hover:bg-gray-100 rounded-xl text-white font-medium transition-colors"
+                  className="flex-1 py-3 bg-[#005028] hover:bg-[#00A651] rounded-xl text-white font-medium transition-colors"
                 >
                   Approve Plan
                 </button>
