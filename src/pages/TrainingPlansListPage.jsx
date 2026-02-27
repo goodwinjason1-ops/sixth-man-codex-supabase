@@ -31,7 +31,7 @@ import { toJsDate, formatDateShortAU } from '../utils/dateUtils';
 
 const TrainingPlansListPage = () => {
   const navigate = useNavigate();
-  const { currentUser, userProfile, trainingPlans: firestorePlans, teams: firestoreTeams, games, deleteDocument, updateDocument, setDocument, loading: dataLoading } = useFilteredData();
+  const { currentUser, userProfile, trainingPlans: firestorePlans, teams: firestoreTeams, games, userTeamIds, deleteDocument, updateDocument, setDocument, loading: dataLoading } = useFilteredData();
 
   // Seed templates into Firestore on first load (deterministic IDs prevent duplicates)
   const [seeded, setSeeded] = useState(false);
@@ -76,20 +76,6 @@ const TrainingPlansListPage = () => {
     [allPlans, currentUser]
   );
 
-  // Debug shared plans visibility
-  useEffect(() => {
-    if (dataLoading) return;
-    const allShared = (firestorePlans || []).filter(p => p.isShared === true);
-    if (allShared.length > 0) {
-      console.log('[SharedPlans Debug] All plans with isShared=true:', allShared.length);
-      allShared.forEach(p => {
-        console.log(`  Plan "${p.name}" (${p.id}) - owner: coachId=${p.coachId}, createdBy=${p.createdBy}, isShared=${p.isShared}`);
-      });
-      console.log('[SharedPlans Debug] Current user UID:', currentUser?.uid);
-      console.log('[SharedPlans Debug] Shared by others (shown in section):', sharedPlans.length);
-    }
-  }, [firestorePlans, sharedPlans, currentUser, dataLoading]);
-
   const myPlans = useMemo(() =>
     allPlans.filter(p =>
       getPlanOwnerId(p) === currentUser?.uid &&
@@ -124,22 +110,23 @@ const TrainingPlansListPage = () => {
 
   // Upcoming training events that don't already have a plan linked
   // All schedule data (games + training) lives in the `games` collection
+  // Filter by coach's assigned teams so they only see their own sessions
   const upcomingTrainings = useMemo(() => {
-    // Compare using YYYY-MM-DD strings to avoid UTC vs local timezone issues
-    const todayStr = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
     const results = [];
     const gamesArr = games || [];
+    const teamIdSet = new Set(userTeamIds || []);
 
     if (gamesArr.length > 0) {
-      const trainingEntries = gamesArr.filter(g => (g.type || '').toLowerCase() === 'training');
-
-      trainingEntries.forEach(g => {
+      gamesArr.forEach(g => {
+        if ((g.type || '').toLowerCase() !== 'training') return;
         if (g.trainingPlanId) return;
+        // Only show sessions for the coach's assigned teams
+        if (teamIdSet.size > 0 && !teamIdSet.has(g.teamId)) return;
         const d = toJsDate(g.date);
-        const dateStr = d ? d.toISOString().split('T')[0] : null;
-        if (dateStr && dateStr >= todayStr) {
-          results.push(g);
-        }
+        if (!d || d < now) return;
+        results.push(g);
       });
     }
 
@@ -149,8 +136,8 @@ const TrainingPlansListPage = () => {
       return (da || 0) - (db2 || 0);
     });
 
-    return results.slice(0, 10);
-  }, [games]);
+    return results;
+  }, [games, userTeamIds]);
 
   // Filter helper applied to each section
   const { filteredTemplates, filteredShared, filteredMyPlans } = useMemo(() => {
@@ -887,7 +874,17 @@ const TrainingPlansListPage = () => {
                       key={event.id}
                       onClick={async () => {
                         try {
+                          // Link the plan to the training session
                           await updateDocument('games', event.id, { trainingPlanId: schedulePlanId });
+                          // Update the plan's date to reflect the linked session date
+                          const sessionDate = toJsDate(event.date);
+                          if (sessionDate) {
+                            const dateStr = sessionDate.toISOString().split('T')[0];
+                            await updateDocument('training_plans', schedulePlanId, {
+                              'dateRange.start': dateStr,
+                              scheduledDate: dateStr,
+                            });
+                          }
                           setSchedulePlanId(null);
                         } catch (err) {
                           console.error('Error linking plan to schedule:', err);

@@ -97,6 +97,9 @@ const YouthCoachPage = lazy(() => import('./pages/YouthCoachPage'));
 const SessionSummaryForm = lazy(() => import('./pages/youth/SessionSummaryForm'));
 const SessionSummaryHistory = lazy(() => import('./pages/youth/SessionSummaryHistory'));
 
+// Coach schedule (read-only)
+const CoachSchedulePage = lazy(() => import('./pages/CoachSchedulePage'));
+
 // Parent chunk
 const ParentDashboard = lazy(() => import('./pages/ParentDashboard'));
 const ParentTeamViewPage = lazy(() => import('./pages/ParentTeamViewPage'));
@@ -232,6 +235,17 @@ const AppRoutes = () => {
             <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
               <ErrorBoundary fallbackMessage="Unable to load admin profile. Please try again.">
                 <AdminProfilePage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/coach/schedule"
+          element={
+            <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load schedule.">
+                <CoachSchedulePage />
               </ErrorBoundary>
             </ProtectedRoute>
           }
@@ -551,7 +565,7 @@ const AppRoutes = () => {
         <Route
           path="/admin/schedule"
           element={
-            <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
+            <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
               <ErrorBoundary fallbackMessage="Unable to load schedule management.">
                 <ScheduleManagementPage />
               </ErrorBoundary>

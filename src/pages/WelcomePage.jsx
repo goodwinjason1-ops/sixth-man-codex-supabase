@@ -240,9 +240,9 @@ const WelcomePage = () => {
         },
         {
           id: 'schedule',
-          title: 'Schedule',
+          title: 'My Schedule',
           icon: Calendar,
-          path: '/admin/schedule',
+          path: '/coach/schedule',
           description: 'Games and training'
         },
         {
