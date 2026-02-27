@@ -47,6 +47,7 @@ const DataCleanupPage = () => {
   const [quickCleanup, setQuickCleanup] = useState({ running: false, done: false, results: null });
   const [seedingTemplates, setSeedingTemplates] = useState({ running: false, done: false, results: null });
   const [forceDelete, setForceDelete] = useState({ collection: 'notifications', docId: '', running: false, result: null });
+  const [scoringCleanup, setScoringCleanup] = useState({ running: false, done: false, results: null });
 
   // One-time targeted cleanup for known orphaned data
   const runQuickCleanup = async () => {
@@ -106,6 +107,43 @@ const DataCleanupPage = () => {
       running: false,
       done: true,
       results: { usersDeleted, mvpDeleted, notifsDeleted, errors }
+    });
+  };
+
+  // Clear all scoring data (scoring_assignments + swap_requests)
+  const runScoringCleanup = async () => {
+    setScoringCleanup({ running: true, done: false, results: null });
+    let assignmentsDeleted = 0, swapsDeleted = 0;
+    const errors = [];
+
+    try {
+      const assignSnap = await getDocs(collection(db, 'scoring_assignments'));
+      if (assignSnap.size > 0) {
+        const batch = writeBatch(db);
+        assignSnap.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        assignmentsDeleted = assignSnap.size;
+      }
+    } catch (e) {
+      errors.push(`scoring_assignments: ${e.message}`);
+    }
+
+    try {
+      const swapSnap = await getDocs(collection(db, 'swap_requests'));
+      if (swapSnap.size > 0) {
+        const batch = writeBatch(db);
+        swapSnap.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        swapsDeleted = swapSnap.size;
+      }
+    } catch (e) {
+      errors.push(`swap_requests: ${e.message}`);
+    }
+
+    setScoringCleanup({
+      running: false,
+      done: true,
+      results: { assignmentsDeleted, swapsDeleted, errors }
     });
   };
 
@@ -915,6 +953,77 @@ const DataCleanupPage = () => {
                 )}
                 <button
                   onClick={() => setQuickCleanup({ running: false, done: false, results: null })}
+                  className="text-xs text-gray-400 hover:text-gray-600"
+                >
+                  Reset
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Clear Scoring Data */}
+        <div className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-[#D4E4D4]/50">
+            <h3 className="text-gray-800 font-bold text-sm flex items-center gap-2">
+              <ShieldAlert size={16} className="text-orange-500" />
+              Clear All Scoring Data
+            </h3>
+            <p className="text-gray-400 text-xs mt-1">
+              Delete all scoring roster assignments and swap requests. Use when phantom scoring data persists.
+            </p>
+          </div>
+          <div className="p-4">
+            {!scoringCleanup.done ? (
+              <div className="space-y-3">
+                <div className="text-xs text-gray-500 space-y-0.5">
+                  <p>This will delete all documents in:</p>
+                  <ul className="list-disc list-inside ml-2 space-y-0.5">
+                    <li><code className="bg-gray-100 px-1 rounded text-gray-700">scoring_assignments</code></li>
+                    <li><code className="bg-gray-100 px-1 rounded text-gray-700">swap_requests</code></li>
+                  </ul>
+                </div>
+                <button
+                  onClick={() => setConfirmAction({
+                    type: 'scoringCleanup',
+                    fn: runScoringCleanup,
+                    label: 'Clear All Scoring Data',
+                    description: 'This will permanently delete ALL scoring assignments and swap requests from Firestore. They will need to be re-created.'
+                  })}
+                  disabled={scoringCleanup.running}
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg font-semibold text-sm hover:bg-orange-600 disabled:opacity-50 transition-colors"
+                >
+                  {scoringCleanup.running ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Trash2 size={16} />
+                  )}
+                  {scoringCleanup.running ? 'Clearing...' : 'Clear Scoring Data'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={18} className="text-green-500" />
+                  <span className="text-gray-800 font-medium text-sm">Scoring Data Cleared</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gray-50 rounded-lg p-3 text-center">
+                    <p className="text-xl font-bold text-gray-800">{scoringCleanup.results?.assignmentsDeleted}</p>
+                    <p className="text-xs text-gray-500">Assignments Deleted</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3 text-center">
+                    <p className="text-xl font-bold text-gray-800">{scoringCleanup.results?.swapsDeleted}</p>
+                    <p className="text-xs text-gray-500">Swaps Deleted</p>
+                  </div>
+                </div>
+                {scoringCleanup.results?.errors?.length > 0 && (
+                  <div className="text-xs text-red-500 space-y-1">
+                    {scoringCleanup.results.errors.map((e, i) => <p key={i}>Error: {e}</p>)}
+                  </div>
+                )}
+                <button
+                  onClick={() => setScoringCleanup({ running: false, done: false, results: null })}
                   className="text-xs text-gray-400 hover:text-gray-600"
                 >
                   Reset

@@ -19,7 +19,7 @@ import {
 import FirstTimeHint from './tutorial/FirstTimeHint';
 
 const Layout = ({ children }) => {
-  const { userProfile, signOut } = useAuth();
+  const { userProfile, currentUser, signOut } = useAuth();
   const { isOnline, pendingSync, notifications } = useData();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -30,7 +30,11 @@ const Layout = ({ children }) => {
     navigate('/login');
   };
 
-  const unreadNotifications = notifications?.filter(n => !n.read).length || 0;
+  const unreadNotifications = notifications?.filter(n =>
+    !n.readBy?.includes(currentUser?.uid) &&
+    !n.deletedBy?.includes(currentUser?.uid) &&
+    n.status === 'sent'
+  ).length || 0;
 
   const navigationItems = [
     { icon: Home, label: 'Home', path: '/welcome', roles: ['player', 'coach', 'admin', 'president', 'vice_president', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach', 'youth_coach', 'parent', 'team_manager'] },

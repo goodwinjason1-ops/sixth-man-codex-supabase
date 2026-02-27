@@ -33,16 +33,23 @@ import {
 
 const WelcomePage = () => {
   const navigate = useNavigate();
-  const { userProfile, signOut, loading: authLoading, isCoach, isAdmin } = useAuth();
-  const { loading: dataLoading } = useData();
+  const { userProfile, currentUser, signOut, loading: authLoading, isCoach, isAdmin } = useAuth();
+  const { notifications, loading: dataLoading } = useData();
 
   // Game Day Detection for coaches
   const { isGameDay, todaysGames, primaryGame, hasMultipleGames, loading: gameDayLoading, dataReady } = useGameDayDetection();
   const [gameDayBannerDismissed, setGameDayBannerDismissed] = useState(false);
   const [hasAutoRedirected, setHasAutoRedirected] = useState(false);
 
-  // Unread notifications count (in real app, this would come from context or Firestore)
-  const [unreadCount, setUnreadCount] = useState(3);
+  // Unread notifications count — computed from real Firestore data
+  const unreadCount = useMemo(() => {
+    if (!notifications || !currentUser) return 0;
+    return notifications.filter(n =>
+      !n.readBy?.includes(currentUser.uid) &&
+      !n.deletedBy?.includes(currentUser.uid) &&
+      n.status === 'sent'
+    ).length;
+  }, [notifications, currentUser]);
 
   // Game Day auto-redirect
   useEffect(() => {

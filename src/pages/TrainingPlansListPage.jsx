@@ -21,7 +21,8 @@ import {
   Play,
   Archive,
   MoreVertical,
-  X
+  X,
+  Unlink
 } from 'lucide-react';
 import PageShell from '../components/PageShell';
 import { SKILL_CATEGORIES } from '../data/skillBenchmarks';
@@ -207,6 +208,18 @@ const TrainingPlansListPage = () => {
       filteredMyPlans: applyFilters(myPlans)
     };
   }, [templatePlans, sharedPlans, myPlans, selectedTeam, selectedStatus, searchQuery]);
+
+  // Map: planId → array of linked game objects (for showing "Scheduled" badge and unlinking)
+  const linkedSessionsByPlan = useMemo(() => {
+    const map = {};
+    (games || []).forEach(g => {
+      if (g.trainingPlanId) {
+        if (!map[g.trainingPlanId]) map[g.trainingPlanId] = [];
+        map[g.trainingPlanId].push(g);
+      }
+    });
+    return map;
+  }, [games]);
 
   // Get quick stats
   const stats = useMemo(() => {
@@ -685,6 +698,11 @@ const TrainingPlansListPage = () => {
                           Shared
                         </span>
                       )}
+                      {(linkedSessionsByPlan[plan.id] || []).length > 0 && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium border bg-[#00A651]/20 text-[#00A651] border-[#00A651]" title={`Linked to ${linkedSessionsByPlan[plan.id].length} training session(s)`}>
+                          Scheduled ({linkedSessionsByPlan[plan.id].length})
+                        </span>
+                      )}
                       {plan.status === 'needs-revision' && (
                         <button
                           onClick={() => handleEdit(plan.id)}
@@ -812,6 +830,25 @@ const TrainingPlansListPage = () => {
                           >
                             <Play className="w-4 h-4" />
                             Reactivate
+                          </button>
+                        )}
+                        {(linkedSessionsByPlan[plan.id] || []).length > 0 && (
+                          <button
+                            onClick={async () => {
+                              try {
+                                const linked = linkedSessionsByPlan[plan.id] || [];
+                                for (const g of linked) {
+                                  await updateDocument('games', g.id, { trainingPlanId: null });
+                                }
+                                setActionMenuPlan(null);
+                              } catch (err) {
+                                console.error('Error unlinking plan:', err);
+                              }
+                            }}
+                            className="w-full flex items-center gap-2 px-4 py-3 text-orange-500 text-sm hover:bg-orange-500/10 transition-colors"
+                          >
+                            <Unlink className="w-4 h-4" />
+                            Unlink Sessions ({(linkedSessionsByPlan[plan.id] || []).length})
                           </button>
                         )}
                         <button

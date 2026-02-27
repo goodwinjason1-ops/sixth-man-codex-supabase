@@ -40,7 +40,7 @@ import TutorialPromptCard from '../components/tutorial/TutorialPromptCard';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { players, evaluations, teams, schedule } = useData();
+  const { players, evaluations, teams, games } = useData();
   const [recentActivity, setRecentActivity] = useState([]);
   const [scoringCounts, setScoringCounts] = useState({ unassigned: 0, pending: 0, swapRequests: 0 });
 
@@ -106,13 +106,14 @@ const AdminDashboard = () => {
       const assignments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       const pendingCount = assignments.filter(a => a.status === 'pending').length;
 
-      // Count unassigned = upcoming games with no assignment
+      // Count unassigned = upcoming games (from games collection) with no assignment
       const now = new Date();
       const assignedGameIds = new Set(assignments.map(a => a.gameId));
-      const upcomingGames = (schedule || []).filter(ev => {
-        if (ev.type && ev.type !== 'game') return false;
+      const upcomingGames = (games || []).filter(ev => {
+        const evType = (ev.type || '').toLowerCase();
+        if (evType && evType !== 'game') return false;
         const d = ev.date?.toDate ? ev.date.toDate() : new Date(ev.date);
-        return d && d >= now;
+        return d && !isNaN(d.getTime()) && d >= now;
       });
       const unassignedCount = upcomingGames.filter(g => !assignedGameIds.has(g.id)).length;
 
@@ -126,7 +127,7 @@ const AdminDashboard = () => {
     }, (err) => console.error('swap_requests error:', err));
 
     return () => { unsubAssign(); unsubSwap(); };
-  }, [schedule]);
+  }, [games]);
 
   // Navigation tiles configuration
   const navigationTiles = [

@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../services/firebase';
+import { subscribeToAuditLogs, ACTION_TYPES } from '../services/auditService';
 import {
   User,
   Shield,
@@ -80,7 +81,9 @@ const AdminProfilePage = () => {
 
   // Compute system status from real application state
   const systemStatus = useMemo(() => {
-    const pendingNotifs = notifications?.filter(n => !n.read)?.length || 0;
+    const pendingNotifs = notifications?.filter(n =>
+      !n.readBy?.includes(currentUser?.uid) && n.status === 'sent'
+    )?.length || 0;
     return {
       database: { status: isOnline ? 'healthy' : 'disconnected', lastSync: isOnline ? 'Live' : 'Offline' },
       playerHQ: { status: 'disconnected', lastSync: 'Not configured' },
@@ -89,38 +92,35 @@ const AdminProfilePage = () => {
     };
   }, [notifications, isOnline]);
 
-  // Build activity log from recent evaluations and real data
-  const recentActivity = useMemo(() => {
-    const activities = [];
-
-    // Add recent evaluations as activity
-    Object.values(evaluations || {}).forEach(ev => {
-      const date = ev.date || ev.createdAt;
-      if (date) {
-        let isoDate;
-        try {
-          const raw = date?.toDate ? date.toDate()
-            : date?.seconds ? new Date(date.seconds * 1000)
-            : typeof date === 'string' ? new Date(date)
-            : new Date(date);
-          isoDate = isNaN(raw.getTime()) ? new Date().toISOString() : raw.toISOString();
-        } catch {
-          isoDate = new Date().toISOString();
-        }
-        activities.push({
-          id: `eval-${ev.id}`,
-          type: 'benchmark',
-          action: `Assessment recorded for ${ev.playerName || 'a player'} - ${ev.skillName || ev.skillId || 'skill'}`,
-          date: isoDate,
-          user: ev.coachName || 'Coach'
-        });
+  // Subscribe to real audit_logs for activity feed
+  const [recentActivity, setRecentActivity] = useState(fallbackActivity);
+  useEffect(() => {
+    const unsub = subscribeToAuditLogs({ limitCount: 8 }, (logs) => {
+      if (logs.length === 0) {
+        setRecentActivity(fallbackActivity);
+        return;
       }
+      const mapped = logs.map(log => {
+        const actionConfig = ACTION_TYPES[log.action] || {};
+        const typeMap = {
+          user: 'player',
+          team: 'player',
+          schedule: 'schedule',
+          assessment: 'benchmark',
+          settings: 'sync'
+        };
+        return {
+          id: log.id,
+          type: typeMap[actionConfig.category] || 'sync',
+          action: log.description || actionConfig.label || log.action,
+          date: log.createdAt instanceof Date ? log.createdAt.toISOString() : new Date().toISOString(),
+          user: log.userName || 'System'
+        };
+      });
+      setRecentActivity(mapped);
     });
-
-    // Sort by date descending and take the 8 most recent
-    activities.sort((a, b) => new Date(b.date) - new Date(a.date));
-    return activities.length > 0 ? activities.slice(0, 8) : fallbackActivity;
-  }, [evaluations]);
+    return () => unsub();
+  }, []);
 
   // Quick actions for admin
   const quickActions = [

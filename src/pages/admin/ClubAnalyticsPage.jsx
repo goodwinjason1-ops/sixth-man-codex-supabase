@@ -139,11 +139,15 @@ const ClubAnalyticsPage = () => {
 
     // Team comparison
     const teamStats = {};
-    const teamList = teams?.length ? teams : [...new Set(players.map(p => p.team))].filter(Boolean);
+    const teamList = teams?.length ? teams : [];
 
     teamList.forEach(team => {
+      const teamId = team.id;
       const teamName = team.name || team;
-      const teamPlayers = players.filter(p => p.team === teamName);
+      const teamPlayers = players.filter(p => {
+        const pTeams = p.teamIds || (p.teamId ? [p.teamId] : []);
+        return pTeams.includes(teamId);
+      });
       const teamEvals = recentEvals.filter(e =>
         teamPlayers.some(p => p.id === e.playerId)
       );

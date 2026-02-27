@@ -27,7 +27,7 @@ import {
 
 const AgeGroupReportsPage = () => {
   const navigate = useNavigate();
-  const { players, evaluations } = useData();
+  const { players, evaluations, teams } = useData();
   const [selectedAgeGroup, setSelectedAgeGroup] = useState('all');
   const [expandedGroup, setExpandedGroup] = useState(null);
 
@@ -46,11 +46,19 @@ const AgeGroupReportsPage = () => {
     const stats = {};
 
     ageGroups.forEach(group => {
-      // Get players in age group (based on team name pattern)
+      // Get players in age group — match via teamId/teamIds against team objects
+      const ageGroupTeamIds = (teams || [])
+        .filter(t => {
+          const teamName = (t.name || '').toUpperCase();
+          const teamAgeGroup = (t.ageGroup || '').toUpperCase();
+          return teamName.includes(group.id.toUpperCase()) ||
+                 teamName.includes(group.name.toUpperCase().replace(' ', '')) ||
+                 teamAgeGroup === group.id.toUpperCase();
+        })
+        .map(t => t.id);
       const groupPlayers = players.filter(p => {
-        const team = (p.team || '').toUpperCase();
-        return team.includes(group.id.toUpperCase()) ||
-               team.includes(group.name.toUpperCase().replace(' ', ''));
+        const pTeams = p.teamIds || (p.teamId ? [p.teamId] : []);
+        return pTeams.some(tid => ageGroupTeamIds.includes(tid));
       });
 
       // Get evaluations for these players
@@ -100,7 +108,7 @@ const AgeGroupReportsPage = () => {
     });
 
     return stats;
-  }, [players, evaluations]);
+  }, [players, evaluations, teams]);
 
   // Comparison chart data
   const comparisonData = useMemo(() => {
