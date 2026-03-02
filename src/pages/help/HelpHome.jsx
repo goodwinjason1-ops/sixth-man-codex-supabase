@@ -111,6 +111,10 @@ const HelpHome = () => {
       title="Help Center"
       subtitle="Guides, FAQs, and support"
       backTo={role === 'tryout_assessor' ? '/assessor' : '/welcome'}
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Help Center' }
+      ]}
       maxWidth="4xl"
     >
       <div className="space-y-6">

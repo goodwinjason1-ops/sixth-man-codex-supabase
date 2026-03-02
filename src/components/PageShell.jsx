@@ -31,7 +31,13 @@ const PageShell = ({
         <div className="flex items-center gap-3">
           {backTo && (
             <button
-              onClick={() => navigate(backTo)}
+              onClick={() => {
+                if (window.history.state && window.history.state.idx > 0) {
+                  navigate(-1);
+                } else {
+                  navigate(backTo);
+                }
+              }}
               className="p-2 hover:bg-white/10 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center text-white"
               aria-label="Go back"
             >

@@ -110,7 +110,7 @@ const ParentTeamViewPage = () => {
   }, [selectedTeam, schedule]);
 
   return (
-    <PageShell title="Team Info" backTo="/dashboard">
+    <PageShell title="Team Info" backTo="/dashboard" breadcrumbs={[{ label: 'Home', url: '/welcome' }, { label: 'Dashboard', url: '/dashboard' }, { label: 'Team Info' }]}>
       <div className="space-y-4">
         {/* Team selector (if multiple teams) */}
         {teams.length > 1 && (

@@ -65,9 +65,8 @@ export const DRILL_VIEW_ROLES = [
   'coach', 'youth_coach', 'team_manager'
 ];
 
-// Roles that can create/edit drills
+// Roles that can create/edit drills (admin only — coaches have read-only access)
 export const DRILL_EDIT_ROLES = [
   'admin', 'president', 'vice_president', 'coach_coordinator',
-  'girls_coordinator', 'boys_coordinator', 'youth_head_coach',
-  'coach', 'youth_coach'
+  'girls_coordinator', 'boys_coordinator', 'youth_head_coach'
 ];

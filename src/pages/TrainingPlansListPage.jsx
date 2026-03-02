@@ -71,6 +71,7 @@ const TrainingPlansListPage = () => {
       p.isShared &&
       !p.isTemplate &&
       !(p.id && p.id.startsWith('template_')) &&
+      !p.promotedToTemplate &&
       getPlanOwnerId(p) !== currentUser?.uid
     ),
     [allPlans, currentUser]
@@ -107,6 +108,7 @@ const TrainingPlansListPage = () => {
   const [actionMenuPlan, setActionMenuPlan] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [schedulePlanId, setSchedulePlanId] = useState(null);
+  const [previewPlan, setPreviewPlan] = useState(null);
 
   // Future training sessions — include ALL (even already-linked) for the scheduling dialog
   // Already-linked sessions are shown greyed-out so the coach can see the full picture
@@ -511,7 +513,7 @@ const TrainingPlansListPage = () => {
                       )}
                     </div>
                     <div className="flex items-center gap-1">
-                      <button onClick={() => navigate(`/coach/training-plans/${plan.id}`)} className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors" title="View">
+                      <button onClick={() => setPreviewPlan(plan)} className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors" title="View Full Preview">
                         <Eye className="w-5 h-5" />
                       </button>
                       <button onClick={() => handleDuplicate(plan.id)} className="p-2 text-[#005028] hover:bg-[#005028]/10 rounded-lg transition-colors" title="Use Template">
@@ -583,7 +585,7 @@ const TrainingPlansListPage = () => {
                     )}
                   </div>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => navigate(`/coach/training-plans/${plan.id}`)} className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors" title="View">
+                    <button onClick={() => setPreviewPlan(plan)} className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors" title="View Full Preview">
                       <Eye className="w-5 h-5" />
                     </button>
                     <button onClick={() => handleDuplicate(plan.id)} className="p-2 text-[#005028] hover:bg-[#005028]/10 rounded-lg transition-colors" title="Copy to My Plans">
@@ -648,6 +650,11 @@ const TrainingPlansListPage = () => {
                           Shared
                         </span>
                       )}
+                      {plan.promotedToTemplate && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium border bg-purple-500/20 text-purple-600 border-purple-400">
+                          Promoted to Template
+                        </span>
+                      )}
                       {(linkedSessionsByPlan[plan.id] || []).length > 0 && (
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-medium border bg-[#00A651]/20 text-[#00A651] border-[#00A651]" title={`Linked to ${linkedSessionsByPlan[plan.id].length} training session(s)`}>
                           Scheduled ({linkedSessionsByPlan[plan.id].length})
@@ -702,6 +709,13 @@ const TrainingPlansListPage = () => {
 
                   {/* Actions */}
                   <div className="flex items-center gap-1 sm:gap-2 relative">
+                    <button
+                      onClick={() => setPreviewPlan(plan)}
+                      className="p-2 text-[#00A651] hover:bg-[#00A651]/20 rounded-lg transition-colors"
+                      title="View Full Preview"
+                    >
+                      <Eye className="w-5 h-5" />
+                    </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleToggleShare(plan); }}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
@@ -827,6 +841,183 @@ const TrainingPlansListPage = () => {
         </div>
       </div>
 
+      {/* Full Plan Preview Modal */}
+      {previewPlan && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setPreviewPlan(null)}>
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <div
+            className="relative w-full sm:max-w-2xl max-h-[95vh] bg-white rounded-t-3xl sm:rounded-2xl overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="sticky top-0 bg-[#F5F9F5] p-4 z-10 border-b border-[#D4E4D4]">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-xl font-bold text-gray-800 truncate">{previewPlan.name || 'Untitled Plan'}</h2>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    {previewPlan.isTemplate || previewPlan.id?.startsWith('template_') ? (
+                      <span className="px-1.5 py-0.5 bg-[#FFD700]/20 text-[#B8860B] text-[10px] rounded font-medium">Template</span>
+                    ) : previewPlan.isShared ? (
+                      <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded font-medium">Shared</span>
+                    ) : null}
+                    <span className="text-[#00A651] text-sm">
+                      {previewPlan.sessions?.length || 0} session{(previewPlan.sessions?.length || 0) !== 1 ? 's' : ''}
+                      {' \u2022 '}
+                      {(previewPlan.sessions || []).reduce((t, s) => t + (s.drills?.length || 0), 0)} drills
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setPreviewPlan(null)}
+                  className="w-10 h-10 bg-white border border-[#D4E4D4] rounded-full flex items-center justify-center hover:border-[#00A651] transition-colors flex-shrink-0 ml-3"
+                >
+                  <X className="w-5 h-5 text-gray-800" />
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="overflow-y-auto max-h-[calc(95vh-140px)] p-6 bg-white">
+              {/* Plan Info */}
+              <div className="mb-6 pb-6 border-b border-gray-200">
+                {previewPlan.description && (
+                  <p className="text-gray-600 text-sm mb-4">{previewPlan.description}</p>
+                )}
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  {previewPlan.coachName && (
+                    <div>
+                      <span className="text-[#6B7C6B]">Coach:</span>
+                      <p className="text-gray-800 font-medium">{previewPlan.coachName}</p>
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-[#6B7C6B]">Team:</span>
+                    <p className="text-gray-800 font-medium">{previewPlan.teamName || previewPlan.ageGroup || '-'}</p>
+                  </div>
+                  <div>
+                    <span className="text-[#6B7C6B]">Date Range:</span>
+                    <p className="text-gray-800 font-medium">
+                      {previewPlan.dateRange?.start ? new Date(previewPlan.dateRange.start).toLocaleDateString('en-AU') : '-'}
+                      {previewPlan.dateRange?.end && ` - ${new Date(previewPlan.dateRange.end).toLocaleDateString('en-AU')}`}
+                    </p>
+                  </div>
+                </div>
+                {previewPlan.focusAreas && previewPlan.focusAreas.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {previewPlan.focusAreas.map((area, idx) => {
+                      const skill = SKILL_CATEGORIES.find(s => s.id === area);
+                      return (
+                        <span key={idx} className="px-3 py-1 bg-[#005028]/10 text-[#00A651] rounded-full text-xs">
+                          {skill?.name || area}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Sessions */}
+              {previewPlan.sessions && previewPlan.sessions.length > 0 ? (
+                previewPlan.sessions.map((session, index) => (
+                  <div key={index} className="mb-6 pb-6 border-b border-gray-200 last:border-0">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-[#005028] rounded-lg flex items-center justify-center text-white font-bold">
+                        {session.sessionNumber || index + 1}
+                      </div>
+                      <div>
+                        <h4 className="text-gray-800 font-bold">{session.name || `Session ${index + 1}`}</h4>
+                        <p className="text-[#6B7C6B] text-sm">
+                          {session.date ? new Date(session.date).toLocaleDateString('en-AU') : 'No date'}
+                          {session.duration ? ` \u2022 ${session.duration} mins` : ''}
+                        </p>
+                      </div>
+                    </div>
+
+                    {session.warmUp && (
+                      <div className="mb-3">
+                        <h5 className="text-sm font-semibold text-gray-700 mb-1">Warm-up</h5>
+                        <p className="text-gray-600 text-sm whitespace-pre-wrap">{session.warmUp}</p>
+                      </div>
+                    )}
+
+                    {session.drills && session.drills.length > 0 && (
+                      <div className="mb-3">
+                        <h5 className="text-sm font-semibold text-gray-700 mb-2">Drills ({session.drills.length})</h5>
+                        <div className="space-y-2">
+                          {session.drills.map((drill, di) => (
+                            <div key={di} className="bg-[#F5F9F5] rounded-lg p-3">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="font-medium text-gray-800 text-sm">{drill.name}</span>
+                                {drill.duration && <span className="text-[#6B7C6B] text-xs">{drill.duration} mins</span>}
+                              </div>
+                              {drill.description && <p className="text-gray-600 text-xs">{drill.description}</p>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {session.smallSidedGames && (
+                      <div className="mb-3">
+                        <h5 className="text-sm font-semibold text-gray-700 mb-1">Games</h5>
+                        <p className="text-gray-600 text-sm whitespace-pre-wrap">{session.smallSidedGames}</p>
+                      </div>
+                    )}
+
+                    {session.coolDown && (
+                      <div className="mb-3">
+                        <h5 className="text-sm font-semibold text-gray-700 mb-1">Cool-down</h5>
+                        <p className="text-gray-600 text-sm whitespace-pre-wrap">{session.coolDown}</p>
+                      </div>
+                    )}
+
+                    {session.notes && (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <h5 className="text-sm font-semibold text-yellow-800 mb-1">Coach Notes</h5>
+                        <p className="text-yellow-700 text-sm whitespace-pre-wrap">{session.notes}</p>
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Dumbbell className="w-10 h-10 text-[#6B7C6B] mx-auto mb-2" />
+                  <p className="text-[#6B7C6B] text-sm">No sessions defined in this plan</p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="sticky bottom-0 bg-white border-t border-[#D4E4D4] p-4 flex gap-3">
+              <button
+                onClick={() => setPreviewPlan(null)}
+                className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-800 font-medium transition-colors"
+              >
+                Close
+              </button>
+              {getPlanOwnerId(previewPlan) === currentUser?.uid && (
+                <button
+                  onClick={() => { handleEdit(previewPlan.id); setPreviewPlan(null); }}
+                  className="flex-1 py-3 bg-[#005028] hover:bg-[#00A651] rounded-xl text-white font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  Edit Plan
+                </button>
+              )}
+              {getPlanOwnerId(previewPlan) !== currentUser?.uid && !previewPlan.isTemplate && (
+                <button
+                  onClick={() => { handleDuplicate(previewPlan.id); setPreviewPlan(null); }}
+                  className="flex-1 py-3 bg-[#005028] hover:bg-[#00A651] rounded-xl text-white font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  <Copy className="w-4 h-4" />
+                  Copy to My Plans
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Schedule Modal */}
       {schedulePlanId && (
         <div className="fixed inset-0 z-50" onClick={() => setSchedulePlanId(null)}>
@@ -896,9 +1087,25 @@ const TrainingPlansListPage = () => {
                           const sessionDate = toJsDate(event.date);
                           if (sessionDate) {
                             const dateStr = sessionDate.toISOString().split('T')[0];
+                            // Auto-populate dates from linked session (FIX 5)
+                            const thePlan = allPlans.find(p => p.id === schedulePlanId);
+                            const sessionCount = thePlan?.sessions?.length || 0;
+                            const weeksToAdd = sessionCount > 0 ? sessionCount * 7 : 12 * 7;
+                            const endDate = new Date(sessionDate);
+                            endDate.setDate(endDate.getDate() + weeksToAdd);
+                            const endDateStr = endDate.toISOString().split('T')[0];
+                            const startTime = event.startTime || event.time || '';
+                            const endTime = startTime ? (() => {
+                              const [h, m] = startTime.split(':').map(Number);
+                              const endH = h + 1;
+                              return `${String(endH).padStart(2, '0')}:${String(m || 0).padStart(2, '0')}`;
+                            })() : '';
                             await updateDocument('training_plans', schedulePlanId, {
                               'dateRange.start': dateStr,
+                              'dateRange.end': endDateStr,
                               scheduledDate: dateStr,
+                              scheduledStartTime: startTime,
+                              scheduledEndTime: endTime,
                             });
                           }
                           setSchedulePlanId(null);

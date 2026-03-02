@@ -62,7 +62,7 @@ const TrainingPlansLibraryPage = () => {
   }, [trainingPlans]);
 
   const sharedPlans = useMemo(() => {
-    return (trainingPlans || []).filter(p => p.isShared && !p.isTemplate && !(p.id && p.id.startsWith('template_')));
+    return (trainingPlans || []).filter(p => p.isShared && !p.isTemplate && !(p.id && p.id.startsWith('template_')) && !p.promotedToTemplate);
   }, [trainingPlans]);
 
   const coachPlans = useMemo(() => {
@@ -210,11 +210,16 @@ const TrainingPlansLibraryPage = () => {
       name: cleanName,
       isTemplate: true,
       isShared: false,
+      promotedToTemplate: true,
       copiedFrom: id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
-    alert(`"${cleanName}" has been added to the club template library.`);
+    // Mark original plan as promoted so it's removed from shared section
+    await updateDocument('training_plans', id, {
+      promotedToTemplate: true,
+    });
+    alert(`"${cleanName}" has been promoted to a club template.`);
   };
 
   // Handle delete template
@@ -446,14 +451,21 @@ const TrainingPlansLibraryPage = () => {
                         <Eye size={14} />
                         View
                       </button>
-                      <button
-                        onClick={() => handleCopyToLibrary(plan)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 text-xs rounded-lg transition-colors"
-                        title="Promote to club template"
-                      >
-                        <Copy size={14} />
-                        Promote
-                      </button>
+                      {plan.promotedToTemplate ? (
+                        <span className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-400 text-xs rounded-lg cursor-default">
+                          <CheckCircle size={14} />
+                          Promoted
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => handleCopyToLibrary(plan)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 text-xs rounded-lg transition-colors"
+                          title="Promote to club template"
+                        >
+                          <Copy size={14} />
+                          Promote
+                        </button>
+                      )}
                     </div>
                   </div>
                   {plan.description && (
@@ -789,16 +801,23 @@ const TrainingPlansLibraryPage = () => {
                 Close
               </button>
               {selectedPlan.isShared && !selectedPlan.isTemplate && (
-                <button
-                  onClick={() => {
-                    handleCopyToLibrary(selectedPlan);
-                    setSelectedPlan(null);
-                  }}
-                  className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl text-white font-medium transition-colors flex items-center justify-center gap-2"
-                >
-                  <Copy className="w-4 h-4" />
-                  Promote to Template
-                </button>
+                selectedPlan.promotedToTemplate ? (
+                  <span className="flex-1 py-3 bg-gray-100 rounded-xl text-gray-400 font-medium text-center flex items-center justify-center gap-2 cursor-default">
+                    <CheckCircle className="w-4 h-4" />
+                    Already Promoted
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => {
+                      handleCopyToLibrary(selectedPlan);
+                      setSelectedPlan(null);
+                    }}
+                    className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl text-white font-medium transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Copy className="w-4 h-4" />
+                    Promote to Template
+                  </button>
+                )
               )}
               {selectedPlan.approvalStatus === 'pending' && (
                 <button

@@ -68,13 +68,13 @@ const HelpTooltip = ({ text, children }) => {
       {open && (
         <div
           ref={tooltipRef}
-          className={`absolute bottom-full ${tooltipPositionClass} mb-2 z-50 animate-scaleIn`}
+          className={`absolute top-full ${tooltipPositionClass} mt-2 z-[9999] animate-scaleIn`}
         >
+          {/* Arrow pointing up */}
+          <div className={`w-2 h-2 bg-[#F5F9F5] border-t border-l border-[#D4E4D4] rotate-45 absolute ${arrowPositionClass} -top-1`} />
           <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg p-3 shadow-xl max-w-[300px] min-w-[200px]">
             <p className="text-gray-700 text-xs leading-relaxed">{text}</p>
           </div>
-          {/* Arrow */}
-          <div className={`w-2 h-2 bg-[#F5F9F5] border-b border-r border-[#D4E4D4] rotate-45 absolute ${arrowPositionClass} -bottom-1`} />
         </div>
       )}
     </span>

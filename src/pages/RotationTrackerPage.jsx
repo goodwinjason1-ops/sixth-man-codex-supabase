@@ -846,7 +846,7 @@ const RotationTrackerPage = () => {
     const showPlanSection = showSecondHalf && secondHalfStarters.size === COURT_SIZE;
 
     return (
-      <PageShell backTo="/coach" title="Rotation Tracker" subtitle="Track player rotations during games">
+      <PageShell backTo="/coach" title="Rotation Tracker" subtitle="Track player rotations during games" breadcrumbs={[{ label: 'Home', url: '/welcome' }, { label: 'Dashboard', url: '/coach' }, { label: 'Rotation Tracker' }]}>
         <div className="space-y-6">
           {/* Team Selector */}
           <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
@@ -1411,7 +1411,7 @@ const RotationTrackerPage = () => {
     : 0;
 
   return (
-    <PageShell backTo="/coach" title="Game Summary" subtitle={`vs ${opponent}`}>
+    <PageShell backTo="/coach" title="Game Summary" subtitle={`vs ${opponent}`} breadcrumbs={[{ label: 'Home', url: '/welcome' }, { label: 'Dashboard', url: '/coach' }, { label: 'Rotation Tracker', url: '/coach/rotation-tracker' }, { label: 'Game Summary' }]}>
       <div className="space-y-6">
         {/* Game Info Card */}
         <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
@@ -1660,7 +1660,7 @@ const RotationTrackerPage = () => {
           )}
           <div className="flex gap-3">
             <button
-              onClick={() => navigate('/coach')}
+              onClick={() => window.history.state?.idx > 0 ? navigate(-1) : navigate('/coach')}
               className="flex-1 py-3 bg-white border border-[#D4E4D4] text-gray-800 rounded-xl font-medium hover:bg-gray-100 transition-colors"
             >
               Back to Dashboard

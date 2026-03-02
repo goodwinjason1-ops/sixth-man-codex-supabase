@@ -135,7 +135,7 @@ const ParentSchedulePage = () => {
   };
 
   return (
-    <PageShell title="Schedule" backTo="/dashboard">
+    <PageShell title="Schedule" backTo="/dashboard" breadcrumbs={[{ label: 'Home', url: '/welcome' }, { label: 'Dashboard', url: '/dashboard' }, { label: 'Schedule' }]}>
       <div className="space-y-4">
         {/* Upcoming Events */}
         {upcoming.length > 0 ? (

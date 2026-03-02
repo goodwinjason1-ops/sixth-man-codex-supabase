@@ -31,7 +31,7 @@ const ManagerTeamPage = () => {
   // Loading state
   if (loading) {
     return (
-      <PageShell title="My Team" backTo="/dashboard">
+      <PageShell title="My Team" backTo="/dashboard" breadcrumbs={[{ label: 'Home', url: '/welcome' }, { label: 'Dashboard', url: '/dashboard' }, { label: 'My Team' }]}>
         <div className="flex flex-col items-center justify-center py-16">
           <Loader2 className="w-8 h-8 text-[#00A651] animate-spin mb-4" />
           <p className="text-gray-500">Loading team information...</p>
@@ -43,7 +43,7 @@ const ManagerTeamPage = () => {
   // No teams assigned
   if (!teams || teams.length === 0) {
     return (
-      <PageShell title="My Team" backTo="/dashboard">
+      <PageShell title="My Team" backTo="/dashboard" breadcrumbs={[{ label: 'Home', url: '/welcome' }, { label: 'Dashboard', url: '/dashboard' }, { label: 'My Team' }]}>
         <div className="flex flex-col items-center justify-center py-16">
           <AlertCircle className="w-12 h-12 text-[#6B7C6B] mb-4" />
           <h2 className="text-lg font-bold text-gray-800 mb-2">No Team Assigned</h2>
@@ -110,7 +110,7 @@ const ManagerTeamPage = () => {
   }, [selectedTeam, schedule]);
 
   return (
-    <PageShell title="My Team" backTo="/dashboard">
+    <PageShell title="My Team" backTo="/dashboard" breadcrumbs={[{ label: 'Home', url: '/welcome' }, { label: 'Dashboard', url: '/dashboard' }, { label: 'My Team' }]}>
       <div className="space-y-4">
         {/* Team selector (if multiple teams) */}
         {teams.length > 1 && (

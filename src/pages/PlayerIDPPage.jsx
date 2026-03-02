@@ -227,6 +227,12 @@ const PlayerIDPPage = () => {
       title="Development Plan"
       subtitle={`${idp.playerName} - ${idp.season}`}
       backTo={`/players/${playerId}`}
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Dashboard', url: '/dashboard' },
+        { label: idp.playerName || 'Player', url: `/players/${playerId}` },
+        { label: 'Development Plan' }
+      ]}
     >
       <div className="space-y-6">
 

@@ -238,6 +238,12 @@ const RecordTrainingPage = () => {
       title="Training Session"
       subtitle={`${teamName} — ${sessionDate}`}
       backTo="/coach/schedule"
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Dashboard', url: '/coach' },
+        { label: 'Schedule', url: '/coach/schedule' },
+        { label: 'Training Session' }
+      ]}
       headerActions={
         linkedPlan ? (
           <button

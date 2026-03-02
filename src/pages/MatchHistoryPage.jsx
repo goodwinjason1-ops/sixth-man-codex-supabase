@@ -461,7 +461,7 @@ const MatchHistoryPage = () => {
   // Render
   // ---------------------------------------------------------------------------
   return (
-    <PageShell title="Match History" backTo="/dashboard">
+    <PageShell title="Match History" backTo="/dashboard" breadcrumbs={[{ label: 'Home', url: '/welcome' }, { label: 'Dashboard', url: '/dashboard' }, { label: 'Match History' }]}>
       <div className="space-y-4">
         {/* Team filter dropdown */}
         <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">

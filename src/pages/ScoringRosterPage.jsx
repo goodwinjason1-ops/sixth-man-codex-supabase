@@ -718,7 +718,7 @@ const ScoringRosterPage = () => {
   // Render
   // -----------------------------------------------------------------------
   return (
-    <PageShell title="Scoring Roster" backTo="/welcome">
+    <PageShell title="Scoring Roster" backTo="/welcome" breadcrumbs={[{ label: 'Home', url: '/welcome' }, { label: 'Scoring Roster' }]}>
       <div className="space-y-6">
         {/* Feedback toast */}
         {actionFeedback && (

@@ -189,6 +189,12 @@ const IDPReviewPage = () => {
       title="Review Development Plan"
       subtitle={plan.playerName}
       backTo={`/development-plans/${planId}`}
+      breadcrumbs={[
+        { label: 'Home', url: '/welcome' },
+        { label: 'Dashboard', url: '/dashboard' },
+        { label: 'Development Plans', url: `/development-plans/${planId}` },
+        { label: 'Review' }
+      ]}
     >
       <div className="space-y-6">
 

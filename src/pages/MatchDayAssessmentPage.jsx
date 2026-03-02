@@ -383,13 +383,24 @@ const MatchDayAssessmentPage = () => {
     }));
   };
 
-  // Handle player notes change
+  // Handle player notes change (public)
   const handlePlayerNotesChange = (playerId, notes) => {
     setPlayerAssessments(prev => ({
       ...prev,
       [playerId]: {
         ...prev[playerId],
         notes: notes
+      }
+    }));
+  };
+
+  // Handle player private notes change
+  const handlePlayerPrivateNotesChange = (playerId, notes) => {
+    setPlayerAssessments(prev => ({
+      ...prev,
+      [playerId]: {
+        ...prev[playerId],
+        privateNotes: notes
       }
     }));
   };
@@ -432,7 +443,7 @@ const MatchDayAssessmentPage = () => {
 
   // Get player assessment data
   const getPlayerAssessment = (playerId) => {
-    return playerAssessments[playerId] || { metrics: {}, notes: '', notesPrivate: true, metricNotes: {} };
+    return playerAssessments[playerId] || { metrics: {}, notes: '', privateNotes: '', notesPrivate: true, metricNotes: {} };
   };
 
   // Count assessed metrics for a player
@@ -518,6 +529,8 @@ const MatchDayAssessmentPage = () => {
             playerNumber: player?.number || 0,
             metrics: data.metrics || {},
             metricNotes: data.metricNotes || {},
+            publicNotes: data.notes || '',
+            privateNotes: data.privateNotes || '',
             notes: data.notes || '',
             notesPrivate: data.notesPrivate !== false
           };
@@ -1327,7 +1340,7 @@ const MatchDayAssessmentPage = () => {
                         })}
                       </div>
 
-                      {/* Player Notes - Collapsible */}
+                      {/* Player Notes - Collapsible with Public & Private */}
                       <div className="border-t border-[#D4E4D4] pt-3">
                         <button
                           onClick={() => setExpandedPlayerNotes(prev => ({ ...prev, [player.id]: !prev[player.id] }))}
@@ -1335,48 +1348,45 @@ const MatchDayAssessmentPage = () => {
                         >
                           <div className="flex items-center gap-2">
                             <span className="text-gray-800 text-xs font-medium">Notes</span>
-                            {assessment.notes?.length > 0 && (
+                            {(assessment.notes?.length > 0 || assessment.privateNotes?.length > 0) && (
                               <span className="text-[10px] text-[#00A651] bg-[#005028]/20 px-1.5 py-0.5 rounded">Has notes</span>
                             )}
                           </div>
                           <ChevronDown className={`w-4 h-4 text-[#6B7C6B] transition-transform duration-200 ${expandedPlayerNotes[player.id] ? 'rotate-180' : ''}`} />
                         </button>
 
-                        <div className={`overflow-hidden transition-all duration-200 ${expandedPlayerNotes[player.id] ? 'max-h-[200px] mt-2' : 'max-h-0'}`}>
-                          <div className="flex items-center justify-end mb-2">
-                            <button
-                              onClick={() => togglePlayerNotesVisibility(player.id)}
-                              className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors ${
-                                assessment.notesPrivate !== false
-                                  ? 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B]'
-                                  : 'bg-[#005028] text-white'
-                              }`}
-                            >
-                              {assessment.notesPrivate !== false ? (
-                                <>
-                                  <EyeOff className="w-3 h-3" />
-                                  Private
-                                </>
-                              ) : (
-                                <>
-                                  <Eye className="w-3 h-3" />
-                                  Public
-                                </>
-                              )}
-                            </button>
+                        <div className={`overflow-hidden transition-all duration-200 ${expandedPlayerNotes[player.id] ? 'max-h-[400px] mt-2' : 'max-h-0'}`}>
+                          {/* Public Notes */}
+                          <div className="mb-3">
+                            <div className="flex items-center gap-1.5 mb-1.5">
+                              <Eye className="w-3 h-3 text-[#00A651]" />
+                              <span className="text-xs font-medium text-[#00A651]">Public Notes</span>
+                            </div>
+                            <textarea
+                              value={assessment.notes || ''}
+                              onChange={(e) => handlePlayerNotesChange(player.id, e.target.value)}
+                              placeholder={`Public notes for ${player.name} (visible to player/parent)...`}
+                              rows={2}
+                              className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm placeholder-gray-400 focus:border-[#00A651] focus:outline-none resize-none"
+                            />
+                            <p className="text-[10px] text-[#6B7C6B] mt-0.5">Visible to player and parent in skills passport</p>
                           </div>
-                          <textarea
-                            value={assessment.notes || ''}
-                            onChange={(e) => handlePlayerNotesChange(player.id, e.target.value)}
-                            placeholder={`Notes for ${player.name}... (optional)`}
-                            rows={2}
-                            className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm placeholder-gray-400 focus:border-[#00A651] focus:outline-none resize-none"
-                          />
-                          <p className="text-[10px] text-[#6B7C6B] mt-1">
-                            {assessment.notesPrivate !== false
-                              ? 'Private: Only visible to coaches'
-                              : 'Public: Visible to player/parent'}
-                          </p>
+
+                          {/* Private Notes */}
+                          <div>
+                            <div className="flex items-center gap-1.5 mb-1.5">
+                              <EyeOff className="w-3 h-3 text-[#6B7C6B]" />
+                              <span className="text-xs font-medium text-[#6B7C6B]">Private Notes 🔒</span>
+                            </div>
+                            <textarea
+                              value={assessment.privateNotes || ''}
+                              onChange={(e) => handlePlayerPrivateNotesChange(player.id, e.target.value)}
+                              placeholder={`Private notes (coach & admin only)...`}
+                              rows={2}
+                              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 text-sm placeholder-gray-400 focus:border-[#6B7C6B] focus:outline-none resize-none"
+                            />
+                            <p className="text-[10px] text-[#6B7C6B] mt-0.5">Only visible to coaches and admin</p>
+                          </div>
                         </div>
                       </div>
                     </div>
