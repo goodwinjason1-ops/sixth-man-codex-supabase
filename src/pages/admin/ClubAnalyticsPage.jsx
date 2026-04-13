@@ -212,9 +212,10 @@ const ClubAnalyticsPage = () => {
     <PageShell
       title="Club Analytics"
       subtitle="Performance metrics and insights"
-      backTo="/welcome"
+      backTo="/admin/analytics-hub"
       breadcrumbs={[
         { label: 'Home', url: '/welcome' },
+        { label: 'Analytics & Reports', url: '/admin/analytics-hub' },
         { label: 'Club Analytics' }
       ]}
     >

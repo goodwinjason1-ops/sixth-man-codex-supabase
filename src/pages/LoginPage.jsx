@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, User, Chrome, Apple as AppleIcon, AlertCircle, Users, ClipboardCheck, KeyRound } from 'lucide-react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import { Mail, Lock, User, Chrome, Apple as AppleIcon, AlertCircle, Users, ClipboardCheck, KeyRound, Phone, Shield, MessageSquare } from 'lucide-react';
 
 const LoginPage = () => {
   const {
@@ -17,22 +19,53 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [selectedRole, setSelectedRole] = useState('player'); // player or coach
+  const [selectedRole, setSelectedRole] = useState(''); // requested role
+  const [requestedTeam, setRequestedTeam] = useState('');
+  const [phone, setPhone] = useState('');
+  const [registrationNote, setRegistrationNote] = useState('');
+  const [teams, setTeams] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [showInvitationInput, setShowInvitationInput] = useState(false);
   const [invitationCodeInput, setInvitationCodeInput] = useState('');
 
+  // Hardcoded fallback teams (used if Firestore read fails for unauthenticated users)
+  const FALLBACK_TEAMS = [
+    { id: 'fb_u8', name: 'Lakers U8' },
+    { id: 'fb_u10', name: 'Lakers U10' },
+    { id: 'fb_u12', name: 'Lakers U12' },
+    { id: 'fb_u14g', name: 'Lakers U14 Girls' },
+    { id: 'fb_u16', name: 'Lakers U16' },
+    { id: 'fb_u19', name: 'Lakers U19' },
+  ];
+
+  // Fetch teams for dropdown
+  useEffect(() => {
+    getDocs(collection(db, 'teams')).then(snap => {
+      const t = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      t.sort((a, b) => (a.name || a.teamName || '').localeCompare(b.name || b.teamName || ''));
+      setTeams(t.length > 0 ? t : FALLBACK_TEAMS);
+    }).catch(() => {
+      setTeams(FALLBACK_TEAMS);
+    });
+  }, []);
+
   const handleGoogleSignIn = async () => {
     try {
       setError('');
       setLoading(true);
-      await signInWithGoogle();
-      navigate('/welcome');
+      const user = await signInWithGoogle();
+      if (user) {
+        // Let onAuthStateChanged load profile, then App.jsx route guard redirects
+        navigate('/welcome');
+      }
     } catch (err) {
-      setError('Failed to sign in with Google. Please try again.');
-      console.error(err);
+      // popup-closed-by-user and cancelled-popup-request are handled in AuthContext
+      if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
+        setError('Google sign-in failed. Please try again.');
+        console.error('Google sign-in error:', err);
+      }
     } finally {
       setLoading(false);
     }
@@ -80,6 +113,11 @@ const LoginPage = () => {
       return;
     }
 
+    if (mode === 'signup' && !selectedRole) {
+      setError('Please select a preferred role');
+      return;
+    }
+
     if (mode === 'signup' && password.length < 8) {
       setError('Password must be at least 8 characters');
       return;
@@ -88,7 +126,12 @@ const LoginPage = () => {
     try {
       setLoading(true);
       if (mode === 'signup') {
-        await signUpWithEmail(email, password, displayName, { role: selectedRole });
+        await signUpWithEmail(email, password, displayName, {
+          requestedRole: selectedRole,
+          requestedTeam: requestedTeam || 'Not sure',
+          phone: phone.trim(),
+          registrationNote: registrationNote.trim(),
+        });
       } else {
         await signInWithEmail(email, password);
       }
@@ -123,11 +166,11 @@ const LoginPage = () => {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-28 h-28 rounded-full bg-[#FFD700]/20 ring-2 ring-[#FFD700]/40 mb-4">
+          <div className="inline-flex items-center justify-center mb-4">
             <img
               src="/images/logo_login.png"
               alt="Emerald Lakers"
-              className="w-24 h-24 drop-shadow-lg"
+              className="max-h-[120px] w-auto object-contain drop-shadow-lg"
             />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Emerald Lakers</h1>
@@ -191,7 +234,7 @@ const LoginPage = () => {
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name
+                    Full Name <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -208,36 +251,83 @@ const LoginPage = () => {
                   </div>
                 </div>
 
-                {/* Role Selector */}
+                {/* Preferred Role */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    I am a...
+                    Preferred Role <span className="text-red-400">*</span>
                   </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedRole('player')}
-                      className={`flex items-center justify-center gap-2 px-4 py-3 border-2 rounded-lg transition-all ${
-                        selectedRole === 'player'
-                          ? 'border-lakers-600 bg-lakers-50 text-lakers-700'
-                          : 'border-gray-300 text-gray-600 hover:border-gray-400'
-                      }`}
+                  <div className="relative">
+                    <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <select
+                      value={selectedRole}
+                      onChange={(e) => setSelectedRole(e.target.value)}
+                      disabled={loading}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lakers-600 focus:border-transparent outline-none appearance-none"
+                      required
                     >
-                      <Users className="w-5 h-5" />
-                      <span className="font-medium">Player</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedRole('coach')}
-                      className={`flex items-center justify-center gap-2 px-4 py-3 border-2 rounded-lg transition-all ${
-                        selectedRole === 'coach'
-                          ? 'border-lakers-600 bg-lakers-50 text-lakers-700'
-                          : 'border-gray-300 text-gray-600 hover:border-gray-400'
-                      }`}
+                      <option value="">Select a role...</option>
+                      <option value="coach">Coach</option>
+                      <option value="parent">Parent</option>
+                      <option value="team_manager">Team Manager</option>
+                      <option value="tryout_assessor">Volunteer / Assessor</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Team Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Team</label>
+                  <div className="relative">
+                    <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <select
+                      value={requestedTeam}
+                      onChange={(e) => setRequestedTeam(e.target.value)}
+                      disabled={loading}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lakers-600 focus:border-transparent outline-none appearance-none"
                     >
-                      <ClipboardCheck className="w-5 h-5" />
-                      <span className="font-medium">Coach</span>
-                    </button>
+                      <option value="">Not sure</option>
+                      {teams.map(t => (
+                        <option key={t.id} value={t.name || t.teamName}>{t.name || t.teamName}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number <span className="text-gray-400 font-normal">(optional)</span>
+                  </label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lakers-600 focus:border-transparent outline-none"
+                      placeholder="0400 000 000"
+                      disabled={loading}
+                      maxLength={20}
+                    />
+                  </div>
+                </div>
+
+                {/* Note */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Brief note <span className="text-gray-400 font-normal">(optional)</span>
+                  </label>
+                  <div className="relative">
+                    <MessageSquare className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                    <textarea
+                      value={registrationNote}
+                      onChange={(e) => setRegistrationNote(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lakers-600 focus:border-transparent outline-none resize-none"
+                      placeholder="Tell us about your involvement with the club"
+                      disabled={loading}
+                      rows={2}
+                      maxLength={300}
+                    />
                   </div>
                 </div>
               </>
@@ -350,7 +440,7 @@ const LoginPage = () => {
           {mode === 'signup' && (
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-700">
-                Parents need an invitation code from the club admin to create a parent account.
+                Your account will be reviewed by a club administrator before access is granted.
               </p>
             </div>
           )}

@@ -23,7 +23,9 @@ import {
   Zap,
   BookOpen,
   History,
-  ClipboardList
+  ClipboardList,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
 import EmptyState from '../components/EmptyState';
@@ -60,13 +62,14 @@ ChartJS.register(
 const CoachDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { players, games, evaluations, attendance, teams, trainingPlans, trainingRecords, loading: dataLoading, currentUser, userProfile } = useFilteredData();
+  const { players, games, matchAssessments, evaluations, attendance, teams, trainingPlans, trainingRecords, loading: dataLoading, currentUser, userProfile } = useFilteredData();
   const { loading: authLoading } = useAuth();
   const [selectedTeam, setSelectedTeam] = useState('all');
   const [pendingDrafts, setPendingDrafts] = useState([]);
   const [loadingDrafts, setLoadingDrafts] = useState(true);
   const [gameDayDismissed, setGameDayDismissed] = useState(false);
   const [gameDayCheckComplete, setGameDayCheckComplete] = useState(false);
+  const [expandedMvpPlayer, setExpandedMvpPlayer] = useState(null);
 
   // Game Day Detection
   const { isGameDay, todaysGames, primaryGame, hasMultipleGames, loading: gameDayLoading, dataReady } = useGameDayDetection();
@@ -230,10 +233,16 @@ const CoachDashboard = () => {
   // Training plans for this coach
   const coachPlansData = useMemo(() => {
     const myPlans = currentUser
-      ? trainingPlans.filter(p => p.coachId === currentUser.uid)
+      ? trainingPlans.filter(p =>
+          p.coachId === currentUser.uid &&
+          !p.isTemplate &&
+          !(p.id && p.id.startsWith('template_'))
+        )
       : [];
-    // For admins, show all plans
-    const plans = userProfile?.role === 'admin' ? trainingPlans : myPlans;
+    // For admins, show all plans (excluding templates)
+    const plans = userProfile?.role === 'admin'
+      ? trainingPlans.filter(p => !p.isTemplate && !(p.id && p.id.startsWith('template_')))
+      : myPlans;
     const activePlans = plans.filter(p => p.status === 'active');
 
     // Find next upcoming session from active plans
@@ -270,12 +279,12 @@ const CoachDashboard = () => {
 
   // Calculate team metrics
   const teamMetrics = useMemo(() => {
-    const teamGames = selectedTeam === 'all'
-      ? games.filter(g => coachTeams.includes(g.team))
-      : games.filter(g => g.team === selectedTeam);
+    const teamAssessments = selectedTeam === 'all'
+      ? (matchAssessments || []).filter(a => coachTeams.includes(a.teamName) || coachTeams.includes(a.team))
+      : (matchAssessments || []).filter(a => a.teamName === selectedTeam || a.team === selectedTeam || a.teamId === selectedTeam);
 
-    const wins = teamGames.filter(g => g.result === 'win').length;
-    const total = teamGames.length;
+    const wins = teamAssessments.filter(a => a.result === 'win').length;
+    const total = teamAssessments.length;
     const winRate = total > 0 ? (wins / total * 100).toFixed(1) : 0;
 
     // Compute average attendance from training_records
@@ -306,39 +315,77 @@ const CoachDashboard = () => {
       avgAttendance,
       avgSkillLevel
     };
-  }, [selectedTeam, games, trainingRecords, evaluations, filteredPlayers, coachTeams, teams]);
+  }, [selectedTeam, matchAssessments, trainingRecords, evaluations, filteredPlayers, coachTeams, teams]);
 
-  // MVP Leaderboard — reads from mvpVoting.votes (3-2-1 system) in games collection
+  // MVP Leaderboard — reads from mvpVoting.votes (3-2-1 system) in match_assessments collection
   const mvpLeaderboard = useMemo(() => {
     const mvpPoints = {};
     const mvpMatchCount = {};
-    const teamIds = coachTeams.map(t => t.id);
+    const mvpGameDetails = {}; // playerId -> [{ date, opponent, points }]
+    // Use actual team objects for ID matching (coachTeams is strings, not objects)
+    const myTeamIds = new Set((teams || []).map(t => t.id).filter(Boolean));
+    const myTeamNames = new Set((teams || []).map(t => (t.name || t.teamName || '').toLowerCase()).filter(Boolean));
 
-    games.forEach(game => {
-      if (selectedTeam !== 'all' && game.teamId !== selectedTeam) return;
-      if (selectedTeam === 'all' && !teamIds.includes(game.teamId)) return;
+    (matchAssessments || []).forEach(assessment => {
+      // Team filtering: match by teamId OR teamName
+      if (selectedTeam !== 'all') {
+        const teamObj = teams?.find(t => (t.name || t.teamName) === selectedTeam);
+        const matchTeamId = teamObj?.id || selectedTeam;
+        if (assessment.teamId !== matchTeamId && assessment.teamName !== selectedTeam) return;
+      } else {
+        const matchesById = assessment.teamId && myTeamIds.has(assessment.teamId);
+        const matchesByName = assessment.teamName && myTeamNames.has(assessment.teamName.toLowerCase());
+        if (!matchesById && !matchesByName) return;
+      }
 
-      const votes = game.mvpVoting?.votes;
-      if (!votes) return;
+      const assessDate = assessment.date?.toDate ? assessment.date.toDate() : new Date(assessment.date);
+      const dateStr = assessDate && !isNaN(assessDate.getTime())
+        ? assessDate.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })
+        : '';
+      const opponent = assessment.opponent || 'Unknown';
 
-      Object.entries(votes).forEach(([points, playerId]) => {
-        if (!playerId) return;
-        const pts = parseInt(points, 10);
-        if (isNaN(pts)) return;
-        mvpPoints[playerId] = (mvpPoints[playerId] || 0) + pts;
-        mvpMatchCount[playerId] = (mvpMatchCount[playerId] || 0) + 1;
-      });
+      const addGameDetail = (playerId, pts) => {
+        if (!mvpGameDetails[playerId]) mvpGameDetails[playerId] = [];
+        mvpGameDetails[playerId].push({ date: dateStr, opponent, points: pts, rawDate: assessDate });
+      };
+
+      // Read from mvpVoting.votes (keyed by points: { 3: playerId, 2: playerId, 1: playerId })
+      const votingVotes = assessment.mvpVoting?.votes;
+      if (votingVotes && typeof votingVotes === 'object') {
+        Object.entries(votingVotes).forEach(([points, playerId]) => {
+          if (!playerId) return;
+          const pts = parseInt(points, 10);
+          if (isNaN(pts) || pts <= 0) return;
+          mvpPoints[playerId] = (mvpPoints[playerId] || 0) + pts;
+          mvpMatchCount[playerId] = (mvpMatchCount[playerId] || 0) + 1;
+          addGameDetail(playerId, pts);
+        });
+      }
+
+      // Also read from mvpVotes (keyed by playerId: { playerId: { votes: N } })
+      const mvpVotesData = assessment.mvpVotes;
+      if (mvpVotesData && typeof mvpVotesData === 'object' && !votingVotes) {
+        Object.entries(mvpVotesData).forEach(([playerId, data]) => {
+          if (!playerId) return;
+          const pts = typeof data === 'object' ? (data.votes || 0) : (typeof data === 'number' ? data : 0);
+          if (!pts) return;
+          mvpPoints[playerId] = (mvpPoints[playerId] || 0) + pts;
+          mvpMatchCount[playerId] = (mvpMatchCount[playerId] || 0) + 1;
+          addGameDetail(playerId, pts);
+        });
+      }
     });
 
     return Object.entries(mvpPoints)
       .map(([playerId, totalPoints]) => {
         const player = players.find(p => p.id === playerId);
-        return { player, totalPoints, matches: mvpMatchCount[playerId] || 0 };
+        const gameBreakdown = (mvpGameDetails[playerId] || []).sort((a, b) => (b.rawDate || 0) - (a.rawDate || 0));
+        return { player, totalPoints, matches: mvpMatchCount[playerId] || 0, gameBreakdown };
       })
       .filter(item => item.player)
       .sort((a, b) => b.totalPoints - a.totalPoints)
       .slice(0, 5);
-  }, [games, players, selectedTeam, coachTeams]);
+  }, [matchAssessments, players, selectedTeam, teams]);
 
   // Attendance trend chart from training records
   const attendanceTrendData = useMemo(() => {
@@ -352,15 +399,23 @@ const CoachDashboard = () => {
       .map(r => {
         const d = r.date?.toDate ? r.date.toDate() : new Date(r.date);
         const att = r.attendance || {};
+        const total = Object.keys(att).length;
         const presentCount = Object.values(att).filter(v => v === 'present' || v === 'late').length;
-        return { date: d, present: presentCount };
+        return { date: d, present: presentCount, total };
       })
       .filter(r => r.date && !isNaN(r.date.getTime()))
       .sort((a, b) => b.date - a.date)
       .slice(0, 10)
       .reverse();
 
+    const sessionCount = records.length;
+    const avgAttendance = sessionCount > 0 && records.some(r => r.total > 0)
+      ? Math.round(records.reduce((sum, r) => sum + (r.total > 0 ? (r.present / r.total) * 100 : 0), 0) / records.filter(r => r.total > 0).length)
+      : 0;
+
     return {
+      sessionCount,
+      avgAttendance,
       labels: records.map(r => r.date.toLocaleDateString('en-AU', { month: 'short', day: 'numeric' })),
       datasets: [{
         label: 'Attendance',
@@ -413,7 +468,7 @@ const CoachDashboard = () => {
               {/* Record Training Button */}
               <HelpTooltip text="Record attendance, drill completion, and notes for training sessions.">
                 <button
-                  onClick={() => navigate('/coach/schedule')}
+                  onClick={() => navigate('/coach/record-training')}
                   className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-[#00A651]/30 hover:bg-[#00A651]/50 border border-[#00A651]/40 text-white rounded-lg transition-colors"
                 >
                   <ClipboardList className="w-5 h-5" />
@@ -718,19 +773,22 @@ const CoachDashboard = () => {
           )}
         </div>
 
-        {/* Rotation History Card */}
+        {/* Rotation Analytics Card */}
         <div
-          onClick={() => navigate('/coach/rotation-tracker')}
+          onClick={() => navigate('/coach/rotation-analytics')}
           className="bg-white rounded-xl border border-[#D4E4D4]/30 p-5 mb-6 hover:border-[#00A651]/50 transition-colors cursor-pointer"
         >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-[#005028]/10 rounded-lg flex items-center justify-center">
-              <History className="w-5 h-5 text-[#005028]" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-[#005028]/10 rounded-lg flex items-center justify-center">
+                <History className="w-5 h-5 text-[#005028]" />
+              </div>
+              <div>
+                <h3 className="text-gray-800 font-bold text-sm">Rotation Analytics</h3>
+                <p className="text-[#6B7C6B] text-xs">Playing time analysis, fairness tracking & substitution insights</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-gray-800 font-bold text-sm">Rotation History</h3>
-              <p className="text-[#6B7C6B] text-xs">View past game rotation records and fairness scores</p>
-            </div>
+            <ChevronRight className="w-5 h-5 text-[#6B7C6B]" />
           </div>
         </div>
 
@@ -764,31 +822,63 @@ const CoachDashboard = () => {
 
             {mvpLeaderboard.length > 0 ? (
               <div className="space-y-3">
-                {mvpLeaderboard.map((item, index) => (
-                  <div
-                    key={item.player.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-[#F5F9F5] border border-[#D4E4D4]"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                        index === 0 ? 'bg-yellow-400 text-yellow-900' :
-                        index === 1 ? 'bg-gray-300 text-gray-700' :
-                        index === 2 ? 'bg-orange-300 text-orange-800' :
-                        'bg-gray-100 text-gray-600'
-                      }`}>
-                        {index + 1}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-sm text-gray-800">{item.player.name || item.player.displayName || 'Unknown'}</p>
-                        <p className="text-xs text-gray-400">{item.player.teamName || item.player.team || ''} · {item.matches} match{item.matches !== 1 ? 'es' : ''}</p>
-                      </div>
+                {mvpLeaderboard.map((item, index) => {
+                  const isExpanded = expandedMvpPlayer === item.player.id;
+                  return (
+                    <div key={item.player.id}>
+                      <button
+                        onClick={() => setExpandedMvpPlayer(isExpanded ? null : item.player.id)}
+                        className="w-full flex items-center justify-between p-3 rounded-lg bg-[#F5F9F5] border border-[#D4E4D4] hover:border-[#00A651] transition-colors text-left"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                            index === 0 ? 'bg-yellow-400 text-yellow-900' :
+                            index === 1 ? 'bg-gray-300 text-gray-700' :
+                            index === 2 ? 'bg-orange-300 text-orange-800' :
+                            'bg-gray-100 text-gray-600'
+                          }`}>
+                            {index + 1}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm text-gray-800">{item.player.name || item.player.displayName || 'Unknown'}</p>
+                            <p className="text-xs text-gray-400">{item.player.teamName || item.player.team || ''} · {item.matches} match{item.matches !== 1 ? 'es' : ''}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-gray-800">{item.totalPoints}</p>
+                            <p className="text-xs text-gray-400">pts</p>
+                          </div>
+                          {isExpanded ? (
+                            <ChevronUp className="w-4 h-4 text-[#6B7C6B]" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4 text-[#6B7C6B]" />
+                          )}
+                        </div>
+                      </button>
+                      {isExpanded && item.gameBreakdown?.length > 0 && (
+                        <div className="mt-1 ml-11 space-y-1">
+                          {item.gameBreakdown.map((game, gi) => (
+                            <div key={gi} className="flex items-center justify-between px-3 py-1.5 bg-white border border-[#D4E4D4]/50 rounded-md text-xs">
+                              <div className="flex items-center gap-2 text-[#6B7C6B]">
+                                <Calendar className="w-3 h-3" />
+                                <span>{game.date}</span>
+                                <span className="text-gray-800 font-medium">vs {game.opponent}</span>
+                              </div>
+                              <span className={`font-bold px-1.5 py-0.5 rounded ${
+                                game.points === 3 ? 'bg-yellow-100 text-yellow-800' :
+                                game.points === 2 ? 'bg-gray-100 text-gray-700' :
+                                'bg-orange-50 text-orange-700'
+                              }`}>
+                                {game.points} vote{game.points !== 1 ? 's' : ''}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-gray-800">{item.totalPoints}</p>
-                      <p className="text-xs text-gray-400">pts</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <p className="text-sm text-gray-400 text-center py-8">No MVP votes recorded yet — vote after your next match!</p>
@@ -796,36 +886,46 @@ const CoachDashboard = () => {
           </div>
 
           {/* Attendance Trend */}
-          <div className="lg:col-span-2 bg-white rounded-xl border border-[#D4E4D4] p-6">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="lg:col-span-2 bg-white rounded-xl border border-[#D4E4D4] p-4" style={{ maxHeight: '220px', overflow: 'hidden' }}>
+            <div className="flex items-center gap-2 mb-1">
               <BarChart3 className="w-5 h-5 text-[#00A651]" />
               <h2 className="text-lg font-bold text-gray-800">Attendance Trend</h2>
             </div>
-            {attendanceTrendData.labels.length > 0 ? (
-              <Bar
-                data={attendanceTrendData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: { display: false }
-                  },
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      ticks: { color: '#6B7C6B' },
-                      grid: { color: 'rgba(212, 228, 212, 0.5)' }
-                    },
-                    x: {
-                      ticks: { color: '#6B7C6B' },
-                      grid: { color: 'rgba(212, 228, 212, 0.5)' }
-                    }
-                  }
-                }}
-                height={200}
-              />
+            {attendanceTrendData.sessionCount === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-4">No attendance data yet</p>
             ) : (
-              <p className="text-sm text-gray-400 text-center py-8">No attendance data yet</p>
+              <>
+                <p className="text-xs text-gray-800 mb-1">
+                  <span className="font-bold text-[#00A651]">{attendanceTrendData.sessionCount}</span>
+                  {' '}session{attendanceTrendData.sessionCount !== 1 ? 's' : ''} recorded
+                  {attendanceTrendData.avgAttendance > 0 && (
+                    <span> — <span className="font-bold text-[#00A651]">{attendanceTrendData.avgAttendance}%</span> avg attendance</span>
+                  )}
+                </p>
+                <div style={{ height: '140px', width: '100%' }}>
+                  <Bar
+                    data={attendanceTrendData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: { display: false }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          ticks: { color: '#6B7C6B', font: { size: 10 } },
+                          grid: { color: 'rgba(212, 228, 212, 0.5)' }
+                        },
+                        x: {
+                          ticks: { color: '#6B7C6B', font: { size: 10 } },
+                          grid: { display: false }
+                        }
+                      }
+                    }}
+                  />
+                </div>
+              </>
             )}
           </div>
         </div>

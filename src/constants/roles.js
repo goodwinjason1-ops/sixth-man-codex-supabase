@@ -17,6 +17,7 @@ export const ROLES = {
   TEAM_MANAGER: 'team_manager',
   PLAYER: 'player',
   PARENT: 'parent',
+  PENDING: 'pending',
 };
 
 // Leadership roles that get full admin access
@@ -29,7 +30,7 @@ export const STAFF_ROLES = ['admin', 'president', 'vice_president', 'coach_coord
 export const TRYOUT_ASSESSOR_ROLES = ['admin', 'president', 'vice_president', 'coach_coordinator', 'coach', 'team_manager', 'tryout_assessor'];
 
 // Roles that can view aggregated tryout results
-export const TRYOUT_RESULTS_ROLES = ['admin', 'president', 'vice_president', 'coach_coordinator', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach'];
+export const TRYOUT_RESULTS_ROLES = ['admin', 'president', 'vice_president', 'coach_coordinator', 'girls_coordinator', 'boys_coordinator'];
 
 // Roles that can assign assessors to tryout sessions
 export const ASSESSOR_ASSIGNER_ROLES = ['admin', 'president', 'vice_president', 'coach_coordinator', 'girls_coordinator', 'boys_coordinator'];
@@ -43,7 +44,7 @@ export const ALL_ROLES = [
   'girls_coordinator', 'boys_coordinator',
   'youth_head_coach', 'coach', 'youth_coach',
   'tryout_assessor', 'team_manager',
-  'player', 'parent',
+  'player', 'parent', 'pending',
 ];
 
 // Display labels for each role
@@ -61,6 +62,7 @@ export const ROLE_LABELS = {
   team_manager: 'Team Manager',
   player: 'Player',
   parent: 'Parent',
+  pending: 'Pending Approval',
 };
 
 // Permission descriptions for each role (shown in user creation)
@@ -78,6 +80,7 @@ export const ROLE_DESCRIPTIONS = {
   team_manager: 'Team management and can assess tryouts when assigned.',
   player: 'View own profile, team info, training programs, and skills passport.',
   parent: 'View child progress, team schedules, and club notifications.',
+  pending: 'Account awaiting admin approval. No access until approved.',
 };
 
 // Badge styles for WelcomePage role display
@@ -95,4 +98,5 @@ export const ROLE_BADGE_STYLES = {
   team_manager: 'bg-blue-100 text-blue-700 border border-blue-300',
   player: 'bg-blue-100 text-blue-700 border border-blue-300',
   parent: 'bg-yellow-100 text-yellow-700 border border-yellow-300',
+  pending: 'bg-orange-100 text-orange-700 border border-orange-300',
 };

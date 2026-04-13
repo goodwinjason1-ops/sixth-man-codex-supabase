@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { initializeApp, deleteApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
@@ -7,14 +8,14 @@ import { useAuth } from '../../contexts/AuthContext';
 import PageShell from '../../components/PageShell';
 import {
   subscribeToUsers, updateUser, updateUserRole, disableUser, enableUser,
-  softDeleteUser, sendPasswordReset, getUserStats
+  softDeleteUser, sendPasswordReset, getUserStats, approveUser, rejectUser
 } from '../../services/userService';
 import { ALL_ROLES, ROLE_LABELS, ROLE_DESCRIPTIONS, ROLE_BADGE_STYLES } from '../../constants/roles';
 import {
   Users, UserPlus, Search, Filter, ChevronDown, ChevronUp,
   Mail, Lock, User, Shield, CheckCircle, AlertCircle, Info,
   Edit3, Trash2, Eye, Key, Ban, CheckSquare, X, MoreVertical,
-  ArrowUpDown, UserX, UserCheck
+  ArrowUpDown, UserX, UserCheck, Clock
 } from 'lucide-react';
 
 const STATUS_FILTERS = [
@@ -26,8 +27,10 @@ const STATUS_FILTERS = [
 
 const UserManagementPage = () => {
   const { currentUser } = useAuth();
+  const [searchParams] = useSearchParams();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const pendingSectionRef = useRef(null);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,6 +47,8 @@ const UserManagementPage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [resetConfirm, setResetConfirm] = useState(null);
+  const [approveModal, setApproveModal] = useState(null);
+  const [rejectConfirm, setRejectConfirm] = useState(null);
 
   // Toasts
   const [toast, setToast] = useState(null);
@@ -55,6 +60,13 @@ const UserManagementPage = () => {
     });
     return unsub;
   }, []);
+
+  // Auto-scroll to pending section when navigated from notification
+  useEffect(() => {
+    if (searchParams.get('highlight') === 'pending' && !loading && pendingSectionRef.current) {
+      pendingSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [searchParams, loading]);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -156,6 +168,26 @@ const UserManagementPage = () => {
     setResetConfirm(null);
   };
 
+  // Pending users for the approval section
+  const pendingUsers = useMemo(() => users.filter(u => u.role === 'pending' && !u.deleted), [users]);
+
+  const handleApprove = async (user, selectedRole) => {
+    const actorInfo = { uid: currentUser.uid, displayName: currentUser.displayName || currentUser.email, role: 'admin' };
+    const res = await approveUser(user.id, selectedRole, actorInfo);
+    if (res.success) showToast(`${user.displayName || user.email} approved as ${ROLE_LABELS[selectedRole]}.`);
+    else showToast(res.error, 'error');
+    setApproveModal(null);
+  };
+
+  const handleReject = async () => {
+    if (!rejectConfirm) return;
+    const actorInfo = { uid: currentUser.uid, displayName: currentUser.displayName || currentUser.email, role: 'admin' };
+    const res = await rejectUser(rejectConfirm.id, actorInfo);
+    if (res.success) showToast(`${rejectConfirm.displayName || rejectConfirm.email} has been rejected.`);
+    else showToast(res.error, 'error');
+    setRejectConfirm(null);
+  };
+
   const getStatusBadge = (user) => {
     if (user.deleted) return <span className="px-2 py-0.5 rounded-full text-xs bg-red-500/20 text-red-400 border border-red-500/50">Deleted</span>;
     if (user.disabled) return <span className="px-2 py-0.5 rounded-full text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/50">Disabled</span>;
@@ -202,12 +234,77 @@ const UserManagementPage = () => {
       )}
 
       {/* Stats Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
         <StatCard label="Total Users" value={stats.total} icon={Users} color="text-blue-400" />
         <StatCard label="Active" value={stats.active} icon={UserCheck} color="text-green-400" />
+        <StatCard label="Pending" value={stats.pending} icon={Clock} color="text-orange-400" />
         <StatCard label="Disabled" value={stats.disabled} icon={Ban} color="text-yellow-400" />
         <StatCard label="Deleted" value={stats.deleted} icon={UserX} color="text-red-400" />
       </div>
+
+      {/* Pending Approvals Section */}
+      {pendingUsers.length > 0 && (
+        <div ref={pendingSectionRef} className="mb-6 bg-orange-50 border-2 border-orange-200 rounded-2xl overflow-hidden">
+          <div className="px-5 py-3 bg-orange-100/60 border-b border-orange-200 flex items-center gap-2">
+            <Clock size={18} className="text-orange-600" />
+            <h3 className="font-bold text-orange-800">Pending Approvals</h3>
+            <span className="ml-auto bg-orange-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">{pendingUsers.length}</span>
+          </div>
+          <div className="divide-y divide-orange-100">
+            {pendingUsers.map(user => (
+              <div key={user.id} className="px-5 py-3 hover:bg-orange-50/50">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-orange-200 flex items-center justify-center text-orange-700 font-bold text-sm flex-shrink-0">
+                    {(user.displayName || user.email || '?')[0].toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-gray-800 font-medium text-sm truncate">{user.displayName || '(No name)'}</p>
+                    <p className="text-gray-500 text-xs truncate">{user.email}</p>
+                    <p className="text-gray-400 text-xs mt-0.5">Signed up {user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-AU') : '—'}</p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => setApproveModal(user)}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-[#005028] hover:bg-[#00A651] text-white rounded-lg text-xs font-medium transition-colors"
+                    >
+                      <UserCheck size={14} /> Approve
+                    </button>
+                    <button
+                      onClick={() => setRejectConfirm(user)}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-medium transition-colors"
+                    >
+                      <UserX size={14} /> Reject
+                    </button>
+                  </div>
+                </div>
+                {/* Extra registration info */}
+                {(user.requestedRole || user.requestedTeam || user.registrationNote || user.phone) && (
+                  <div className="mt-2 ml-14 flex flex-wrap gap-2 text-xs">
+                    {user.requestedRole && (
+                      <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
+                        Requested: {ROLE_LABELS[user.requestedRole] || user.requestedRole}
+                      </span>
+                    )}
+                    {user.requestedTeam && user.requestedTeam !== 'Not sure' && (
+                      <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full">
+                        Team: {user.requestedTeam}
+                      </span>
+                    )}
+                    {user.phone && (
+                      <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">
+                        {user.phone}
+                      </span>
+                    )}
+                    {user.registrationNote && (
+                      <p className="w-full text-gray-500 italic mt-1">"{user.registrationNote}"</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Search & Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -419,6 +516,37 @@ const UserManagementPage = () => {
               <button onClick={handleDelete}
                 className="flex-1 py-2.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600">
                 Delete User
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* ─── Approve User Modal ─── */}
+      {approveModal && (
+        <ApproveUserModal
+          user={approveModal}
+          onClose={() => setApproveModal(null)}
+          onApprove={handleApprove}
+        />
+      )}
+
+      {/* ─── Reject User Confirmation ─── */}
+      {rejectConfirm && (
+        <Modal onClose={() => setRejectConfirm(null)} title="Reject User" danger>
+          <div className="space-y-4">
+            <p className="text-gray-700 text-sm">
+              Reject <strong className="text-gray-800">{rejectConfirm.displayName || rejectConfirm.email}</strong>?
+              Their account will be removed.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setRejectConfirm(null)}
+                className="flex-1 py-2.5 bg-gray-100 text-gray-800 rounded-lg text-sm font-medium hover:bg-gray-200">
+                Cancel
+              </button>
+              <button onClick={handleReject}
+                className="flex-1 py-2.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600">
+                Reject User
               </button>
             </div>
           </div>
@@ -705,6 +833,93 @@ const CreateUserModal = ({ onClose, onSuccess }) => {
             ) : (
               <><UserPlus size={16} /> Create User</>
             )}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
+// ─── Approve User Modal ───
+const ApproveUserModal = ({ user, onClose, onApprove }) => {
+  const [selectedRole, setSelectedRole] = useState(user.requestedRole || '');
+  const [saving, setSaving] = useState(false);
+  const assignableRoles = ALL_ROLES.filter(r => r !== 'pending');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedRole) return;
+    setSaving(true);
+    await onApprove(user, selectedRole);
+    setSaving(false);
+  };
+
+  return (
+    <Modal onClose={onClose} title="Approve User">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex items-center gap-3 p-3 bg-[#F5F9F5] rounded-lg border border-[#D4E4D4]">
+          <div className="w-10 h-10 rounded-full bg-orange-200 flex items-center justify-center text-orange-700 font-bold text-sm">
+            {(user.displayName || user.email || '?')[0].toUpperCase()}
+          </div>
+          <div>
+            <p className="text-gray-800 font-medium text-sm">{user.displayName || '(No name)'}</p>
+            <p className="text-gray-500 text-xs">{user.email}</p>
+          </div>
+        </div>
+
+        {/* Registration details from the user */}
+        {(user.requestedRole || user.requestedTeam || user.registrationNote || user.phone) && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-1.5">
+            <p className="text-blue-800 text-xs font-semibold">Registration Details</p>
+            {user.requestedRole && (
+              <p className="text-blue-700 text-xs">Requested role: <strong>{ROLE_LABELS[user.requestedRole] || user.requestedRole}</strong></p>
+            )}
+            {user.requestedTeam && user.requestedTeam !== 'Not sure' && (
+              <p className="text-blue-700 text-xs">Requested team: <strong>{user.requestedTeam}</strong></p>
+            )}
+            {user.phone && (
+              <p className="text-blue-700 text-xs">Phone: {user.phone}</p>
+            )}
+            {user.registrationNote && (
+              <p className="text-blue-700 text-xs italic">"{user.registrationNote}"</p>
+            )}
+          </div>
+        )}
+
+        <div>
+          <label className="flex items-center gap-2 text-[#00A651] text-sm font-medium mb-1.5">
+            <Shield size={14} /> Assign Role
+          </label>
+          <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)}
+            className="w-full px-3 py-2.5 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm focus:border-[#00A651] focus:outline-none appearance-none"
+            required>
+            <option value="">Select a role...</option>
+            {assignableRoles.map(r => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
+          </select>
+        </div>
+
+        {selectedRole && (
+          <div className="bg-[#F5F9F5] border border-[#D4E4D4]/50 rounded-lg p-3">
+            <div className="flex items-start gap-2">
+              <Info size={14} className="text-[#00A651] flex-shrink-0 mt-0.5" />
+              <div>
+                <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium mb-1 ${ROLE_BADGE_STYLES[selectedRole]}`}>
+                  {ROLE_LABELS[selectedRole]}
+                </span>
+                <p className="text-gray-600 text-xs">{ROLE_DESCRIPTIONS[selectedRole]}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="flex gap-3 pt-2">
+          <button type="button" onClick={onClose}
+            className="flex-1 py-2.5 bg-gray-100 text-gray-800 rounded-lg text-sm font-medium hover:bg-gray-200">
+            Cancel
+          </button>
+          <button type="submit" disabled={saving || !selectedRole}
+            className="flex-1 py-2.5 bg-[#005028] text-white rounded-lg text-sm font-bold hover:bg-[#00A651] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            {saving ? 'Approving...' : <><UserCheck size={16} /> Approve</>}
           </button>
         </div>
       </form>

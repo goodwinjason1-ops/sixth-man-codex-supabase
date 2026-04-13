@@ -23,7 +23,7 @@ const DataContext = createContext();
 const COLLECTION_KEYS = [
   'players', 'skills', 'evaluations', 'games', 'attendance',
   'trainingNotes', 'schedule', 'notifications', 'teams', 'trainingPlans',
-  'trainingRecords'
+  'trainingRecords', 'matchAssessments'
 ];
 
 const initialLoadingStates = Object.fromEntries(COLLECTION_KEYS.map(k => [k, true]));
@@ -38,7 +38,7 @@ export const useData = () => {
 };
 
 export const DataProvider = ({ children }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, userProfile } = useAuth();
   const [players, setPlayers] = useState([]);
   const [skills, setSkills] = useState([]);
   const [evaluations, setEvaluations] = useState({});
@@ -50,6 +50,7 @@ export const DataProvider = ({ children }) => {
   const [teams, setTeams] = useState([]);
   const [trainingPlans, setTrainingPlans] = useState([]);
   const [trainingRecords, setTrainingRecords] = useState([]);
+  const [matchAssessments, setMatchAssessments] = useState([]);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pendingSync, setPendingSync] = useState([]);
 
@@ -239,6 +240,22 @@ export const DataProvider = ({ children }) => {
       })
     );
 
+    // Match Assessments
+    const matchAssessmentsQuery = query(collection(db, 'match_assessments'), orderBy('date', 'desc'));
+    unsubscribers.push(
+      onSnapshot(matchAssessmentsQuery, async (snapshot) => {
+        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        setMatchAssessments(data);
+        markLoaded('matchAssessments');
+        await dbService.setAll('match_assessments', data);
+      }, async (error) => {
+        console.error('Match assessments snapshot error:', error.code, error.message);
+        markError('matchAssessments', error.code || 'unknown');
+        const offlineData = await dbService.getAll('match_assessments');
+        setMatchAssessments(offlineData || []);
+      })
+    );
+
     // Attendance
     const attendanceQuery = query(collection(db, 'attendance'));
     unsubscribers.push(
@@ -255,7 +272,10 @@ export const DataProvider = ({ children }) => {
       })
     );
 
-    // Training Notes
+    // Training Notes (skip for tryout_assessor — no access needed)
+    if (userProfile?.role === 'tryout_assessor') {
+      markLoaded('trainingNotes');
+    } else {
     const notesQuery = query(collection(db, 'training_notes'), orderBy('date', 'desc'));
     unsubscribers.push(
       onSnapshot(notesQuery, async (snapshot) => {
@@ -270,6 +290,7 @@ export const DataProvider = ({ children }) => {
         setTrainingNotes(offlineData || []);
       })
     );
+    }
 
     // Schedule - with IndexedDB caching and sample fallback for testing
     const scheduleQuery = query(collection(db, 'schedule'), orderBy('date', 'asc'));
@@ -325,7 +346,10 @@ export const DataProvider = ({ children }) => {
       })
     );
 
-    // Training Plans
+    // Training Plans (skip for tryout_assessor — no access needed)
+    if (userProfile?.role === 'tryout_assessor') {
+      markLoaded('trainingPlans');
+    } else {
     const trainingPlansQuery = query(collection(db, 'training_plans'), orderBy('updatedAt', 'desc'));
     unsubscribers.push(
       onSnapshot(trainingPlansQuery, async (snapshot) => {
@@ -340,8 +364,12 @@ export const DataProvider = ({ children }) => {
         setTrainingPlans(offlineData || []);
       })
     );
+    }
 
-    // Training Records
+    // Training Records (skip for tryout_assessor — no access needed)
+    if (userProfile?.role === 'tryout_assessor') {
+      markLoaded('trainingRecords');
+    } else {
     const trainingRecordsQuery = query(collection(db, 'training_records'));
     unsubscribers.push(
       onSnapshot(trainingRecordsQuery, async (snapshot) => {
@@ -356,13 +384,14 @@ export const DataProvider = ({ children }) => {
         setTrainingRecords(offlineData || []);
       })
     );
+    }
 
     // NO synchronous setLoading(false) here — loading is derived from loadingStates
 
     return () => {
       unsubscribers.forEach(unsub => unsub());
     };
-  }, [currentUser, markLoaded, markError]);
+  }, [currentUser, userProfile, markLoaded, markError]);
 
   // BUG 2 FIX: Mutation helpers with try-catch returning { success, error }
   // All writes include updatedBy + updatedAt
@@ -490,6 +519,7 @@ export const DataProvider = ({ children }) => {
     skills,
     evaluations,
     games,
+    matchAssessments,
     attendance,
     trainingNotes,
     schedule,

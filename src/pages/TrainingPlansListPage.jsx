@@ -683,7 +683,9 @@ const TrainingPlansListPage = () => {
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         {formatDate(plan.dateRange?.start)}
-                        {plan.dateRange?.end && plan.dateRange.end !== plan.dateRange.start && ` - ${formatDate(plan.dateRange.end)}`}
+                        {plan.dateRange?.end && plan.dateRange.end !== plan.dateRange.start && plan.dateRange.end >= plan.dateRange?.start
+                          ? ` - ${formatDate(plan.dateRange.end)}`
+                          : (plan.sessions?.length > 1 ? ' — End date not set' : '')}
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
@@ -898,7 +900,9 @@ const TrainingPlansListPage = () => {
                     <span className="text-[#6B7C6B]">Date Range:</span>
                     <p className="text-gray-800 font-medium">
                       {previewPlan.dateRange?.start ? new Date(previewPlan.dateRange.start).toLocaleDateString('en-AU') : '-'}
-                      {previewPlan.dateRange?.end && ` - ${new Date(previewPlan.dateRange.end).toLocaleDateString('en-AU')}`}
+                      {previewPlan.dateRange?.end && previewPlan.dateRange.end >= previewPlan.dateRange?.start
+                        ? ` - ${new Date(previewPlan.dateRange.end).toLocaleDateString('en-AU')}`
+                        : (previewPlan.sessions?.length > 1 ? ' — End date not set' : '')}
                     </p>
                   </div>
                 </div>
@@ -1087,26 +1091,24 @@ const TrainingPlansListPage = () => {
                           const sessionDate = toJsDate(event.date);
                           if (sessionDate) {
                             const dateStr = sessionDate.toISOString().split('T')[0];
-                            // Auto-populate dates from linked session (FIX 5)
-                            const thePlan = allPlans.find(p => p.id === schedulePlanId);
-                            const sessionCount = thePlan?.sessions?.length || 0;
-                            const weeksToAdd = sessionCount > 0 ? sessionCount * 7 : 12 * 7;
-                            const endDate = new Date(sessionDate);
-                            endDate.setDate(endDate.getDate() + weeksToAdd);
-                            const endDateStr = endDate.toISOString().split('T')[0];
                             const startTime = event.startTime || event.time || '';
                             const endTime = startTime ? (() => {
                               const [h, m] = startTime.split(':').map(Number);
                               const endH = h + 1;
                               return `${String(endH).padStart(2, '0')}:${String(m || 0).padStart(2, '0')}`;
                             })() : '';
-                            await updateDocument('training_plans', schedulePlanId, {
+                            const updateData = {
                               'dateRange.start': dateStr,
-                              'dateRange.end': endDateStr,
                               scheduledDate: dateStr,
                               scheduledStartTime: startTime,
                               scheduledEndTime: endTime,
-                            });
+                            };
+                            // Clear invalid end date if it's before the new start date
+                            const thePlan = allPlans.find(p => p.id === schedulePlanId);
+                            if (thePlan?.dateRange?.end && thePlan.dateRange.end < dateStr) {
+                              updateData['dateRange.end'] = '';
+                            }
+                            await updateDocument('training_plans', schedulePlanId, updateData);
                           }
                           setSchedulePlanId(null);
                         } catch (err) {

@@ -182,9 +182,11 @@ const TryoutSessionsPage = () => {
     <PageShell
       title="Tryout Sessions"
       subtitle="2-Stage Tryout Format"
-      backTo="/welcome"
+      backTo="/admin/team-selection"
       breadcrumbs={[
         { label: 'Home', url: '/welcome' },
+        { label: 'Assessments & Selection', url: '/admin/assessments-hub' },
+        { label: 'Team Selection', url: '/admin/team-selection' },
         { label: 'Tryout Sessions' }
       ]}
       maxWidth="6xl"
@@ -365,174 +367,179 @@ const SessionCard = ({
       session.sessionType === 'hour-2' ? 'border-[#00A651]/30' :
       'border-[#D4E4D4]'
     }`}>
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2 flex-wrap">
-            <h3 className="text-gray-800 font-bold text-lg">{session.name}</h3>
-            {getSessionTypeBadge(session.sessionType)}
-            {getStatusBadge(session.status)}
-          </div>
-
-          <div className="flex flex-wrap gap-4 text-sm text-[#00A651]">
-            <span className="flex items-center gap-1">
-              <Calendar className="w-4 h-4" />
-              {formatDate(session.date)}
-            </span>
-            {(startDisplay || endDisplay) && (
-              <span className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
-                {startDisplay}{endDisplay && ` - ${endDisplay}`}
-                {durationDisplay && <span className="text-gray-400 ml-1">({durationDisplay})</span>}
-              </span>
-            )}
-            {session.venue && (
-              <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
-                {session.venue}
-              </span>
-            )}
-            <span className="flex items-center gap-1">
-              <Users className="w-4 h-4" />
-              {session.players?.length || 0} players
-              {promotedCount > 0 && (
-                <span className="text-[#00A651]">({promotedCount} promoted)</span>
-              )}
-            </span>
-            <span className="flex items-center gap-1">
-              <UserPlus className="w-4 h-4" />
-              {session.assessors?.length || 0} assessors
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 mt-2 flex-wrap">
-            {session.ageGroup && (
-              <span className="px-2 py-1 bg-[#D4E4D4]/50 text-gray-800 text-xs rounded">
-                {session.ageGroup}
-              </span>
-            )}
-            {linkedHour1 && (
-              <span className="flex items-center gap-1 px-2 py-1 bg-[#005028]/10 text-[#005028] text-xs rounded">
-                <Link2 className="w-3 h-3" />
-                Linked to: {linkedHour1.name}
-              </span>
-            )}
-            {linkedHour2Sessions.length > 0 && (
-              <span className="flex items-center gap-1 px-2 py-1 bg-[#00A651]/10 text-[#00A651] text-xs rounded">
-                <Link2 className="w-3 h-3" />
-                {linkedHour2Sessions.length} Hour 2 session{linkedHour2Sessions.length > 1 ? 's' : ''} linked
-              </span>
-            )}
-          </div>
+      {/* Session Info */}
+      <div>
+        <div className="flex items-center gap-3 mb-2 flex-wrap">
+          <h3 className="text-gray-800 font-bold text-lg">{session.name}</h3>
+          {getSessionTypeBadge(session.sessionType)}
+          {getStatusBadge(session.status)}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {/* Prominent Assessor View Button */}
-          {(session.status === 'active' || session.status === 'closed') && (
-            <button
-              onClick={() => navigate(`/tryout/${session.id}`)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${
-                session.status === 'active'
-                  ? 'bg-gradient-to-r from-[#00A651] to-[#00A651] text-white hover:from-[#00A651] hover:to-[#86efac] assessor-btn-glow'
-                  : 'bg-gradient-to-r from-gray-500 to-gray-400 text-white'
-              }`}
-              title={session.status === 'closed' ? 'View Evaluations (Locked)' : 'Open Assessor View'}
-            >
-              <Clipboard className="w-5 h-5" />
-              <span className="hidden sm:inline">
-                {session.status === 'closed' ? 'View Evals' : 'Assessor View'}
-              </span>
-            </button>
+        <div className="flex flex-wrap gap-4 text-sm text-[#00A651]">
+          <span className="flex items-center gap-1">
+            <Calendar className="w-4 h-4" />
+            {formatDate(session.date)}
+          </span>
+          {(startDisplay || endDisplay) && (
+            <span className="flex items-center gap-1">
+              <Clock className="w-4 h-4" />
+              {startDisplay}{endDisplay && ` - ${endDisplay}`}
+              {durationDisplay && <span className="text-gray-400 ml-1">({durationDisplay})</span>}
+            </span>
           )}
-
-          {/* Promote Players (Hour 1 only) */}
-          {session.sessionType === 'hour-1' && session.status === 'active' && (
-            <button
-              onClick={onPromote}
-              className="p-2 bg-[#00A651]/10 hover:bg-[#00A651]/20 text-[#00A651] rounded-lg transition-colors"
-              title="Promote Players to Hour 2"
-            >
-              <ArrowUpCircle className="w-5 h-5" />
-            </button>
+          {session.venue && (
+            <span className="flex items-center gap-1">
+              <MapPin className="w-4 h-4" />
+              {session.venue}
+            </span>
           )}
-
-          {/* View Results */}
-          <button
-            onClick={() => navigate(`/admin/tryouts/${session.id}/results`)}
-            className="p-2 bg-[#D4E4D4] hover:bg-[#00A651] text-white rounded-lg transition-colors"
-            title="View Results"
-          >
-            <Eye className="w-5 h-5" />
-          </button>
-
-          {/* Edit (disabled when closed) */}
-          <button
-            onClick={onEdit}
-            disabled={session.status === 'closed'}
-            className={`p-2 rounded-lg transition-colors ${
-              session.status === 'closed'
-                ? 'bg-[#D4E4D4]/30 text-gray-800/20 cursor-not-allowed'
-                : 'bg-[#D4E4D4] hover:bg-[#00A651] text-white'
-            }`}
-            title={session.status === 'closed' ? 'Session is locked' : 'Edit Session'}
-          >
-            <Edit2 className="w-5 h-5" />
-          </button>
-
-          {/* Unlock (admin only, closed sessions only) */}
-          {session.status === 'closed' && canUnlock && (
-            <button
-              onClick={onUnlockSession}
-              className="p-2 bg-amber-600/50 hover:bg-amber-500 text-amber-300 hover:text-white rounded-lg transition-colors"
-              title="Unlock Session (Admin)"
-            >
-              <Unlock className="w-5 h-5" />
-            </button>
-          )}
-
-          {/* Status Toggle */}
-          {session.status === 'draft' && (
-            <button
-              onClick={() => onStatusChange(session.id, 'active')}
-              className="p-2 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors"
-              title="Start Session"
-            >
-              <Play className="w-5 h-5" />
-            </button>
-          )}
-          {session.status === 'active' && (
-            <button
-              onClick={() => onStatusChange(session.id, 'completed')}
-              className="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors"
-              title="Complete Session"
-            >
-              <CheckCircle className="w-5 h-5" />
-            </button>
-          )}
-          {(session.status === 'active' || session.status === 'completed') && (
-            <button
-              onClick={onCloseSession}
-              className="p-2 bg-red-900/50 hover:bg-red-700 text-red-400 hover:text-white rounded-lg transition-colors"
-              title="Close & Lock Session"
-            >
-              <Lock className="w-5 h-5" />
-            </button>
-          )}
-
-          {/* Delete (disabled when closed) */}
-          <button
-            onClick={onDelete}
-            disabled={session.status === 'closed'}
-            className={`p-2 rounded-lg transition-colors ${
-              session.status === 'closed'
-                ? 'bg-red-900/20 text-red-400/20 cursor-not-allowed'
-                : 'bg-red-900/50 hover:bg-red-600 text-red-400 hover:text-white'
-            }`}
-            title={session.status === 'closed' ? 'Unlock session first' : 'Delete Session'}
-          >
-            <Trash2 className="w-5 h-5" />
-          </button>
+          <span className="flex items-center gap-1">
+            <Users className="w-4 h-4" />
+            {session.players?.length || 0} players
+            {promotedCount > 0 && (
+              <span className="text-[#00A651]">({promotedCount} promoted)</span>
+            )}
+          </span>
+          <span className="flex items-center gap-1">
+            <UserPlus className="w-4 h-4" />
+            {session.assessors?.length || 0} assessors
+          </span>
         </div>
+
+        <div className="flex items-center gap-2 mt-2 flex-wrap">
+          {session.ageGroup && (
+            <span className="px-2 py-1 bg-[#D4E4D4]/50 text-gray-800 text-xs rounded">
+              {session.ageGroup}
+            </span>
+          )}
+          {linkedHour1 && (
+            <span className="flex items-center gap-1 px-2 py-1 bg-[#005028]/10 text-[#005028] text-xs rounded">
+              <Link2 className="w-3 h-3" />
+              Linked to: {linkedHour1.name}
+            </span>
+          )}
+          {linkedHour2Sessions.length > 0 && (
+            <span className="flex items-center gap-1 px-2 py-1 bg-[#00A651]/10 text-[#00A651] text-xs rounded">
+              <Link2 className="w-3 h-3" />
+              {linkedHour2Sessions.length} Hour 2 session{linkedHour2Sessions.length > 1 ? 's' : ''} linked
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Action Buttons — grid on mobile, flex-wrap on desktop */}
+      <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 mt-3 pt-3 border-t border-[#D4E4D4]/50">
+        {/* Assessor View */}
+        {(session.status === 'active' || session.status === 'closed') && (
+          <button
+            onClick={() => navigate(`/tryout/${session.id}`)}
+            className={`col-span-3 sm:col-span-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-bold text-sm transition-all ${
+              session.status === 'active'
+                ? 'bg-gradient-to-r from-[#00A651] to-[#00A651] text-white hover:from-[#00A651] hover:to-[#86efac] assessor-btn-glow'
+                : 'bg-gradient-to-r from-gray-500 to-gray-400 text-white'
+            }`}
+            title={session.status === 'closed' ? 'View Evaluations (Locked)' : 'Open Assessor View'}
+          >
+            <Clipboard className="w-4 h-4" />
+            {session.status === 'closed' ? 'View Evals' : 'Assessor View'}
+          </button>
+        )}
+
+        {/* Promote Players (Hour 1 only) */}
+        {session.sessionType === 'hour-1' && session.status === 'active' && (
+          <button
+            onClick={onPromote}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[#00A651]/10 hover:bg-[#00A651]/20 text-[#00A651] rounded-lg transition-colors text-sm"
+            title="Promote Players to Hour 2"
+          >
+            <ArrowUpCircle className="w-4 h-4" />
+            <span>Promote</span>
+          </button>
+        )}
+
+        {/* View Results */}
+        <button
+          onClick={() => navigate(`/admin/tryouts/${session.id}/results`)}
+          className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[#D4E4D4] hover:bg-[#00A651] text-gray-700 hover:text-white rounded-lg transition-colors text-sm"
+          title="View Results"
+        >
+          <Eye className="w-4 h-4" />
+          <span>Results</span>
+        </button>
+
+        {/* Edit (disabled when closed) */}
+        <button
+          onClick={onEdit}
+          disabled={session.status === 'closed'}
+          className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg transition-colors text-sm ${
+            session.status === 'closed'
+              ? 'bg-[#D4E4D4]/30 text-gray-400 cursor-not-allowed'
+              : 'bg-[#D4E4D4] hover:bg-[#00A651] text-gray-700 hover:text-white'
+          }`}
+          title={session.status === 'closed' ? 'Session is locked' : 'Edit Session'}
+        >
+          <Edit2 className="w-4 h-4" />
+          <span>Edit</span>
+        </button>
+
+        {/* Unlock (admin only, closed sessions only) */}
+        {session.status === 'closed' && canUnlock && (
+          <button
+            onClick={onUnlockSession}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-lg transition-colors text-sm"
+            title="Unlock Session (Admin)"
+          >
+            <Unlock className="w-4 h-4" />
+            <span>Unlock</span>
+          </button>
+        )}
+
+        {/* Status Toggle */}
+        {session.status === 'draft' && (
+          <button
+            onClick={() => onStatusChange(session.id, 'active')}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors text-sm"
+            title="Start Session"
+          >
+            <Play className="w-4 h-4" />
+            <span>Start</span>
+          </button>
+        )}
+        {session.status === 'active' && (
+          <button
+            onClick={() => onStatusChange(session.id, 'completed')}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors text-sm"
+            title="Complete Session"
+          >
+            <CheckCircle className="w-4 h-4" />
+            <span>Complete</span>
+          </button>
+        )}
+        {(session.status === 'active' || session.status === 'completed') && (
+          <button
+            onClick={onCloseSession}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 bg-red-100 hover:bg-red-200 text-red-600 hover:text-red-700 rounded-lg transition-colors text-sm"
+            title="Close & Lock Session"
+          >
+            <Lock className="w-4 h-4" />
+            <span>Close</span>
+          </button>
+        )}
+
+        {/* Delete (disabled when closed) */}
+        <button
+          onClick={onDelete}
+          disabled={session.status === 'closed'}
+          className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg transition-colors text-sm ${
+            session.status === 'closed'
+              ? 'bg-red-50 text-red-300 cursor-not-allowed'
+              : 'bg-red-100 hover:bg-red-200 text-red-600 hover:text-red-700'
+          }`}
+          title={session.status === 'closed' ? 'Unlock session first' : 'Delete Session'}
+        >
+          <Trash2 className="w-4 h-4" />
+          <span>Delete</span>
+        </button>
       </div>
 
     </div>
@@ -768,8 +775,8 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-[#D4E4D4] p-4 flex items-center justify-between z-10">
+      <div className="bg-white border-2 border-[#D4E4D4] rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+        <div className="flex-shrink-0 bg-white border-b border-[#D4E4D4] p-4 flex items-center justify-between rounded-t-2xl">
           <h2 className="text-xl font-bold text-gray-800">
             {session ? 'Edit Tryout Session' : 'Create Tryout Session'}
           </h2>
@@ -778,7 +785,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form id="session-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6 space-y-6">
           {/* Session Type Selection */}
           <div>
             <label className="block text-[#00A651] text-sm font-medium mb-2">Session Type *</label>
@@ -1024,7 +1031,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
               ) : (
                 /* New Player - manual entry */
                 <>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="text"
                       value={newPlayer.name}
@@ -1033,22 +1040,24 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                       className="flex-1 px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 text-sm focus:border-[#00A651] focus:outline-none"
                       onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addPlayer())}
                     />
-                    <input
-                      type="text"
-                      value={newPlayer.number}
-                      onChange={(e) => setNewPlayer(prev => ({ ...prev, number: e.target.value }))}
-                      placeholder="#"
-                      className="w-14 px-2 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 text-sm focus:border-[#00A651] focus:outline-none text-center"
-                    />
-                    <input
-                      type="text"
-                      value={newPlayer.age}
-                      onChange={(e) => setNewPlayer(prev => ({ ...prev, age: e.target.value }))}
-                      placeholder="Age"
-                      className="w-14 px-2 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 text-sm focus:border-[#00A651] focus:outline-none text-center"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newPlayer.number}
+                        onChange={(e) => setNewPlayer(prev => ({ ...prev, number: e.target.value }))}
+                        placeholder="#"
+                        className="w-14 px-2 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 text-sm focus:border-[#00A651] focus:outline-none text-center"
+                      />
+                      <input
+                        type="text"
+                        value={newPlayer.age}
+                        onChange={(e) => setNewPlayer(prev => ({ ...prev, age: e.target.value }))}
+                        placeholder="Age"
+                        className="w-14 px-2 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 text-sm focus:border-[#00A651] focus:outline-none text-center"
+                      />
+                    </div>
                   </div>
-                  <div className="flex gap-2 items-center">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <select
                       value={newPlayer.playerAgeGroup}
                       onChange={(e) => setNewPlayer(prev => ({ ...prev, playerAgeGroup: e.target.value }))}
@@ -1062,7 +1071,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                     <button
                       type="button"
                       onClick={addPlayer}
-                      className="px-4 py-2 bg-[#005028] hover:bg-[#00A651] text-white rounded-lg font-medium text-sm flex items-center gap-1"
+                      className="px-4 py-2 bg-[#005028] hover:bg-[#00A651] text-white rounded-lg font-medium text-sm flex items-center justify-center gap-1"
                     >
                       <Plus className="w-4 h-4" />
                       Add
@@ -1200,13 +1209,13 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                 </div>
               ) : (
                 /* Manual entry for Volunteer, Team Manager, Committee */
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <input
                     type="text"
                     value={newAssessor.name}
                     onChange={(e) => setNewAssessor(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="Assessor name"
-                    className="flex-1 px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 text-sm focus:border-[#00A651] focus:outline-none"
+                    className="flex-1 min-w-[140px] px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 text-sm focus:border-[#00A651] focus:outline-none"
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addAssessor())}
                   />
                   <input
@@ -1214,7 +1223,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
                     value={newAssessor.email}
                     onChange={(e) => setNewAssessor(prev => ({ ...prev, email: e.target.value }))}
                     placeholder="Email (optional)"
-                    className="flex-1 px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 text-sm focus:border-[#00A651] focus:outline-none"
+                    className="flex-1 min-w-[140px] px-3 py-2 bg-white border border-[#D4E4D4] rounded-lg text-gray-800 placeholder-gray-400 text-sm focus:border-[#00A651] focus:outline-none"
                   />
                 </div>
               )}
@@ -1269,19 +1278,23 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
             )}
           </div>
 
-          {/* Submit Buttons */}
-          <div className="flex gap-3 pt-4 border-t border-[#D4E4D4]">
+        </form>
+
+        {/* Fixed Footer Buttons — always visible */}
+        <div className="flex-shrink-0 bg-white border-t border-[#D4E4D4] p-4 rounded-b-2xl">
+          <div className="flex gap-3 flex-wrap">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg font-medium hover:border-[#00A651] transition-colors"
+              className="flex-1 min-w-[120px] py-3 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg font-medium hover:border-[#00A651] transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
+              form="session-form"
               disabled={saving || !formData.name.trim() || !formData.ageGroup}
-              className="flex-1 py-3 bg-[#005028] hover:bg-[#00A651] disabled:bg-[#D4E4D4] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+              className="flex-1 min-w-[120px] py-3 bg-[#005028] hover:bg-[#00A651] disabled:bg-[#D4E4D4] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
             >
               {saving ? (
                 <>
@@ -1296,7 +1309,7 @@ const SessionModal = ({ session, sessions, onClose, onSave }) => {
               )}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

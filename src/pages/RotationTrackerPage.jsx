@@ -36,12 +36,11 @@ import LoadingState from '../components/LoadingState';
 import EmptyState from '../components/EmptyState';
 
 // ─── Constants ───────────────────────────────────────────────────────
-const QUARTERS = ['Q1', 'Q2', 'Q3', 'Q4'];
-const HALF_LENGTH_OPTIONS = [15, 17, 19];
+const HALVES = ['H1', 'H2'];
+const HALF_LENGTH_OPTIONS = [16, 17, 18];
 const COURT_SIZE = 5;
 const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
 const STORAGE_KEY_PREFIX = 'rotation_tracker_';
-const QUARTER_LENGTH_OPTIONS = [6, 8, 10];
 
 // ─── Helper: format seconds to mm:ss ─────────────────────────────────
 const formatTime = (totalSeconds) => {
@@ -89,31 +88,31 @@ const getPlanDeviation = (actualSeconds, plannedSeconds) => {
 
 
 // ─── Plan generation algorithm ───────────────────────────────────────
-function generateRotationPlan(rosterIds, firstHalfIds, secondHalfIds, quarterLengthSec, numQuarters, playerInfo) {
+function generateRotationPlan(rosterIds, firstHalfIds, secondHalfIds, halfLengthSec, numHalves, playerInfo) {
   const N = rosterIds.length;
-  const totalCourtSec = quarterLengthSec * numQuarters * COURT_SIZE;
+  const totalCourtSec = halfLengthSec * numHalves * COURT_SIZE;
   const fairShareSec = totalCourtSec / N;
 
   const plannedTime = {};
   rosterIds.forEach(id => { plannedTime[id] = 0; });
 
-  const quarters = {};
+  const halves = {};
 
-  for (let qi = 0; qi < numQuarters; qi++) {
-    const qLabel = `Q${qi + 1}`;
-    const isFirstHalf = qi < Math.ceil(numQuarters / 2);
+  for (let hi = 0; hi < numHalves; hi++) {
+    const hLabel = `H${hi + 1}`;
+    const isFirstHalf = hi === 0;
     const halfStarters = isFirstHalf ? [...firstHalfIds] : [...secondHalfIds];
     const benchIds = rosterIds.filter(id => !halfStarters.includes(id));
 
     if (benchIds.length === 0) {
-      quarters[qLabel] = { starters: halfStarters, subs: [] };
-      halfStarters.forEach(id => { plannedTime[id] += quarterLengthSec; });
+      halves[hLabel] = { starters: halfStarters, subs: [] };
+      halfStarters.forEach(id => { plannedTime[id] += halfLengthSec; });
       continue;
     }
 
     const sortedBench = [...benchIds].sort((a, b) => plannedTime[a] - plannedTime[b]);
     const numSubs = sortedBench.length;
-    const interval = Math.floor(quarterLengthSec / (numSubs + 1));
+    const interval = Math.floor(halfLengthSec / (numSubs + 1));
 
     const subs = [];
     let currentCourt = [...halfStarters];
@@ -155,13 +154,13 @@ function generateRotationPlan(rosterIds, firstHalfIds, secondHalfIds, quarterLen
     }
 
     currentCourt.forEach(id => {
-      plannedTime[id] += quarterLengthSec - (entryTime[id] || 0);
+      plannedTime[id] += halfLengthSec - (entryTime[id] || 0);
     });
 
-    quarters[qLabel] = { starters: halfStarters, subs };
+    halves[hLabel] = { starters: halfStarters, subs };
   }
 
-  return { quarters, fairShareSeconds: Math.round(fairShareSec), plannedTime: { ...plannedTime }, quarterLengthSec, numQuarters };
+  return { quarters: halves, fairShareSeconds: Math.round(fairShareSec), plannedTime: { ...plannedTime }, quarterLengthSec: halfLengthSec, numQuarters: numHalves };
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -181,7 +180,7 @@ const RotationTrackerPage = () => {
   const [opponent, setOpponent] = useState('');
   const [roster, setRoster] = useState([]); // full player list for selected team
   const [starters, setStarters] = useState(new Set()); // first-half starting 5
-  const [quarterLengthMins, setQuarterLengthMins] = useState(8);
+  const [halfLengthMins, setHalfLengthMins] = useState(17);
   const [secondHalfStarters, setSecondHalfStarters] = useState(new Set());
   const [secondHalfAutoSuggested, setSecondHalfAutoSuggested] = useState(false);
   const [rotationPlan, setRotationPlan] = useState(null);
@@ -192,16 +191,16 @@ const RotationTrackerPage = () => {
 
   // ── Live state ──
   const [isRunning, setIsRunning] = useState(false);
-  const [currentQuarter, setCurrentQuarter] = useState(0); // index into allQuarters
-  const [allQuarters, setAllQuarters] = useState([...QUARTERS]); // may gain 'OT'
-  const [quarterSeconds, setQuarterSeconds] = useState(0);
+  const [currentHalf, setCurrentHalf] = useState(0); // index into allHalves
+  const [allHalves, setAllHalves] = useState([...HALVES]); // may gain 'OT'
+  const [halfSeconds, setHalfSeconds] = useState(0);
   const [totalGameSeconds, setTotalGameSeconds] = useState(0);
   const [onCourt, setOnCourt] = useState([]); // player IDs
   const [bench, setBench] = useState([]); // player IDs
-  const [playerStats, setPlayerStats] = useState({}); // { [id]: { totalSeconds, quarterSeconds: {}, subs: [], stintStart } }
+  const [playerStats, setPlayerStats] = useState({}); // { [id]: { totalSeconds, halfSeconds: {}, subs: [], stintStart } }
   const [subsLog, setSubsLog] = useState([]);
   const [selectedCourtPlayer, setSelectedCourtPlayer] = useState(null);
-  const [completedQuarters, setCompletedQuarters] = useState({}); // { Q1: { duration } }
+  const [completedHalves, setCompletedHalves] = useState({}); // { H1: { duration } }
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [showNextQConfirm, setShowNextQConfirm] = useState(false);
@@ -306,11 +305,11 @@ const RotationTrackerPage = () => {
         bench,
         playerStats,
         subsLog,
-        currentQuarter,
-        allQuarters,
-        quarterSeconds,
+        currentHalf,
+        allHalves,
+        halfSeconds,
         totalGameSeconds,
-        completedQuarters,
+        completedHalves,
         isRunning,
         savedAt: Date.now()
       };
@@ -318,7 +317,7 @@ const RotationTrackerPage = () => {
     } catch (err) {
       console.error('Auto-save failed:', err);
     }
-  }, [phase, currentUser, selectedTeamId, opponent, onCourt, bench, playerStats, subsLog, currentQuarter, allQuarters, quarterSeconds, totalGameSeconds, completedQuarters, isRunning]);
+  }, [phase, currentUser, selectedTeamId, opponent, onCourt, bench, playerStats, subsLog, currentHalf, allHalves, halfSeconds, totalGameSeconds, completedHalves, isRunning]);
 
   useEffect(() => {
     if (phase !== 'live') return;
@@ -338,7 +337,7 @@ const RotationTrackerPage = () => {
       const elapsed = (now - lastTickRef.current) / 1000;
       lastTickRef.current = now;
 
-      setQuarterSeconds(prev => prev + elapsed);
+      setHalfSeconds(prev => prev + elapsed);
       setTotalGameSeconds(prev => prev + elapsed);
 
       // Update on-court players' times
@@ -360,11 +359,11 @@ const RotationTrackerPage = () => {
 
   // More accurate: update player stats inside the interval via a ref
   const onCourtRef = useRef(onCourt);
-  const currentQuarterRef = useRef(currentQuarter);
-  const allQuartersRef = useRef(allQuarters);
+  const currentHalfRef = useRef(currentHalf);
+  const allHalvesRef = useRef(allHalves);
   useEffect(() => { onCourtRef.current = onCourt; }, [onCourt]);
-  useEffect(() => { currentQuarterRef.current = currentQuarter; }, [currentQuarter]);
-  useEffect(() => { allQuartersRef.current = allQuarters; }, [allQuarters]);
+  useEffect(() => { currentHalfRef.current = currentHalf; }, [currentHalf]);
+  useEffect(() => { allHalvesRef.current = allHalves; }, [allHalves]);
 
   // Replace the interval with one that updates player stats
   const startClockFull = useCallback(() => {
@@ -376,10 +375,10 @@ const RotationTrackerPage = () => {
       const elapsed = (now - lastTickRef.current) / 1000;
       lastTickRef.current = now;
 
-      setQuarterSeconds(prev => prev + elapsed);
+      setHalfSeconds(prev => prev + elapsed);
       setTotalGameSeconds(prev => prev + elapsed);
 
-      const qLabel = allQuartersRef.current[currentQuarterRef.current];
+      const hLabel = allHalvesRef.current[currentHalfRef.current];
       const courtPlayers = onCourtRef.current;
 
       setPlayerStats(prev => {
@@ -389,9 +388,9 @@ const RotationTrackerPage = () => {
             updated[pid] = {
               ...updated[pid],
               totalSeconds: (updated[pid].totalSeconds || 0) + elapsed,
-              quarterSeconds: {
-                ...updated[pid].quarterSeconds,
-                [qLabel]: (updated[pid].quarterSeconds?.[qLabel] || 0) + elapsed
+              halfSeconds: {
+                ...updated[pid].halfSeconds,
+                [hLabel]: (updated[pid].halfSeconds?.[hLabel] || 0) + elapsed
               }
             };
           }
@@ -448,8 +447,8 @@ const RotationTrackerPage = () => {
       roster.map(p => p.id),
       [...starters],
       [...secondHalfStarters],
-      quarterLengthMins * 60,
-      4,
+      halfLengthMins * 60,
+      2,
       playerInfo
     );
     setRotationPlan(plan);
@@ -471,7 +470,7 @@ const RotationTrackerPage = () => {
         name: p.name || `${p.firstName || ''} ${p.lastName || ''}`.trim(),
         number: p.jerseyNumber || p.number || '—',
         totalSeconds: 0,
-        quarterSeconds: {},
+        halfSeconds: {},
         subs: [],
         isOnCourt: courtIds.includes(p.id)
       };
@@ -480,12 +479,12 @@ const RotationTrackerPage = () => {
     setOnCourt(courtIds);
     setBench(benchIds);
     setPlayerStats(stats);
-    setCurrentQuarter(0);
-    setAllQuarters([...QUARTERS]);
-    setQuarterSeconds(0);
+    setCurrentHalf(0);
+    setAllHalves([...HALVES]);
+    setHalfSeconds(0);
     setTotalGameSeconds(0);
     setSubsLog([]);
-    setCompletedQuarters({});
+    setCompletedHalves({});
 
     if (withPlan && rotationPlan) {
       const status = {};
@@ -543,26 +542,44 @@ const RotationTrackerPage = () => {
   };
 
   const handleSubstitution = (benchPlayerId, explicitCourtPlayerId = null) => {
-    const qLabel = allQuarters[currentQuarter];
+    const hLabel = allHalves[currentHalf];
+
+    // Guard: bench player must actually be on bench, not on court
+    if (!bench.includes(benchPlayerId)) return;
+
     let courtPlayerId = explicitCourtPlayerId || selectedCourtPlayer;
 
-    // Auto-pick: swap with most-played court player if none selected
+    // Auto-pick: swap with court player who has most playing time in current half
     if (!courtPlayerId) {
       let maxTime = -1;
       onCourt.forEach(pid => {
-        const t = playerStats[pid]?.totalSeconds || 0;
-        if (t > maxTime) {
-          maxTime = t;
+        const halfTime = playerStats[pid]?.halfSeconds?.[hLabel] || 0;
+        // Respect 2-minute cooldown: don't pick a player who was just subbed on recently
+        const lastSub = [...(playerStats[pid]?.subs || [])].reverse().find(s => s.type === 'on');
+        if (lastSub && (halfSeconds - lastSub.gameTime) < 120) return; // 2min cooldown
+        if (halfTime > maxTime) {
+          maxTime = halfTime;
           courtPlayerId = pid;
         }
       });
+      // If all court players are on cooldown, pick the one with most total time
+      if (!courtPlayerId) {
+        let maxTotal = -1;
+        onCourt.forEach(pid => {
+          const t = playerStats[pid]?.totalSeconds || 0;
+          if (t > maxTotal) { maxTotal = t; courtPlayerId = pid; }
+        });
+      }
     }
     if (!courtPlayerId) return;
 
+    // Guard: court player must actually be on court
+    if (!onCourt.includes(courtPlayerId)) return;
+
     // Record sub events
-    const gameTime = quarterSeconds;
-    const subOut = { type: 'off', quarter: qLabel, gameTime: Math.floor(gameTime), playerId: courtPlayerId, playerName: playerStats[courtPlayerId]?.name };
-    const subIn = { type: 'on', quarter: qLabel, gameTime: Math.floor(gameTime), playerId: benchPlayerId, playerName: playerStats[benchPlayerId]?.name };
+    const gameTime = halfSeconds;
+    const subOut = { type: 'off', half: hLabel, gameTime: Math.floor(gameTime), playerId: courtPlayerId, playerName: playerStats[courtPlayerId]?.name };
+    const subIn = { type: 'on', half: hLabel, gameTime: Math.floor(gameTime), playerId: benchPlayerId, playerName: playerStats[benchPlayerId]?.name };
 
     setSubsLog(prev => [...prev, subOut, subIn]);
 
@@ -571,12 +588,12 @@ const RotationTrackerPage = () => {
       ...prev,
       [courtPlayerId]: {
         ...prev[courtPlayerId],
-        subs: [...(prev[courtPlayerId]?.subs || []), { type: 'off', quarter: qLabel, gameTime: Math.floor(gameTime) }],
+        subs: [...(prev[courtPlayerId]?.subs || []), { type: 'off', half: hLabel, gameTime: Math.floor(gameTime) }],
         isOnCourt: false
       },
       [benchPlayerId]: {
         ...prev[benchPlayerId],
-        subs: [...(prev[benchPlayerId]?.subs || []), { type: 'on', quarter: qLabel, gameTime: Math.floor(gameTime) }],
+        subs: [...(prev[benchPlayerId]?.subs || []), { type: 'on', half: hLabel, gameTime: Math.floor(gameTime) }],
         isOnCourt: true
       }
     }));
@@ -587,25 +604,25 @@ const RotationTrackerPage = () => {
     setSelectedCourtPlayer(null);
   };
 
-  const handleNextQuarter = () => {
+  const handleNextHalf = () => {
     stopClock();
-    // Save completed quarter duration
-    const qLabel = allQuarters[currentQuarter];
-    setCompletedQuarters(prev => ({ ...prev, [qLabel]: { duration: Math.floor(quarterSeconds) } }));
-    setCurrentQuarter(prev => prev + 1);
-    setQuarterSeconds(0);
+    // Save completed half duration
+    const hLabel = allHalves[currentHalf];
+    setCompletedHalves(prev => ({ ...prev, [hLabel]: { duration: Math.floor(halfSeconds) } }));
+    setCurrentHalf(prev => prev + 1);
+    setHalfSeconds(0);
     setShowNextQConfirm(false);
   };
 
   const handleAddOvertime = () => {
-    setAllQuarters(prev => [...prev, 'OT']);
+    setAllHalves(prev => [...prev, 'OT']);
   };
 
   const handleEndGame = () => {
     stopClock();
-    // Save last quarter
-    const qLabel = allQuarters[currentQuarter];
-    setCompletedQuarters(prev => ({ ...prev, [qLabel]: { duration: Math.floor(quarterSeconds) } }));
+    // Save last half
+    const hLabel = allHalves[currentHalf];
+    setCompletedHalves(prev => ({ ...prev, [hLabel]: { duration: Math.floor(halfSeconds) } }));
     // Clean up localStorage
     try {
       const key = `${STORAGE_KEY_PREFIX}${currentUser?.uid}_${selectedTeamId}`;
@@ -616,14 +633,56 @@ const RotationTrackerPage = () => {
   };
 
   // ── Sub suggestions ──
+  // When a rotation plan is active, use the plan's next pending sub as the suggestion
+  // so that the suggestion banner and the plan panel are always consistent.
   const subSuggestion = useMemo(() => {
     if (onCourt.length === 0 || bench.length === 0) return null;
-    const courtTimes = onCourt.map(pid => ({ pid, t: playerStats[pid]?.totalSeconds || 0 }));
+
+    // If a plan exists, derive suggestion from the next pending planned sub
+    if (rotationPlan) {
+      const hLabel = allHalves[currentHalf];
+      const hPlan = rotationPlan.quarters[hLabel];
+      if (hPlan) {
+        const hStatus = planSubStatus[hLabel] || {};
+        for (let i = 0; i < hPlan.subs.length; i++) {
+          if (hStatus[i] !== 'pending') continue;
+          const sub = hPlan.subs[i];
+          // Only suggest if the players are still in the expected positions
+          if (onCourt.includes(sub.outId) && bench.includes(sub.inId)) {
+            const diff = (playerStats[sub.outId]?.totalSeconds || 0) - (playerStats[sub.inId]?.totalSeconds || 0);
+            if (diff > 120) {
+              return { outId: sub.outId, inId: sub.inId, diff };
+            }
+          }
+          break; // Only check the next pending sub
+        }
+      }
+    }
+
+    // Fallback: live calculation (no plan or plan sub not yet due)
+    // Prioritize: sub OFF court player with most playing time in current half
+    // (respecting 2-min cooldown), sub ON bench player with most rest time
+    const hLabel = allHalves[currentHalf];
+
+    // Find court player with most time in current half, respecting cooldown
+    const courtCandidates = onCourt
+      .filter(pid => {
+        const lastSub = [...(playerStats[pid]?.subs || [])].reverse().find(s => s.type === 'on');
+        // If they were subbed on less than 2 min ago, skip (cooldown)
+        return !lastSub || (halfSeconds - lastSub.gameTime) >= 120;
+      })
+      .map(pid => ({ pid, halfTime: playerStats[pid]?.halfSeconds?.[hLabel] || 0, totalTime: playerStats[pid]?.totalSeconds || 0 }));
+
+    if (courtCandidates.length === 0) return null;
+
+    const mostPlayed = courtCandidates.reduce((a, b) => a.halfTime > b.halfTime ? a : b);
+
+    // Find bench player with most rest (least total playing time)
     const benchTimes = bench.map(pid => ({ pid, t: playerStats[pid]?.totalSeconds || 0 }));
-    const mostPlayed = courtTimes.reduce((a, b) => a.t > b.t ? a : b);
     const leastPlayed = benchTimes.reduce((a, b) => a.t < b.t ? a : b);
-    const diff = mostPlayed.t - leastPlayed.t;
-    if (diff > 120) { // 2 minutes
+
+    const diff = mostPlayed.totalTime - leastPlayed.t;
+    if (diff > 120) { // 2 minutes gap
       return {
         outId: mostPlayed.pid,
         inId: leastPlayed.pid,
@@ -631,15 +690,16 @@ const RotationTrackerPage = () => {
       };
     }
     return null;
-  }, [onCourt, bench, playerStats]);
+  }, [onCourt, bench, playerStats, rotationPlan, allHalves, currentHalf, planSubStatus, halfSeconds]);
 
-  // Most-played on court and least-played on bench (for highlights)
+  // Most-played on court (in current half) and least-played on bench (for highlights)
   const mostPlayedOnCourt = useMemo(() => {
     if (onCourt.length === 0) return null;
+    const hLabel = allHalves[currentHalf];
     return onCourt.reduce((a, b) =>
-      (playerStats[a]?.totalSeconds || 0) >= (playerStats[b]?.totalSeconds || 0) ? a : b
+      (playerStats[a]?.halfSeconds?.[hLabel] || 0) >= (playerStats[b]?.halfSeconds?.[hLabel] || 0) ? a : b
     );
-  }, [onCourt, playerStats]);
+  }, [onCourt, playerStats, allHalves, currentHalf]);
 
   const leastPlayedOnBench = useMemo(() => {
     if (bench.length === 0) return null;
@@ -651,32 +711,32 @@ const RotationTrackerPage = () => {
   // ── Plan alert: find next due sub ──
   const currentPlanAlert = useMemo(() => {
     if (!rotationPlan) return null;
-    const qLabel = allQuarters[currentQuarter];
-    const qPlan = rotationPlan.quarters[qLabel];
-    if (!qPlan) return null;
-    const qStatus = planSubStatus[qLabel] || {};
-    for (let i = 0; i < qPlan.subs.length; i++) {
-      if (qStatus[i] !== 'pending') continue;
-      if (quarterSeconds >= qPlan.subs[i].time) {
-        return { ...qPlan.subs[i], index: i, quarter: qLabel };
+    const hLabel = allHalves[currentHalf];
+    const hPlan = rotationPlan.quarters[hLabel];
+    if (!hPlan) return null;
+    const hStatus = planSubStatus[hLabel] || {};
+    for (let i = 0; i < hPlan.subs.length; i++) {
+      if (hStatus[i] !== 'pending') continue;
+      if (halfSeconds >= hPlan.subs[i].time) {
+        return { ...hPlan.subs[i], index: i, half: hLabel };
       }
     }
     return null;
-  }, [rotationPlan, currentQuarter, allQuarters, planSubStatus, quarterSeconds]);
+  }, [rotationPlan, currentHalf, allHalves, planSubStatus, halfSeconds]);
 
   const nextPlannedSub = useMemo(() => {
     if (!rotationPlan) return null;
-    const qLabel = allQuarters[currentQuarter];
-    const qPlan = rotationPlan.quarters[qLabel];
-    if (!qPlan) return null;
-    const qStatus = planSubStatus[qLabel] || {};
-    for (let i = 0; i < qPlan.subs.length; i++) {
-      if (qStatus[i] === 'pending') return { ...qPlan.subs[i], index: i, quarter: qLabel };
+    const hLabel = allHalves[currentHalf];
+    const hPlan = rotationPlan.quarters[hLabel];
+    if (!hPlan) return null;
+    const hStatus = planSubStatus[hLabel] || {};
+    for (let i = 0; i < hPlan.subs.length; i++) {
+      if (hStatus[i] === 'pending') return { ...hPlan.subs[i], index: i, half: hLabel };
     }
     return null;
-  }, [rotationPlan, currentQuarter, allQuarters, planSubStatus]);
+  }, [rotationPlan, currentHalf, allHalves, planSubStatus]);
 
-  const isBehindSchedule = currentPlanAlert && (quarterSeconds - currentPlanAlert.time) > 30;
+  const isBehindSchedule = currentPlanAlert && (halfSeconds - currentPlanAlert.time) > 30;
 
   // ── Live plan deviations per player ──
   const liveDeviations = useMemo(() => {
@@ -720,21 +780,21 @@ const RotationTrackerPage = () => {
   }, [rotationPlan, playerStats, totalGameSeconds, onCourt, bench]);
 
   const handlePlanSubNow = (alert) => {
-    const { outId, inId, index, quarter } = alert;
+    const { outId, inId, index, half } = alert;
     if (onCourt.includes(outId) && bench.includes(inId)) {
       handleSubstitution(inId, outId);
     }
     setPlanSubStatus(prev => ({
       ...prev,
-      [quarter]: { ...prev[quarter], [index]: 'done' }
+      [half]: { ...prev[half], [index]: 'done' }
     }));
   };
 
   const handlePlanSubDismiss = (alert) => {
-    const { index, quarter } = alert;
+    const { index, half } = alert;
     setPlanSubStatus(prev => ({
       ...prev,
-      [quarter]: { ...prev[quarter], [index]: 'dismissed' }
+      [half]: { ...prev[half], [index]: 'dismissed' }
     }));
   };
 
@@ -752,9 +812,9 @@ const RotationTrackerPage = () => {
         coachName: userProfile?.displayName || '',
         date: new Date().toISOString().split('T')[0],
         opponent,
-        quarters: completedQuarters,
+        halves: completedHalves,
         totalGameSeconds: Math.floor(totalGameSeconds),
-        quartersPlayed: Object.keys(completedQuarters).length,
+        halvesPlayed: Object.keys(completedHalves).length,
         playerStats: Object.fromEntries(
           Object.entries(playerStats).map(([pid, ps]) => [
             pid,
@@ -762,8 +822,8 @@ const RotationTrackerPage = () => {
               name: ps.name,
               number: ps.number,
               totalSeconds: Math.floor(ps.totalSeconds),
-              quarterSeconds: Object.fromEntries(
-                Object.entries(ps.quarterSeconds || {}).map(([q, s]) => [q, Math.floor(s)])
+              halfSeconds: Object.fromEntries(
+                Object.entries(ps.halfSeconds || {}).map(([h, s]) => [h, Math.floor(s)])
               ),
               subs: ps.subs || []
             }
@@ -816,16 +876,16 @@ const RotationTrackerPage = () => {
     setRotationPlan(null);
     setPlanSubStatus({});
     setShowPlanPanel(false);
-    setQuarterLengthMins(8);
+    setHalfLengthMins(17);
     setOnCourt([]);
     setBench([]);
     setPlayerStats({});
     setSubsLog([]);
-    setCompletedQuarters({});
-    setQuarterSeconds(0);
+    setCompletedHalves({});
+    setHalfSeconds(0);
     setTotalGameSeconds(0);
-    setCurrentQuarter(0);
-    setAllQuarters([...QUARTERS]);
+    setCurrentHalf(0);
+    setAllHalves([...HALVES]);
     setSaved(false);
     setIsRunning(false);
     setSelectedCourtPlayer(null);
@@ -878,14 +938,14 @@ const RotationTrackerPage = () => {
               placeholder="Enter opponent name..."
               className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg focus:ring-2 focus:ring-[#00A651] focus:border-transparent placeholder:text-gray-800/30 mb-4"
             />
-            <label className="block text-sm font-medium text-gray-700 mb-2">Quarter Length</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Half Length</label>
             <div className="flex gap-2">
-              {QUARTER_LENGTH_OPTIONS.map(mins => (
+              {HALF_LENGTH_OPTIONS.map(mins => (
                 <button
                   key={mins}
-                  onClick={() => { setQuarterLengthMins(mins); setRotationPlan(null); }}
+                  onClick={() => { setHalfLengthMins(mins); setRotationPlan(null); }}
                   className={`flex-1 py-2.5 rounded-lg font-bold text-sm transition-all ${
-                    quarterLengthMins === mins
+                    halfLengthMins === mins
                       ? 'bg-[#005028] text-white'
                       : 'bg-[#F5F9F5] text-gray-500 border border-[#D4E4D4] hover:border-[#00A651]/50'
                   }`}
@@ -916,7 +976,7 @@ const RotationTrackerPage = () => {
               ) : (
                 <>
                   {roster.length < COURT_SIZE && (
-                    <div className="flex items-center gap-2 p-3 mb-3 bg-yellow-900/30 border border-yellow-600/50 rounded-lg text-sm text-yellow-400">
+                    <div className="flex items-center gap-2 p-3 mb-3 bg-[#fef3c7] border border-yellow-400 rounded-lg text-sm text-[#92400e] font-bold">
                       <AlertCircle className="w-4 h-4 flex-shrink-0" />
                       <span>Only {roster.length} player{roster.length !== 1 ? 's' : ''} on roster.</span>
                     </div>
@@ -974,13 +1034,13 @@ const RotationTrackerPage = () => {
                     <Clock className="w-4 h-4 text-[#00A651]" />
                     <span className="text-gray-700">
                       Fair share: <span className="text-[#00A651] font-bold">{formatTime(rotationPlan.fairShareSeconds)}</span> per player
-                      <span className="text-gray-400 ml-1">({roster.length} players, {quarterLengthMins * 4} min game)</span>
+                      <span className="text-gray-400 ml-1">({roster.length} players, {halfLengthMins * 2} min game)</span>
                     </span>
                   </div>
 
                   {/* Quarter cards */}
-                  {Object.entries(rotationPlan.quarters).map(([qLabel, qData]) => (
-                    <PlanQuarterCard key={qLabel} qLabel={qLabel} qData={qData} quarterLengthSec={quarterLengthMins * 60} />
+                  {Object.entries(rotationPlan.quarters).map(([hLabel, hData]) => (
+                    <PlanHalfCard key={hLabel} hLabel={hLabel} hData={hData} halfLengthSec={halfLengthMins * 60} />
                   ))}
 
                   <button
@@ -1042,7 +1102,7 @@ const RotationTrackerPage = () => {
                           <div className="flex items-center gap-3 text-xs text-gray-400">
                             <span>{game.date || 'Unknown date'}</span>
                             <span>{playerCount} players</span>
-                            <span>{game.quartersPlayed || 0} quarters</span>
+                            <span>{game.halvesPlayed || game.quartersPlayed || 0} halves</span>
                             <span>{formatTime(game.totalGameSeconds || 0)}</span>
                           </div>
                         </div>
@@ -1093,10 +1153,10 @@ const RotationTrackerPage = () => {
   // PHASE: LIVE TRACKING
   // ═══════════════════════════════════════════════════════════════════
   if (phase === 'live') {
-    const qLabel = allQuarters[currentQuarter] || 'Q1';
-    const isLastQuarter = currentQuarter >= allQuarters.length - 1;
-    const hasOT = allQuarters.includes('OT');
-    const isQ4Done = currentQuarter >= 3; // after Q4
+    const hLabel = allHalves[currentHalf] || 'H1';
+    const isLastHalf = currentHalf >= allHalves.length - 1;
+    const hasOT = allHalves.includes('OT');
+    const isH2Done = currentHalf >= 1; // after H2
 
     return (
       <div className="min-h-screen bg-[#F5F9F5] text-gray-800 flex flex-col">
@@ -1104,7 +1164,7 @@ const RotationTrackerPage = () => {
         <div className="bg-white border-b border-[#D4E4D4] px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="bg-[#005028] text-white font-bold text-sm px-3 py-1 rounded-full">
-              {qLabel}
+              {hLabel}
             </span>
             <span className="text-gray-700 text-sm truncate">vs {opponent}</span>
           </div>
@@ -1120,7 +1180,7 @@ const RotationTrackerPage = () => {
         {/* ── Game Clock ── */}
         <div className="text-center py-6 px-4">
           <div className="text-6xl font-mono font-bold text-gray-800 tracking-wider mb-4">
-            {formatTime(quarterSeconds)}
+            {formatTime(halfSeconds)}
           </div>
           <div className="text-sm text-gray-400 mb-4">
             Game Total: {formatTime(totalGameSeconds)}
@@ -1144,24 +1204,24 @@ const RotationTrackerPage = () => {
         {/* ── Quarter Nav ── */}
         <div className="px-4 pb-4">
           <div className="flex items-center gap-2 justify-center flex-wrap">
-            {allQuarters.map((q, i) => (
+            {allHalves.map((h, i) => (
               <span
-                key={q}
+                key={h}
                 className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${
-                  i === currentQuarter
+                  i === currentHalf
                     ? 'bg-[#005028] text-white'
-                    : i < currentQuarter
+                    : i < currentHalf
                       ? 'bg-[#D4E4D4]/40 text-gray-400'
                       : 'bg-[#F5F9F5] text-gray-800/20 border border-[#D4E4D4]/30'
                 }`}
               >
-                {q}
+                {h}
               </span>
             ))}
 
-            {/* Next Quarter / End Game buttons */}
+            {/* Next Half / End Game buttons */}
             <div className="flex gap-2 ml-2">
-              {!isLastQuarter && (
+              {!isLastHalf && (
                 <button
                   onClick={() => setShowNextQConfirm(true)}
                   className="px-3 py-1.5 bg-[#D4E4D4] hover:bg-[#00A651] text-white text-sm rounded-lg font-medium transition-colors flex items-center gap-1"
@@ -1169,7 +1229,7 @@ const RotationTrackerPage = () => {
                   Next <ChevronRight className="w-4 h-4" />
                 </button>
               )}
-              {isLastQuarter && isQ4Done && !hasOT && (
+              {isLastHalf && isH2Done && !hasOT && (
                 <button
                   onClick={handleAddOvertime}
                   className="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-sm rounded-lg font-medium transition-colors"
@@ -1191,17 +1251,17 @@ const RotationTrackerPage = () => {
         {currentPlanAlert && (
           <div className={`mx-4 mb-3 p-3 rounded-xl flex items-center gap-3 ${
             isBehindSchedule
-              ? 'bg-orange-900/40 border-2 border-orange-500 animate-pulse'
-              : 'bg-blue-900/30 border-2 border-blue-500'
+              ? 'bg-[#fee2e2] border-2 border-red-400 animate-pulse'
+              : 'bg-blue-50 border-2 border-blue-400'
           }`}>
-            <ListOrdered className="w-5 h-5 text-blue-400 flex-shrink-0" />
+            <ListOrdered className={`w-5 h-5 flex-shrink-0 ${isBehindSchedule ? 'text-[#991b1b]' : 'text-blue-600'}`} />
             <div className="flex-1 text-sm">
-              <span className={`font-bold ${isBehindSchedule ? 'text-orange-400' : 'text-blue-400'}`}>
-                SUB DUE{isBehindSchedule ? ` (${Math.floor(quarterSeconds - currentPlanAlert.time)}s overdue)` : ''}:
+              <span className={`font-bold ${isBehindSchedule ? 'text-[#991b1b]' : 'text-blue-700'}`}>
+                SUB DUE{isBehindSchedule ? ` (${Math.floor(halfSeconds - currentPlanAlert.time)}s overdue)` : ''}:
               </span>{' '}
               <span className="text-gray-800">{currentPlanAlert.outName} OFF → {currentPlanAlert.inName} ON</span>
               {isBehindSchedule && (
-                <span className="text-orange-300 text-xs block mt-0.5">
+                <span className="text-[#991b1b] text-xs block mt-0.5 font-medium">
                   {currentPlanAlert.outName} has extra time on court
                 </span>
               )}
@@ -1225,14 +1285,14 @@ const RotationTrackerPage = () => {
 
         {/* ── Sub Suggestion Banner (only if no plan alert showing) ── */}
         {!currentPlanAlert && subSuggestion && (
-          <div className="mx-4 mb-3 p-3 bg-yellow-900/30 border border-yellow-600/50 rounded-xl flex items-center gap-3">
-            <ArrowRightLeft className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-            <div className="flex-1 text-sm">
-              <span className="text-yellow-400 font-medium">Sub suggestion: </span>
-              <span className="text-gray-700">
+          <div className="mx-4 mb-3 p-3 bg-[#fef3c7] border border-yellow-400 rounded-xl flex items-center gap-3">
+            <ArrowRightLeft className="w-5 h-5 text-[#92400e] flex-shrink-0" />
+            <div className="flex-1 text-sm font-bold" style={{ minHeight: '14px' }}>
+              <span className="text-[#92400e]">Sub suggestion: </span>
+              <span className="text-[#92400e]">
                 {playerStats[subSuggestion.outId]?.name} OUT → {playerStats[subSuggestion.inId]?.name} IN
               </span>
-              <span className="text-gray-400 ml-1">({formatTime(subSuggestion.diff)} gap)</span>
+              <span className="text-[#92400e]/70 ml-1 font-medium">({formatTime(subSuggestion.diff)} gap)</span>
             </div>
           </div>
         )}
@@ -1241,16 +1301,16 @@ const RotationTrackerPage = () => {
         {deviationAlerts.length > 0 && (
           <div className="mx-4 mb-3 space-y-1.5">
             {deviationAlerts.slice(0, 3).map(da => (
-              <div key={da.pid} className={`p-2.5 rounded-lg flex items-center gap-2 text-xs ${
+              <div key={da.pid} className={`p-2.5 rounded-lg flex items-center gap-2 ${
                 da.type === 'over'
-                  ? 'bg-red-900/30 border border-red-500/40'
-                  : 'bg-yellow-900/30 border border-yellow-500/40'
-              }`}>
+                  ? 'bg-[#fee2e2] border border-red-400'
+                  : 'bg-[#fef3c7] border border-yellow-400'
+              }`} style={{ fontSize: '14px' }}>
                 <AlertCircle className={`w-4 h-4 flex-shrink-0 ${
-                  da.type === 'over' ? 'text-red-400' : 'text-yellow-400'
+                  da.type === 'over' ? 'text-[#991b1b]' : 'text-[#92400e]'
                 }`} />
-                <span className={da.type === 'over' ? 'text-red-300' : 'text-yellow-300'}>
-                  {da.name} is <span className="font-bold">{da.pct}% {da.type === 'over' ? 'over' : 'under'}</span> planned time
+                <span className={`font-bold ${da.type === 'over' ? 'text-[#991b1b]' : 'text-[#92400e]'}`}>
+                  {da.name} is {da.pct}% {da.type === 'over' ? 'over' : 'under'} planned time
                   {da.type === 'over' ? ' — consider subbing' : ' — needs court time'}
                 </span>
               </div>
@@ -1272,7 +1332,7 @@ const RotationTrackerPage = () => {
                   isSelected={selectedCourtPlayer === pid}
                   isMostPlayed={pid === mostPlayedOnCourt}
                   onTap={() => setSelectedCourtPlayer(prev => prev === pid ? null : pid)}
-                  quarterSeconds={quarterSeconds}
+                  halfSeconds={halfSeconds}
                   deviation={liveDeviations[pid]}
                 />
               ))}
@@ -1287,7 +1347,7 @@ const RotationTrackerPage = () => {
                   isSelected={selectedCourtPlayer === pid}
                   isMostPlayed={pid === mostPlayedOnCourt}
                   onTap={() => setSelectedCourtPlayer(prev => prev === pid ? null : pid)}
-                  quarterSeconds={quarterSeconds}
+                  halfSeconds={halfSeconds}
                   deviation={liveDeviations[pid]}
                 />
               ))}
@@ -1302,7 +1362,7 @@ const RotationTrackerPage = () => {
                   isSelected={selectedCourtPlayer === pid}
                   isMostPlayed={pid === mostPlayedOnCourt}
                   onTap={() => setSelectedCourtPlayer(prev => prev === pid ? null : pid)}
-                  quarterSeconds={quarterSeconds}
+                  halfSeconds={halfSeconds}
                   deviation={liveDeviations[pid]}
                 />
               ))}
@@ -1314,7 +1374,7 @@ const RotationTrackerPage = () => {
         {bench.length > 0 && (
           <div className="px-4 pb-6 flex-1">
             <h3 className="text-xs text-gray-400 uppercase tracking-wider mb-3">Bench</h3>
-            <div className="flex gap-2 overflow-x-auto pb-2">
+            <div className="flex gap-2 overflow-x-auto pb-2 pt-3">
               {bench.map(pid => (
                 <BenchPlayerChip
                   key={pid}
@@ -1350,9 +1410,9 @@ const RotationTrackerPage = () => {
             {showPlanPanel && (
               <div className="mt-2 bg-white border border-[#D4E4D4] rounded-xl p-3 space-y-1.5 max-h-48 overflow-y-auto">
                 <p className="text-[10px] text-gray-800/30 mb-1">Suggested rotation — tap to make manual changes anytime</p>
-                {rotationPlan.quarters[qLabel]?.subs.map((sub, i) => {
-                  const status = planSubStatus[qLabel]?.[i] || 'pending';
-                  const isDue = quarterSeconds >= sub.time && status === 'pending';
+                {rotationPlan.quarters[hLabel]?.subs.map((sub, i) => {
+                  const status = planSubStatus[hLabel]?.[i] || 'pending';
+                  const isDue = halfSeconds >= sub.time && status === 'pending';
                   return (
                     <div
                       key={i}
@@ -1369,8 +1429,8 @@ const RotationTrackerPage = () => {
                     </div>
                   );
                 })}
-                {(!rotationPlan.quarters[qLabel]?.subs || rotationPlan.quarters[qLabel].subs.length === 0) && (
-                  <p className="text-gray-800/30 text-xs">No subs planned for this quarter</p>
+                {(!rotationPlan.quarters[hLabel]?.subs || rotationPlan.quarters[hLabel].subs.length === 0) && (
+                  <p className="text-gray-800/30 text-xs">No subs planned for this half</p>
                 )}
               </div>
             )}
@@ -1380,9 +1440,9 @@ const RotationTrackerPage = () => {
         {/* ── Confirmation Dialogs ── */}
         {showNextQConfirm && (
           <ConfirmDialog
-            title={`End ${qLabel}?`}
-            message={`Move to ${allQuarters[currentQuarter + 1]}? The clock will reset for the new quarter.`}
-            onConfirm={handleNextQuarter}
+            title={`End ${hLabel}?`}
+            message={`Move to ${allHalves[currentHalf + 1]}? The clock will reset for the new half.`}
+            onConfirm={handleNextHalf}
             onCancel={() => setShowNextQConfirm(false)}
           />
         )}
@@ -1433,8 +1493,8 @@ const RotationTrackerPage = () => {
               <p className="text-gray-800 font-medium">{formatTime(totalGameSeconds)}</p>
             </div>
             <div>
-              <span className="text-gray-400">Quarters</span>
-              <p className="text-gray-800 font-medium">{Object.keys(completedQuarters).length}</p>
+              <span className="text-gray-400">Halves</span>
+              <p className="text-gray-800 font-medium">{Object.keys(completedHalves).length}</p>
             </div>
             <div>
               <span className="text-gray-400">Fairness</span>
@@ -1482,11 +1542,11 @@ const RotationTrackerPage = () => {
                       style={{ width: `${Math.min(100, (ps.totalSeconds / maxPlayerTime) * 100)}%` }}
                     />
                   </div>
-                  {/* Quarter breakdown */}
+                  {/* Half breakdown */}
                   <div className="flex gap-2 mt-2 flex-wrap">
-                    {allQuarters.map(q => (
-                      <span key={q} className="text-xs text-gray-400">
-                        {q}: {formatTime(ps.quarterSeconds?.[q] || 0)}
+                    {allHalves.map(h => (
+                      <span key={h} className="text-xs text-gray-400">
+                        {h}: {formatTime(ps.halfSeconds?.[h] || 0)}
                       </span>
                     ))}
                   </div>
@@ -1618,7 +1678,7 @@ const RotationTrackerPage = () => {
               {subsLog.map((sub, i) => (
                 <div key={i} className="flex items-center gap-3 text-sm py-1.5 border-b border-[#D4E4D4]/30 last:border-0">
                   <span className="text-[#00A651] font-mono text-xs w-16 flex-shrink-0">
-                    {sub.quarter} {formatTime(sub.gameTime)}
+                    {sub.half} {formatTime(sub.gameTime)}
                   </span>
                   <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${
                     sub.type === 'on' ? 'bg-green-700 text-green-200' : 'bg-red-900 text-red-300'
@@ -1683,7 +1743,7 @@ const RotationTrackerPage = () => {
 // SUB-COMPONENTS
 // ═══════════════════════════════════════════════════════════════════════
 
-const CourtPlayerCard = ({ player, playerId, isSelected, isMostPlayed, onTap, deviation }) => {
+const CourtPlayerCard = ({ player, playerId, isSelected, isMostPlayed, onTap, halfSeconds, deviation }) => {
   if (!player) return null;
   const devBorder = deviation?.color === 'red' ? 'border-red-500/60 bg-red-900/15'
     : deviation?.color === 'yellow' ? 'border-yellow-500/60 bg-yellow-900/15'
@@ -1795,15 +1855,15 @@ const RosterGrid = ({ roster, selected, onToggle, maxSelect }) => (
   </div>
 );
 
-const PlanQuarterCard = ({ qLabel, qData, quarterLengthSec }) => {
+const PlanHalfCard = ({ hLabel, hData, halfLengthSec }) => {
   // Build starter names from the first sub's outName entries + remaining starters
   const starterNames = [];
-  const starterIds = qData.starters || [];
+  const starterIds = hData.starters || [];
   starterIds.forEach(id => {
-    const asSub = qData.subs.find(s => s.outId === id);
+    const asSub = hData.subs.find(s => s.outId === id);
     if (asSub) starterNames.push(asSub.outName);
     else {
-      const asIn = qData.subs.find(s => s.inId === id);
+      const asIn = hData.subs.find(s => s.inId === id);
       starterNames.push(asIn ? asIn.inName : id.slice(0, 8));
     }
   });
@@ -1811,15 +1871,15 @@ const PlanQuarterCard = ({ qLabel, qData, quarterLengthSec }) => {
   return (
     <div className="bg-[#F5F9F5] border border-[#D4E4D4]/50 rounded-lg p-3">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[#00A651] font-bold text-sm">{qLabel}</span>
-        <span className="text-gray-400 text-xs">{formatTime(quarterLengthSec)}</span>
+        <span className="text-[#00A651] font-bold text-sm">{hLabel}</span>
+        <span className="text-gray-400 text-xs">{formatTime(halfLengthSec)}</span>
       </div>
       <div className="text-xs text-gray-500 mb-2">
         Start: <span className="text-gray-700">{starterNames.join(', ')}</span>
       </div>
-      {qData.subs.length > 0 ? (
+      {hData.subs.length > 0 ? (
         <div className="space-y-1">
-          {qData.subs.map((sub, i) => (
+          {hData.subs.map((sub, i) => (
             <div key={i} className="flex items-center gap-2 text-xs py-1 px-2 bg-gray-1000 rounded">
               <span className="text-[#00A651] font-mono w-10">{formatTime(sub.time)}</span>
               <span className="text-gray-600">{sub.outName} OFF → {sub.inName} ON</span>

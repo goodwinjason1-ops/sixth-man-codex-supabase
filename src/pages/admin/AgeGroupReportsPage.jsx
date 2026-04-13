@@ -135,9 +135,10 @@ const AgeGroupReportsPage = () => {
     <PageShell
       title="Age Group Reports"
       subtitle="Performance analysis by age group"
-      backTo="/welcome"
+      backTo="/admin/analytics-hub"
       breadcrumbs={[
         { label: 'Home', url: '/welcome' },
+        { label: 'Analytics & Reports', url: '/admin/analytics-hub' },
         { label: 'Age Group Reports' }
       ]}
     >

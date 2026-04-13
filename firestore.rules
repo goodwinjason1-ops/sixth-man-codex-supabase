@@ -25,6 +25,15 @@ service cloud.firestore {
       ];
     }
 
+    // Tryout-specific coordinator (excludes youth_head_coach)
+    function isTryoutCoordinator() {
+      return isSignedIn() && getUserRole() in [
+        'admin', 'president', 'vice_president',
+        'girls_coordinator', 'boys_coordinator',
+        'coach_coordinator'
+      ];
+    }
+
     function isCoach() {
       return isSignedIn() && getUserRole() in [
         'admin', 'president', 'vice_president',
@@ -47,7 +56,7 @@ service cloud.firestore {
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(
           ['role', 'disabled', 'deleted', 'deletedAt', 'deletedBy', 'disabledAt', 'disabledBy']
         ));
-      allow create: if isAdmin();
+      allow create: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
       allow delete: if isAdmin();
       allow update: if isAdmin();
     }
@@ -65,7 +74,7 @@ service cloud.firestore {
     // TEAMS
     // ───────────────────────────────────────
     match /teams/{teamId} {
-      allow read: if isSignedIn();
+      allow read: if true; // Public read — team names needed on registration page
       allow create, update: if isCoordinator();
       allow delete: if isAdmin();
     }
@@ -91,14 +100,30 @@ service cloud.firestore {
     }
 
     // ───────────────────────────────────────
+    // BETA FEEDBACK
+    // ───────────────────────────────────────
+    match /beta_feedback/{feedbackId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // SELECTION TEAMS (team assignment config)
+    // ───────────────────────────────────────
+    match /selection_teams/{ageGroup} {
+      allow read: if isSignedIn();
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
     // TRYOUT SESSIONS
     // ───────────────────────────────────────
     match /tryout_sessions/{sessionId} {
-      allow read: if isCoordinator();
-      allow read: if isSignedIn()
-        && getUserRole() == 'tryout_assessor'
-        && request.auth.uid in resource.data.assessors;
-      allow create, update: if isCoordinator();
+      allow read: if isSignedIn();
+      allow create, update: if isTryoutCoordinator();
       allow delete: if isAdmin();
     }
 
@@ -106,12 +131,9 @@ service cloud.firestore {
     // TRYOUT ASSESSMENTS
     // ───────────────────────────────────────
     match /tryout_assessments/{assessmentId} {
-      allow read: if isCoordinator();
+      allow read: if isTryoutCoordinator();
       allow read: if isSignedIn() && resource.data.assessorId == request.auth.uid;
-      allow create: if isSignedIn()
-        && getUserRole() in ['tryout_assessor', 'coach', 'admin',
-          'president', 'vice_president', 'girls_coordinator',
-          'boys_coordinator', 'coach_coordinator'];
+      allow create: if isSignedIn();
       allow update: if isSignedIn() && resource.data.assessorId == request.auth.uid;
       allow delete: if isAdmin();
     }
@@ -120,14 +142,11 @@ service cloud.firestore {
     // TRYOUT EVALUATIONS
     // ───────────────────────────────────────
     match /tryout_evaluations/{evalId} {
-      allow read: if isCoordinator();
+      allow read: if isTryoutCoordinator();
       allow read: if isSignedIn() && resource.data.assessorId == request.auth.uid;
-      allow create: if isSignedIn()
-        && getUserRole() in ['tryout_assessor', 'coach', 'admin',
-          'president', 'vice_president', 'girls_coordinator',
-          'boys_coordinator', 'coach_coordinator'];
+      allow create: if isSignedIn();
       allow update: if isSignedIn() && resource.data.assessorId == request.auth.uid;
-      allow update: if isCoordinator();
+      allow update: if isTryoutCoordinator();
       allow delete: if isAdmin();
     }
 
@@ -139,6 +158,18 @@ service cloud.firestore {
       allow create: if isCoach();
       allow update: if isCoach() && resource.data.coachId == request.auth.uid;
       allow update: if isCoordinator();
+      allow delete: if isAdmin();
+    }
+
+    // ───────────────────────────────────────
+    // SCOUT EVALUATIONS (season game scouting)
+    // ───────────────────────────────────────
+    match /scout_evaluations/{evalId} {
+      allow read: if isTryoutCoordinator();
+      allow read: if isSignedIn() && resource.data.scoutId == request.auth.uid;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && resource.data.scoutId == request.auth.uid;
+      allow update: if isTryoutCoordinator();
       allow delete: if isAdmin();
     }
 

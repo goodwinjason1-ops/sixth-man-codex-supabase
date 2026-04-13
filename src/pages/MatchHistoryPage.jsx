@@ -1,14 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useFilteredData } from '../hooks/useFilteredData';
 import PageShell from '../components/PageShell';
-import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-  orderBy,
-} from 'firebase/firestore';
-import { db } from '../services/firebase';
 import {
   Trophy,
   Calendar,
@@ -20,6 +12,8 @@ import {
   Loader2,
   AlertCircle,
   Shield,
+  MessageSquare,
+  User,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -86,56 +80,30 @@ const ResultBadge = ({ result }) => {
 // Main Page Component
 // ---------------------------------------------------------------------------
 const MatchHistoryPage = () => {
-  const { teams, players, currentUser, loading, userTeamIds } = useFilteredData();
-
-  // Firestore-direct state
-  const [assessments, setAssessments] = useState([]);
-  const [assessmentsLoading, setAssessmentsLoading] = useState(true);
+  const { teams, players, matchAssessments, loading, userTeamIds } = useFilteredData();
 
   // UI state
   const [selectedTeamId, setSelectedTeamId] = useState('all');
   const [expandedId, setExpandedId] = useState(null);
+  const [expandedMetrics, setExpandedMetrics] = useState({});
+
+  const toggleMetric = (key) => {
+    setExpandedMetrics(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   // ---------------------------------------------------------------------------
-  // Subscribe to the "games" collection for this coach's assessments.
-  // The MatchDayAssessmentPage saves to `games` with coachId.
-  // We listen for all games where coachId === current user OR teamId is in coach's teams.
+  // Filter match_assessments from DataContext to this coach's teams, sorted desc
   // ---------------------------------------------------------------------------
-  useEffect(() => {
-    if (!currentUser?.uid || !userTeamIds || userTeamIds.length === 0) {
-      setAssessments([]);
-      setAssessmentsLoading(false);
-      return;
-    }
-
-    setAssessmentsLoading(true);
-
-    // Firestore "in" queries are limited to 30 values.
-    // For most coaches this won't be an issue, but guard against it.
-    const teamBatch = userTeamIds.slice(0, 30);
-
-    const q = query(
-      collection(db, 'games'),
-      where('teamId', 'in', teamBatch),
-      orderBy('date', 'desc')
-    );
-
-    const unsub = onSnapshot(
-      q,
-      (snap) => {
-        const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-        setAssessments(data);
-        setAssessmentsLoading(false);
-      },
-      (err) => {
-        console.error('games snapshot error:', err);
-        setAssessments([]);
-        setAssessmentsLoading(false);
-      }
-    );
-
-    return unsub;
-  }, [currentUser?.uid, userTeamIds]);
+  const assessments = useMemo(() => {
+    if (!userTeamIds || userTeamIds.length === 0) return [];
+    return (matchAssessments || [])
+      .filter(a => userTeamIds.includes(a.teamId))
+      .sort((a, b) => {
+        const dateA = parseDate(a.date);
+        const dateB = parseDate(b.date);
+        return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
+      });
+  }, [matchAssessments, userTeamIds]);
 
   // ---------------------------------------------------------------------------
   // Build a player ID -> name lookup map
@@ -218,23 +186,41 @@ const MatchHistoryPage = () => {
         {/* Expanded Detail */}
         {isExpanded && (
           <div className="border-t border-[#D4E4D4] px-4 pb-4 pt-3 space-y-5">
-            {/* Team Metrics Summary */}
+            {/* 1. Team Performance — accordion metric rows */}
             {assessment.teamMetrics && Object.keys(assessment.teamMetrics).length > 0 && (
               <div>
                 <h4 className="text-gray-800 font-semibold text-sm mb-2 flex items-center gap-2">
                   <Shield className="w-4 h-4 text-[#00A651]" />
                   Team Performance
                 </h4>
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                <div className="space-y-1">
                   {METRIC_IDS.map((mId) => {
                     const val = assessment.teamMetrics[mId];
                     if (!val) return null;
+                    const teamNote = assessment.teamMetricNotes?.[mId];
+                    const hasNote = teamNote?.note;
+                    const metricKey = `team-${assessment.id}-${mId}`;
+                    const isOpen = expandedMetrics[metricKey];
                     return (
-                      <div key={mId} className="text-center">
-                        <p className="text-[10px] text-[#6B7C6B] mb-1 truncate">{METRIC_LABELS[mId]}</p>
-                        <span className={`inline-block w-8 h-8 rounded-lg text-sm font-bold leading-8 ${ratingColor(val)}`}>
-                          {val}
-                        </span>
+                      <div key={mId}>
+                        <button
+                          onClick={() => hasNote && toggleMetric(metricKey)}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left ${hasNote ? 'hover:bg-[#F5F9F5] cursor-pointer' : 'cursor-default'} transition-colors`}
+                        >
+                          <span className="text-sm text-gray-800">{METRIC_LABELS[mId]}</span>
+                          <div className="flex items-center gap-2">
+                            {hasNote && <MessageSquare className="w-3 h-3 text-[#6B7C6B]" />}
+                            {hasNote && teamNote.private && <Lock className="w-3 h-3 text-[#6B7C6B]" />}
+                            <span className={`inline-block w-7 h-7 rounded text-xs font-bold leading-7 text-center ${ratingColor(val)}`}>{val}</span>
+                            {hasNote && (isOpen ? <ChevronUp className="w-3.5 h-3.5 text-[#6B7C6B]" /> : <ChevronDown className="w-3.5 h-3.5 text-[#6B7C6B]" />)}
+                          </div>
+                        </button>
+                        {isOpen && hasNote && (
+                          <div className={`mx-3 mb-2 px-3 py-2 rounded-lg text-sm whitespace-pre-wrap ${teamNote.private ? 'bg-gray-50 border border-gray-200' : 'bg-[#F5F9F5] border border-[#D4E4D4]'}`}>
+                            {teamNote.private && <Lock className="w-3 h-3 text-[#6B7C6B] inline mr-1" />}
+                            {teamNote.note}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -242,161 +228,127 @@ const MatchHistoryPage = () => {
               </div>
             )}
 
-            {/* Player Ratings Table */}
+            {/* 2. Team Performance Notes */}
+            {(() => {
+              const teamPerfNotes = assessment.teamPerformanceNotes || {};
+              const teamPerfNote = teamPerfNotes.note || assessment.teamRatingNotes || '';
+              if (!teamPerfNote) return null;
+              return (
+                <div className={`rounded-lg p-3 ${teamPerfNotes.private ? 'bg-gray-50 border border-gray-200' : 'bg-[#F5F9F5] border border-[#D4E4D4]'}`}>
+                  <p className="text-[10px] text-[#6B7C6B] font-medium uppercase tracking-wide mb-1 flex items-center gap-1">
+                    Team Performance Notes
+                    {teamPerfNotes.private && <Lock className="w-3 h-3 text-[#6B7C6B]" />}
+                  </p>
+                  <p className="text-gray-800 text-sm whitespace-pre-wrap">{teamPerfNote}</p>
+                </div>
+              );
+            })()}
+
+            {/* 3. General Match Notes */}
+            {(() => {
+              const generalNotes = assessment.generalMatchNotes || {};
+              const generalNote = generalNotes.note || assessment.generalNotes || '';
+              if (!generalNote) return null;
+              return (
+                <div className={`rounded-lg p-3 ${generalNotes.private ? 'bg-gray-50 border border-gray-200' : 'bg-[#F5F9F5] border border-[#D4E4D4]'}`}>
+                  <p className="text-[10px] text-[#6B7C6B] font-medium uppercase tracking-wide mb-1 flex items-center gap-1">
+                    General Notes
+                    {generalNotes.private && <Lock className="w-3 h-3 text-[#6B7C6B]" />}
+                  </p>
+                  <p className="text-gray-800 text-sm whitespace-pre-wrap">{generalNote}</p>
+                </div>
+              );
+            })()}
+
+            {/* 4. Individual Players — accordion metric rows per player */}
             {assessedCount > 0 && (
-              <div>
-                <h4 className="text-gray-800 font-semibold text-sm mb-2 flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[#00A651]" />
-                  Player Ratings
-                </h4>
-                <div className="overflow-x-auto -mx-4 px-4">
-                  <table className="w-full text-xs min-w-[500px]">
-                    <thead>
-                      <tr className="border-b border-[#D4E4D4]">
-                        <th className="text-left py-2 pr-2 text-[#6B7C6B] font-medium">Player</th>
-                        {METRIC_IDS.map((mId) => (
-                          <th key={mId} className="text-center py-2 px-1 text-[#6B7C6B] font-medium whitespace-nowrap">
-                            {METRIC_LABELS[mId].split(' ').map((w) => w[0]).join('')}
-                          </th>
-                        ))}
-                        <th className="text-center py-2 px-1 text-[#6B7C6B] font-medium">Avg</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {assessedPlayerIds.map((pId) => {
-                        const pData = playerAssessments[pId];
-                        const metrics = pData.metrics || {};
-                        const playerName = pData.playerName || playerNameMap[pId] || 'Unknown';
-                        const vals = METRIC_IDS.map((mId) => metrics[mId]).filter(Boolean);
-                        const avg = vals.length > 0 ? (vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(1) : '-';
+              <div className="space-y-4">
+                {assessedPlayerIds.map((pId) => {
+                  const pData = playerAssessments[pId];
+                  const metrics = pData.metrics || {};
+                  const playerName = pData.playerName || playerNameMap[pId] || 'Unknown';
+                  const vals = METRIC_IDS.map((mId) => metrics[mId]).filter(Boolean);
+                  const avg = vals.length > 0 ? (vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(1) : '-';
+                  const metricNotes = pData.metricNotes || {};
+                  const noteText = pData.notes || '';
+                  const publicNoteText = pData.publicNotes || '';
+                  const privateNoteText = pData.privateNotes || '';
+                  const isPrivate = pData.notesPrivate !== false;
 
-                        return (
-                          <tr key={pId} className="border-b border-[#D4E4D4]/50">
-                            <td className="py-2 pr-2 text-gray-800 font-medium whitespace-nowrap">
-                              {pData.playerNumber ? `#${pData.playerNumber} ` : ''}
-                              {playerName}
-                            </td>
-                            {METRIC_IDS.map((mId) => {
-                              const val = metrics[mId];
-                              return (
-                                <td key={mId} className="text-center py-2 px-1">
-                                  {val ? (
-                                    <span className={`inline-block w-6 h-6 rounded text-xs font-bold leading-6 ${ratingColor(val)}`}>
-                                      {val}
-                                    </span>
-                                  ) : (
-                                    <span className="text-[#6B7C6B]">-</span>
-                                  )}
-                                </td>
-                              );
-                            })}
-                            <td className="text-center py-2 px-1">
-                              <span className="font-bold text-gray-800">{avg}</span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                  return (
+                    <div key={pId} className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
+                      {/* Player header */}
+                      <div className="px-3 py-2 bg-[#F5F9F5] border-b border-[#D4E4D4] flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-[#00A651]" />
+                          <span className="text-sm font-semibold text-gray-800">
+                            {pData.playerNumber ? `#${pData.playerNumber} ` : ''}{playerName}
+                          </span>
+                        </div>
+                        <span className="text-xs font-bold text-[#005028]">Avg: {avg}</span>
+                      </div>
 
-                {/* Table legend */}
-                <div className="flex flex-wrap gap-2 mt-2 text-[10px] text-[#6B7C6B]">
-                  {METRIC_IDS.map((mId) => (
-                    <span key={mId}>
-                      {METRIC_LABELS[mId].split(' ').map((w) => w[0]).join('')} = {METRIC_LABELS[mId]}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Notes Section */}
-            {(assessment.generalNotes || assessment.teamRatingNotes) && (
-              <div>
-                <h4 className="text-gray-800 font-semibold text-sm mb-2">Match Notes</h4>
-                {assessment.teamRatingNotes && (
-                  <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg p-3 mb-2">
-                    <p className="text-[10px] text-[#6B7C6B] font-medium uppercase tracking-wide mb-1">Team Performance Notes</p>
-                    <p className="text-gray-800 text-sm whitespace-pre-wrap">{assessment.teamRatingNotes}</p>
-                  </div>
-                )}
-                {assessment.generalNotes && (
-                  <div className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg p-3">
-                    <p className="text-[10px] text-[#6B7C6B] font-medium uppercase tracking-wide mb-1">General Notes</p>
-                    <p className="text-gray-800 text-sm whitespace-pre-wrap">{assessment.generalNotes}</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Private Notes - Only visible to the coach who wrote them */}
-            {assessment.coachId === currentUser?.uid && (
-              <>
-                {/* Player-level private notes */}
-                {assessedPlayerIds.some(
-                  (pId) =>
-                    playerAssessments[pId]?.notesPrivate !== false &&
-                    playerAssessments[pId]?.notes
-                ) && (
-                  <div>
-                    <h4 className="text-gray-800 font-semibold text-sm mb-2 flex items-center gap-2">
-                      <Lock className="w-4 h-4 text-[#6B7C6B]" />
-                      Private Notes
-                    </h4>
-                    <div className="space-y-2">
-                      {assessedPlayerIds
-                        .filter(
-                          (pId) =>
-                            playerAssessments[pId]?.notesPrivate !== false &&
-                            playerAssessments[pId]?.notes
-                        )
-                        .map((pId) => {
-                          const pData = playerAssessments[pId];
-                          const playerName = pData.playerName || playerNameMap[pId] || 'Unknown';
+                      {/* Player metric accordion rows */}
+                      <div className="divide-y divide-[#D4E4D4]/50">
+                        {METRIC_IDS.map((mId) => {
+                          const val = metrics[mId];
+                          if (!val) return null;
+                          const mNote = metricNotes[mId];
+                          const hasNote = mNote?.note;
+                          const mKey = `player-${assessment.id}-${pId}-${mId}`;
+                          const isOpen = expandedMetrics[mKey];
                           return (
-                            <div key={pId} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                              <p className="text-xs text-[#6B7C6B] font-medium mb-1">{playerName}</p>
-                              <p className="text-gray-800 text-sm whitespace-pre-wrap">{pData.notes}</p>
+                            <div key={mId}>
+                              <button
+                                onClick={() => hasNote && toggleMetric(mKey)}
+                                className={`w-full flex items-center justify-between px-3 py-2 text-left ${hasNote ? 'hover:bg-[#F5F9F5] cursor-pointer' : 'cursor-default'} transition-colors`}
+                              >
+                                <span className="text-xs text-gray-700">{METRIC_LABELS[mId]}</span>
+                                <div className="flex items-center gap-2">
+                                  {hasNote && <MessageSquare className="w-3 h-3 text-[#6B7C6B]" />}
+                                  {hasNote && mNote.private && <Lock className="w-3 h-3 text-[#6B7C6B]" />}
+                                  <span className={`inline-block w-6 h-6 rounded text-xs font-bold leading-6 text-center ${ratingColor(val)}`}>{val}</span>
+                                  {hasNote && (isOpen ? <ChevronUp className="w-3 h-3 text-[#6B7C6B]" /> : <ChevronDown className="w-3 h-3 text-[#6B7C6B]" />)}
+                                </div>
+                              </button>
+                              {isOpen && hasNote && (
+                                <div className={`mx-3 mb-2 px-3 py-2 rounded text-xs whitespace-pre-wrap ${mNote.private ? 'bg-gray-50 border border-gray-200' : 'bg-[#F5F9F5] border border-[#D4E4D4]'}`}>
+                                  {mNote.private && <Lock className="w-3 h-3 text-[#6B7C6B] inline mr-1" />}
+                                  {mNote.note}
+                                </div>
+                              )}
                             </div>
                           );
                         })}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
+                      </div>
 
-            {/* Public player notes */}
-            {assessedPlayerIds.some(
-              (pId) =>
-                playerAssessments[pId]?.notesPrivate === false &&
-                playerAssessments[pId]?.notes
-            ) && (
-              <div>
-                <h4 className="text-gray-800 font-semibold text-sm mb-2">Player Notes</h4>
-                <div className="space-y-2">
-                  {assessedPlayerIds
-                    .filter(
-                      (pId) =>
-                        playerAssessments[pId]?.notesPrivate === false &&
-                        playerAssessments[pId]?.notes
-                    )
-                    .map((pId) => {
-                      const pData = playerAssessments[pId];
-                      const playerName = pData.playerName || playerNameMap[pId] || 'Unknown';
-                      return (
-                        <div key={pId} className="bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg p-3">
-                          <p className="text-xs text-[#6B7C6B] font-medium mb-1">{playerName}</p>
-                          <p className="text-gray-800 text-sm whitespace-pre-wrap">{pData.notes}</p>
+                      {/* Player-level notes */}
+                      {(noteText || publicNoteText || privateNoteText) && (
+                        <div className="px-3 py-2 border-t border-[#D4E4D4] space-y-1">
+                          {noteText && (
+                            <div className="flex items-start gap-1">
+                              {isPrivate && <Lock className="w-3 h-3 text-[#6B7C6B] mt-0.5 flex-shrink-0" />}
+                              <p className="text-gray-800 text-xs whitespace-pre-wrap">{noteText}</p>
+                            </div>
+                          )}
+                          {publicNoteText && publicNoteText !== noteText && (
+                            <p className="text-gray-800 text-xs whitespace-pre-wrap">{publicNoteText}</p>
+                          )}
+                          {privateNoteText && privateNoteText !== noteText && (
+                            <div className="flex items-start gap-1">
+                              <Lock className="w-3 h-3 text-[#6B7C6B] mt-0.5 flex-shrink-0" />
+                              <p className="text-gray-800 text-xs whitespace-pre-wrap">{privateNoteText}</p>
+                            </div>
+                          )}
                         </div>
-                      );
-                    })}
-                </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
 
-            {/* MVP Votes */}
+            {/* 5. MVP Votes */}
             {assessment.mvpVoting?.votes && (
               <div>
                 <h4 className="text-gray-800 font-semibold text-sm mb-2 flex items-center gap-2">
@@ -430,6 +382,11 @@ const MatchHistoryPage = () => {
                             {points} vote{points > 1 ? 's' : ''} -
                             {points === 3 ? ' Best on Ground' : points === 2 ? ' Second Best' : ' Third Best'}
                           </p>
+                          {assessment.mvpVoting.notes?.[points] && (
+                            <p className="text-[#6B7C6B] text-xs mt-1 italic whitespace-pre-wrap">
+                              &ldquo;{assessment.mvpVoting.notes[points]}&rdquo;
+                            </p>
+                          )}
                         </div>
                       </div>
                     );
@@ -484,19 +441,14 @@ const MatchHistoryPage = () => {
         </div>
 
         {/* Assessment count */}
-        {!assessmentsLoading && filteredAssessments.length > 0 && (
+        {!loading && filteredAssessments.length > 0 && (
           <p className="text-xs text-[#6B7C6B] px-1">
             {filteredAssessments.length} assessment{filteredAssessments.length !== 1 ? 's' : ''} found
           </p>
         )}
 
         {/* Assessments list */}
-        {assessmentsLoading ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-[#00A651] animate-spin mb-4" />
-            <p className="text-gray-500 text-sm">Loading assessments...</p>
-          </div>
-        ) : filteredAssessments.length > 0 ? (
+        {filteredAssessments.length > 0 ? (
           <div className="space-y-3">
             {filteredAssessments.map((a) => renderAssessmentCard(a))}
           </div>

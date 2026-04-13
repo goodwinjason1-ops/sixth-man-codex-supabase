@@ -39,14 +39,16 @@ import {
   ChevronUp
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import { logActivity } from '../services/auditService';
 import { useAutoSave } from '../hooks/useAutoSave';
 import {
   MATCH_METRICS,
   MATCH_LEVEL_LABELS,
   MATCH_LEVEL_COLORS,
   getMatchBenchmark,
-  getMatchAgeGroupFromTeam,
-  getLevelCriteria
+  getMatchAgeGroupFromTeam
 } from '../data/matchBenchmarks';
 import { getMetricsWithFallback } from '../services/metricsService';
 import { useGameDayDetection, formatGameForDisplay } from '../hooks/useGameDayDetection';
@@ -73,6 +75,98 @@ const levelColors = {
   5: 'bg-[#86efac]'
 };
 
+// Team-level scoring criteria (for team info bubbles)
+const TEAM_SCORING_CRITERIA = {
+  teamWork: {
+    1: 'Poor team communication, players isolated, no cooperation',
+    2: 'Occasional communication, inconsistent support between players',
+    3: 'Reasonable teamwork, players generally aware of each other',
+    4: 'Good communication and cooperation, players actively support each other',
+    5: 'Excellent team chemistry, constant communication, seamless cooperation'
+  },
+  defense: {
+    1: 'No defensive structure, players out of position, no help defense',
+    2: 'Basic defensive effort but poor rotations and positioning',
+    3: 'Solid team defense, reasonable help defense and rotations',
+    4: 'Strong defensive unit, good rotations, effective help defense',
+    5: 'Exceptional team defense, dominant rotations, forced turnovers consistently'
+  },
+  ballMovement: {
+    1: 'Stagnant offense, no passing, one player dominates the ball',
+    2: 'Limited ball movement, predictable passing, easy to defend',
+    3: 'Reasonable ball sharing, some offensive flow',
+    4: 'Good ball movement, multiple passes per possession, hard to defend',
+    5: 'Outstanding ball movement, unselfish play, created open shots consistently'
+  },
+  offense: {
+    1: 'No offensive structure, no scoring opportunities created',
+    2: 'Limited offensive output, few quality looks at the basket',
+    3: 'Reasonable offensive production, some play execution',
+    4: 'Strong offensive performance, good execution, multiple scoring options',
+    5: 'Dominant offense, excellent play execution, consistent quality scoring'
+  },
+  shotSelection: {
+    1: 'Rushed, poor quality shots, no patience in the offense',
+    2: 'Some poor shot choices, limited patience',
+    3: 'Generally reasonable shot selection, some patience',
+    4: 'Good shot discipline, patient offense, quality looks',
+    5: 'Excellent shot selection, very patient, only took high-percentage shots'
+  },
+  sportsmanship: {
+    1: 'Poor attitude, complaints to referees, disrespectful to opponents',
+    2: 'Some negative behaviour, occasional complaints',
+    3: 'Acceptable sportsmanship, generally respectful',
+    4: 'Good sportsmanship, positive attitude, respectful',
+    5: 'Excellent sportsmanship, encouraging, gracious in both winning and losing'
+  }
+};
+
+// Individual player scoring criteria (for player info bubbles)
+const PLAYER_SCORING_CRITERIA = {
+  teamWork: {
+    1: 'Does not communicate, plays in isolation, unaware of teammates',
+    2: 'Limited communication, occasionally looks for teammates',
+    3: 'Communicates and cooperates, generally supportive of teammates',
+    4: 'Active communicator, encourages others, plays cooperatively',
+    5: 'Outstanding communicator, vocal leader, lifts teammates\' performance'
+  },
+  defense: {
+    1: 'No defensive effort, poor positioning, easily beaten',
+    2: 'Some effort but poor stance, slow to react, loses assignment',
+    3: 'Reliable defensive effort, holds position, contests shots',
+    4: 'Strong defender, good positioning, active hands, helps teammates',
+    5: 'Elite defender, shuts down opponent, forces turnovers, anchors the defense'
+  },
+  ballMovement: {
+    1: 'Holds the ball too long, does not pass, poor decisions with the ball',
+    2: 'Limited passing, occasionally shares, turnovers under pressure',
+    3: 'Passes when open teammates available, reasonable ball handling',
+    4: 'Good passer, finds open teammates, handles pressure well',
+    5: 'Exceptional vision, creative passing, makes teammates better'
+  },
+  offense: {
+    1: 'No scoring threat, avoids the ball, does not create opportunities',
+    2: 'Limited offensive contribution, occasional attempts',
+    3: 'Takes reasonable shots, contributes to scoring',
+    4: 'Strong offensive player, creates own shot, finishes well',
+    5: 'Dominant scorer, creates for self and others, hard to stop'
+  },
+  shotSelection: {
+    1: 'Forces bad shots, no patience, shoots from poor positions',
+    2: 'Some rushed shots, inconsistent decision-making',
+    3: 'Generally takes appropriate shots, reasonable patience',
+    4: 'Good shot selection, patient, takes shots within ability',
+    5: 'Excellent decision-maker, only takes high-quality shots, very disciplined'
+  },
+  sportsmanship: {
+    1: 'Argues with refs/opponents, poor body language, negative influence',
+    2: 'Occasional complaints, inconsistent attitude',
+    3: 'Generally respectful, accepts decisions',
+    4: 'Positive attitude, respectful to all, good role model',
+    5: 'Exceptional sportsmanship, encourages everyone, gracious always'
+  }
+};
+
 const resultOptions = [
   { id: 'win', label: 'Win', color: 'bg-[#005028]' },
   { id: 'loss', label: 'Loss', color: 'bg-red-500' },
@@ -90,7 +184,7 @@ const MatchDayAssessmentPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { players: firestorePlayers, teams: firestoreTeams, addDocument, isOnline, pendingSync, loading, errors, currentUser, userProfile } = useFilteredData();
+  const { players: firestorePlayers, teams: firestoreTeams, games: firestoreGames, matchAssessments: existingAssessments, addDocument, updateDocument, isOnline, pendingSync, loading, errors, currentUser, userProfile } = useFilteredData();
   const tabsContainerRef = useRef(null);
   const draftIdFromUrl = searchParams.get('draftId');
   const [draftLoaded, setDraftLoaded] = useState(false);
@@ -142,9 +236,15 @@ const MatchDayAssessmentPage = () => {
   const [gameResult, setGameResult] = useState('');
   const [teamRatings, setTeamRatings] = useState({});
   const [teamRatingNotes, setTeamRatingNotes] = useState('');
+  const [teamMetricNotes, setTeamMetricNotes] = useState({});
+  const [teamMetricNotesPrivacy, setTeamMetricNotesPrivacy] = useState({}); // { metricId: true = private }
+  const [teamRatingNotesPrivate, setTeamRatingNotesPrivate] = useState(false);
   const [gameNotes, setGameNotes] = useState('');
+  const [gameNotesPrivate, setGameNotesPrivate] = useState(false);
   const [showGeneralNotes, setShowGeneralNotes] = useState(false);
   const [mvpVotes, setMvpVotes] = useState({ vote3: '', vote2: '', vote1: '' });
+  const [mvpNotes, setMvpNotes] = useState({ vote3: '', vote2: '', vote1: '' });
+  const [expandedMvpNotes, setExpandedMvpNotes] = useState({});
 
   // Save state
   const [isSaving, setIsSaving] = useState(false);
@@ -164,6 +264,7 @@ const MatchDayAssessmentPage = () => {
   const [expandedPlayers, setExpandedPlayers] = useState({});
   const [expandedPlayerNotes, setExpandedPlayerNotes] = useState({});
   const [expandedMetricNotes, setExpandedMetricNotes] = useState({}); // { "playerId-metricId": true }
+  const [expandedTeamMetricNotes, setExpandedTeamMetricNotes] = useState({}); // { "metricId": true }
   const [playerAssessments, setPlayerAssessments] = useState({});
   const [showTeamNotes, setShowTeamNotes] = useState(false);
 
@@ -177,8 +278,9 @@ const MatchDayAssessmentPage = () => {
   // Auto-save form data every 30 seconds as safety net
   const autoSaveFormData = useMemo(() => ({
     teamId: activeTeamId, matchDate, opponentName, gameResult,
-    teamRatings, teamRatingNotes, mvpVotes, gameNotes, playerAssessments
-  }), [activeTeamId, matchDate, opponentName, gameResult, teamRatings, teamRatingNotes, mvpVotes, gameNotes, playerAssessments]);
+    teamRatings, teamRatingNotes, teamRatingNotesPrivate, teamMetricNotes, teamMetricNotesPrivacy,
+    mvpVotes, mvpNotes, gameNotes, gameNotesPrivate, playerAssessments
+  }), [activeTeamId, matchDate, opponentName, gameResult, teamRatings, teamRatingNotes, teamRatingNotesPrivate, teamMetricNotes, teamMetricNotesPrivacy, mvpVotes, mvpNotes, gameNotes, gameNotesPrivate, playerAssessments]);
 
   const { savedData: autoSavedData, clearSaved: clearAutoSave, hasSavedData: hasAutoSave } = useAutoSave('match-assessment', autoSaveFormData);
 
@@ -190,8 +292,13 @@ const MatchDayAssessmentPage = () => {
     setGameResult(autoSavedData.gameResult || '');
     setTeamRatings(autoSavedData.teamRatings || {});
     setTeamRatingNotes(autoSavedData.teamRatingNotes || '');
+    setTeamRatingNotesPrivate(autoSavedData.teamRatingNotesPrivate || false);
+    setTeamMetricNotes(autoSavedData.teamMetricNotes || {});
+    setTeamMetricNotesPrivacy(autoSavedData.teamMetricNotesPrivacy || {});
     setMvpVotes(autoSavedData.mvpVotes || { vote3: '', vote2: '', vote1: '' });
+    setMvpNotes(autoSavedData.mvpNotes || { vote3: '', vote2: '', vote1: '' });
     setGameNotes(autoSavedData.gameNotes || '');
+    setGameNotesPrivate(autoSavedData.gameNotesPrivate || false);
     setPlayerAssessments(autoSavedData.playerAssessments || {});
     clearAutoSave();
   };
@@ -290,10 +397,17 @@ const MatchDayAssessmentPage = () => {
     setGameResult('');
     setTeamRatings({});
     setTeamRatingNotes('');
+    setTeamRatingNotesPrivate(false);
+    setTeamMetricNotes({});
+    setTeamMetricNotesPrivacy({});
     setMvpVotes({ vote3: '', vote2: '', vote1: '' });
+    setMvpNotes({ vote3: '', vote2: '', vote1: '' });
+    setExpandedMvpNotes({});
     setGameNotes('');
+    setGameNotesPrivate(false);
     setExpandedPlayers({});
     setExpandedMetricNotes({});
+    setExpandedTeamMetricNotes({});
     setPlayerAssessments({});
     setMatchDate(new Date().toISOString().split('T')[0]);
     setSaveError(null);
@@ -308,12 +422,18 @@ const MatchDayAssessmentPage = () => {
     setActiveTeamId(teamId);
     setTeamRatings({});
     setTeamRatingNotes('');
+    setTeamRatingNotesPrivate(false);
+    setTeamMetricNotes({});
+    setTeamMetricNotesPrivacy({});
     setMvpVotes({ vote3: '', vote2: '', vote1: '' });
+    setMvpNotes({ vote3: '', vote2: '', vote1: '' });
+    setExpandedMvpNotes({});
     setGameNotes('');
     setOpponentName('');
     setGameResult('');
     setExpandedPlayers({});
     setExpandedMetricNotes({});
+    setExpandedTeamMetricNotes({});
     setPlayerAssessments({});
     setExistingDraft(null);
     setShowDraftBanner(false);
@@ -328,8 +448,13 @@ const MatchDayAssessmentPage = () => {
     setGameResult(existingDraft.gameResult || '');
     setTeamRatings(existingDraft.teamRatings || {});
     setTeamRatingNotes(existingDraft.teamRatingNotes || '');
+    setTeamRatingNotesPrivate(existingDraft.teamRatingNotesPrivate || false);
+    setTeamMetricNotes(existingDraft.teamMetricNotes || {});
+    setTeamMetricNotesPrivacy(existingDraft.teamMetricNotesPrivacy || {});
     setMvpVotes(existingDraft.mvpVotes || { vote3: '', vote2: '', vote1: '' });
+    setMvpNotes(existingDraft.mvpNotes || { vote3: '', vote2: '', vote1: '' });
     setGameNotes(existingDraft.gameNotes || '');
+    setGameNotesPrivate(existingDraft.gameNotesPrivate || false);
     setPlayerAssessments(existingDraft.playerAssessments || {});
     setShowDraftBanner(false);
   };
@@ -419,6 +544,19 @@ const MatchDayAssessmentPage = () => {
     }));
   };
 
+  const togglePlayerMetricNotePrivacy = (playerId, metricId) => {
+    setPlayerAssessments(prev => ({
+      ...prev,
+      [playerId]: {
+        ...prev[playerId],
+        metricNotesPrivacy: {
+          ...(prev[playerId]?.metricNotesPrivacy || {}),
+          [metricId]: !(prev[playerId]?.metricNotesPrivacy?.[metricId])
+        }
+      }
+    }));
+  };
+
   // Toggle metric note expansion
   const toggleMetricNote = (playerId, metricId) => {
     const key = `${playerId}-${metricId}`;
@@ -443,7 +581,7 @@ const MatchDayAssessmentPage = () => {
 
   // Get player assessment data
   const getPlayerAssessment = (playerId) => {
-    return playerAssessments[playerId] || { metrics: {}, notes: '', privateNotes: '', notesPrivate: true, metricNotes: {} };
+    return playerAssessments[playerId] || { metrics: {}, notes: '', privateNotes: '', notesPrivate: true, metricNotes: {}, metricNotesPrivacy: {} };
   };
 
   // Count assessed metrics for a player
@@ -469,8 +607,13 @@ const MatchDayAssessmentPage = () => {
         gameResult,
         teamRatings,
         teamRatingNotes,
+        teamRatingNotesPrivate,
+        teamMetricNotes,
+        teamMetricNotesPrivacy,
         mvpVotes,
+        mvpNotes,
         gameNotes,
+        gameNotesPrivate,
         playerAssessments,
         savedAt: new Date().toISOString(),
         lastModified: Date.now()
@@ -510,8 +653,56 @@ const MatchDayAssessmentPage = () => {
     setSaveError(null);
 
     try {
-      // Build the game data structure
-      const gameData = {
+      // Build MVP data structures BEFORE the assessment object
+      // to avoid any variable scoping confusion with property names
+      const mvpVotesById = {};
+      if (mvpVotes.vote3) mvpVotesById[mvpVotes.vote3] = { votes: 3, note: mvpNotes.vote3 || '' };
+      if (mvpVotes.vote2) mvpVotesById[mvpVotes.vote2] = { votes: 2, note: mvpNotes.vote2 || '' };
+      if (mvpVotes.vote1) mvpVotesById[mvpVotes.vote1] = { votes: 1, note: mvpNotes.vote1 || '' };
+
+      const mvpVotingData = {
+        type: '3-2-1',
+        votes: {
+          3: mvpVotes.vote3 || null,
+          2: mvpVotes.vote2 || null,
+          1: mvpVotes.vote1 || null
+        },
+        notes: {
+          3: mvpNotes.vote3 || '',
+          2: mvpNotes.vote2 || '',
+          1: mvpNotes.vote1 || ''
+        }
+      };
+
+      console.log('[MatchDay] MVP state before save:', JSON.stringify(mvpVotes));
+      console.log('[MatchDay] MVP votesById:', JSON.stringify(mvpVotesById));
+      console.log('[MatchDay] MVP votingData:', JSON.stringify(mvpVotingData));
+
+      // Resolve gameId — never save with null
+      const resolvedGameId = gameDayData?.id || (() => {
+        const assessmentDate = new Date(matchDate);
+        const match = (firestoreGames || []).find(g => {
+          if (g.teamId !== activeTeamId) return false;
+          const gDate = g.date?.toDate ? g.date.toDate() : new Date(g.date);
+          return gDate.toDateString() === assessmentDate.toDateString();
+        });
+        return match?.id || null;
+      })();
+
+      if (!resolvedGameId) {
+        setSaveError('Cannot save: no game found for this team and date. Please ensure a game exists in the schedule.');
+        setIsSaving(false);
+        return;
+      }
+
+      // Check for existing assessment with same gameId + teamId to prevent duplicates
+      const existingDoc = (existingAssessments || []).find(
+        a => a.gameId === resolvedGameId && a.teamId === activeTeamId
+      );
+
+      // Build the match assessment data structure
+      const assessmentData = {
+        gameId: resolvedGameId,
         teamId: activeTeamId,
         teamName: activeTeam?.name,
         ageGroup: activeTeam?.ageGroup,
@@ -521,14 +712,22 @@ const MatchDayAssessmentPage = () => {
         opponent: opponentName,
         result: gameResult,
         teamMetrics: teamRatings,
-        teamRatingNotes: teamRatingNotes,
+        teamMetricNotes: Object.entries(teamMetricNotes).reduce((acc, [metricId, note]) => {
+          acc[metricId] = { note: note || '', private: !!teamMetricNotesPrivacy[metricId] };
+          return acc;
+        }, {}),
+        teamPerformanceNotes: { note: teamRatingNotes || '', private: !!teamRatingNotesPrivate },
+        generalMatchNotes: { note: gameNotes || '', private: !!gameNotesPrivate },
         playerAssessments: Object.entries(playerAssessments).reduce((acc, [playerId, data]) => {
           const player = teamPlayers.find(p => p.id === playerId);
           acc[playerId] = {
             playerName: player?.name || 'Unknown',
             playerNumber: player?.number || 0,
             metrics: data.metrics || {},
-            metricNotes: data.metricNotes || {},
+            metricNotes: Object.entries(data.metricNotes || {}).reduce((mn, [metricId, note]) => {
+              mn[metricId] = { note: note || '', private: !!(data.metricNotesPrivacy || {})[metricId] };
+              return mn;
+            }, {}),
             publicNotes: data.notes || '',
             privateNotes: data.privateNotes || '',
             notes: data.notes || '',
@@ -536,21 +735,42 @@ const MatchDayAssessmentPage = () => {
           };
           return acc;
         }, {}),
-        mvpVoting: {
-          type: '3-2-1',
-          votes: {
-            3: mvpVotes.vote3 || null,
-            2: mvpVotes.vote2 || null,
-            1: mvpVotes.vote1 || null
-          }
-        },
-        generalNotes: gameNotes,
+        mvpVotes: mvpVotesById,
+        mvpVoting: mvpVotingData,
         createdAt: new Date(),
         savedOffline: !isOnline
       };
 
-      // Save to Firestore "games" collection (queued if offline)
-      await addDocument('games', gameData);
+      // Save to Firestore — update existing or create new
+      if (existingDoc) {
+        console.log('[MatchDay] Updating existing assessment:', existingDoc.id);
+        await updateDocument('match_assessments', existingDoc.id, assessmentData);
+      } else {
+        console.log('[MatchDay] Creating new assessment for gameId:', resolvedGameId);
+        await addDocument('match_assessments', assessmentData);
+      }
+
+      // Sync result back to the games document
+      if (resolvedGameId && gameResult) {
+        try {
+          // Direct Firestore call — bypass DataContext updateDocument
+          await updateDoc(doc(db, 'games', resolvedGameId), {
+            result: gameResult,
+            hasAssessment: true,
+            status: 'completed'
+          });
+        } catch (err) {
+          console.error('Game result sync failed:', err.message);
+        }
+      }
+
+      // Audit log
+      logActivity(
+        { uid: currentUser.uid, displayName: userProfile?.displayName, role: userProfile?.role },
+        'assessment.match',
+        `Match assessment saved: ${activeTeam?.name || 'Unknown'} vs ${opponentName || 'Unknown'}`,
+        { gameId: resolvedGameId, teamId: activeTeamId }
+      );
 
       // Delete draft if exists
       const draftKey = getDraftKey(activeTeamId, matchDate);
@@ -676,6 +896,7 @@ const MatchDayAssessmentPage = () => {
       // Reset ratings when switching teams
       setTeamRatings({});
       setMvpVotes({ vote3: '', vote2: '', vote1: '' });
+      setMvpNotes({ vote3: '', vote2: '', vote1: '' });
       setPlayerAssessments({});
     }
 
@@ -706,6 +927,7 @@ const MatchDayAssessmentPage = () => {
           setTeamRatings(draft.teamRatings || {});
           setTeamRatingNotes(draft.teamRatingNotes || '');
           setMvpVotes(draft.mvpVotes || { vote3: '', vote2: '', vote1: '' });
+          setMvpNotes(draft.mvpNotes || { vote3: '', vote2: '', vote1: '' });
           setGameNotes(draft.gameNotes || '');
           setPlayerAssessments(draft.playerAssessments || {});
 
@@ -1116,43 +1338,32 @@ const MatchDayAssessmentPage = () => {
                     )}
                   </div>
 
-                  {/* Criteria Tooltip */}
-                  {isTooltipOpen && (
-                    <div className="mb-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg p-3">
+                  {/* Team Scoring Criteria Tooltip */}
+                  {isTooltipOpen && TEAM_SCORING_CRITERIA[metric.id] && (
+                    <div className="mb-3 bg-gray-900 rounded-lg p-3 shadow-lg">
                       <div className="flex items-center justify-between mb-2">
                         <h5 className="text-[#00A651] text-xs font-medium">
-                          {metric.name} Criteria ({matchAgeGroup.name})
+                          {metric.name} — Team Scoring
                         </h5>
                         <button
                           onClick={() => setShowCriteriaTooltip(null)}
-                          className="text-gray-400 hover:text-gray-800"
+                          className="text-gray-400 hover:text-white"
                         >
                           <X className="w-3 h-3" />
                         </button>
                       </div>
-                      <div className="space-y-2">
-                        {[1, 2, 3, 4, 5].map((level) => {
-                          const criteria = getLevelCriteria(matchAgeGroup.id, metric.id, level);
-                          return (
-                            <div key={level} className="flex gap-2">
-                              <span className={`w-6 h-6 flex-shrink-0 rounded text-xs font-bold flex items-center justify-center ${levelColors[level]} text-white`}>
-                                {level}
-                              </span>
-                              <div>
-                                <p className="text-gray-800 text-xs font-medium">{levelLabels[level]}</p>
-                                {criteria.length > 0 ? (
-                                  <ul className="text-[#6B7C6B] text-[10px] mt-0.5">
-                                    {criteria.slice(0, 2).map((c, i) => (
-                                      <li key={i}>• {c}</li>
-                                    ))}
-                                  </ul>
-                                ) : (
-                                  <p className="text-[#6B7C6B] text-[10px] italic">Criteria not yet defined</p>
-                                )}
-                              </div>
+                      <div className="space-y-1.5">
+                        {[1, 2, 3, 4, 5].map((level) => (
+                          <div key={level} className="flex gap-2">
+                            <span className={`w-5 h-5 flex-shrink-0 rounded text-[10px] font-bold flex items-center justify-center ${levelColors[level]} text-white`}>
+                              {level}
+                            </span>
+                            <div className="flex-1">
+                              <span className="text-white text-[10px] font-medium">{levelLabels[level]}: </span>
+                              <span className="text-gray-300 text-[10px]">{TEAM_SCORING_CRITERIA[metric.id][level]}</span>
                             </div>
-                          );
-                        })}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -1173,6 +1384,59 @@ const MatchDayAssessmentPage = () => {
                       </button>
                     ))}
                   </div>
+
+                  {/* Per-metric note toggle */}
+                  <button
+                    onClick={() => setExpandedTeamMetricNotes(prev => ({ ...prev, [metric.id]: !prev[metric.id] }))}
+                    className={`mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                      teamMetricNotes[metric.id]
+                        ? 'bg-[#F5F9F5] border border-[#00A651] text-[#00A651]'
+                        : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B] hover:border-[#00A651] hover:text-[#00A651]'
+                    }`}
+                  >
+                    <MessageSquare className="w-3 h-3" />
+                    <span>{expandedTeamMetricNotes[metric.id] ? 'Hide Note' : teamMetricNotes[metric.id] ? 'Edit Note' : 'Add Note'}</span>
+                    <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${expandedTeamMetricNotes[metric.id] ? 'rotate-180' : ''}`} />
+                  </button>
+                  {/* Per-metric note textarea with public/private toggle */}
+                  <div className={`overflow-hidden transition-all duration-200 ${expandedTeamMetricNotes[metric.id] ? 'max-h-[160px] mt-2' : 'max-h-0'}`}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-1.5">
+                        {teamMetricNotesPrivacy[metric.id] ? (
+                          <>
+                            <EyeOff className="w-3 h-3 text-[#6B7C6B]" />
+                            <span className="text-xs font-medium text-[#6B7C6B]">Private</span>
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="w-3 h-3 text-[#00A651]" />
+                            <span className="text-xs font-medium text-[#00A651]">Public</span>
+                          </>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => setTeamMetricNotesPrivacy(prev => ({ ...prev, [metric.id]: !prev[metric.id] }))}
+                        className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                          teamMetricNotesPrivacy[metric.id]
+                            ? 'bg-gray-100 text-[#6B7C6B] hover:bg-gray-200'
+                            : 'bg-[#005028]/10 text-[#00A651] hover:bg-[#005028]/20'
+                        }`}
+                      >
+                        {teamMetricNotesPrivacy[metric.id] ? <><Eye className="w-3 h-3" /> Make Public</> : <><EyeOff className="w-3 h-3" /> Make Private</>}
+                      </button>
+                    </div>
+                    <textarea
+                      value={teamMetricNotes[metric.id] || ''}
+                      onChange={(e) => setTeamMetricNotes(prev => ({ ...prev, [metric.id]: e.target.value }))}
+                      placeholder={teamMetricNotesPrivacy[metric.id] ? `${metric.name} private notes (coach & admin only)...` : `${metric.name} notes...`}
+                      rows={2}
+                      className={`w-full px-3 py-2 rounded-lg text-gray-800 text-xs placeholder-gray-400 focus:outline-none resize-none ${
+                        teamMetricNotesPrivacy[metric.id]
+                          ? 'bg-gray-50 border border-gray-200 focus:border-[#6B7C6B]'
+                          : 'bg-[#F5F9F5] border border-[#D4E4D4] focus:border-[#00A651]'
+                      }`}
+                    />
+                  </div>
                 </div>
               );
             })}
@@ -1191,13 +1455,32 @@ const MatchDayAssessmentPage = () => {
               </div>
               <ChevronDown className={`w-4 h-4 text-[#6B7C6B] transition-transform duration-200 ${showTeamNotes ? 'rotate-180' : ''}`} />
             </button>
-            <div className={`overflow-hidden transition-all duration-300 ${showTeamNotes ? 'max-h-[200px] mt-2' : 'max-h-0'}`}>
+            <div className={`overflow-hidden transition-all duration-300 ${showTeamNotes ? 'max-h-[250px] mt-2' : 'max-h-0'}`}>
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-1.5">
+                  {teamRatingNotesPrivate ? (
+                    <><EyeOff className="w-3 h-3 text-[#6B7C6B]" /><span className="text-xs font-medium text-[#6B7C6B]">Private</span></>
+                  ) : (
+                    <><Eye className="w-3 h-3 text-[#00A651]" /><span className="text-xs font-medium text-[#00A651]">Public</span></>
+                  )}
+                </div>
+                <button
+                  onClick={() => setTeamRatingNotesPrivate(prev => !prev)}
+                  className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                    teamRatingNotesPrivate ? 'bg-gray-100 text-[#6B7C6B] hover:bg-gray-200' : 'bg-[#005028]/10 text-[#00A651] hover:bg-[#005028]/20'
+                  }`}
+                >
+                  {teamRatingNotesPrivate ? <><Eye className="w-3 h-3" /> Make Public</> : <><EyeOff className="w-3 h-3" /> Make Private</>}
+                </button>
+              </div>
               <textarea
                 value={teamRatingNotes}
                 onChange={(e) => setTeamRatingNotes(e.target.value)}
-                placeholder="Notes about overall team performance... (optional)"
+                placeholder={teamRatingNotesPrivate ? "Private team performance notes (coach & admin only)..." : "Notes about overall team performance... (optional)"}
                 rows={3}
-                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-sm placeholder-gray-400 focus:border-[#00A651] focus:outline-none resize-none"
+                className={`w-full px-4 py-3 rounded-lg text-gray-800 text-sm placeholder-gray-400 focus:outline-none resize-none ${
+                  teamRatingNotesPrivate ? 'bg-gray-50 border border-gray-200 focus:border-[#6B7C6B]' : 'bg-[#F5F9F5] border border-[#D4E4D4] focus:border-[#00A651]'
+                }`}
               />
             </div>
           </div>
@@ -1217,15 +1500,33 @@ const MatchDayAssessmentPage = () => {
             <ChevronDown className={`w-5 h-5 text-[#6B7C6B] transition-transform duration-200 ${showGeneralNotes ? 'rotate-180' : ''}`} />
           </button>
 
-          <div className={`overflow-hidden transition-all duration-300 ${showGeneralNotes ? 'max-h-[300px] mt-2' : 'max-h-0'}`}>
+          <div className={`overflow-hidden transition-all duration-300 ${showGeneralNotes ? 'max-h-[350px] mt-2' : 'max-h-0'}`}>
             <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
-              <p className="text-[#6B7C6B] text-xs mb-3">Overall observations, coaching notes, or anything else about the match</p>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  {gameNotesPrivate ? (
+                    <><EyeOff className="w-3 h-3 text-[#6B7C6B]" /><span className="text-xs font-medium text-[#6B7C6B]">Private</span></>
+                  ) : (
+                    <><Eye className="w-3 h-3 text-[#00A651]" /><span className="text-xs font-medium text-[#00A651]">Public</span></>
+                  )}
+                </div>
+                <button
+                  onClick={() => setGameNotesPrivate(prev => !prev)}
+                  className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                    gameNotesPrivate ? 'bg-gray-100 text-[#6B7C6B] hover:bg-gray-200' : 'bg-[#005028]/10 text-[#00A651] hover:bg-[#005028]/20'
+                  }`}
+                >
+                  {gameNotesPrivate ? <><Eye className="w-3 h-3" /> Make Public</> : <><EyeOff className="w-3 h-3" /> Make Private</>}
+                </button>
+              </div>
               <textarea
                 value={gameNotes}
                 onChange={(e) => setGameNotes(e.target.value)}
-                placeholder="Add general notes about the game... (optional)"
+                placeholder={gameNotesPrivate ? "Private match notes (coach & admin only)..." : "Add general notes about the game... (optional)"}
                 rows={4}
-                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl text-gray-800 placeholder-gray-400 focus:border-[#00A651] focus:outline-none resize-none"
+                className={`w-full px-4 py-3 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none resize-none ${
+                  gameNotesPrivate ? 'bg-gray-50 border border-gray-200 focus:border-[#6B7C6B]' : 'bg-[#F5F9F5] border border-[#D4E4D4] focus:border-[#00A651]'
+                }`}
               />
             </div>
           </div>
@@ -1282,10 +1583,21 @@ const MatchDayAssessmentPage = () => {
                           const isMetricNoteOpen = expandedMetricNotes[metricNoteKey] || false;
                           const metricNote = assessment.metricNotes?.[metric.id] || '';
 
+                          const playerTooltipKey = `player-${player.id}-${metric.id}`;
+                          const isPlayerTooltipOpen = showCriteriaTooltip === playerTooltipKey;
+
                           return (
                             <div key={metric.id}>
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-gray-800 text-xs font-medium">{metric.name}</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-gray-800 text-xs font-medium">{metric.name}</span>
+                                  <button
+                                    onClick={() => setShowCriteriaTooltip(isPlayerTooltipOpen ? null : playerTooltipKey)}
+                                    className="p-0.5 hover:bg-gray-100 rounded-full transition-colors"
+                                  >
+                                    <Info className="w-3 h-3 text-[#00A651]" />
+                                  </button>
+                                </div>
                                 <div className="flex items-center gap-2">
                                   {metricNote && !isMetricNoteOpen && (
                                     <span className="text-[10px] text-[#00A651] bg-[#005028]/20 px-1.5 py-0.5 rounded">notes</span>
@@ -1297,6 +1609,32 @@ const MatchDayAssessmentPage = () => {
                                   )}
                                 </div>
                               </div>
+                              {/* Player Scoring Criteria Tooltip */}
+                              {isPlayerTooltipOpen && PLAYER_SCORING_CRITERIA[metric.id] && (
+                                <div className="mb-2 bg-gray-900 rounded-lg p-3 shadow-lg">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h5 className="text-[#00A651] text-[10px] font-medium">
+                                      {metric.name} — Individual Scoring
+                                    </h5>
+                                    <button onClick={() => setShowCriteriaTooltip(null)} className="text-gray-400 hover:text-white">
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                  <div className="space-y-1.5">
+                                    {[1, 2, 3, 4, 5].map((level) => (
+                                      <div key={level} className="flex gap-2">
+                                        <span className={`w-5 h-5 flex-shrink-0 rounded text-[10px] font-bold flex items-center justify-center ${levelColors[level]} text-white`}>
+                                          {level}
+                                        </span>
+                                        <div className="flex-1">
+                                          <span className="text-white text-[10px] font-medium">{levelLabels[level]}: </span>
+                                          <span className="text-gray-300 text-[10px]">{PLAYER_SCORING_CRITERIA[metric.id][level]}</span>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                               <div className="flex gap-1.5">
                                 {[1, 2, 3, 4, 5].map((level) => (
                                   <button
@@ -1325,14 +1663,33 @@ const MatchDayAssessmentPage = () => {
                                 <span>{isMetricNoteOpen ? 'Hide Note' : metricNote ? 'Edit Note' : 'Add Note'}</span>
                                 <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isMetricNoteOpen ? 'rotate-180' : ''}`} />
                               </button>
-                              {/* Per-metric note textarea */}
-                              <div className={`overflow-hidden transition-all duration-200 ${isMetricNoteOpen ? 'max-h-[120px] mt-2' : 'max-h-0'}`}>
+                              {/* Per-metric note textarea with public/private toggle */}
+                              <div className={`overflow-hidden transition-all duration-200 ${isMetricNoteOpen ? 'max-h-[160px] mt-2' : 'max-h-0'}`}>
+                                <div className="flex items-center justify-between mb-1">
+                                  <div className="flex items-center gap-1">
+                                    {assessment.metricNotesPrivacy?.[metric.id] ? (
+                                      <><EyeOff className="w-3 h-3 text-[#6B7C6B]" /><span className="text-[10px] font-medium text-[#6B7C6B]">Private</span></>
+                                    ) : (
+                                      <><Eye className="w-3 h-3 text-[#00A651]" /><span className="text-[10px] font-medium text-[#00A651]">Public</span></>
+                                    )}
+                                  </div>
+                                  <button
+                                    onClick={() => togglePlayerMetricNotePrivacy(player.id, metric.id)}
+                                    className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                                      assessment.metricNotesPrivacy?.[metric.id] ? 'bg-gray-100 text-[#6B7C6B]' : 'bg-[#005028]/10 text-[#00A651]'
+                                    }`}
+                                  >
+                                    {assessment.metricNotesPrivacy?.[metric.id] ? <><Eye className="w-3 h-3" /> Public</> : <><EyeOff className="w-3 h-3" /> Private</>}
+                                  </button>
+                                </div>
                                 <textarea
                                   value={metricNote}
                                   onChange={(e) => handlePlayerMetricNoteChange(player.id, metric.id, e.target.value)}
-                                  placeholder={`${metric.name} notes for ${player.name}...`}
+                                  placeholder={assessment.metricNotesPrivacy?.[metric.id] ? `${metric.name} private notes (coach & admin only)...` : `${metric.name} notes for ${player.name}...`}
                                   rows={2}
-                                  className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-gray-800 text-xs placeholder-gray-400 focus:border-[#00A651] focus:outline-none resize-none"
+                                  className={`w-full px-3 py-2 rounded-lg text-gray-800 text-xs placeholder-gray-400 focus:outline-none resize-none ${
+                                    assessment.metricNotesPrivacy?.[metric.id] ? 'bg-gray-50 border border-gray-200 focus:border-[#6B7C6B]' : 'bg-[#F5F9F5] border border-[#D4E4D4] focus:border-[#00A651]'
+                                  }`}
                                 />
                               </div>
                             </div>
@@ -1467,6 +1824,29 @@ const MatchDayAssessmentPage = () => {
 
                       {availablePlayers.length === 0 && (
                         <p className="px-4 py-3 text-[#6B7C6B] text-sm">No players available</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* MVP Note — expandable accordion under selected player */}
+                  {selectedPlayer && (
+                    <div className="mt-2">
+                      <button
+                        onClick={() => setExpandedMvpNotes(prev => ({ ...prev, [vote.id]: !prev[vote.id] }))}
+                        className="flex items-center gap-1 text-xs text-[#6B7C6B] hover:text-[#00A651] transition-colors"
+                      >
+                        {expandedMvpNotes[vote.id] ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                        {mvpNotes[vote.id] ? 'Edit Note' : 'Add Note'}
+                        {mvpNotes[vote.id] && <span className="text-[#00A651] ml-1">✓</span>}
+                      </button>
+                      {expandedMvpNotes[vote.id] && (
+                        <textarea
+                          value={mvpNotes[vote.id]}
+                          onChange={(e) => setMvpNotes(prev => ({ ...prev, [vote.id]: e.target.value }))}
+                          placeholder={`Why was ${selectedPlayer.name} voted ${vote.description}?`}
+                          className="w-full mt-1 px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-sm text-gray-800 placeholder-[#6B7C6B] focus:ring-2 focus:ring-[#00A651] focus:border-transparent outline-none resize-none"
+                          rows={2}
+                        />
                       )}
                     </div>
                   )}

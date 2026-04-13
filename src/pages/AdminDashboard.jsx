@@ -32,7 +32,10 @@ import {
   Database,
   ClipboardCheck,
   UserPlus,
-  ShieldCheck
+  ShieldCheck,
+  Dribbble,
+  Eye,
+  MessageCircle
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
 import HelpTooltip from '../components/tutorial/HelpTooltip';
@@ -43,6 +46,7 @@ const AdminDashboard = () => {
   const { players, evaluations, teams, games } = useData();
   const [recentActivity, setRecentActivity] = useState([]);
   const [scoringCounts, setScoringCounts] = useState({ unassigned: 0, pending: 0, swapRequests: 0 });
+  const [pendingUserCount, setPendingUserCount] = useState(0);
 
   // Calculate club-wide statistics
   const clubStats = useMemo(() => {
@@ -98,6 +102,15 @@ const AdminDashboard = () => {
     fetchRecentActivity(4).then(setRecentActivity);
   }, []);
 
+  // Subscribe to pending user approvals
+  useEffect(() => {
+    const pendingQ = query(collection(db, 'users'), where('role', '==', 'pending'));
+    const unsub = onSnapshot(pendingQ, (snap) => {
+      setPendingUserCount(snap.size);
+    }, (err) => console.error('pending users error:', err));
+    return unsub;
+  }, []);
+
   // Subscribe to scoring roster data
   useEffect(() => {
     // Subscribe to scoring_assignments
@@ -129,200 +142,58 @@ const AdminDashboard = () => {
     return () => { unsubAssign(); unsubSwap(); };
   }, [games]);
 
-  // Navigation tiles configuration
-  const navigationTiles = [
-    {
-      id: 'analytics',
-      title: 'Club Analytics',
-      description: 'Club-wide performance metrics and trends',
-      icon: BarChart3,
-      path: '/admin/analytics',
-      color: 'from-blue-500 to-blue-600'
-    },
-    {
-      id: 'age-groups',
-      title: 'Age Group Reports',
-      description: 'Performance breakdown by age group',
-      icon: Users,
-      path: '/admin/age-groups',
-      color: 'from-purple-500 to-purple-600'
-    },
-    {
-      id: 'coaching',
-      title: 'Coaching Effectiveness',
-      description: 'Coach performance and training analysis',
-      icon: GraduationCap,
-      path: '/admin/coaching',
-      color: 'from-green-500 to-green-600'
-    },
-    {
-      id: 'curriculum',
-      title: 'Curriculum Analysis',
-      description: 'Skills progression and development gaps',
-      icon: BookOpen,
-      path: '/admin/curriculum',
-      color: 'from-orange-500 to-orange-600'
-    },
-    {
-      id: 'training-plans',
-      title: 'Training Plans Library',
-      description: 'Review and approve coach training plans',
-      icon: Dumbbell,
-      path: '/admin/training-plans',
-      color: 'from-lime-500 to-lime-600'
-    },
-    {
-      id: 'rep-prospects',
-      title: 'Rep Team Prospects',
-      description: 'Identify standout players for rep teams',
-      icon: Star,
-      path: '/admin/rep-prospects',
-      color: 'from-yellow-500 to-yellow-600'
-    },
-    {
-      id: 'youth-programs',
-      title: 'Youth Programs',
-      description: 'Little Lakers (4-5) & Lakers Ready (6-7)',
-      icon: Star,
-      path: '/admin/youth-programs',
-      color: 'from-yellow-400 to-orange-500'
-    },
-    {
-      id: 'tryouts',
-      title: 'Tryout Evaluations',
-      description: 'Run tryout sessions and evaluate players',
-      icon: ClipboardCheck,
-      path: '/admin/tryouts',
-      color: 'from-violet-500 to-violet-600'
-    },
-    {
-      id: 'parent-invitations',
-      title: 'Parent Invitations',
-      description: 'Invite parents and manage access codes',
-      icon: UserPlus,
-      path: '/admin/parent-invitations',
-      color: 'from-sky-500 to-sky-600'
-    },
-    {
-      id: 'user-management',
-      title: 'User Management',
-      description: 'Create, edit, and manage user accounts',
-      icon: UserPlus,
-      path: '/admin/users',
-      color: 'from-indigo-500 to-purple-600'
-    },
-    {
-      id: 'team-management',
-      title: 'Team Management',
-      description: 'Create teams, assign coaches and manage rosters',
-      icon: Shield,
-      path: '/admin/teams',
-      color: 'from-teal-500 to-cyan-600'
-    },
-    {
-      id: 'rosters',
-      title: 'Roster Management',
-      description: 'Manage players, teams, and assignments',
-      icon: ClipboardList,
-      path: '/admin/rosters',
-      color: 'from-teal-500 to-teal-600'
-    },
-    {
-      id: 'schedule',
-      title: 'Schedule Management',
-      description: 'Games, training sessions, and events',
-      icon: Calendar,
-      path: '/admin/schedule',
-      color: 'from-pink-500 to-pink-600'
-    },
-    {
-      id: 'game-results',
-      title: 'Game Results',
-      description: 'View scores and team performance',
-      icon: Trophy,
-      path: '/admin/game-results',
-      color: 'from-amber-500 to-amber-600'
-    },
-    {
-      id: 'notifications',
-      title: 'Notifications',
-      description: 'Send announcements and reminders',
-      icon: Bell,
-      path: '/admin/notifications',
-      color: 'from-amber-500 to-amber-600'
-    },
-    {
-      id: 'playerhq',
-      title: 'PlayerHQ Integration',
-      description: 'Basketball Victoria data sync',
-      icon: Link2,
-      path: '/admin/playerhq',
-      color: 'from-indigo-500 to-indigo-600'
-    },
-    {
-      id: 'data-explorer',
-      title: 'Data Explorer',
-      description: 'Advanced data queries and analysis',
-      icon: Search,
-      path: '/admin/data-explorer',
-      color: 'from-cyan-500 to-cyan-600'
-    },
-    {
-      id: 'activity-log',
-      title: 'Activity Log',
-      description: 'Audit trail of all user actions',
-      icon: Activity,
-      path: '/admin/activity',
-      color: 'from-slate-500 to-slate-600'
-    },
-    {
-      id: 'assessment-metrics',
-      title: 'Assessment Metrics',
-      description: 'Configure match assessment criteria by age group',
-      icon: Target,
-      path: '/admin/assessment-metrics',
-      color: 'from-cyan-500 to-teal-600'
-    },
-    {
-      id: 'system',
-      title: 'System Management',
-      description: 'Benchmarks, settings, and configuration',
-      icon: Settings,
-      path: '/admin/system',
-      color: 'from-gray-500 to-gray-600'
-    },
-    {
-      id: 'reports',
-      title: 'Reports & Export',
-      description: 'Generate and export club reports',
-      icon: FileText,
-      path: '/admin/reports',
-      color: 'from-red-500 to-red-600'
-    },
-    {
-      id: 'data-cleanup',
-      title: 'Data Cleanup',
-      description: 'Fix duplicates and broken user documents',
-      icon: AlertCircle,
-      path: '/admin/data-cleanup',
-      color: 'from-rose-500 to-rose-600'
-    },
-    {
-      id: 'coach-compliance',
-      title: 'Coach Compliance',
-      description: 'Accreditation tracking & expiry alerts',
-      icon: ShieldCheck,
-      path: '/admin/coach-compliance',
-      color: 'from-emerald-500 to-green-600'
-    },
-    {
-      id: 'sample-data',
-      title: 'Sample Data Tools',
-      description: 'Create and manage test data',
-      icon: Database,
-      path: '/admin/sample-data',
-      color: 'from-emerald-500 to-emerald-600'
-    }
+  // Summary counts for hub tiles
+  const matchAssessmentCount = (evaluations ? Object.keys(evaluations).length : 0);
+  const trainingRecordCount = 0; // loaded lazily in hub
+
+  // GROUP 1 — Assessments & Selection (single hub tile)
+  const assessmentsTile = {
+    id: 'assessments-hub',
+    title: 'Assessments & Selection',
+    description: `Match assessments, training records, team selection`,
+    icon: ClipboardCheck,
+    path: '/admin/assessments-hub',
+    color: 'from-emerald-500 to-teal-600'
+  };
+
+  // GROUP 2 — Club Management (individual tiles)
+  const clubManagementTiles = [
+    { id: 'schedule', title: 'Schedule Management', description: 'Games, training sessions, and events', icon: Calendar, path: '/admin/schedule', color: 'from-pink-500 to-pink-600' },
+    { id: 'rosters', title: 'Roster Management', description: 'Manage players, teams, and assignments', icon: ClipboardList, path: '/admin/rosters', color: 'from-teal-500 to-teal-600' },
+    { id: 'team-management', title: 'Team Management', description: 'Create teams, assign coaches and manage rosters', icon: Shield, path: '/admin/teams', color: 'from-teal-500 to-cyan-600' },
+    { id: 'user-management', title: 'User Management', description: pendingUserCount > 0 ? `${pendingUserCount} pending approval` : 'Create, edit, and manage user accounts', icon: UserPlus, path: '/admin/users', color: 'from-indigo-500 to-purple-600', badge: pendingUserCount > 0 ? pendingUserCount : null },
+    { id: 'drill-library', title: 'Drill Library', description: 'Create, edit, and manage basketball drills', icon: Dribbble, path: '/drills', color: 'from-orange-500 to-amber-600' },
+    { id: 'training-plans', title: 'Training Plans Library', description: 'Review and approve coach training plans', icon: Dumbbell, path: '/admin/training-plans', color: 'from-lime-500 to-lime-600' },
+    { id: 'game-results', title: 'Game Results', description: 'View scores and team performance', icon: Trophy, path: '/admin/game-results', color: 'from-amber-500 to-amber-600' },
+    { id: 'parent-invitations', title: 'Parent Invitations', description: 'Invite parents and manage access codes', icon: UserPlus, path: '/admin/parent-invitations', color: 'from-sky-500 to-sky-600' },
+    { id: 'youth-programs', title: 'Youth Programs', description: 'Little Lakers (4-5) & Lakers Ready (6-7)', icon: Star, path: '/admin/youth-programs', color: 'from-yellow-400 to-orange-500' },
+    { id: 'rep-prospects', title: 'Rep Team Prospects', description: 'Identify standout players for rep teams', icon: Star, path: '/admin/rep-prospects', color: 'from-yellow-500 to-yellow-600' },
+    { id: 'coach-compliance', title: 'Coach Compliance', description: 'Accreditation tracking & expiry alerts', icon: ShieldCheck, path: '/admin/coach-compliance', color: 'from-emerald-500 to-green-600' },
+  ];
+
+  // GROUP 3 — Analytics & Reports (single hub tile)
+  const analyticsTile = {
+    id: 'analytics-hub',
+    title: 'Analytics & Reports',
+    description: `Club analytics, age groups, coaching effectiveness`,
+    icon: BarChart3,
+    path: '/admin/analytics-hub',
+    color: 'from-blue-500 to-blue-600'
+  };
+
+  // GROUP 4 — Settings & Tools
+  const settingsToolsTiles = [
+    { id: 'notifications', title: 'Notifications', description: 'Send announcements and reminders', icon: Bell, path: '/admin/notifications', color: 'from-amber-500 to-amber-600' },
+    { id: 'system', title: 'System Management', description: 'Benchmarks, settings, and configuration', icon: Settings, path: '/admin/system', color: 'from-gray-500 to-gray-600' },
+    { id: 'assessment-metrics', title: 'Assessment Metrics', description: 'Configure assessment criteria by age group', icon: Target, path: '/admin/assessment-metrics', color: 'from-cyan-500 to-teal-600' },
+    { id: 'curriculum', title: 'Curriculum Analysis', description: 'Skills progression and development gaps', icon: BookOpen, path: '/admin/curriculum', color: 'from-orange-500 to-orange-600' },
+    { id: 'reports', title: 'Reports & Export', description: 'Generate and export club reports', icon: FileText, path: '/admin/reports', color: 'from-red-500 to-red-600' },
+    { id: 'data-cleanup', title: 'Data Cleanup', description: 'Fix duplicates and broken user documents', icon: AlertCircle, path: '/admin/data-cleanup', color: 'from-rose-500 to-rose-600' },
+    { id: 'playerhq', title: 'PlayerHQ Integration', description: 'Basketball Victoria data sync', icon: Link2, path: '/admin/playerhq', color: 'from-indigo-500 to-indigo-600' },
+    { id: 'data-explorer', title: 'Data Explorer', description: 'Advanced data queries and analysis', icon: Search, path: '/admin/data-explorer', color: 'from-cyan-500 to-cyan-600' },
+    { id: 'activity-log', title: 'Activity Log', description: 'Audit trail of all user actions', icon: Activity, path: '/admin/activity', color: 'from-slate-500 to-slate-600' },
+    { id: 'sample-data', title: 'Sample Data Tools', description: 'Create and manage test data', icon: Database, path: '/admin/sample-data', color: 'from-emerald-500 to-emerald-600' },
+    { id: 'beta-feedback', title: 'Beta Feedback', description: 'View and manage user feedback', icon: MessageCircle, path: '/admin/beta-feedback', color: 'from-teal-500 to-teal-600' },
   ];
 
   return (
@@ -474,10 +345,50 @@ const AdminDashboard = () => {
           </button>
         </div>
 
-        {/* Navigation Tiles */}
-        <h2 className="text-lg font-bold text-gray-800 mb-4">Management Tools</h2>
+        {/* GROUP 1 — Assessments & Selection */}
+        <h2 className="text-lg font-bold text-gray-800 mb-4">Assessments & Selection</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          <NavigationTile
+            title={assessmentsTile.title}
+            description={assessmentsTile.description}
+            icon={assessmentsTile.icon}
+            color={assessmentsTile.color}
+            onClick={() => navigate(assessmentsTile.path)}
+          />
+        </div>
+
+        {/* GROUP 2 — Club Management */}
+        <h2 className="text-lg font-bold text-gray-800 mb-4">Club Management</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          {clubManagementTiles.map(tile => (
+            <NavigationTile
+              key={tile.id}
+              title={tile.title}
+              description={tile.description}
+              icon={tile.icon}
+              color={tile.color}
+              badge={tile.badge}
+              onClick={() => navigate(tile.path)}
+            />
+          ))}
+        </div>
+
+        {/* GROUP 3 — Analytics & Reports */}
+        <h2 className="text-lg font-bold text-gray-800 mb-4">Analytics & Reports</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          <NavigationTile
+            title={analyticsTile.title}
+            description={analyticsTile.description}
+            icon={analyticsTile.icon}
+            color={analyticsTile.color}
+            onClick={() => navigate(analyticsTile.path)}
+          />
+        </div>
+
+        {/* GROUP 4 — Settings & Tools */}
+        <h2 className="text-lg font-bold text-gray-800 mb-4">Settings & Tools</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {navigationTiles.map(tile => (
+          {settingsToolsTiles.map(tile => (
             <NavigationTile
               key={tile.id}
               title={tile.title}
@@ -555,11 +466,16 @@ const QuickAction = ({ icon: Icon, label, onClick }) => (
 );
 
 // Navigation Tile Component
-const NavigationTile = ({ title, description, icon: Icon, color, onClick }) => (
+const NavigationTile = ({ title, description, icon: Icon, color, onClick, badge }) => (
   <button
     onClick={onClick}
-    className="group flex items-start gap-4 p-5 bg-white hover:bg-gray-50/80 border border-[#D4E4D4]/30 hover:border-[#00A651]/50 hover:ring-2 hover:ring-[#FFD700]/20 rounded-xl transition-all text-left"
+    className="group relative flex items-start gap-4 p-5 bg-white hover:bg-gray-50/80 border border-[#D4E4D4]/30 hover:border-[#00A651]/50 hover:ring-2 hover:ring-[#FFD700]/20 rounded-xl transition-all text-left"
   >
+    {badge && (
+      <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-md">
+        {badge}
+      </span>
+    )}
     <div className={`w-12 h-12 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg`}>
       <Icon className="text-white" size={24} />
     </div>

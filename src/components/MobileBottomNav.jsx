@@ -95,11 +95,13 @@ const MobileBottomNav = () => {
   // Don't render if not authenticated
   if (!currentUser) return null;
 
-  // Don't render on login or tryout assessor pages (has custom bottom bar)
+  // Don't render on login, tryout assessor, or scout assessment pages (have custom bottom bars)
   if (
     location.pathname === '/login' ||
     location.pathname === '/assessor' ||
     location.pathname.startsWith('/tryout/') ||
+    location.pathname.startsWith('/scout/') ||
+    location.pathname === '/scout-dashboard' ||
     location.pathname.startsWith('/signup/')
   ) {
     return null;

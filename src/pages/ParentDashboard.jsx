@@ -18,7 +18,11 @@ import {
   Loader2,
   Target,
   ChevronRight,
-  CheckCircle
+  ChevronUp,
+  CheckCircle,
+  Trophy,
+  Star,
+  MessageSquare,
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
 import FirstTimeHint from '../components/tutorial/FirstTimeHint';
@@ -31,7 +35,7 @@ import SessionSummaryCard from '../components/youth/SessionSummaryCard';
 const ParentDashboard = () => {
   const navigate = useNavigate();
   const { refreshUserProfile } = useAuth();
-  const { players, teams, evaluations, schedule, userProfile, userChildrenIds, loading } = useFilteredData();
+  const { players, teams, evaluations, schedule, games, matchAssessments, userProfile, userChildrenIds, loading } = useFilteredData();
   const [refreshing, setRefreshing] = useState(false);
 
   // If linkedPlayerIds is empty but user is a parent, try refreshing from Firestore
@@ -47,6 +51,9 @@ const ParentDashboard = () => {
   const linkedPlayers = players || [];
 
   const [selectedChildIdx, setSelectedChildIdx] = useState(0);
+  const [expandedMatchId, setExpandedMatchId] = useState(null);
+  const [expandedMetrics, setExpandedMetrics] = useState({});
+  const toggleMetric = (key) => setExpandedMetrics(prev => ({ ...prev, [key]: !prev[key] }));
   const selectedChild = linkedPlayers[selectedChildIdx] || null;
 
   // Get team info for selected child
@@ -90,6 +97,85 @@ const ParentDashboard = () => {
     };
     loadSummaries();
   }, [userProfile?.email]);
+
+  // Helper to safely parse Firestore dates
+  const parseFirestoreDate = (d) => {
+    if (!d) return null;
+    if (d.toDate) return d.toDate();
+    if (d.seconds) return new Date(d.seconds * 1000);
+    const parsed = new Date(d);
+    return isNaN(parsed.getTime()) ? null : parsed;
+  };
+
+  // Get recent games for selected child's team
+  const childGames = useMemo(() => {
+    if (!selectedChild) return [];
+    const childTeamId = selectedChild.teamId;
+    return (games || [])
+      .filter(g => g.teamId === childTeamId)
+      .sort((a, b) => {
+        const da = parseFirestoreDate(a.date);
+        const db2 = parseFirestoreDate(b.date);
+        return (db2?.getTime() || 0) - (da?.getTime() || 0);
+      })
+      .slice(0, 5);
+  }, [selectedChild, games]);
+
+  // Get match assessments for selected child's team with child's individual data
+  const childMatchAssessments = useMemo(() => {
+    if (!selectedChild) return [];
+    const childTeamId = selectedChild.teamId;
+    const seenIds = new Set();
+    const seenFingerprints = new Set();
+    return (matchAssessments || [])
+      .filter(a => {
+        if (a.teamId !== childTeamId) return false;
+        // Deduplicate by document id
+        if (a.id && seenIds.has(a.id)) return false;
+        if (a.id) seenIds.add(a.id);
+        // Deduplicate by teamId+date+opponent fingerprint
+        const d = parseFirestoreDate(a.date);
+        const dateStr = d ? d.toISOString().slice(0, 10) : '';
+        const fp = `${a.teamId}|${dateStr}|${(a.opponent || '').toLowerCase()}`;
+        if (seenFingerprints.has(fp)) return false;
+        seenFingerprints.add(fp);
+        return true;
+      })
+      .sort((a, b) => {
+        const da = parseFirestoreDate(a.date);
+        const db2 = parseFirestoreDate(b.date);
+        return (db2?.getTime() || 0) - (da?.getTime() || 0);
+      })
+      .slice(0, 5);
+  }, [selectedChild, matchAssessments]);
+
+  // Season MVP Standings — aggregate all MVP votes for child's team
+  const mvpStandings = useMemo(() => {
+    if (!selectedChild) return [];
+    const childTeamId = selectedChild.teamId;
+    const allTeamAssessments = (matchAssessments || []).filter(a => a.teamId === childTeamId);
+    const voteTotals = {};
+    allTeamAssessments.forEach(a => {
+      const votes = a.mvpVoting?.votes;
+      if (!votes) return;
+      [3, 2, 1].forEach(pts => {
+        const pid = votes[pts];
+        if (!pid) return;
+        if (!voteTotals[pid]) {
+          voteTotals[pid] = {
+            name: a.playerAssessments?.[pid]?.playerName || 'Player',
+            total: 0,
+            games: 0,
+          };
+        }
+        voteTotals[pid].total += pts;
+        voteTotals[pid].games += 1;
+      });
+    });
+    return Object.entries(voteTotals)
+      .map(([pid, data]) => ({ playerId: pid, ...data }))
+      .sort((a, b) => b.total - a.total);
+  }, [selectedChild, matchAssessments]);
 
   // Get upcoming schedule for selected child's team
   const upcomingSchedule = useMemo(() => {
@@ -323,6 +409,254 @@ const ParentDashboard = () => {
           )}
         </div>
 
+        {/* Match Results & Assessments — accordion layout matching coach view (public notes only) */}
+        {childMatchAssessments.length > 0 && (() => {
+          const METRIC_LABELS = {
+            teamWork: 'Team Work', defense: 'Defense', ballMovement: 'Ball Movement',
+            offense: 'Offense', shotSelection: 'Shot Selection', sportsmanship: 'Sportsmanship'
+          };
+          const METRIC_IDS = Object.keys(METRIC_LABELS);
+          const ratingColor = (v) => {
+            if (v <= 1) return 'bg-red-500 text-white';
+            if (v === 2) return 'bg-orange-500 text-white';
+            if (v === 3) return 'bg-yellow-500 text-white';
+            if (v === 4) return 'bg-[#005028] text-white';
+            return 'bg-[#86efac] text-gray-800';
+          };
+          const ResultBadge = ({ result }) => {
+            const cfg = { win: { l: 'W', c: 'bg-green-600 text-white' }, loss: { l: 'L', c: 'bg-red-600 text-white' }, draw: { l: 'D', c: 'bg-gray-500 text-white' } };
+            const r = cfg[result] || cfg.draw;
+            return <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${r.c}`}>{r.l}</span>;
+          };
+
+          return (
+            <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
+              <div className="flex items-center gap-3 mb-4">
+                <Activity className="w-5 h-5 text-[#00A651]" />
+                <h3 className="text-gray-800 font-semibold">Match Results</h3>
+              </div>
+              <div className="space-y-3">
+                {childMatchAssessments.map((assessment, i) => {
+                  const assessDate = parseFirestoreDate(assessment.date);
+                  const childData = assessment.playerAssessments?.[selectedChild.id];
+                  const childMetrics = childData?.metrics || {};
+                  const childMetricNotes = childData?.metricNotes || {};
+                  const isExpanded = expandedMatchId === (assessment.id || i);
+
+                  return (
+                    <div key={assessment.id || i} className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
+                      {/* Card Header */}
+                      <button
+                        onClick={() => setExpandedMatchId(isExpanded ? null : (assessment.id || i))}
+                        className="w-full px-4 py-4 flex items-center gap-3 hover:bg-[#F5F9F5] transition-colors text-left"
+                      >
+                        <div className="flex-shrink-0"><ResultBadge result={assessment.result} /></div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-gray-800 font-semibold text-sm truncate">
+                            {assessment.teamName || 'Team'} vs {assessment.opponent || 'Unknown'}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-[#6B7C6B] mt-1">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {assessDate ? assessDate.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) : ''}
+                            </span>
+                          </div>
+                        </div>
+                        {isExpanded ? <ChevronUp className="w-5 h-5 text-[#6B7C6B] flex-shrink-0" /> : <ChevronDown className="w-5 h-5 text-[#6B7C6B] flex-shrink-0" />}
+                      </button>
+
+                      {isExpanded && (
+                        <div className="border-t border-[#D4E4D4] px-4 pb-4 pt-3 space-y-5">
+                          {/* 1. Team Performance — accordion metric rows (public notes only) */}
+                          {assessment.teamMetrics && Object.keys(assessment.teamMetrics).length > 0 && (
+                            <div>
+                              <h4 className="text-gray-800 font-semibold text-sm mb-2 flex items-center gap-2">
+                                <Shield className="w-4 h-4 text-[#00A651]" />
+                                Team Performance
+                              </h4>
+                              <div className="space-y-1">
+                                {METRIC_IDS.map((mId) => {
+                                  const val = assessment.teamMetrics[mId];
+                                  if (!val) return null;
+                                  const teamNote = assessment.teamMetricNotes?.[mId];
+                                  const hasPublicNote = teamNote?.note && !teamNote.private;
+                                  const metricKey = `team-${assessment.id}-${mId}`;
+                                  const isOpen = expandedMetrics[metricKey];
+                                  return (
+                                    <div key={mId}>
+                                      <button
+                                        onClick={() => hasPublicNote && toggleMetric(metricKey)}
+                                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left ${hasPublicNote ? 'hover:bg-[#F5F9F5] cursor-pointer' : 'cursor-default'} transition-colors`}
+                                      >
+                                        <span className="text-sm text-gray-800">{METRIC_LABELS[mId]}</span>
+                                        <div className="flex items-center gap-2">
+                                          {hasPublicNote && <MessageSquare className="w-3 h-3 text-[#6B7C6B]" />}
+                                          <span className={`inline-block w-7 h-7 rounded text-xs font-bold leading-7 text-center ${ratingColor(val)}`}>{val}</span>
+                                          {hasPublicNote && (isOpen ? <ChevronUp className="w-3.5 h-3.5 text-[#6B7C6B]" /> : <ChevronDown className="w-3.5 h-3.5 text-[#6B7C6B]" />)}
+                                        </div>
+                                      </button>
+                                      {isOpen && hasPublicNote && (
+                                        <div className="mx-3 mb-2 px-3 py-2 rounded-lg text-sm whitespace-pre-wrap bg-[#F5F9F5] border border-[#D4E4D4]">
+                                          {teamNote.note}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 2. Team Performance Notes (public only) */}
+                          {assessment.teamPerformanceNotes?.note && !assessment.teamPerformanceNotes.private && (
+                            <div className="rounded-lg p-3 bg-[#F5F9F5] border border-[#D4E4D4]">
+                              <p className="text-[10px] text-[#6B7C6B] font-medium uppercase tracking-wide mb-1">Team Performance Notes</p>
+                              <p className="text-gray-800 text-sm whitespace-pre-wrap">{assessment.teamPerformanceNotes.note}</p>
+                            </div>
+                          )}
+
+                          {/* 3. General Match Notes (public only) */}
+                          {(() => {
+                            const gn = assessment.generalMatchNotes || {};
+                            const gnText = gn.note || assessment.generalNotes || '';
+                            if (!gnText || gn.private) return null;
+                            return (
+                              <div className="rounded-lg p-3 bg-[#F5F9F5] border border-[#D4E4D4]">
+                                <p className="text-[10px] text-[#6B7C6B] font-medium uppercase tracking-wide mb-1">General Notes</p>
+                                <p className="text-gray-800 text-sm whitespace-pre-wrap">{gnText}</p>
+                              </div>
+                            );
+                          })()}
+
+                          {/* 4. Child's Individual Metrics — accordion rows */}
+                          {childData && Object.keys(childMetrics).length > 0 && (
+                            <div className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
+                              <div className="px-3 py-2 bg-[#F5F9F5] border-b border-[#D4E4D4] flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <User className="w-4 h-4 text-[#00A651]" />
+                                  <span className="text-sm font-semibold text-gray-800">
+                                    {childData.playerNumber ? `#${childData.playerNumber} ` : ''}{selectedChild.name}
+                                  </span>
+                                </div>
+                                <span className="text-xs font-bold text-[#005028]">
+                                  Avg: {(() => {
+                                    const vals = METRIC_IDS.map(m => childMetrics[m]).filter(Boolean);
+                                    return vals.length > 0 ? (vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(1) : '-';
+                                  })()}
+                                </span>
+                              </div>
+                              <div className="divide-y divide-[#D4E4D4]/50">
+                                {METRIC_IDS.map((mId) => {
+                                  const val = childMetrics[mId];
+                                  if (!val) return null;
+                                  const mNote = childMetricNotes[mId];
+                                  const hasPublicNote = mNote?.note && !mNote.private;
+                                  const mKey = `child-${assessment.id}-${mId}`;
+                                  const isOpen = expandedMetrics[mKey];
+                                  return (
+                                    <div key={mId}>
+                                      <button
+                                        onClick={() => hasPublicNote && toggleMetric(mKey)}
+                                        className={`w-full flex items-center justify-between px-3 py-2 text-left ${hasPublicNote ? 'hover:bg-[#F5F9F5] cursor-pointer' : 'cursor-default'} transition-colors`}
+                                      >
+                                        <span className="text-xs text-gray-700">{METRIC_LABELS[mId]}</span>
+                                        <div className="flex items-center gap-2">
+                                          {hasPublicNote && <MessageSquare className="w-3 h-3 text-[#6B7C6B]" />}
+                                          <span className={`inline-block w-6 h-6 rounded text-xs font-bold leading-6 text-center ${ratingColor(val)}`}>{val}</span>
+                                          {hasPublicNote && (isOpen ? <ChevronUp className="w-3 h-3 text-[#6B7C6B]" /> : <ChevronDown className="w-3 h-3 text-[#6B7C6B]" />)}
+                                        </div>
+                                      </button>
+                                      {isOpen && hasPublicNote && (
+                                        <div className="mx-3 mb-2 px-3 py-2 rounded text-xs whitespace-pre-wrap bg-[#F5F9F5] border border-[#D4E4D4]">
+                                          {mNote.note}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+
+                              {/* Child public notes */}
+                              {(childData.publicNotes || (childData.notesPrivate === false && childData.notes)) && (
+                                <div className="px-3 py-2 border-t border-[#D4E4D4]">
+                                  <p className="text-gray-800 text-xs whitespace-pre-wrap">
+                                    {childData.publicNotes || childData.notes}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* 5. MVP Votes — simple list for parents */}
+                          {assessment.mvpVoting?.votes && (() => {
+                            // Build sorted list: player name + vote count
+                            const voteEntries = [3, 2, 1]
+                              .map(pts => ({ playerId: assessment.mvpVoting.votes[pts], votes: pts }))
+                              .filter(e => e.playerId);
+                            if (voteEntries.length === 0) return null;
+                            return (
+                              <div>
+                                <h4 className="text-gray-800 font-semibold text-sm mb-2 flex items-center gap-2">
+                                  <Trophy className="w-4 h-4 text-[#FFD700]" />
+                                  MVP Votes
+                                </h4>
+                                <div className="space-y-1">
+                                  {voteEntries.map(({ playerId, votes }) => {
+                                    const pName = assessment.playerAssessments?.[playerId]?.playerName || 'Player';
+                                    const isChild = playerId === selectedChild.id;
+                                    return (
+                                      <div key={playerId} className={`px-3 py-2 rounded-lg ${isChild ? 'bg-[#FFD700]/10 border border-[#FFD700]/30' : 'bg-[#F5F9F5]'}`}>
+                                        <div className="flex items-center justify-between">
+                                          <span className={`text-sm ${isChild ? 'font-bold text-gray-800' : 'text-gray-700'}`}>{pName}</span>
+                                          <span className="text-xs font-medium text-[#6B7C6B]">{votes} vote{votes !== 1 ? 's' : ''}</span>
+                                        </div>
+                                        {assessment.mvpVoting.notes?.[votes] && (
+                                          <p className="text-[#6B7C6B] text-xs mt-1 italic whitespace-pre-wrap">
+                                            &ldquo;{assessment.mvpVoting.notes[votes]}&rdquo;
+                                          </p>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Season MVP Standings */}
+        {mvpStandings.length > 0 && (
+          <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
+            <div className="flex items-center gap-3 mb-4">
+              <Trophy className="w-5 h-5 text-[#FFD700]" />
+              <h3 className="text-gray-800 font-semibold">
+                Season MVP Standings{childTeam ? ` — ${childTeam.name}` : ''}
+              </h3>
+            </div>
+            <div className="space-y-1">
+              {mvpStandings.map((entry, idx) => {
+                const isChild = entry.playerId === selectedChild?.id;
+                return (
+                  <div key={entry.playerId} className={`flex items-center gap-3 px-3 py-2 rounded-lg ${isChild ? 'bg-[#FFD700]/10 border border-[#FFD700]/30' : idx % 2 === 0 ? 'bg-[#F5F9F5]' : ''}`}>
+                    <span className="w-6 text-center text-xs font-bold text-[#6B7C6B]">{idx + 1}</span>
+                    <span className={`flex-1 text-sm truncate ${isChild ? 'font-bold text-gray-800' : 'text-gray-700'}`}>{entry.name}</span>
+                    <span className="text-xs font-medium text-[#005028]">{entry.total} pts</span>
+                    <span className="text-[10px] text-[#6B7C6B]">{entry.games} game{entry.games !== 1 ? 's' : ''}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Skills Progress Summary */}
         <FirstTimeHint hintKey="parent_skills_progress">
         <div className="bg-white border border-[#D4E4D4] rounded-xl p-4">
@@ -354,8 +688,10 @@ const ParentDashboard = () => {
                     </span>
                   </div>
                   <p className="text-gray-400 text-xs mt-1">
-                    {evalItem.date ? new Date(evalItem.date).toLocaleDateString() :
-                     evalItem.createdAt ? new Date(evalItem.createdAt).toLocaleDateString() : ''}
+                    {(() => {
+                      const d = parseFirestoreDate(evalItem.date) || parseFirestoreDate(evalItem.createdAt);
+                      return d ? d.toLocaleDateString() : '';
+                    })()}
                   </p>
                 </div>
               ))}

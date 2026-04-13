@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getAssessorSessions } from '../services/tryoutService';
+import { getScoutAssignedGames } from '../services/scoutService';
 import {
   LogOut,
   ClipboardCheck,
@@ -11,7 +12,8 @@ import {
   ChevronRight,
   Loader2,
   MapPin,
-  HelpCircle
+  HelpCircle,
+  Eye
 } from 'lucide-react';
 import TutorialPromptCard from '../components/tutorial/TutorialPromptCard';
 import FirstTimeHint from '../components/tutorial/FirstTimeHint';
@@ -20,19 +22,23 @@ const AssessorDashboard = () => {
   const navigate = useNavigate();
   const { currentUser, userProfile, signOut } = useAuth();
   const [sessions, setSessions] = useState([]);
+  const [scoutGames, setScoutGames] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadSessions = async () => {
+    const loadData = async () => {
       if (!currentUser) return;
       setLoading(true);
-      const result = await getAssessorSessions(currentUser.uid, userProfile?.email);
-      if (result.success) {
-        setSessions(result.data);
-      }
+      const email = userProfile?.email || currentUser?.email;
+      const [sessResult, scoutResult] = await Promise.all([
+        getAssessorSessions(currentUser.uid, email),
+        getScoutAssignedGames(currentUser.uid, email)
+      ]);
+      if (sessResult.success) setSessions(sessResult.data);
+      if (scoutResult.success) setScoutGames(scoutResult.data);
       setLoading(false);
     };
-    loadSessions();
+    loadData();
   }, [currentUser, userProfile?.email]);
 
   const handleLogout = async () => {
@@ -85,13 +91,22 @@ const AssessorDashboard = () => {
     <div className="min-h-screen bg-[#F5F9F5]">
       {/* Header */}
       <header className="pt-8 pb-6 px-4 relative">
-        <button
-          onClick={handleLogout}
-          className="absolute top-4 right-4 flex items-center gap-2 px-3 py-2 bg-transparent border border-[#D4E4D4] rounded-lg text-gray-800 text-sm hover:bg-gray-100 hover:border-[#00A651] transition-all duration-200 active:scale-95"
-        >
-          <LogOut className="w-4 h-4" />
-          <span className="hidden sm:inline">Logout</span>
-        </button>
+        {userProfile?.role === 'tryout_assessor' ? (
+          <button
+            onClick={handleLogout}
+            className="absolute top-4 right-4 flex items-center gap-2 px-3 py-2 bg-transparent border border-[#D4E4D4] rounded-lg text-gray-800 text-sm hover:bg-gray-100 hover:border-[#00A651] transition-all duration-200 active:scale-95"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="absolute top-4 left-4 flex items-center gap-2 px-3 py-2 bg-transparent border border-[#D4E4D4] rounded-lg text-gray-800 text-sm hover:bg-gray-100 hover:border-[#00A651] transition-all duration-200 active:scale-95"
+          >
+            ← Back
+          </button>
+        )}
 
         <div className="flex flex-col items-center justify-center">
           <div className="text-center mb-2">
@@ -213,6 +228,28 @@ const AssessorDashboard = () => {
                   <React.Fragment key={session.id}>{sessionCard}</React.Fragment>
                 );
               })}
+            </div>
+          )}
+
+          {/* Game Scouting Section */}
+          {scoutGames.length > 0 && (
+            <div className="mt-6">
+              <h2 className="text-gray-800 font-bold text-lg mb-4">Game Scouting Assignments</h2>
+              <button
+                onClick={() => navigate('/scout-dashboard')}
+                className="w-full bg-white border-2 border-[#D4E4D4] rounded-xl p-4 text-left hover:border-[#00A651] transition-all duration-200 active:scale-[0.98] group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+                    <Eye className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-gray-800 font-bold">Game Scouting</h3>
+                    <p className="text-[#00A651] text-sm">{scoutGames.length} game{scoutGames.length !== 1 ? 's' : ''} assigned</p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-[#6B7C6B] group-hover:text-[#00A651] flex-shrink-0 transition-colors" />
+                </div>
+              </button>
             </div>
           )}
         </div>

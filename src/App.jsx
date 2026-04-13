@@ -8,6 +8,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import OfflineIndicator from './components/OfflineIndicator';
 import Layout from './components/Layout';
 import MobileBottomNav from './components/MobileBottomNav';
+import FeedbackButton from './components/FeedbackButton';
 import { TutorialProvider } from './contexts/TutorialContext';
 import TutorialOverlay from './components/tutorial/TutorialOverlay';
 import './index.css';
@@ -84,12 +85,24 @@ const TeamManagementPage = lazy(() => import('./pages/admin/TeamManagementPage')
 const ActivityLogPage = lazy(() => import('./pages/admin/ActivityLogPage'));
 const AssessmentMetricsPage = lazy(() => import('./pages/admin/AssessmentMetricsPage'));
 const CoachCompliancePage = lazy(() => import('./pages/admin/CoachCompliancePage'));
+const AdminMatchAssessmentsPage = lazy(() => import('./pages/admin/AdminMatchAssessmentsPage'));
+const AdminTrainingRecordsPage = lazy(() => import('./pages/admin/AdminTrainingRecordsPage'));
+const AssessmentsHubPage = lazy(() => import('./pages/admin/AssessmentsHubPage'));
+const AnalyticsHubPage = lazy(() => import('./pages/admin/AnalyticsHubPage'));
 
 // Tryout chunk
 const TryoutSessionsPage = lazy(() => import('./pages/admin/TryoutSessionsPage'));
 const TryoutResultsPage = lazy(() => import('./pages/admin/TryoutResultsPage'));
 const TryoutAssessorPage = lazy(() => import('./pages/TryoutAssessorPage'));
 const AssessorDashboard = lazy(() => import('./pages/AssessorDashboard'));
+
+// Team Selection (unified tryout + scouting)
+const TeamSelectionPage = lazy(() => import('./pages/admin/TeamSelectionPage'));
+
+// Scouting chunk
+const ScoutManagementPage = lazy(() => import('./pages/admin/ScoutManagementPage'));
+const ScoutAssessmentPage = lazy(() => import('./pages/ScoutAssessmentPage'));
+const ScoutDashboard = lazy(() => import('./pages/ScoutDashboard'));
 
 // Youth chunk
 const YouthProgramsPage = lazy(() => import('./pages/admin/YouthProgramsPage'));
@@ -99,7 +112,16 @@ const SessionSummaryHistory = lazy(() => import('./pages/youth/SessionSummaryHis
 
 // Coach schedule (read-only) + training recording
 const CoachSchedulePage = lazy(() => import('./pages/CoachSchedulePage'));
+const CoachMySchedulePage = lazy(() => import('./pages/CoachMySchedulePage'));
 const RecordTrainingPage = lazy(() => import('./pages/coach/RecordTrainingPage'));
+const RecordTrainingSelectionPage = lazy(() => import('./pages/coach/RecordTrainingSelectionPage'));
+const RotationAnalyticsPage = lazy(() => import('./pages/coach/RotationAnalyticsPage'));
+
+// Admin rotation analytics
+const AdminRotationAnalyticsPage = lazy(() => import('./pages/admin/AdminRotationAnalyticsPage'));
+
+// Beta feedback
+const BetaFeedbackPage = lazy(() => import('./pages/admin/BetaFeedbackPage'));
 
 // Parent chunk
 const ParentDashboard = lazy(() => import('./pages/ParentDashboard'));
@@ -247,6 +269,28 @@ const AppRoutes = () => {
             <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
               <ErrorBoundary fallbackMessage="Unable to load schedule.">
                 <CoachSchedulePage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/coach/my-schedule"
+          element={
+            <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load schedule.">
+                <CoachMySchedulePage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/coach/record-training"
+          element={
+            <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load record training.">
+                <RecordTrainingSelectionPage />
               </ErrorBoundary>
             </ProtectedRoute>
           }
@@ -553,6 +597,28 @@ const AppRoutes = () => {
         />
 
         <Route
+          path="/coach/rotation-analytics"
+          element={
+            <ProtectedRoute allowedRoles={['coach']}>
+              <ErrorBoundary fallbackMessage="Unable to load rotation analytics.">
+                <RotationAnalyticsPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/rotation-analytics"
+          element={
+            <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load rotation analytics.">
+                <AdminRotationAnalyticsPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/admin/benchmarks"
           element={
             <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
@@ -817,6 +883,18 @@ const AppRoutes = () => {
           }
         />
 
+        {/* Team Selection (unified) */}
+        <Route
+          path="/admin/team-selection"
+          element={
+            <ProtectedRoute allowedRoles={[...ADMIN_ROLES, 'girls_coordinator', 'boys_coordinator']}>
+              <ErrorBoundary fallbackMessage="Unable to load team selection.">
+                <TeamSelectionPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
         {/* Tryout Evaluation Routes */}
         <Route
           path="/admin/tryouts"
@@ -843,9 +921,43 @@ const AppRoutes = () => {
         <Route
           path="/tryout/:sessionId"
           element={
-            <ProtectedRoute allowedRoles={[...TRYOUT_ASSESSOR_ROLES]}>
+            <ProtectedRoute>
               <ErrorBoundary fallbackMessage="Unable to load assessor view.">
                 <TryoutAssessorPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Scouting Routes */}
+        <Route
+          path="/admin/game-scouts"
+          element={
+            <ProtectedRoute allowedRoles={[...ADMIN_ROLES, 'girls_coordinator', 'boys_coordinator']}>
+              <ErrorBoundary fallbackMessage="Unable to load scout management.">
+                <ScoutManagementPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/scout-dashboard"
+          element={
+            <ProtectedRoute>
+              <ErrorBoundary fallbackMessage="Unable to load scout dashboard.">
+                <ScoutDashboard />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/scout/:gameId"
+          element={
+            <ProtectedRoute>
+              <ErrorBoundary fallbackMessage="Unable to load scout assessment.">
+                <ScoutAssessmentPage />
               </ErrorBoundary>
             </ProtectedRoute>
           }
@@ -910,7 +1022,7 @@ const AppRoutes = () => {
         <Route
           path="/assessor"
           element={
-            <ProtectedRoute allowedRoles={['tryout_assessor']}>
+            <ProtectedRoute>
               <ErrorBoundary fallbackMessage="Unable to load assessor dashboard.">
                 <AssessorDashboard />
               </ErrorBoundary>
@@ -953,11 +1065,66 @@ const AppRoutes = () => {
         />
 
         <Route
+          path="/admin/beta-feedback"
+          element={
+            <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load beta feedback.">
+                <BetaFeedbackPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/admin/assessment-metrics"
           element={
             <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
               <ErrorBoundary fallbackMessage="Unable to load assessment metrics.">
                 <AssessmentMetricsPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/match-assessments"
+          element={
+            <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load match assessments.">
+                <AdminMatchAssessmentsPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/training-records"
+          element={
+            <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load training records.">
+                <AdminTrainingRecordsPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/assessments-hub"
+          element={
+            <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load assessments hub.">
+                <AssessmentsHubPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/analytics-hub"
+          element={
+            <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load analytics hub.">
+                <AnalyticsHubPage />
               </ErrorBoundary>
             </ProtectedRoute>
           }
@@ -1003,7 +1170,10 @@ function App() {
           <DataProvider>
             <TutorialProvider>
               <OfflineIndicator />
-              <AppRoutes />
+              <div className="safe-bottom">
+                <AppRoutes />
+              </div>
+              <FeedbackButton />
               <MobileBottomNav />
               <TutorialOverlay />
             </TutorialProvider>

@@ -29,7 +29,7 @@ import {
 
 const CoachingEffectivenessPage = () => {
   const navigate = useNavigate();
-  const { players, evaluations, teams } = useData();
+  const { players, evaluations, teams, matchAssessments, trainingRecords } = useData();
   const [selectedCoach, setSelectedCoach] = useState('all');
   const [expandedCoach, setExpandedCoach] = useState(null);
   const [users, setUsers] = useState([]);
@@ -57,22 +57,41 @@ const CoachingEffectivenessPage = () => {
       }));
   }, [users, teams]);
 
+  // Build teamId-to-coachId map for consistent player counting
+  const coachTeamIds = useMemo(() => {
+    const map = {};
+    coaches.forEach(coach => {
+      map[coach.id] = (teams || []).filter(t => t.coachId === coach.id).map(t => t.id);
+    });
+    return map;
+  }, [coaches, teams]);
+
   // Calculate coach statistics
   const coachStats = useMemo(() => {
     const stats = {};
 
     coaches.forEach(coach => {
-      // Get players coached by this coach (based on team assignment)
-      const coachedPlayers = players.filter(p =>
-        coach.teams.some(team =>
-          (p.team || '').toLowerCase().includes(team.toLowerCase().replace(/\s+/g, ''))
-        )
-      );
+      // Get players coached by this coach — consistent: use teamId matching
+      const teamIds = coachTeamIds[coach.id] || [];
+      const coachedPlayers = (players || []).filter(p => {
+        const pTeams = p.teamIds || (p.teamId ? [p.teamId] : []);
+        return pTeams.some(tid => teamIds.includes(tid));
+      });
 
-      // Get evaluations for coached players
+      // Get skill evaluations for coached players
       const coachEvals = Object.values(evaluations || {}).filter(e =>
         coachedPlayers.some(p => p.id === e.playerId)
       );
+
+      // Match assessments by this coach
+      const coachMatchAssessments = (matchAssessments || []).filter(a => a.coachId === coach.id);
+
+      // Training records by this coach
+      const coachTrainingRecords = (trainingRecords || []).filter(r => r.coachId === coach.id);
+
+      const matchCount = coachMatchAssessments.length;
+      const trainingCount = coachTrainingRecords.length;
+      const totalAssessments = matchCount + trainingCount;
 
       // Calculate average skill improvement
       const playerProgress = {};
@@ -111,7 +130,7 @@ const CoachingEffectivenessPage = () => {
 
       // Assessment frequency (per player per month)
       const assessmentFrequency = coachedPlayers.length > 0
-        ? (coachEvals.length / coachedPlayers.length / 3).toFixed(1) // Assuming 3 months of data
+        ? (totalAssessments / coachedPlayers.length / 3).toFixed(1) // Assuming 3 months of data
         : 0;
 
       // Monthly trend data
@@ -140,7 +159,9 @@ const CoachingEffectivenessPage = () => {
       stats[coach.id] = {
         ...coach,
         playerCount: coachedPlayers.length,
-        assessmentCount: coachEvals.length,
+        assessmentCount: totalAssessments,
+        matchCount,
+        trainingCount,
         avgLevel: avgLevel.toFixed(1),
         avgImprovement: avgImprovement.toFixed(2),
         assessmentFrequency,
@@ -150,7 +171,7 @@ const CoachingEffectivenessPage = () => {
     });
 
     return stats;
-  }, [coaches, players, evaluations]);
+  }, [coaches, players, evaluations, matchAssessments, trainingRecords, coachTeamIds]);
 
   // Coach comparison data
   const comparisonData = useMemo(() => {
@@ -166,9 +187,10 @@ const CoachingEffectivenessPage = () => {
     <PageShell
       title="Coaching Effectiveness"
       subtitle="Coach performance analysis"
-      backTo="/welcome"
+      backTo="/admin/analytics-hub"
       breadcrumbs={[
         { label: 'Home', url: '/welcome' },
+        { label: 'Analytics & Reports', url: '/admin/analytics-hub' },
         { label: 'Coaching Effectiveness' }
       ]}
     >
@@ -265,7 +287,7 @@ const CoachingEffectivenessPage = () => {
                       <div className="bg-gray-100 rounded-lg p-3 text-center">
                         <Target className="mx-auto mb-1 text-[#00A651]" size={16} />
                         <p className="text-lg font-bold">{stats.assessmentCount}</p>
-                        <p className="text-xs text-gray-400">Assessments</p>
+                        <p className="text-[10px] text-gray-400">Match: {stats.matchCount} | Training: {stats.trainingCount}</p>
                       </div>
                       <div className="bg-gray-100 rounded-lg p-3 text-center">
                         <TrendingUp className="mx-auto mb-1 text-[#00A651]" size={16} />

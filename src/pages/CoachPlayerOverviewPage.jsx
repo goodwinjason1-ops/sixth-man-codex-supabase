@@ -35,6 +35,7 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import PageShell from '../components/PageShell';
+import { toJsDate } from '../utils/dateUtils';
 import { SKILL_CATEGORIES, LEVEL_LABELS } from '../data/skillBenchmarks';
 
 // Skill icons mapping
@@ -79,7 +80,7 @@ const CoachPlayerOverviewPage = () => {
           if (evaluation) {
             playerSkills[skill.id] = {
               level: evaluation.level,
-              lastAssessed: evaluation.date
+              lastAssessed: toJsDate(evaluation.date)
             };
           } else {
             playerSkills[skill.id] = null;
@@ -216,17 +217,19 @@ const CoachPlayerOverviewPage = () => {
     return result;
   }, [players, selectedTeam, searchQuery, filterType, sortBy]);
 
-  // Format date for display
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Never';
-    const date = new Date(dateString);
+  // Format date for display (handles Firestore Timestamps, Date objects, and strings)
+  const formatDate = (dateValue) => {
+    if (!dateValue) return 'Never';
+    const date = toJsDate(dateValue);
+    if (!date || isNaN(date.getTime())) return 'Never';
     return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
   // Format relative date
-  const formatRelativeDate = (dateString) => {
-    if (!dateString) return 'Never assessed';
-    const date = new Date(dateString);
+  const formatRelativeDate = (dateValue) => {
+    if (!dateValue) return 'Never assessed';
+    const date = toJsDate(dateValue);
+    if (!date || isNaN(date.getTime())) return 'Never assessed';
     const now = new Date();
     const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
 
@@ -234,7 +237,7 @@ const CoachPlayerOverviewPage = () => {
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    return formatDate(dateString);
+    return formatDate(dateValue);
   };
 
   // Handle player card click
@@ -551,6 +554,7 @@ const CoachPlayerOverviewPage = () => {
       {showPlayerModal && selectedPlayer && (
         <PlayerDetailModal
           player={selectedPlayer}
+          evaluations={evaluations}
           onClose={handleCloseModal}
           onAssess={() => handleAssessPlayer(selectedPlayer.id)}
         />
@@ -560,7 +564,7 @@ const CoachPlayerOverviewPage = () => {
 };
 
 // Player Detail Modal Component
-const PlayerDetailModal = ({ player, onClose, onAssess }) => {
+const PlayerDetailModal = ({ player, evaluations, onClose, onAssess }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('skills'); // skills, history, notes
 
@@ -580,6 +584,37 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
       document.body.style.overflow = 'unset';
     };
   }, []);
+
+  // Build assessment data from evaluations collection
+  const playerEvals = useMemo(() => {
+    if (!evaluations) return [];
+    return Object.values(evaluations)
+      .filter(e => e.playerId === player.id)
+      .map(e => ({
+        skillId: e.skillId,
+        level: e.level,
+        date: toJsDate(e.date),
+        coach: e.coachName || 'Unknown Coach',
+        notes: e.skillNotes || '',
+        generalNotes: e.generalNotes || '',
+        previousLevel: null,
+        assessmentType: e.assessmentType,
+        docId: e.id,
+      }))
+      .sort((a, b) => (b.date || 0) - (a.date || 0));
+  }, [evaluations, player.id]);
+
+  // Deduplicated general notes (one per evaluation document)
+  const generalNotesList = useMemo(() => {
+    const seen = new Set();
+    return playerEvals
+      .filter(e => {
+        if (!e.generalNotes || seen.has(e.docId)) return false;
+        seen.add(e.docId);
+        return true;
+      })
+      .map(e => ({ notes: e.generalNotes, date: e.date, coach: e.coach }));
+  }, [playerEvals]);
 
   // Get skill level color
   const getLevelColor = (level) => {
@@ -604,10 +639,11 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
     }
   };
 
-  // Format date
-  const formatDate = (dateString) => {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
+  // Format date (handles Firestore Timestamps, Date objects, and strings)
+  const formatDate = (dateValue) => {
+    if (!dateValue) return '-';
+    const date = toJsDate(dateValue);
+    if (!date || isNaN(date.getTime())) return '-';
     return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
@@ -617,14 +653,14 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
   const totalLevels = assessedSkills.reduce((sum, [, s]) => sum + (s?.level || 0), 0);
   const avgLevel = assessedSkills.length > 0 ? (totalLevels / assessedSkills.length).toFixed(1) : 0;
 
-  // Prepare progression chart data
+  // Prepare progression chart data from evaluations
   const progressionData = useMemo(() => {
-    if (!player.assessmentHistory || player.assessmentHistory.length === 0) return [];
+    if (playerEvals.length === 0) return [];
 
-    // Group by month and calculate average level
     const monthlyData = {};
-    player.assessmentHistory.forEach(assessment => {
-      const date = new Date(assessment.date);
+    playerEvals.forEach(assessment => {
+      const date = assessment.date;
+      if (!date) return;
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       if (!monthlyData[monthKey]) {
         monthlyData[monthKey] = { levels: [], date: monthKey };
@@ -638,11 +674,11 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
         avgLevel: (m.levels.reduce((a, b) => a + b, 0) / m.levels.length).toFixed(1)
       }))
       .sort((a, b) => a.date - b.date);
-  }, [player.assessmentHistory]);
+  }, [playerEvals]);
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4"
       onClick={onClose}
     >
       {/* Backdrop */}
@@ -650,11 +686,11 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
 
       {/* Modal Content */}
       <div
-        className="relative w-full sm:max-w-2xl max-h-[95vh] bg-white border-2 border-[#D4E4D4] rounded-t-3xl sm:rounded-2xl overflow-hidden animate-slideUp sm:animate-scaleIn"
+        className="relative w-full sm:max-w-2xl max-h-[95vh] bg-white border-2 border-[#D4E4D4] rounded-t-3xl sm:rounded-2xl overflow-hidden animate-slideUp sm:animate-scaleIn flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-[#F5F9F5] border-b border-[#D4E4D4] p-4 z-10">
+        <div className="flex-shrink-0 bg-[#F5F9F5] border-b border-[#D4E4D4] p-4 z-10">
           <div className="flex items-center gap-3">
             <div className="w-14 h-14 bg-white border-2 border-[#D4E4D4] rounded-full flex items-center justify-center">
               {player.photoURL ? (
@@ -722,7 +758,7 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
         </div>
 
         {/* Scrollable Content */}
-        <div className="overflow-y-auto max-h-[calc(95vh-280px)] p-4 space-y-4">
+        <div className="overflow-y-auto flex-1 min-h-0 p-4 space-y-4">
           {/* Skills Tab */}
           {activeTab === 'skills' && (
             <div className="space-y-3">
@@ -808,9 +844,9 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
                   <Calendar className="w-4 h-4 text-[#00A651]" />
                   Assessment Timeline
                 </h3>
-                {player.assessmentHistory && player.assessmentHistory.length > 0 ? (
+                {playerEvals.length > 0 ? (
                   <div className="space-y-3">
-                    {player.assessmentHistory.map((assessment, index) => {
+                    {playerEvals.map((assessment, index) => {
                       const skillCat = SKILL_CATEGORIES.find(s => s.id === assessment.skillId);
                       const levelChange = assessment.previousLevel !== null
                         ? assessment.level - assessment.previousLevel
@@ -856,17 +892,32 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
                 <MessageSquare className="w-4 h-4 text-[#00A651]" />
                 Coach Notes
               </h3>
-              {player.assessmentHistory && player.assessmentHistory.filter(a => a.notes).length > 0 ? (
+              {(playerEvals.filter(a => a.notes).length > 0 || generalNotesList.length > 0) ? (
                 <div className="space-y-3">
-                  {player.assessmentHistory.filter(a => a.notes).map((assessment, index) => {
+                  {/* General/overall notes */}
+                  {generalNotesList.map((note, index) => (
+                    <div
+                      key={`general-${index}`}
+                      className="p-3 bg-white rounded-lg border border-[#D4E4D4]"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[#005028] text-xs font-medium">Overall Notes</span>
+                        <span className="text-[10px] text-[#6B7C6B]">{formatDate(note.date)}</span>
+                      </div>
+                      <p className="text-gray-800 text-sm leading-relaxed">{note.notes}</p>
+                      <p className="text-[10px] text-[#6B7C6B] mt-2">— {note.coach}</p>
+                    </div>
+                  ))}
+                  {/* Per-skill notes */}
+                  {playerEvals.filter(a => a.notes).map((assessment, index) => {
                     const skillCat = SKILL_CATEGORIES.find(s => s.id === assessment.skillId);
                     return (
                       <div
-                        key={index}
+                        key={`skill-${index}`}
                         className="p-3 bg-white rounded-lg border border-[#D4E4D4]"
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-[#00A651] text-xs font-medium">{skillCat?.name}</span>
+                          <span className="text-[#00A651] text-xs font-medium">{skillCat?.name || assessment.skillId}</span>
                           <span className="text-[10px] text-[#6B7C6B]">{formatDate(assessment.date)}</span>
                         </div>
                         <p className="text-gray-800 text-sm leading-relaxed">{assessment.notes}</p>
@@ -883,7 +934,7 @@ const PlayerDetailModal = ({ player, onClose, onAssess }) => {
         </div>
 
         {/* Footer Actions */}
-        <div className="sticky bottom-0 p-4 bg-[#F5F9F5] border-t border-[#D4E4D4] flex gap-3">
+        <div className="flex-shrink-0 p-4 bg-[#F5F9F5] border-t border-[#D4E4D4] flex gap-3">
           <button
             onClick={onAssess}
             className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#005028] text-white font-semibold rounded-xl hover:bg-[#00A651] transition-colors active:scale-[0.98]"

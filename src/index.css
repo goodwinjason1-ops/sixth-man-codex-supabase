@@ -258,6 +258,33 @@
 /* Safe area padding for mobile bottom nav */
 .safe-area-pb { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
+/* ================================================
+ * GLOBAL BOTTOM NAV CLEARANCE — PERMANENT FIX
+ * Mobile bottom nav is 5rem (80px) tall and fixed.
+ * These utility classes ensure page content and
+ * fixed action buttons are never hidden behind it.
+ * ================================================ */
+
+/* Apply to page/content containers to clear the bottom nav */
+.safe-bottom {
+  padding-bottom: 5rem; /* 80px = height of bottom nav */
+}
+@media (min-width: 1024px) {
+  .safe-bottom {
+    padding-bottom: 0; /* No bottom nav on desktop */
+  }
+}
+
+/* Apply to fixed/sticky bottom action buttons to sit above the nav */
+.sticky-save-btn {
+  bottom: 0;
+}
+@media (max-width: 1023px) {
+  .sticky-save-btn {
+    bottom: 5rem !important; /* 80px = above bottom nav on mobile */
+  }
+}
+
 /* PWA specific styles */
 @media (display-mode: standalone) {
   body {

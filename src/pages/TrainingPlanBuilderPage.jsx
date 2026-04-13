@@ -35,6 +35,7 @@ import {
   SMALL_SIDED_GAMES
 } from '../data/drillLibrary';
 import { SKILL_CATEGORIES, AGE_GROUPS } from '../data/skillBenchmarks';
+import { logActivity } from '../services/auditService';
 
 const DURATION_OPTIONS = [
   { value: 'single', label: 'Single Session' },
@@ -85,8 +86,11 @@ const TrainingPlanBuilderPage = () => {
           setSelectedTeam(plan.teamId);
           setAgeGroup(plan.ageGroup);
           setDuration(plan.duration);
-          setStartDate(plan.dateRange?.start || '');
-          setEndDate(plan.dateRange?.end || '');
+          const loadedStart = plan.dateRange?.start || '';
+          const loadedEnd = plan.dateRange?.end || '';
+          setStartDate(loadedStart);
+          // Clear invalid end date (end before start = stale data)
+          setEndDate(loadedEnd && loadedStart && loadedEnd < loadedStart ? '' : loadedEnd);
           setFocusAreas(plan.focusAreas || []);
           setSessions(plan.sessions?.length > 0 ? plan.sessions : [createEmptySession(1)]);
           setStatus(duplicateFrom ? 'draft' : plan.status);
@@ -273,7 +277,7 @@ const TrainingPlanBuilderPage = () => {
     if (!planName.trim()) newErrors.planName = 'Plan name is required';
     if (!selectedTeam) newErrors.team = 'Please select a team';
     if (!startDate) newErrors.startDate = 'Start date is required';
-    if (duration !== 'single' && !endDate) newErrors.endDate = 'End date is required';
+    // End date is optional — coaches set it manually when known
     if (focusAreas.length === 0) newErrors.focusAreas = 'Select at least one focus area';
 
     sessions.forEach((session, index) => {
@@ -304,7 +308,7 @@ const TrainingPlanBuilderPage = () => {
         duration,
         dateRange: {
           start: startDate,
-          end: endDate || startDate
+          end: endDate || ''
         },
         focusAreas,
         sessions: sessions.map(s => ({
@@ -323,9 +327,21 @@ const TrainingPlanBuilderPage = () => {
 
       if (planId && !duplicateFrom) {
         await updateDocument('training_plans', planId, planData);
+        logActivity(
+          { uid: currentUser.uid, displayName: userProfile?.displayName, role: userProfile?.role },
+          'training.plan_updated',
+          `Updated training plan: ${planName}`,
+          { planId, status: saveStatus }
+        );
       } else {
         planData.createdAt = new Date().toISOString();
         await addDocument('training_plans', planData);
+        logActivity(
+          { uid: currentUser.uid, displayName: userProfile?.displayName, role: userProfile?.role },
+          'training.plan_created',
+          `Created training plan: ${planName}`,
+          { status: saveStatus }
+        );
       }
 
       navigate('/coach/training-plans');
@@ -465,21 +481,31 @@ const TrainingPlanBuilderPage = () => {
               {errors.startDate && <p className="text-red-400 text-xs mt-1">{errors.startDate}</p>}
             </div>
 
-            {duration !== 'single' && (
-              <div>
-                <label className="block text-[#00A651] text-sm font-medium mb-2">End Date *</label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  min={startDate}
-                  className={`w-full px-4 py-3 bg-[#F5F9F5] border rounded-xl text-gray-800 focus:border-[#00A651] focus:outline-none ${
-                    errors.endDate ? 'border-red-500' : 'border-[#D4E4D4]'
-                  }`}
-                />
-                {errors.endDate && <p className="text-red-400 text-xs mt-1">{errors.endDate}</p>}
-              </div>
-            )}
+            <div>
+              <label className="block text-[#00A651] text-sm font-medium mb-2">Estimated End Date</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                min={startDate}
+                className="w-full px-4 py-3 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl text-gray-800 focus:border-[#00A651] focus:outline-none"
+              />
+              {startDate && sessions.length > 1 && (() => {
+                const suggestedEnd = new Date(startDate);
+                suggestedEnd.setDate(suggestedEnd.getDate() + (sessions.length - 1) * 7);
+                const suggestedStr = suggestedEnd.toISOString().split('T')[0];
+                return (
+                  <button
+                    type="button"
+                    onClick={() => setEndDate(suggestedStr)}
+                    className="text-xs text-[#00A651] mt-1 hover:underline"
+                  >
+                    Suggest: {suggestedEnd.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })} ({sessions.length} sessions × weekly)
+                  </button>
+                );
+              })()}
+              {!endDate && <p className="text-[#6B7C6B] text-xs mt-1">Optional — set when you know the end date</p>}
+            </div>
 
             {/* Focus Areas */}
             <div className="sm:col-span-2">

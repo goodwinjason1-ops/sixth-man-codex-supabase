@@ -125,19 +125,27 @@ export const subscribeTryoutSessions = (callback) => {
  */
 export const getAssessorSessions = async (assessorUserId, assessorEmail) => {
   try {
+    // Fetch all non-draft sessions
     const q = query(
       collection(db, SESSIONS_COLLECTION),
-      where('status', 'in', ['active', 'completed'])
+      where('status', 'in', ['active', 'completed', 'closed'])
     );
     const snapshot = await getDocs(q);
-    // Filter sessions where assessor is assigned (match by userId or email)
-    const sessions = snapshot.docs
-      .map(doc => ({ id: doc.id, ...doc.data() }))
-      .filter(session =>
-        session.assessors?.some(a =>
-          a.userId === assessorUserId || a.email === assessorEmail
-        )
-      );
+    const normalizedEmail = (assessorEmail || '').toLowerCase().trim();
+    const allSessions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Filter sessions where assessor is assigned (match by userId or email, case-insensitive)
+    const sessions = allSessions.filter(session => {
+      const assessors = session.assessors || [];
+      return assessors.some(a => {
+        // Handle both object format {email: "..."} and string format
+        const aEmail = (typeof a === 'string' ? a : (a.email || '')).toLowerCase().trim();
+        const aUserId = typeof a === 'object' ? a.userId : null;
+        const emailMatch = normalizedEmail && aEmail === normalizedEmail;
+        const uidMatch = aUserId && aUserId === assessorUserId;
+        return emailMatch || uidMatch;
+      });
+    });
     return { success: true, data: sessions };
   } catch (error) {
     console.error('Error getting assessor sessions:', error);
@@ -396,11 +404,11 @@ export const fetchUsersByRole = async (role) => {
 
 // Evaluation metrics config
 export const EVAL_METRICS = [
-  { id: 'athleticism', name: 'Athleticism', description: 'Speed, agility, coordination, jumping' },
-  { id: 'ballSkills', name: 'Ball Skills', description: 'Dribbling, passing, catching, shooting form' },
-  { id: 'gameUnderstanding', name: 'Game IQ', description: 'Court awareness, decision making, positioning' },
-  { id: 'coachability', name: 'Coachability', description: 'Listens, applies feedback, positive attitude' },
-  { id: 'effort', name: 'Effort/Hustle', description: 'Work rate, intensity, never gives up' }
+  { id: 'ballSkills', name: 'Skills & Technique', description: 'Ball handling, passing, catching, shooting form' },
+  { id: 'gameUnderstanding', name: 'Game Awareness', description: 'Court awareness, decision making, positioning' },
+  { id: 'athleticism', name: 'Athleticism', description: 'Speed, agility, coordination, jumping ability' },
+  { id: 'coachability', name: 'Attitude & Coachability', description: 'Listens, applies feedback, positive attitude, effort' },
+  { id: 'effort', name: 'Teamwork & Communication', description: 'Works with teammates, communicates on court' }
 ];
 
 export const TEAM_OPTIONS = [
@@ -440,6 +448,63 @@ export const EVAL_STATUSES = {
   draft: { id: 'draft', label: 'Draft', color: 'bg-amber-500/20 text-amber-300 border-amber-500' },
   submitted: { id: 'submitted', label: 'Submitted', color: 'bg-blue-500/20 text-blue-300 border-blue-500' },
   finalized: { id: 'finalized', label: 'Finalized', color: 'bg-green-500/20 text-green-300 border-green-500' }
+};
+
+// Tryout scoring level labels
+export const TRYOUT_LEVEL_LABELS = {
+  1: 'Foundational',
+  2: 'Emerging',
+  3: 'At Level',
+  4: 'Above Level',
+  5: 'Exceptional'
+};
+
+// Tryout scoring level colors (hex values)
+export const TRYOUT_LEVEL_COLORS = {
+  1: '#94a3b8',
+  2: '#f59e0b',
+  3: '#eab308',
+  4: '#2563eb',
+  5: '#005028'
+};
+
+// Tryout scoring criteria — age-appropriate descriptions for each metric at each level
+export const TRYOUT_SCORING_CRITERIA = {
+  ballSkills: {
+    1: 'Just starting to learn the basics. Ball handling, passing, and shooting need significant development. Movements are uncoordinated.',
+    2: 'Beginning to show understanding of fundamentals. Skills inconsistent but showing positive signs of development.',
+    3: 'Demonstrates solid fundamentals. Can perform core skills reliably in practice. Developing consistency under pressure.',
+    4: 'Skills and understanding exceed typical expectations for this age group. Confident with ball, accurate passing and shooting.',
+    5: 'Outstanding ability demonstrating advanced skills, tactical maturity, and composure well beyond age expectations.'
+  },
+  gameUnderstanding: {
+    1: 'Struggles to understand game flow. Often out of position. Limited awareness of what\'s happening on court.',
+    2: 'Starting to recognise basic game situations. Positioning improving but still often reactive rather than proactive.',
+    3: 'Understands basic game concepts. Generally in the right position. Can read simple offensive and defensive situations.',
+    4: 'Reads the game well. Anticipates plays. Makes good decisions under pressure. Court vision above average.',
+    5: 'Elite court vision and game reading. Consistently makes the right decision. Controls tempo and flow.'
+  },
+  athleticism: {
+    1: 'Physical development is early stage. Speed, agility, and coordination need significant improvement.',
+    2: 'Showing improvement in physical capabilities. Some coordination and speed developing but inconsistent.',
+    3: 'Good physical development for age. Moves well, reasonable speed and agility. Consistent effort in physical tasks.',
+    4: 'Physical attributes stand out. Quick, agile, strong for age. Can sustain high effort throughout a session.',
+    5: 'Exceptional physical tools. Dominant speed, agility, strength. Can change the game through athleticism alone.'
+  },
+  coachability: {
+    1: 'Reluctant to engage. Struggles to follow instructions. May lack confidence or interest.',
+    2: 'Responds to coaching when prompted. Effort is inconsistent. Shows flashes of positive attitude.',
+    3: 'Positive attitude, listens to coaches, applies feedback. Consistent effort. Good training habits.',
+    4: 'Actively seeks feedback. Self-motivated. Positive influence on other players. Leads by example.',
+    5: 'Model player. Exceptional attitude, coachable, resilient. Inspires others. Natural leader.'
+  },
+  effort: {
+    1: 'Plays in isolation. Rarely communicates with teammates. Unaware of team dynamics.',
+    2: 'Beginning to look for teammates. Occasional communication. Starting to understand team concepts.',
+    3: 'Works well with teammates. Communicates on court. Understands and fills their role in the team.',
+    4: 'Strong communicator. Lifts teammates. Creates opportunities for others. Natural team player.',
+    5: 'Elite communicator and team player. Makes everyone around them better. Organises teammates naturally.'
+  }
 };
 
 /**

@@ -55,23 +55,23 @@ const CHART_COLORS = ['#00A651', '#ef4444', '#eab308'];
 
 const GameResultsPage = () => {
   const navigate = useNavigate();
-  const { games: firestoreGames, players, teams: firestoreTeams, loading } = useFilteredData();
+  const { matchAssessments: firestoreAssessments, players, teams: firestoreTeams, loading } = useFilteredData();
 
-  // Derive completed games from Firestore (only games that have a result)
+  // Derive completed games from match_assessments (only entries that have a result)
   const games = useMemo(() => {
-    if (!firestoreGames) return [];
-    return firestoreGames
-      .filter(g => g.result && (g.type || 'game') === 'game')
-      .map(g => ({
-        ...g,
-        homeScore: g.finalScore?.home ?? g.homeScore ?? 0,
-        awayScore: g.finalScore?.away ?? g.awayScore ?? 0,
-        ageGroup: g.ageGroup || (firestoreTeams || []).find(t => t.id === g.teamId)?.ageGroup || '',
-        coachName: g.coachName || '',
-        scorers: g.scorers || [],
-        notes: g.notes || ''
+    if (!firestoreAssessments) return [];
+    return firestoreAssessments
+      .filter(a => a.result)
+      .map(a => ({
+        ...a,
+        homeScore: a.finalScore?.home ?? a.homeScore ?? 0,
+        awayScore: a.finalScore?.away ?? a.awayScore ?? 0,
+        ageGroup: a.ageGroup || (firestoreTeams || []).find(t => t.id === a.teamId)?.ageGroup || '',
+        coachName: a.coachName || '',
+        scorers: a.scorers || [],
+        notes: a.generalMatchNotes?.note || a.generalNotes || a.notes || ''
       }));
-  }, [firestoreGames, firestoreTeams]);
+  }, [firestoreAssessments, firestoreTeams]);
 
   // State
   const [searchQuery, setSearchQuery] = useState('');

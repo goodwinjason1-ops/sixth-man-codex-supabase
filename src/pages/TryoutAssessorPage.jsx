@@ -6,8 +6,6 @@ import {
   ArrowRight,
   Check,
   Star,
-  Minus,
-  Plus,
   Save,
   Users,
   Clock,
@@ -24,7 +22,9 @@ import {
   ChevronUp,
   Lock,
   Send,
-  FileText
+  FileText,
+  Info,
+  X
 } from 'lucide-react';
 import {
   getTryoutSession,
@@ -35,9 +35,13 @@ import {
   durationBetween,
   EVAL_METRICS,
   TEAM_OPTIONS,
-  EVAL_STATUSES
+  EVAL_STATUSES,
+  TRYOUT_LEVEL_LABELS,
+  TRYOUT_LEVEL_COLORS,
+  TRYOUT_SCORING_CRITERIA
 } from '../services/tryoutService';
 import HelpTooltip from '../components/tutorial/HelpTooltip';
+import { logActivity } from '../services/auditService';
 
 const TryoutAssessorPage = () => {
   const { sessionId } = useParams();
@@ -58,6 +62,11 @@ const TryoutAssessorPage = () => {
 
   // Metric notes expanded state
   const [expandedNotes, setExpandedNotes] = useState({});
+  // Scoring criteria tooltip state
+  const [showCriteriaTooltip, setShowCriteriaTooltip] = useState(null);
+  // Submit All Drafts state
+  const [showSubmitAllConfirm, setShowSubmitAllConfirm] = useState(false);
+  const [submitAllProgress, setSubmitAllProgress] = useState(null); // { done, total } or null
 
   // Debounce timer refs (replaces window globals)
   const autoSaveTimerRef = useRef(null);
@@ -180,11 +189,23 @@ const TryoutAssessorPage = () => {
       evalStatus: 'draft'
     };
 
+    // Sanitize ratings to ensure all values are 0-5
+    const sanitizeRatings = (ratings) => {
+      const safe = { ...defaultEval.ratings };
+      if (ratings && typeof ratings === 'object') {
+        Object.keys(safe).forEach(key => {
+          const v = typeof ratings[key] === 'number' ? ratings[key] : 0;
+          safe[key] = Math.max(0, Math.min(5, v));
+        });
+      }
+      return safe;
+    };
+
     const existingEval = evaluations[currentPlayer.id];
     if (existingEval) {
       // Firestore data exists — use it and clear any localStorage backup
       const loaded = {
-        ratings: existingEval.ratings || defaultEval.ratings,
+        ratings: sanitizeRatings(existingEval.ratings),
         metricNotes: existingEval.metricNotes || defaultEval.metricNotes,
         overallImpression: existingEval.overallImpression || 0,
         notes: existingEval.notes || '',
@@ -197,7 +218,9 @@ const TryoutAssessorPage = () => {
     } else {
       // No Firestore data — try localStorage fallback
       const cached = loadFromLocalStorage(currentPlayer.id);
-      const loaded = cached || defaultEval;
+      const loaded = cached
+        ? { ...cached, ratings: sanitizeRatings(cached.ratings) }
+        : defaultEval;
       setCurrentEval(loaded);
       currentEvalRef.current = loaded;
     }
@@ -326,12 +349,62 @@ const TryoutAssessorPage = () => {
   const handleSubmit = () => {
     if (isSessionClosed || currentEval.evalStatus === 'finalized') return;
     handleSave(currentEval, 'submitted');
+    logActivity(
+      { uid: currentUser.uid, displayName: userProfile?.displayName, role: userProfile?.role },
+      'tryout.evaluation',
+      `Tryout evaluation submitted for ${currentPlayer?.name || 'player'}`,
+      { sessionId, playerId: currentPlayer?.id }
+    );
   };
 
   // Save as draft explicitly
   const handleSaveDraft = () => {
     if (isSessionClosed || currentEval.evalStatus === 'finalized') return;
     handleSave(currentEval, 'draft');
+  };
+
+  // Submit all draft evaluations at once
+  const handleSubmitAllDrafts = async () => {
+    if (isSessionClosed) return;
+    setShowSubmitAllConfirm(false);
+
+    const draftPlayers = session.players.filter(p => {
+      const ev = evaluations[p.id];
+      return ev && (ev.evalStatus === 'draft' || !ev.evalStatus);
+    });
+
+    if (draftPlayers.length === 0) return;
+    setSubmitAllProgress({ done: 0, total: draftPlayers.length });
+
+    for (let i = 0; i < draftPlayers.length; i++) {
+      const player = draftPlayers[i];
+      const ev = evaluations[player.id];
+      const dataToSave = {
+        sessionId,
+        playerId: player.id,
+        playerName: player.name,
+        playerNumber: player.number,
+        assessorId: currentUser.uid,
+        assessorName: userProfile?.displayName || 'Unknown',
+        ratings: ev.ratings || {},
+        metricNotes: ev.metricNotes || {},
+        overallImpression: ev.overallImpression || 0,
+        notes: ev.notes || '',
+        teamRecommendation: ev.teamRecommendation || null,
+        evalStatus: 'submitted'
+      };
+      await saveEvaluation(dataToSave);
+      setSubmitAllProgress({ done: i + 1, total: draftPlayers.length });
+    }
+
+    // Update current player's local state if it was a draft
+    const currentPlayerEv = evaluations[currentPlayer?.id];
+    if (currentPlayerEv && (currentPlayerEv.evalStatus === 'draft' || !currentPlayerEv.evalStatus)) {
+      setCurrentEval(prev => ({ ...prev, evalStatus: 'submitted' }));
+    }
+
+    // Show completion briefly, then clear
+    setTimeout(() => setSubmitAllProgress(null), 2000);
   };
 
   // Navigate to next/previous player — flush pending saves first
@@ -417,7 +490,7 @@ const TryoutAssessorPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F9F5] pb-32">
+    <div className="min-h-screen bg-[#F5F9F5] pb-44">
       {/* Session Closed Banner */}
       {isSessionClosed && (
         <div className="bg-red-500/20 border-b border-red-500/50 px-4 py-2 text-center">
@@ -430,76 +503,87 @@ const TryoutAssessorPage = () => {
 
       {/* Header */}
       <div className={`border-b sticky top-0 z-20 ${
-        session.sessionType === 'hour-1' ? 'bg-gradient-to-r from-[#005028] to-violet-900/30 border-violet-500/30' :
-        session.sessionType === 'hour-2' ? 'bg-gradient-to-r from-[#005028] to-orange-900/30 border-orange-500/30' :
+        session.sessionType === 'hour-1' ? 'bg-gradient-to-r from-[#005028] to-[#3b1f6e] border-[#5b21b6]' :
+        session.sessionType === 'hour-2' ? 'bg-gradient-to-r from-[#005028] to-[#7c2d12] border-[#c2410c]' :
         'bg-white border-[#D4E4D4]'
       }`}>
         <div className="px-4 py-3">
           <div className="flex items-center justify-between mb-2">
-            <button
-              onClick={() => navigate(userProfile?.role === 'tryout_assessor' ? '/assessor' : '/admin/tryouts')}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-800" />
-            </button>
+            {(() => {
+              const isDarkHeader = session.sessionType === 'hour-1' || session.sessionType === 'hour-2';
+              return (
+                <>
+                  <button
+                    onClick={() => navigate(userProfile?.role === 'tryout_assessor' ? '/assessor' : '/admin/tryouts')}
+                    className={`p-2 rounded-lg transition-colors ${isDarkHeader ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
+                  >
+                    <ArrowLeft className={`w-5 h-5 ${isDarkHeader ? 'text-white' : 'text-gray-800'}`} />
+                  </button>
 
-            <div className="text-center flex-1">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                {session.sessionType === 'hour-1' && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-violet-500/30 text-violet-300 border border-violet-500/50">
-                    Hour 1
-                  </span>
-                )}
-                {session.sessionType === 'hour-2' && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-orange-500/30 text-orange-300 border border-orange-500/50">
-                    Hour 2
-                  </span>
-                )}
-                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[#D4E4D4]/50 text-gray-800">
-                  {session.ageGroup}
-                </span>
-              </div>
-              <h1 className="text-gray-800 font-bold text-sm">{session.name}</h1>
-              {(session.startTime || session.endTime) && (
-                <p className="text-[#005028] text-sm font-medium flex items-center justify-center gap-1.5 mt-1">
-                  <Clock className="w-4 h-4" />
-                  {formatTime24to12(session.startTime)}{session.endTime && ` - ${formatTime24to12(session.endTime)}`}
-                  {durationBetween(session.startTime, session.endTime) && (
-                    <span className="text-[#6B7C6B]">
-                      ({durationBetween(session.startTime, session.endTime)} min)
-                    </span>
-                  )}
-                </p>
-              )}
-            </div>
+                  <div className="text-center flex-1">
+                    <div className="flex items-center justify-center gap-2 mb-1">
+                      {session.sessionType === 'hour-1' && (
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-violet-500/30 text-violet-200 border border-violet-400/50">
+                          Hour 1
+                        </span>
+                      )}
+                      {session.sessionType === 'hour-2' && (
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-orange-500/30 text-orange-200 border border-orange-400/50">
+                          Hour 2
+                        </span>
+                      )}
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${isDarkHeader ? 'bg-white/15 text-white' : 'bg-[#D4E4D4]/50 text-gray-800'}`}>
+                        {session.ageGroup}
+                      </span>
+                    </div>
+                    <h1 className={`font-bold text-sm ${isDarkHeader ? 'text-white' : 'text-gray-800'}`}>{session.name}</h1>
+                    {(session.startTime || session.endTime) && (
+                      <p className={`text-sm font-medium flex items-center justify-center gap-1.5 mt-1 ${isDarkHeader ? 'text-white/90' : 'text-[#005028]'}`}>
+                        <Clock className="w-4 h-4" />
+                        {formatTime24to12(session.startTime)}{session.endTime && ` - ${formatTime24to12(session.endTime)}`}
+                        {durationBetween(session.startTime, session.endTime) && (
+                          <span className={isDarkHeader ? 'text-white/60' : 'text-[#6B7C6B]'}>
+                            ({durationBetween(session.startTime, session.endTime)} min)
+                          </span>
+                        )}
+                      </p>
+                    )}
+                  </div>
 
-            {/* Online/Offline indicator */}
-            <HelpTooltip text={isOnline ? 'Connected — scores sync in real time.' : 'Offline — scores save locally and sync when you reconnect.'}>
-              <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium ${
-                isOnline ? 'bg-green-500/20 text-green-600' : 'bg-yellow-500/20 text-yellow-600'
-              }`}>
-                {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
-                <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
-              </div>
-            </HelpTooltip>
+                  {/* Online/Offline indicator */}
+                  <HelpTooltip text={isOnline ? 'Connected — scores sync in real time.' : 'Offline — scores save locally and sync when you reconnect.'}>
+                    <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium ${
+                      isOnline
+                        ? (isDarkHeader ? 'bg-green-500/30 text-green-300' : 'bg-green-500/20 text-green-600')
+                        : (isDarkHeader ? 'bg-yellow-500/30 text-yellow-300' : 'bg-yellow-500/20 text-yellow-600')
+                    }`}>
+                      {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
+                      <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
+                    </div>
+                  </HelpTooltip>
+                </>
+              );
+            })()}
           </div>
 
           {/* Progress Bar */}
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-2 bg-[#F5F9F5] rounded-full overflow-hidden">
+            <div className={`flex-1 h-2 rounded-full overflow-hidden ${
+              (session.sessionType === 'hour-1' || session.sessionType === 'hour-2') ? 'bg-white/20' : 'bg-[#F5F9F5]'
+            }`}>
               <div
                 className={`h-full transition-all duration-300 ${
-                  session.sessionType === 'hour-1' ? 'bg-[#005028]' :
-                  session.sessionType === 'hour-2' ? 'bg-[#00A651]' :
+                  session.sessionType === 'hour-1' ? 'bg-violet-400' :
+                  session.sessionType === 'hour-2' ? 'bg-orange-400' :
                   'bg-[#005028]'
                 }`}
                 style={{ width: `${progress}%` }}
               />
             </div>
             <span className="text-xs font-medium whitespace-nowrap">
-              <span className="text-blue-400">{submittedCount}</span>
-              {draftCount > 0 && <span className="text-amber-400"> / {draftCount}d</span>}
-              <span className="text-gray-400"> / {totalPlayers}</span>
+              <span className={`${(session.sessionType === 'hour-1' || session.sessionType === 'hour-2') ? 'text-blue-300' : 'text-blue-400'}`}>{submittedCount}</span>
+              {draftCount > 0 && <span className={`${(session.sessionType === 'hour-1' || session.sessionType === 'hour-2') ? 'text-amber-300' : 'text-amber-400'}`}> / {draftCount}d</span>}
+              <span className={`${(session.sessionType === 'hour-1' || session.sessionType === 'hour-2') ? 'text-white/50' : 'text-gray-400'}`}> / {totalPlayers}</span>
             </span>
           </div>
         </div>
@@ -571,6 +655,23 @@ const TryoutAssessorPage = () => {
           </div>
         </div>
 
+        {/* Rating Guide Bar */}
+        <div className="bg-white border border-[#D4E4D4] rounded-xl p-3 mb-3">
+          <div className="flex flex-wrap justify-center gap-x-3 gap-y-1">
+            {[1, 2, 3, 4, 5].map((level) => (
+              <div key={level} className="flex items-center gap-1">
+                <span
+                  className="w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center text-white"
+                  style={{ backgroundColor: TRYOUT_LEVEL_COLORS[level] }}
+                >
+                  {level}
+                </span>
+                <span className="text-[10px] text-[#6B7C6B]">{TRYOUT_LEVEL_LABELS[level]}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Rating Metrics with Collapsible Notes */}
         <div className="space-y-3 mb-4">
           {EVAL_METRICS.map((metric, metricIdx) => (
@@ -580,56 +681,78 @@ const TryoutAssessorPage = () => {
             >
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  {metricIdx === 0 ? (
-                    <HelpTooltip text="Rate each metric from 1 (lowest) to 5 (highest). Use the full range for best results.">
-                      <h3 className="text-gray-800 font-medium text-sm">{metric.name}</h3>
-                    </HelpTooltip>
-                  ) : (
+                  <div className="flex items-center gap-2">
                     <h3 className="text-gray-800 font-medium text-sm">{metric.name}</h3>
-                  )}
+                    <button
+                      onClick={() => setShowCriteriaTooltip(showCriteriaTooltip === metric.id ? null : metric.id)}
+                      className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                    >
+                      <Info className="w-4 h-4 text-[#00A651]" />
+                    </button>
+                  </div>
                   <p className="text-[#6B7C6B] text-xs">{metric.description}</p>
                 </div>
-                <span className="text-2xl font-bold text-[#00A651] w-8 text-right">
+                <span className="text-2xl font-bold w-8 text-right" style={{ color: currentEval.ratings[metric.id] ? TRYOUT_LEVEL_COLORS[currentEval.ratings[metric.id]] : '#00A651' }}>
                   {currentEval.ratings[metric.id] || '-'}
                 </span>
               </div>
 
-              {/* Rating Buttons */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleRatingChange(metric.id, currentEval.ratings[metric.id] - 1)}
-                  disabled={currentEval.ratings[metric.id] <= 0 || isSessionClosed || currentEval.evalStatus === 'finalized'}
-                  className="w-12 h-12 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl flex items-center justify-center disabled:opacity-30 hover:border-red-500 hover:text-red-400 transition-colors"
-                >
-                  <Minus className="w-6 h-6 text-gray-800" />
-                </button>
-
-                <div className="flex-1 flex justify-center gap-1">
-                  {[1, 2, 3, 4, 5].map((level) => (
+              {/* Scoring Criteria Tooltip */}
+              {showCriteriaTooltip === metric.id && TRYOUT_SCORING_CRITERIA[metric.id] && (
+                <div className="mb-3 bg-gray-900 rounded-lg p-3 shadow-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h5 className="text-[#00A651] text-xs font-medium">
+                      {metric.name} — {session?.ageGroup || 'All Ages'} Scoring Guide
+                    </h5>
                     <button
-                      key={level}
-                      onClick={() => handleRatingChange(metric.id, level)}
-                      disabled={isSessionClosed || currentEval.evalStatus === 'finalized'}
-                      className={`w-10 h-10 rounded-lg font-bold text-sm transition-all ${
-                        currentEval.ratings[metric.id] === level
-                          ? 'bg-[#005028] text-white scale-110'
-                          : currentEval.ratings[metric.id] >= level
-                            ? 'bg-[#005028]/50 text-white'
-                            : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B]'
-                      } ${(isSessionClosed || currentEval.evalStatus === 'finalized') ? 'opacity-60' : ''}`}
+                      onClick={() => setShowCriteriaTooltip(null)}
+                      className="text-gray-400 hover:text-white"
                     >
-                      {level}
+                      <X className="w-3 h-3" />
                     </button>
-                  ))}
+                  </div>
+                  <div className="space-y-1.5">
+                    {[1, 2, 3, 4, 5].map((level) => (
+                      <div key={level} className="flex gap-2">
+                        <span
+                          className="w-5 h-5 flex-shrink-0 rounded text-[10px] font-bold flex items-center justify-center text-white"
+                          style={{ backgroundColor: TRYOUT_LEVEL_COLORS[level] }}
+                        >
+                          {level}
+                        </span>
+                        <div className="flex-1">
+                          <span className="text-[10px] font-medium" style={{ color: TRYOUT_LEVEL_COLORS[level] }}>{TRYOUT_LEVEL_LABELS[level]}: </span>
+                          <span className="text-gray-300 text-[10px]">{TRYOUT_SCORING_CRITERIA[metric.id][level]}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
+              )}
 
-                <button
-                  onClick={() => handleRatingChange(metric.id, currentEval.ratings[metric.id] + 1)}
-                  disabled={currentEval.ratings[metric.id] >= 5 || isSessionClosed || currentEval.evalStatus === 'finalized'}
-                  className="w-12 h-12 bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl flex items-center justify-center disabled:opacity-30 hover:border-green-500 hover:text-green-400 transition-colors"
-                >
-                  <Plus className="w-6 h-6 text-gray-800" />
-                </button>
+              {/* Rating Buttons */}
+              <div className="flex justify-center gap-2">
+                {[1, 2, 3, 4, 5].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => handleRatingChange(metric.id, level)}
+                    disabled={isSessionClosed || currentEval.evalStatus === 'finalized'}
+                    className={`w-12 h-12 rounded-lg font-bold text-base transition-all ${
+                      currentEval.ratings[metric.id] === level
+                        ? 'text-white scale-110 ring-2 ring-white/30'
+                        : currentEval.ratings[metric.id] > level && currentEval.ratings[metric.id] > 0
+                          ? 'text-white/80'
+                          : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B]'
+                    } ${(isSessionClosed || currentEval.evalStatus === 'finalized') ? 'opacity-60' : ''}`}
+                    style={
+                      currentEval.ratings[metric.id] >= level && currentEval.ratings[metric.id] > 0
+                        ? { backgroundColor: TRYOUT_LEVEL_COLORS[level] }
+                        : undefined
+                    }
+                  >
+                    {level}
+                  </button>
+                ))}
               </div>
 
               {/* Collapsible Metric Note */}
@@ -728,8 +851,8 @@ const TryoutAssessorPage = () => {
       </div>
 
       {/* Player Quick Jump */}
-      <div className="fixed bottom-24 left-0 right-0 px-4 z-10">
-        <div className="flex gap-1 justify-center overflow-x-auto py-2 hide-scrollbar">
+      <div className="fixed left-0 right-0 z-49 bg-white border-t border-gray-200" style={{bottom: '90px'}}>
+        <div className="flex gap-1 justify-center overflow-x-auto py-1 px-4 hide-scrollbar">
           {session.players.map((player, index) => {
             const status = getPlayerEvalStatus(player.id);
             return (
@@ -746,108 +869,119 @@ const TryoutAssessorPage = () => {
                         : 'bg-[#F5F9F5] border border-[#D4E4D4] text-[#6B7C6B]'
                 }`}
               >
-                {player.number || index + 1}
+                {index + 1}
               </button>
             );
           })}
         </div>
       </div>
 
+      {/* Submit All Drafts Confirmation */}
+      {showSubmitAllConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl p-6 max-w-sm w-full shadow-xl">
+            <h3 className="text-gray-800 font-bold text-lg mb-2">Submit All Drafts?</h3>
+            <p className="text-gray-600 text-sm mb-4">
+              This will submit <span className="font-bold text-amber-600">{draftCount}</span> draft evaluation{draftCount !== 1 ? 's' : ''}. Submitted evaluations cannot be edited.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSubmitAllConfirm(false)}
+                className="flex-1 px-4 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg text-sm font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmitAllDrafts}
+                className="flex-1 px-4 py-2 bg-[#005028] hover:bg-[#00A651] text-white rounded-lg text-sm font-medium flex items-center justify-center gap-1"
+              >
+                <Send className="w-4 h-4" />
+                Submit All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Bottom Navigation */}
-      <div className="fixed bottom-16 left-0 right-0 bg-white border-t border-[#D4E4D4] px-4 py-3 z-20 lg:bottom-0">
-        <div className="flex items-center justify-between gap-3">
-          {/* Save Status */}
-          <div className="flex items-center gap-2 text-xs min-w-0">
-            {saving ? (
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#D4E4D4] px-4 z-50">
+        {/* Status + Submit All row */}
+        <div className="flex items-center justify-between py-1.5 min-h-[24px]">
+          <div className="flex items-center gap-2 text-xs">
+            {submitAllProgress ? (
+              <span className="flex items-center gap-1 text-[#005028] font-medium">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                {submitAllProgress.done === submitAllProgress.total
+                  ? `All ${submitAllProgress.total} submitted!`
+                  : `Submitting ${submitAllProgress.done}/${submitAllProgress.total}...`}
+              </span>
+            ) : saving ? (
               <span className="flex items-center gap-1 text-[#00A651]">
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 Saving...
               </span>
             ) : lastSaved ? (
-              <span className="flex items-center gap-1 text-green-400">
-                <CheckCircle className="w-4 h-4" />
+              <span className="flex items-center gap-1 text-green-500">
+                <CheckCircle className="w-3.5 h-3.5" />
                 Saved
               </span>
             ) : null}
           </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-2">
-            {/* Prev */}
+          {!isSessionClosed && draftCount >= 1 && !submitAllProgress && (
             <button
-              onClick={() => goToPlayer(currentPlayerIndex - 1)}
-              disabled={currentPlayerIndex === 0}
-              className="px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg disabled:opacity-30 flex items-center gap-1 text-sm"
+              onClick={() => setShowSubmitAllConfirm(true)}
+              className="px-3 py-1 bg-[#005028] hover:bg-[#00A651] text-white rounded-md text-xs font-medium flex items-center gap-1"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <Send className="w-3 h-3" />
+              Submit All ({draftCount})
             </button>
+          )}
+        </div>
 
-            {/* Save Draft / Submit / Next / Done */}
-            {isSessionClosed || currentEval.evalStatus === 'finalized' ? (
-              // Locked - just show Next/Done
-              currentPlayerIndex < totalPlayers - 1 ? (
-                <button
-                  onClick={() => goToPlayer(currentPlayerIndex + 1)}
-                  className="px-5 py-2 bg-[#D4E4D4] text-gray-800 font-medium rounded-lg flex items-center gap-1 text-sm"
-                >
-                  Next <ChevronRight className="w-4 h-4" />
-                </button>
-              ) : (
-                <button
-                  onClick={() => navigate(userProfile?.role === 'tryout_assessor' ? '/assessor' : '/admin/tryouts')}
-                  className="px-5 py-2 bg-[#D4E4D4] text-gray-800 font-medium rounded-lg flex items-center gap-1 text-sm"
-                >
-                  <Check className="w-4 h-4" /> Done
-                </button>
-              )
-            ) : (
-              <>
-                {/* Save Draft */}
-                {currentEval.evalStatus !== 'submitted' && (
-                  <button
-                    onClick={handleSaveDraft}
-                    className="px-3 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg flex items-center gap-1 text-sm"
-                  >
-                    <Save className="w-4 h-4" />
-                    Draft
-                  </button>
-                )}
+        {/* 3-button bar */}
+        <div className="flex items-center gap-3 pb-2">
+          {/* Draft */}
+          <button
+            onClick={handleSaveDraft}
+            disabled={isSessionClosed || currentEval.evalStatus === 'finalized' || currentEval.evalStatus === 'submitted'}
+            className="flex-1 min-h-[56px] bg-amber-500 hover:bg-amber-400 text-white rounded-xl flex items-center justify-center gap-2 text-sm font-semibold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <Save className="w-5 h-5" />
+            Draft
+          </button>
 
-                {/* Submit */}
-                <HelpTooltip text="Submitting locks your scores for this player. You can still review but not edit after submission.">
-                  <button
-                    onClick={handleSubmit}
-                    className={`px-3 py-2 rounded-lg flex items-center gap-1 text-sm font-medium ${
-                      currentEval.evalStatus === 'submitted'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-[#005028] hover:bg-[#00A651] text-white'
-                    }`}
-                  >
-                    <Send className="w-4 h-4" />
-                    {currentEval.evalStatus === 'submitted' ? 'Submitted' : 'Submit'}
-                  </button>
-                </HelpTooltip>
+          {/* Submit */}
+          <button
+            onClick={handleSubmit}
+            disabled={isSessionClosed || currentEval.evalStatus === 'finalized'}
+            className={`flex-1 min-h-[56px] rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+              currentEval.evalStatus === 'submitted'
+                ? 'bg-blue-600 text-white'
+                : 'bg-[#005028] hover:bg-[#00A651] text-white'
+            }`}
+          >
+            <Send className="w-5 h-5" />
+            {currentEval.evalStatus === 'submitted' ? 'Submitted' : 'Submit'}
+          </button>
 
-                {/* Next / Done */}
-                {currentPlayerIndex < totalPlayers - 1 ? (
-                  <button
-                    onClick={() => goToPlayer(currentPlayerIndex + 1)}
-                    className="px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg flex items-center gap-1 text-sm"
-                  >
-                    Next <ChevronRight className="w-4 h-4" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => navigate(userProfile?.role === 'tryout_assessor' ? '/assessor' : '/admin/tryouts')}
-                    className="px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 rounded-lg flex items-center gap-1 text-sm"
-                  >
-                    <Check className="w-4 h-4" /> Done
-                  </button>
-                )}
-              </>
-            )}
-
-          </div>
+          {/* Next / Done */}
+          {currentPlayerIndex < totalPlayers - 1 ? (
+            <button
+              onClick={() => goToPlayer(currentPlayerIndex + 1)}
+              className="flex-1 min-h-[56px] bg-[#F5F9F5] border-2 border-[#D4E4D4] text-gray-800 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold hover:border-[#00A651] transition-colors"
+            >
+              Next
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate(userProfile?.role === 'tryout_assessor' ? '/assessor' : '/admin/tryouts')}
+              className="flex-1 min-h-[56px] bg-[#F5F9F5] border-2 border-[#D4E4D4] text-gray-800 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold hover:border-[#00A651] transition-colors"
+            >
+              <Check className="w-5 h-5" />
+              Done
+            </button>
+          )}
         </div>
       </div>
     </div>

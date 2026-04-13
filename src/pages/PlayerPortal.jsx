@@ -17,7 +17,7 @@ import { Line } from 'react-chartjs-2';
 
 const PlayerPortal = () => {
   const navigate = useNavigate();
-  const { players, games, evaluations, skills, attendance, trainingNotes } = useData();
+  const { players, games, matchAssessments, evaluations, skills, attendance, trainingNotes } = useData();
   const { userProfile } = useAuth();
 
   // Get player data
@@ -27,13 +27,15 @@ const PlayerPortal = () => {
 
   // Calculate MVP stats using 3-2-1 voting system (matches CoachDashboard)
   const mvpStats = useMemo(() => {
-    const playerGames = games.filter(g => g.team === playerData.team);
+    const playerAssessments = (matchAssessments || []).filter(a =>
+      a.team === playerData.team || a.teamId === playerData.teamId
+    );
 
     // Count MVP points using the 3-2-1 voting system
     const mvpPoints = {};
 
-    playerGames.forEach(game => {
-      const votes = game.mvpVoting?.votes;
+    playerAssessments.forEach(assessment => {
+      const votes = assessment.mvpVoting?.votes;
       if (!votes) return;
 
       Object.entries(votes).forEach(([points, playerId]) => {
@@ -58,7 +60,7 @@ const PlayerPortal = () => {
       rank: rank > 0 ? rank : null,
       totalPlayers: rankings.length
     };
-  }, [games, playerData]);
+  }, [matchAssessments, playerData]);
 
   // Get player evaluations
   const playerEvaluations = useMemo(() => {
@@ -124,13 +126,13 @@ const PlayerPortal = () => {
     };
   }, [playerEvaluations]);
 
-  // Recent games
+  // Recent games (from match assessments)
   const recentGames = useMemo(() => {
-    return games
-      .filter(g => g.team === playerData.team)
+    return (matchAssessments || [])
+      .filter(a => a.team === playerData.team || a.teamId === playerData.teamId)
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 5);
-  }, [games, playerData.team]);
+  }, [matchAssessments, playerData.team, playerData.teamId]);
 
   const LEVEL_LABELS = {
     1: { label: "Emerging", color: "bg-gray-100 text-gray-700 border-gray-300" },

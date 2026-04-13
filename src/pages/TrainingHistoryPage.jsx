@@ -3,18 +3,21 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useFilteredData } from '../hooks/useFilteredData';
 import {
   Calendar, Clock, Users, ChevronRight, ArrowLeft,
-  CheckCircle2, XCircle, AlertCircle, Dumbbell, FileText, Search, MessageSquare
+  CheckCircle2, XCircle, AlertCircle, Dumbbell, FileText, Search, MessageSquare,
+  Pencil, Eye, Lock
 } from 'lucide-react';
 import PageShell from '../components/PageShell';
 import { toJsDate, formatDateShortAU } from '../utils/dateUtils';
+import TrainingPlanPreviewModal from '../components/TrainingPlanPreviewModal';
 
 const TrainingHistoryPage = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
-  const { currentUser, userProfile, teams: coachTeams, players, trainingPlans, trainingRecords, loading: dataLoading } = useFilteredData();
+  const { currentUser, userProfile, teams: coachTeams, players, trainingPlans, trainingRecords, games, loading: dataLoading } = useFilteredData();
 
   const [teamFilter, setTeamFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [planPreview, setPlanPreview] = useState(null);
 
   // Get team name helper
   const getTeamName = (teamId) => {
@@ -85,6 +88,22 @@ const TrainingHistoryPage = () => {
     return { present, late, absent, total: entries.length };
   };
 
+  // Determine if a training record is still editable (within 6-day window)
+  const isSessionEditable = (session) => {
+    const sessionDate = toJsDate(session.date);
+    if (!sessionDate) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Editable if today <= session date + 6 days
+    const editDeadline = new Date(sessionDate);
+    editDeadline.setHours(0, 0, 0, 0);
+    editDeadline.setDate(editDeadline.getDate() + 6);
+    editDeadline.setHours(23, 59, 59, 999);
+    return today <= editDeadline;
+  };
+
   // Detail view
   if (sessionId) {
     if (dataLoading) {
@@ -140,8 +159,7 @@ const TrainingHistoryPage = () => {
         backTo="/coach/training-history"
         breadcrumbs={[
           { label: 'Home', url: '/welcome' },
-          { label: 'Dashboard', url: '/dashboard' },
-          { label: 'Training History', url: '/coach/training-history' },
+          { label: 'Record Training', url: '/coach/training-history' },
           { label: formatDate(selectedSession.date) }
         ]}
         maxWidth="3xl"
@@ -176,6 +194,24 @@ const TrainingHistoryPage = () => {
                 <p className="text-xs text-[#6B7C6B]">Absent</p>
               </div>
             </div>
+
+            {/* Edit / View-only button */}
+            {selectedSession.gameId && (
+              isSessionEditable(selectedSession) ? (
+                <button
+                  onClick={() => navigate(`/coach/training-session/${selectedSession.gameId}`)}
+                  className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 bg-[#00A651] text-white rounded-xl font-medium text-sm hover:bg-[#005028] transition-colors"
+                >
+                  <Pencil className="w-4 h-4" />
+                  Edit Training Record
+                </button>
+              ) : (
+                <div className="mt-4 flex items-center justify-center gap-2 py-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-sm">
+                  <Lock className="w-4 h-4" />
+                  Edit window has closed
+                </div>
+              )
+            )}
           </div>
 
           {/* Attendance List */}
@@ -218,7 +254,7 @@ const TrainingHistoryPage = () => {
                 <Dumbbell className="w-5 h-5 text-[#00A651]" /> Linked Training Plan
               </h3>
               <button
-                onClick={() => navigate(`/coach/training-plans/${linkedPlan.id}`)}
+                onClick={() => setPlanPreview(linkedPlan)}
                 className="w-full text-left bg-[#F5F9F5] border border-[#D4E4D4] rounded-xl p-4 hover:border-[#00A651] transition-colors"
               >
                 <div className="flex items-center justify-between">
@@ -308,6 +344,9 @@ const TrainingHistoryPage = () => {
             </div>
           )}
         </div>
+
+        {/* Full Plan Preview Modal */}
+        <TrainingPlanPreviewModal plan={planPreview} onClose={() => setPlanPreview(null)} />
       </PageShell>
     );
   }
@@ -390,6 +429,7 @@ const TrainingHistoryPage = () => {
             {filteredSessions.map(session => {
               const att = getAttendanceSummary(session);
               const planName = getPlanName(session.trainingPlanId);
+              const editable = isSessionEditable(session);
               return (
                 <button
                   key={session.id}
@@ -424,7 +464,26 @@ const TrainingHistoryPage = () => {
                         <p className="text-xs text-[#6B7C6B] mt-1 truncate">{session.sessionNotes.slice(0, 80)}{session.sessionNotes.length > 80 ? '...' : ''}</p>
                       )}
                     </div>
-                    <ChevronRight className="w-5 h-5 text-[#D4E4D4] group-hover:text-[#00A651] transition-colors flex-shrink-0 mt-3" />
+                    <div className="flex items-center gap-2 flex-shrink-0 mt-2">
+                      {editable ? (
+                        <span
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/coach/training-session/${session.gameId}`);
+                          }}
+                          className="flex items-center gap-1 px-2.5 py-1.5 bg-[#00A651]/10 text-[#00A651] rounded-lg text-xs font-medium hover:bg-[#00A651]/20 transition-colors"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                          Edit
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 px-2.5 py-1.5 bg-[#F5F9F5] text-[#6B7C6B] rounded-lg text-xs font-medium">
+                          <Eye className="w-3.5 h-3.5" />
+                          View
+                        </span>
+                      )}
+                      <ChevronRight className="w-5 h-5 text-[#D4E4D4] group-hover:text-[#00A651] transition-colors" />
+                    </div>
                   </div>
                 </button>
               );

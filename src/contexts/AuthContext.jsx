@@ -1,13 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  signInWithPopup, 
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import {
+  signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   sendPasswordResetEmail
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { auth, googleProvider, appleProvider, db } from '../services/firebase';
 import { logActivity } from '../services/auditService';
 import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES, ASSESSOR_ASSIGNER_ROLES } from '../constants/roles';
@@ -30,55 +30,92 @@ export const AuthProvider = ({ children }) => {
   // Flag to prevent onAuthStateChanged from creating a default profile
   // during signup flows that create their own profile
   const [signupInProgress, setSignupInProgress] = useState(false);
+  // Ref to prevent re-entrant processing in onAuthStateChanged
+  const processingRef = useRef(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        setCurrentUser(null);
+        setUserProfile(null);
+        setLoading(false);
+        return;
+      }
+
+      // Guard: don't re-process if already handling this auth event
+      if (processingRef.current) return;
+
+      // If a signup flow is in progress, it will create its own profile.
+      // Don't race it by creating a default profile here.
+      if (signupInProgress) {
+        setCurrentUser(user);
+        return;
+      }
+
+      processingRef.current = true;
       setCurrentUser(user);
 
-      if (user) {
-        // If a signup flow is in progress, it will create its own profile.
-        // Don't race it by creating a default 'player' profile here.
-        if (signupInProgress) {
-          return;
-        }
-
-        // Fetch user profile from Firestore
-        try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          if (userDoc.exists()) {
-            const profile = userDoc.data();
-            if (profile.disabled) {
-              await firebaseSignOut(auth);
-              setError('Your account has been disabled. Please contact an administrator.');
-              setLoading(false);
-              return;
-            }
-            if (profile.deleted) {
-              await firebaseSignOut(auth);
-              setError('Your account has been removed. Please contact an administrator.');
-              setLoading(false);
-              return;
-            }
-            setUserProfile(profile);
-          } else {
-            // Create initial profile for new users (social login without signup flow)
-            const initialProfile = {
-              uid: user.uid,
-              email: user.email,
-              displayName: user.displayName || '',
-              role: 'player', // Default role
-              createdAt: new Date().toISOString(),
-              photoURL: user.photoURL || null
-            };
-            await setDoc(doc(db, 'users', user.uid), initialProfile);
-            setUserProfile(initialProfile);
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          const profile = userDoc.data();
+          if (profile.disabled) {
+            await firebaseSignOut(auth);
+            setError('Your account has been disabled. Please contact an administrator.');
+            setLoading(false);
+            return;
           }
-        } catch (err) {
-          console.error('Error fetching user profile:', err.code || 'unknown');
-          setError('Failed to load user profile. Please try again.');
+          if (profile.deleted) {
+            await firebaseSignOut(auth);
+            setError('Your account has been removed. Please contact an administrator.');
+            setLoading(false);
+            return;
+          }
+          setUserProfile(profile);
+        } else {
+          // Create initial profile for new users (social login without signup flow)
+          const initialProfile = {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName || '',
+            role: 'pending', // Pending admin approval
+            needsRegistration: true, // Show registration form to collect extra info
+            createdAt: new Date().toISOString(),
+            photoURL: user.photoURL || null
+          };
+          try {
+            await setDoc(doc(db, 'users', user.uid), initialProfile);
+          } catch (createErr) {
+            console.error('Failed to create user document in Firestore:', createErr.code || createErr.message || createErr);
+            setError('Failed to create your account profile. Please try again or contact an administrator.');
+            setLoading(false);
+            return;
+          }
+          setUserProfile(initialProfile);
+
+          // Create in-app notification for admins about new pending user
+          try {
+            await addDoc(collection(db, 'notifications'), {
+              title: 'New User Pending Approval',
+              message: `${user.displayName || user.email || 'A new user'} signed up and is awaiting approval.`,
+              type: 'pending_user',
+              targetRoles: ['admin', 'president', 'vice_president'],
+              status: 'sent',
+              readBy: [],
+              deletedBy: [],
+              metadata: { pendingUid: user.uid, email: user.email },
+              createdAt: serverTimestamp(),
+              date: new Date().toISOString()
+            });
+          } catch (notifErr) {
+            console.error('Failed to create admin notification for new user:', notifErr.code || notifErr.message);
+          }
         }
-      } else {
-        setUserProfile(null);
+      } catch (err) {
+        console.error('Error fetching user profile:', err.code || 'unknown');
+        setError('Failed to load user profile. Please try again.');
+      } finally {
+        processingRef.current = false;
       }
 
       setLoading(false);
@@ -98,6 +135,10 @@ export const AuthProvider = ({ children }) => {
       );
       return result.user;
     } catch (err) {
+      // Don't show error if user just closed the popup
+      if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+        return null;
+      }
       console.error('Google Sign-In Error:', err.code, err.message);
       setError(err.message);
       throw err;
@@ -136,9 +177,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Allowed roles that users can self-select during signup
-  const SELF_ASSIGNABLE_ROLES = ['player', 'coach'];
-
   const signUpWithEmail = async (email, password, displayName, additionalData = {}) => {
     try {
       setError(null);
@@ -146,25 +184,43 @@ export const AuthProvider = ({ children }) => {
 
       const result = await createUserWithEmailAndPassword(auth, email, password);
 
-      // Sanitize the requested role — only allow safe self-assignable roles.
-      // Privileged roles must be set by an admin.
-      const requestedRole = additionalData.role;
-      const safeRole = SELF_ASSIGNABLE_ROLES.includes(requestedRole) ? requestedRole : 'player';
-
-      // Create user profile in Firestore with only allowed fields
+      // All new signups go to pending for admin approval
       const profile = {
         uid: result.user.uid,
         email: email.trim().toLowerCase(),
         displayName: (displayName || '').trim(),
-        role: safeRole,
+        role: 'pending',
+        requestedRole: additionalData.requestedRole || additionalData.role || '',
+        requestedTeam: additionalData.requestedTeam || '',
+        phone: additionalData.phone || '',
+        registrationNote: additionalData.registrationNote || '',
+        needsRegistration: false, // Already collected during signup
         createdAt: new Date().toISOString(),
         photoURL: null
       };
 
       await setDoc(doc(db, 'users', result.user.uid), profile);
       setUserProfile(profile);
-      setSignupInProgress(false);
 
+      // Create in-app notification for admins about new pending user
+      try {
+        await addDoc(collection(db, 'notifications'), {
+          title: 'New User Pending Approval',
+          message: `${(displayName || '').trim() || email} signed up and is awaiting approval.`,
+          type: 'pending_user',
+          targetRoles: ['admin', 'president', 'vice_president'],
+          status: 'sent',
+          readBy: [],
+          deletedBy: [],
+          metadata: { pendingUid: result.user.uid, email: email.trim().toLowerCase(), requestedRole: additionalData.requestedRole || '' },
+          createdAt: serverTimestamp(),
+          date: new Date().toISOString()
+        });
+      } catch (_) {
+        // Never let notification creation block the auth flow
+      }
+
+      setSignupInProgress(false);
       return result.user;
     } catch (err) {
       setSignupInProgress(false);
@@ -343,6 +399,7 @@ export const AuthProvider = ({ children }) => {
     // Role helper methods
     isAdmin: role === 'admin',
     isCoach: role === 'coach',
+    isPending: role === 'pending',
     isPlayer: role === 'player',
     isParent: role === 'parent',
     isTeamManager: role === 'team_manager',

@@ -14,28 +14,93 @@ import {
 } from 'lucide-react';
 
 const ParentSchedulePage = () => {
-  const { teams, schedule, loading } = useFilteredData();
+  const { teams, allTeams, players, allPlayers, schedule, games, userChildrenIds, loading } = useFilteredData();
   const [showPast, setShowPast] = useState(false);
 
-  // Split schedule into upcoming and past events for the parent's children's teams
+  // Compute child team IDs directly from player docs — more robust than relying on filtered teams
+  const childTeamIds = useMemo(() => {
+    const childIds = userChildrenIds || [];
+    if (childIds.length === 0) return [];
+    // Use allPlayers (unfiltered) to find child player docs
+    const allPlayersList = allPlayers || players || [];
+    const ids = new Set();
+    allPlayersList.forEach(p => {
+      if (childIds.includes(p.id)) {
+        if (p.teamId) ids.add(p.teamId);
+        (p.teamIds || []).forEach(tid => ids.add(tid));
+      }
+    });
+    return [...ids];
+  }, [userChildrenIds, allPlayers, players]);
+
+  // Build team name lookup from all teams
+  const teamNameMap = useMemo(() => {
+    const map = {};
+    (allTeams || teams || []).forEach(t => {
+      map[t.id] = (t.name || '').toLowerCase();
+    });
+    return map;
+  }, [allTeams, teams]);
+
+  // Split schedule + games into upcoming and past events
   const { upcoming, past } = useMemo(() => {
-    if (!schedule?.length || !teams?.length) return { upcoming: [], past: [] };
+    const hasSchedule = schedule?.length > 0;
+    const hasGames = games?.length > 0;
+    if ((!hasSchedule && !hasGames) || childTeamIds.length === 0) return { upcoming: [], past: [] };
 
     const now = new Date();
-    const teamIds = teams.map(t => t.id);
-    const teamNames = teams.map(t => (t.name || '').toLowerCase());
+    const teamIdSet = new Set(childTeamIds);
+    const childTeamNames = new Set(childTeamIds.map(id => teamNameMap[id]).filter(Boolean));
 
-    const relevant = schedule.filter(event => {
-      if (event.teamId && teamIds.includes(event.teamId)) return true;
-      if (event.teamName && teamNames.includes(event.teamName.toLowerCase())) return true;
+    const matchesTeam = (event) => {
+      if (event.teamId && teamIdSet.has(event.teamId)) return true;
+      if (event.teamName && childTeamNames.has(event.teamName.toLowerCase())) return true;
+      // Also check if event's teamIds array overlaps
+      if (event.teamIds) {
+        for (const tid of event.teamIds) {
+          if (teamIdSet.has(tid)) return true;
+        }
+      }
       return false;
+    };
+
+    // Merge schedule events and games, avoiding duplicates
+    // Deduplicate by id AND by teamId+date+opponent fingerprint
+    const allEvents = [];
+    const seenIds = new Set();
+    const seenFingerprints = new Set();
+
+    const fingerprint = (ev) => {
+      const d = ev.date?.toDate ? ev.date.toDate() : new Date(ev.date);
+      const dateStr = !isNaN(d?.getTime()) ? d.toISOString().slice(0, 10) : '';
+      return `${ev.teamId || ''}|${dateStr}|${(ev.opponent || '').toLowerCase()}`;
+    };
+
+    (schedule || []).forEach(event => {
+      if (matchesTeam(event)) {
+        allEvents.push(event);
+        if (event.id) seenIds.add(event.id);
+        const fp = fingerprint(event);
+        if (fp) seenFingerprints.add(fp);
+      }
+    });
+
+    (games || []).forEach(game => {
+      if (seenIds.has(game.id)) return;
+      const fp = fingerprint(game);
+      if (fp && seenFingerprints.has(fp)) return;
+      if (matchesTeam(game)) {
+        allEvents.push({ ...game, type: game.type || 'game' });
+        if (fp) seenFingerprints.add(fp);
+      }
     });
 
     const upcomingEvents = [];
     const pastEvents = [];
 
-    relevant.forEach(event => {
+    allEvents.forEach(event => {
       const eventDate = event.date?.toDate ? event.date.toDate() : new Date(event.date);
+      if (isNaN(eventDate?.getTime())) return;
       if (eventDate >= now) {
         upcomingEvents.push({ ...event, _parsedDate: eventDate });
       } else {
@@ -43,12 +108,11 @@ const ParentSchedulePage = () => {
       }
     });
 
-    // Sort upcoming ascending, past descending
     upcomingEvents.sort((a, b) => a._parsedDate - b._parsedDate);
     pastEvents.sort((a, b) => b._parsedDate - a._parsedDate);
 
     return { upcoming: upcomingEvents, past: pastEvents };
-  }, [schedule, teams]);
+  }, [schedule, games, childTeamIds, teamNameMap]);
 
   // Group events by date string
   const groupByDate = (events) => {
@@ -78,12 +142,13 @@ const ParentSchedulePage = () => {
     );
   }
 
+  const allTeamsList = allTeams || teams || [];
   const upcomingGroups = groupByDate(upcoming);
   const pastGroups = groupByDate(past);
 
   const renderEvent = (event) => {
     const isGame = event.type === 'game' || !!event.opponent;
-    const teamDoc = teams.find(t => t.id === event.teamId);
+    const teamDoc = allTeamsList.find(t => t.id === event.teamId);
     const teamLabel = teamDoc?.name || event.teamName || '';
 
     return (
@@ -125,6 +190,11 @@ const ParentSchedulePage = () => {
                 <span className="flex items-center gap-1">
                   <MapPin className="w-3 h-3" />
                   {event.venue}
+                </span>
+              )}
+              {isGame && event.homeAway && (
+                <span className="text-xs text-[#6B7C6B]">
+                  ({event.homeAway === 'home' ? 'Home' : 'Away'})
                 </span>
               )}
             </div>

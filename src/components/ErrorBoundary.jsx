@@ -52,7 +52,7 @@ class ErrorBoundary extends React.Component {
             <img
               src="/images/logo_login.png"
               alt="Emerald Lakers"
-              className="h-16 mx-auto mb-4"
+              className="max-h-[80px] w-auto object-contain mx-auto mb-4"
               onError={(e) => { e.target.style.display = 'none'; }}
             />
 

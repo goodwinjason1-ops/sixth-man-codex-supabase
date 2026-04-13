@@ -30,7 +30,9 @@ import {
   stdDev,
   EVAL_METRICS,
   TEAM_OPTIONS,
-  EVAL_STATUSES
+  EVAL_STATUSES,
+  TRYOUT_LEVEL_LABELS,
+  TRYOUT_LEVEL_COLORS
 } from '../../services/tryoutService';
 
 // ============================================
@@ -40,38 +42,37 @@ import {
 const getRatingColor = (value) => {
   if (!value) return 'text-[#6B7C6B]';
   const v = parseFloat(value);
-  if (v >= 4) return 'text-green-400';
-  if (v >= 3) return 'text-yellow-400';
-  if (v >= 2) return 'text-[#00A651]';
-  return 'text-red-400';
+  if (v >= 4.5) return 'text-[#005028]';
+  if (v >= 3.5) return 'text-[#2563eb]';
+  if (v >= 2.5) return 'text-[#eab308]';
+  if (v >= 1.5) return 'text-[#f59e0b]';
+  return 'text-[#94a3b8]';
 };
 
 const getRatingBg = (value) => {
   if (!value) return 'bg-[#D4E4D4]/30';
   const v = parseFloat(value);
-  if (v >= 4) return 'bg-green-500/30';
-  if (v >= 3) return 'bg-yellow-500/30';
-  if (v >= 2) return 'bg-[#00A651]/20';
-  return 'bg-red-500/30';
+  if (v >= 4.5) return 'bg-[#005028]/20';
+  if (v >= 3.5) return 'bg-[#2563eb]/20';
+  if (v >= 2.5) return 'bg-[#eab308]/20';
+  if (v >= 1.5) return 'bg-[#f59e0b]/20';
+  return 'bg-[#94a3b8]/20';
 };
 
 const getHeatmapColor = (value) => {
   if (!value || value === '-') return '#1a3a2e';
   const v = parseFloat(value);
-  if (v >= 4.5) return '#15803d';
-  if (v >= 4.0) return '#00A651';
-  if (v >= 3.5) return '#00A651';
-  if (v >= 3.0) return '#eab308';
-  if (v >= 2.5) return '#f59e0b';
-  if (v >= 2.0) return '#f97316';
-  if (v >= 1.5) return '#ef4444';
-  return '#dc2626';
+  if (v >= 4.5) return '#005028';
+  if (v >= 3.5) return '#2563eb';
+  if (v >= 2.5) return '#eab308';
+  if (v >= 1.5) return '#f59e0b';
+  return '#94a3b8';
 };
 
 const TIER_CONFIG = [
-  { name: 'High (4.0+)', min: 4.0, max: 5.01, color: '#00A651' },
-  { name: 'Mid (2.5-3.9)', min: 2.5, max: 4.0, color: '#eab308' },
-  { name: 'Dev (<2.5)', min: 0, max: 2.5, color: '#ef4444' }
+  { name: 'High (4.0+)', min: 4.0, max: 5.01, color: '#005028' },
+  { name: 'Mid (2.5-3.9)', min: 2.5, max: 4.0, color: '#2563eb' },
+  { name: 'Dev (<2.5)', min: 0, max: 2.5, color: '#f59e0b' }
 ];
 
 // Session 1 (Development): assign to teams 3-7
@@ -404,8 +405,9 @@ const TryoutResultsPage = () => {
       backTo="/admin/tryouts"
       breadcrumbs={[
         { label: 'Home', url: '/welcome' },
-        { label: 'Tryouts', url: '/admin/tryouts' },
-        { label: 'Results' }
+        { label: 'Assessments & Selection', url: '/admin/assessments-hub' },
+        { label: 'Team Selection', url: '/admin/team-selection' },
+        { label: 'Tryout Results' }
       ]}
       maxWidth="6xl"
       noPadding
@@ -950,7 +952,7 @@ const InsightsTab = ({ playerSummaries, evaluations }) => {
                     }} />
                   <Scatter data={scatterData} fill="#00A651">
                     {scatterData.map((entry, i) => (
-                      <Cell key={i} fill={entry.overall >= 4 ? '#00A651' : entry.overall >= 2.5 ? '#eab308' : '#ef4444'} />
+                      <Cell key={i} fill={entry.overall >= 4 ? '#005028' : entry.overall >= 2.5 ? '#2563eb' : '#f59e0b'} />
                     ))}
                   </Scatter>
                 </ScatterChart>
@@ -1026,7 +1028,7 @@ const InsightsTab = ({ playerSummaries, evaluations }) => {
               <div className="flex items-center gap-2 mt-3 text-xs text-gray-400">
                 <span>Low</span>
                 <div className="flex gap-0.5">
-                  {['#dc2626', '#ef4444', '#f97316', '#f59e0b', '#eab308', '#00A651', '#00A651', '#15803d'].map(c => (
+                  {['#94a3b8', '#f59e0b', '#eab308', '#2563eb', '#005028'].map(c => (
                     <div key={c} className="w-6 h-3 rounded-sm" style={{ backgroundColor: c }} />
                   ))}
                 </div>

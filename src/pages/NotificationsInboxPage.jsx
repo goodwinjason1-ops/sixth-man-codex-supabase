@@ -166,6 +166,8 @@ const NotificationsInboxPage = () => {
         return '/coach/training-plans';
       case 'event':
         return '/admin/schedule';
+      case 'pending_user':
+        return '/admin/users?highlight=pending';
       default:
         return null; // scoring, announcement, uniform → open modal
     }

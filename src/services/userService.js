@@ -105,6 +105,28 @@ export async function sendPasswordReset(email) {
 }
 
 /**
+ * Approve a pending user by assigning them a real role.
+ */
+export async function approveUser(uid, newRole, actorInfo) {
+  const result = await updateUser(uid, { role: newRole, approvedAt: new Date().toISOString(), approvedBy: actorInfo?.uid || null });
+  if (result.success && actorInfo) {
+    logActivity(actorInfo, 'user.approved', `Approved user ${uid} as ${newRole}`, { targetUid: uid, newRole });
+  }
+  return result;
+}
+
+/**
+ * Reject a pending user (soft-delete their doc).
+ */
+export async function rejectUser(uid, actorInfo) {
+  const result = await updateUser(uid, { deleted: true, deletedAt: new Date().toISOString(), deletedBy: actorInfo?.uid || null, rejectedAt: new Date().toISOString() });
+  if (result.success && actorInfo) {
+    logActivity(actorInfo, 'user.rejected', `Rejected pending user ${uid}`, { targetUid: uid });
+  }
+  return result;
+}
+
+/**
  * Compute stats from a users array (call client-side).
  */
 export function getUserStats(users) {
@@ -112,6 +134,7 @@ export function getUserStats(users) {
   const active = users.filter(u => !u.disabled && !u.deleted).length;
   const disabled = users.filter(u => u.disabled && !u.deleted).length;
   const deleted = users.filter(u => u.deleted).length;
+  const pending = users.filter(u => u.role === 'pending' && !u.deleted).length;
 
   const byRole = {};
   users.forEach(u => {
@@ -120,5 +143,5 @@ export function getUserStats(users) {
     }
   });
 
-  return { total, active, disabled, deleted, byRole };
+  return { total, active, disabled, deleted, pending, byRole };
 }

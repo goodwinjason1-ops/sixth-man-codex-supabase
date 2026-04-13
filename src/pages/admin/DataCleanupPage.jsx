@@ -51,6 +51,8 @@ const DataCleanupPage = () => {
   const [notifCleanup, setNotifCleanup] = useState({ running: false, done: false, results: null });
   const [scheduleCleanup, setScheduleCleanup] = useState({ running: false, done: false, results: null });
   const [trainingLinkCleanup, setTrainingLinkCleanup] = useState({ running: false, done: false, results: null });
+  const [betaReset, setBetaReset] = useState({ step: 'idle', running: false, done: false, results: null });
+  // step: 'idle' | 'confirm1' | 'confirm2' | 'running' | 'done'
 
   // One-time targeted cleanup for known orphaned data
   const runQuickCleanup = async () => {
@@ -217,6 +219,75 @@ const DataCleanupPage = () => {
       errors.push(`games scan: ${e.message}`);
     }
     setTrainingLinkCleanup({ running: false, done: true, results: { cleared, errors } });
+  };
+
+  // ── Pre-Beta Reset ──
+  const BETA_RESET_COLLECTIONS = [
+    'evaluations',
+    'match_assessments',
+    'training_records',
+    'tryout_sessions',
+    'tryout_evaluations',
+    'scout_evaluations',
+    'selection_teams',
+    'beta_feedback',
+    'audit_logs',
+    'notifications',
+    'scoring_assignments',
+    'assessment_drafts',
+    'swap_requests',
+  ];
+
+  const runBetaReset = async () => {
+    setBetaReset({ step: 'running', running: true, done: false, results: null });
+    const summary = {};
+    const errors = [];
+
+    // 1. Delete all docs from the listed collections
+    for (const col of BETA_RESET_COLLECTIONS) {
+      try {
+        const snap = await getDocs(collection(db, col));
+        const docs = snap.docs;
+        let deleted = 0;
+        for (let i = 0; i < docs.length; i += 400) {
+          const batch = writeBatch(db);
+          docs.slice(i, i + 400).forEach(d => batch.delete(d.ref));
+          await batch.commit();
+          deleted += Math.min(400, docs.length - i);
+        }
+        summary[col] = deleted;
+      } catch (e) {
+        // Collection may not exist — that's OK
+        if (e.code === 'permission-denied') {
+          errors.push(`${col}: permission denied`);
+        }
+        summary[col] = 0;
+      }
+    }
+
+    // 2. Delete non-system training plans (keep only system templates)
+    try {
+      const plansSnap = await getDocs(collection(db, 'training_plans'));
+      let plansDeleted = 0;
+      for (const planDoc of plansSnap.docs) {
+        const data = planDoc.data();
+        const isSystemTemplate = data.isTemplate === true && data.createdBy === 'system';
+        if (!isSystemTemplate) {
+          try {
+            await deleteDoc(planDoc.ref);
+            plansDeleted++;
+          } catch (e) {
+            errors.push(`training_plans/${planDoc.id}: ${e.message}`);
+          }
+        }
+      }
+      summary['training_plans (non-system)'] = plansDeleted;
+    } catch (e) {
+      errors.push(`training_plans: ${e.message}`);
+      summary['training_plans (non-system)'] = 0;
+    }
+
+    setBetaReset({ step: 'done', running: false, done: true, results: { summary, errors } });
   };
 
   // Seed 6 training plan templates into Firestore
@@ -958,6 +1029,109 @@ const DataCleanupPage = () => {
       }
     >
       <div className="space-y-6">
+        {/* Pre-Beta Reset */}
+        {currentUser && (
+          <div className="bg-white border-2 border-red-300 rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-red-200 bg-red-50">
+              <h3 className="text-red-800 font-bold text-sm flex items-center gap-2">
+                <AlertTriangle size={16} className="text-red-600" />
+                Pre-Beta Reset — Deletes ALL Test Data
+              </h3>
+              <p className="text-red-600 text-xs mt-1">
+                Wipes all test/evaluation data while preserving users, teams, drills, system templates, game schedule, and assessment config.
+              </p>
+            </div>
+            <div className="p-4">
+              <div className="space-y-3">
+                <div className="text-xs text-gray-600 space-y-1">
+                  <p className="font-semibold text-red-700">Will DELETE all documents from:</p>
+                  <ul className="list-disc list-inside ml-2 space-y-0.5 text-gray-500">
+                    {BETA_RESET_COLLECTIONS.map(col => (
+                      <li key={col}><code className="bg-gray-100 px-1 rounded text-gray-700">{col}</code></li>
+                    ))}
+                    <li><code className="bg-gray-100 px-1 rounded text-gray-700">training_plans</code> (coach-created only — system templates kept)</li>
+                  </ul>
+                  <p className="font-semibold text-green-700 mt-2">Will KEEP:</p>
+                  <ul className="list-disc list-inside ml-2 space-y-0.5 text-gray-500">
+                    <li>users (all accounts)</li>
+                    <li>teams (team definitions)</li>
+                    <li>drills (drill library)</li>
+                    <li>training_plans where isTemplate=true & createdBy=system</li>
+                    <li>assessment_config (benchmark settings)</li>
+                    <li>games (scheduled events)</li>
+                  </ul>
+                </div>
+
+                {betaReset.done && betaReset.results && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 size={18} className="text-green-500" />
+                      <span className="text-gray-800 font-medium text-sm">Reset Complete</span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3 space-y-1">
+                      {Object.entries(betaReset.results.summary)
+                        .filter(([, count]) => count > 0)
+                        .map(([col, count]) => (
+                          <p key={col} className="text-xs text-gray-700">
+                            Cleared: <span className="font-bold">{count}</span> {col}
+                          </p>
+                        ))}
+                      {Object.values(betaReset.results.summary).every(c => c === 0) && (
+                        <p className="text-xs text-gray-500">All collections were already empty.</p>
+                      )}
+                    </div>
+                    {betaReset.results.errors.length > 0 && (
+                      <div className="text-xs text-red-500 space-y-1">
+                        {betaReset.results.errors.map((e, i) => <p key={i}>Error: {e}</p>)}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {betaReset.step === 'idle' && (
+                  <button
+                    onClick={() => setBetaReset(prev => ({ ...prev, step: 'confirm1' }))}
+                    className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg font-bold text-sm hover:bg-red-700 transition-colors"
+                  >
+                    <AlertTriangle size={16} />
+                    Pre-Beta Reset — Deletes ALL Test Data
+                  </button>
+                )}
+
+                {betaReset.step === 'confirm1' && (
+                  <div className="bg-red-50 border border-red-300 rounded-lg p-4 space-y-3">
+                    <p className="text-red-800 text-sm font-bold">Are you sure?</p>
+                    <p className="text-red-700 text-xs">
+                      This will permanently delete ALL evaluations, assessments, training records, tryout data, notifications, and coach-created training plans. Only users, teams, drills, system templates, games, and assessment config will remain.
+                    </p>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setBetaReset(prev => ({ ...prev, step: 'idle' }))}
+                        className="flex-1 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={runBetaReset}
+                        className="flex-1 px-4 py-2 bg-red-700 text-white rounded-lg font-bold text-sm hover:bg-red-800 transition-colors"
+                      >
+                        I understand, reset all test data
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {betaReset.running && (
+                  <div className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <Loader2 size={16} className="animate-spin text-red-600" />
+                    <span className="text-red-700 text-sm font-medium">Resetting... please wait</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* One-Time Quick Cleanup */}
         <div className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
           <div className="p-4 border-b border-[#D4E4D4]/50">

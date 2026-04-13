@@ -67,7 +67,7 @@ const Layout = ({ children }) => {
                 <img
                   src="/images/logo_header.png"
                   alt="Emerald Lakers"
-                  className="w-10 h-10 rounded-full object-cover"
+                  className="max-h-[40px] w-auto object-contain"
                 />
                 <div className="hidden md:block">
                   <h1 className="font-bold text-white">Emerald Lakers</h1>

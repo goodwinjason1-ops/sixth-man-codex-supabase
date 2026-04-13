@@ -28,7 +28,7 @@ const PageShell = ({
     <div className="min-h-screen bg-[#F5F9F5] text-gray-800 pb-20">
       {/* Sticky header */}
       <div className="bg-[#005028] px-4 py-4 sticky top-0 z-10">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           {backTo && (
             <button
               onClick={() => {
@@ -51,7 +51,7 @@ const PageShell = ({
             )}
           </div>
           {headerActions && (
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-wrap">
               {headerActions}
             </div>
           )}
