@@ -182,6 +182,10 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   return children;
 };
 
+const routerBasename = import.meta.env.BASE_URL === '/'
+  ? undefined
+  : import.meta.env.BASE_URL.replace(/\/$/, '');
+
 // Main App Routes
 const AppRoutes = () => {
   const { currentUser, userProfile } = useAuth();
@@ -1177,7 +1181,7 @@ const AppRoutes = () => {
 function App() {
   return (
     <ErrorBoundary>
-      <Router>
+      <Router basename={routerBasename}>
         <AuthProvider>
           <DataProvider>
             <TutorialProvider>

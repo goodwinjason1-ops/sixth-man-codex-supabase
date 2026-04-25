@@ -1,6 +1,7 @@
 import React from 'react';
 import { AlertTriangle, RefreshCw, Home, WifiOff } from 'lucide-react';
 import { logActivity } from '../services/auditService';
+import { LOGIN_LOGO_SRC } from '../lib/publicAssets';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -50,7 +51,7 @@ class ErrorBoundary extends React.Component {
           <div className="bg-white border border-[#D4E4D4] rounded-2xl p-8 max-w-md w-full text-center shadow-lg">
             {/* Logo */}
             <img
-              src="/images/logo_login.png"
+              src={LOGIN_LOGO_SRC}
               alt="Emerald Lakers"
               className="max-h-[80px] w-auto object-contain mx-auto mb-4"
               onError={(e) => { e.target.style.display = 'none'; }}

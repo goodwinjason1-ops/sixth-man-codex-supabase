@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { Mail, Lock, User, Chrome, Apple as AppleIcon, AlertCircle, Users, ClipboardCheck, KeyRound, Phone, Shield, MessageSquare } from 'lucide-react';
+import { LOGIN_LOGO_SRC } from '../lib/publicAssets';
 
 const LoginPage = () => {
   const {
@@ -168,7 +169,7 @@ const LoginPage = () => {
         <div className="text-center mb-8 animate-fade-in">
           <div className="inline-flex items-center justify-center mb-4">
             <img
-              src="/images/logo_login.png"
+              src={LOGIN_LOGO_SRC}
               alt="Emerald Lakers"
               className="max-h-[120px] w-auto object-contain drop-shadow-lg"
             />

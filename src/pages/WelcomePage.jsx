@@ -9,6 +9,7 @@ import { getAssessorSessions } from '../services/tryoutService';
 import { getScoutAssignedGames } from '../services/scoutService';
 import ConnectionStatus from '../components/ConnectionStatus';
 import { ADMIN_ROLES, ROLE_LABELS, ROLE_BADGE_STYLES } from '../constants/roles';
+import { LOGIN_DRAGON_SRC, LOGIN_LOGO_SRC } from '../lib/publicAssets';
 import {
   User,
   Users,
@@ -171,7 +172,7 @@ const WelcomePage = () => {
 
     return (
       <div className="min-h-screen bg-[#F5F9F5] flex flex-col items-center justify-center px-4">
-        <img src="/images/logo_login.png" alt="Emerald Lakers" className="max-h-[80px] w-auto object-contain mb-6" />
+        <img src={LOGIN_LOGO_SRC} alt="Emerald Lakers" className="max-h-[80px] w-auto object-contain mb-6" />
         <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center border border-[#D4E4D4] shadow-lg">
           <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Clock className="w-8 h-8 text-orange-500" />
@@ -639,14 +640,14 @@ const WelcomePage = () => {
         <div className="flex flex-col items-center justify-center">
           {/* Club Logo */}
           <img
-            src="/images/logo_login.png"
+            src={LOGIN_LOGO_SRC}
             alt="Emerald Lakers"
             className="max-h-[80px] w-auto object-contain mb-2 drop-shadow-md"
           />
 
           {/* Dragon Mascot */}
           <img
-            src="/images/dragon_login.png"
+            src={LOGIN_DRAGON_SRC}
             alt="Lakers Dragon"
             className="max-h-[60px] w-auto object-contain my-2"
           />
@@ -864,7 +865,7 @@ const CompleteRegistrationForm = ({ userProfile, currentUser, onComplete, onSign
 
   return (
     <div className="min-h-screen bg-[#F5F9F5] flex flex-col items-center justify-center px-4 py-8">
-      <img src="/images/logo_login.png" alt="Emerald Lakers" className="max-h-[80px] w-auto object-contain mb-6" />
+      <img src={LOGIN_LOGO_SRC} alt="Emerald Lakers" className="max-h-[80px] w-auto object-contain mb-6" />
       <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full border border-[#D4E4D4] shadow-lg">
         <div className="text-center mb-6">
           <div className="w-14 h-14 bg-[#005028]/10 rounded-full flex items-center justify-center mx-auto mb-3">

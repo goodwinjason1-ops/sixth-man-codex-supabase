@@ -17,6 +17,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import FirstTimeHint from './tutorial/FirstTimeHint';
+import { HEADER_LOGO_SRC } from '../lib/publicAssets';
 
 const Layout = ({ children }) => {
   const { userProfile, currentUser, signOut } = useAuth();
@@ -65,7 +66,7 @@ const Layout = ({ children }) => {
 
               <div className="flex items-center gap-2">
                 <img
-                  src="/images/logo_header.png"
+                  src={HEADER_LOGO_SRC}
                   alt="Emerald Lakers"
                   className="max-h-[40px] w-auto object-contain"
                 />
