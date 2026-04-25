@@ -458,9 +458,7 @@ const TeamFormModal = ({ team, coaches: initialCoaches, allUsers, players, allTe
     let secondaryApp = null;
     try {
       const config = {
-        apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-        authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-        projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+        supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
       };
       secondaryApp = initializeApp(config, 'CoachCreate_' + Date.now());
       const secondaryAuth = getAuth(secondaryApp);
@@ -518,9 +516,7 @@ const TeamFormModal = ({ team, coaches: initialCoaches, allUsers, players, allTe
     let secondaryApp = null;
     try {
       const config = {
-        apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-        authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-        projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+        supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
       };
       secondaryApp = initializeApp(config, 'PlayerCreate_' + Date.now());
       const secondaryAuth = getAuth(secondaryApp);

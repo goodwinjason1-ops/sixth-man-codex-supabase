@@ -1,18 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import {
-  signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut as firebaseSignOut,
-  onAuthStateChanged,
-  sendPasswordResetEmail
-} from 'firebase/auth';
 import { doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { auth, googleProvider, appleProvider, db } from '../services/firebase';
+import { db, supabase } from '../services/firebase';
+import { getOAuthRedirectTo, mapAuthError, normalizeSupabaseUser } from '../lib/supabaseClient';
 import { logActivity } from '../services/auditService';
 import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES, ASSESSOR_ASSIGNER_ROLES } from '../constants/roles';
 
 const AuthContext = createContext();
+
+const PENDING_PARENT_GOOGLE_KEY = 'sixthMan.pendingParentGoogleSignup';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -22,19 +17,181 @@ export const useAuth = () => {
   return context;
 };
 
+const getStorage = (type) => {
+  if (typeof window === 'undefined') return null;
+  try {
+    return type === 'session' ? window.sessionStorage : window.localStorage;
+  } catch (_) {
+    return null;
+  }
+};
+
+const createPendingNotification = async (profile, messageName) => {
+  try {
+    await addDoc(collection(db, 'notifications'), {
+      title: 'New User Pending Approval',
+      message: `${messageName || profile.displayName || profile.email || 'A new user'} signed up and is awaiting approval.`,
+      type: 'pending_user',
+      targetRoles: ['admin', 'president', 'vice_president'],
+      status: 'sent',
+      readBy: [],
+      deletedBy: [],
+      metadata: {
+        pendingUid: profile.uid,
+        email: profile.email,
+        requestedRole: profile.requestedRole || ''
+      },
+      createdAt: serverTimestamp(),
+      date: new Date().toISOString()
+    });
+  } catch (notifErr) {
+    console.error('Failed to create admin notification for new user:', notifErr.code || notifErr.message);
+  }
+};
+
+const pendingProfileKey = (uid) => `sixthMan.pendingProfile.${uid}`;
+
+const savePendingProfile = (uid, profile) => {
+  getStorage('local')?.setItem(pendingProfileKey(uid), JSON.stringify(profile));
+};
+
+const consumePendingProfile = (uid) => {
+  const storage = getStorage('local');
+  const raw = storage?.getItem(pendingProfileKey(uid));
+  if (!raw) return null;
+  storage.removeItem(pendingProfileKey(uid));
+  try {
+    return JSON.parse(raw);
+  } catch (_) {
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // Flag to prevent onAuthStateChanged from creating a default profile
-  // during signup flows that create their own profile
   const [signupInProgress, setSignupInProgress] = useState(false);
-  // Ref to prevent re-entrant processing in onAuthStateChanged
   const processingRef = useRef(false);
 
+  const signOutSupabase = async () => {
+    const { error: signOutError } = await supabase.auth.signOut();
+    if (signOutError) throw mapAuthError(signOutError);
+  };
+
+  const writeProfile = async (uid, profile, { notifyPending = false, messageName = '' } = {}) => {
+    const cleanProfile = { ...profile };
+    delete cleanProfile.__notifyPending;
+    await setDoc(doc(db, 'users', uid), cleanProfile);
+    if (notifyPending) {
+      await createPendingNotification(cleanProfile, messageName);
+    }
+    setUserProfile(cleanProfile);
+    return cleanProfile;
+  };
+
+  const completePendingParentGoogleSignup = async (user) => {
+    const storage = getStorage('session');
+    const raw = storage?.getItem(PENDING_PARENT_GOOGLE_KEY);
+    if (!raw) return null;
+
+    storage.removeItem(PENDING_PARENT_GOOGLE_KEY);
+    const pending = JSON.parse(raw);
+    const requiredEmail = pending.requiredEmail;
+    const invitationData = pending.invitationData || {};
+
+    if (requiredEmail && user.email?.toLowerCase() !== requiredEmail.toLowerCase()) {
+      await signOutSupabase();
+      throw new Error('google-email-mismatch');
+    }
+
+    const existingDoc = await getDoc(doc(db, 'users', user.uid));
+    if (existingDoc.exists()) {
+      const existingData = existingDoc.data();
+      const existingPlayerIds = existingData.linkedPlayerIds || [];
+      const newPlayerIds = invitationData.playerIds || [];
+      const mergedPlayerIds = [...new Set([...existingPlayerIds, ...newPlayerIds])];
+
+      if (newPlayerIds.length > 0 && mergedPlayerIds.length !== existingPlayerIds.length) {
+        await setDoc(doc(db, 'users', user.uid), {
+          linkedPlayerIds: mergedPlayerIds,
+          invitationCode: invitationData.invitationCode || existingData.invitationCode || ''
+        }, { merge: true });
+        return { ...existingData, linkedPlayerIds: mergedPlayerIds };
+      }
+      return existingData;
+    }
+
+    const profile = {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName || '',
+      role: 'parent',
+      linkedPlayerIds: invitationData.playerIds || [],
+      invitationCode: invitationData.invitationCode || '',
+      createdAt: new Date().toISOString(),
+      photoURL: user.photoURL || null
+    };
+
+    return writeProfile(user.uid, profile);
+  };
+
+  const loadUserProfile = async (user) => {
+    const parentSignupProfile = await completePendingParentGoogleSignup(user);
+    if (parentSignupProfile) {
+      setUserProfile(parentSignupProfile);
+      return;
+    }
+
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    if (userDoc.exists()) {
+      const profile = userDoc.data();
+      if (profile.disabled) {
+        await signOutSupabase();
+        setError('Your account has been disabled. Please contact an administrator.');
+        return;
+      }
+      if (profile.deleted) {
+        await signOutSupabase();
+        setError('Your account has been removed. Please contact an administrator.');
+        return;
+      }
+      setUserProfile(profile);
+      return;
+    }
+
+    const pendingProfile = consumePendingProfile(user.uid);
+    if (pendingProfile) {
+      await writeProfile(user.uid, pendingProfile, {
+        notifyPending: pendingProfile.__notifyPending,
+        messageName: pendingProfile.displayName || pendingProfile.email
+      });
+      return;
+    }
+
+    const initialProfile = {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName || '',
+      role: 'pending',
+      needsRegistration: true,
+      createdAt: new Date().toISOString(),
+      photoURL: user.photoURL || null
+    };
+    await writeProfile(user.uid, initialProfile, {
+      notifyPending: true,
+      messageName: user.displayName || user.email
+    });
+  };
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    let mounted = true;
+
+    const handleAuthUser = async (supabaseUser) => {
+      const user = normalizeSupabaseUser(supabaseUser);
+      if (!mounted) return;
+
       if (!user) {
         setCurrentUser(null);
         setUserProfile(null);
@@ -42,13 +199,11 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      // Guard: don't re-process if already handling this auth event
       if (processingRef.current) return;
 
-      // If a signup flow is in progress, it will create its own profile.
-      // Don't race it by creating a default profile here.
       if (signupInProgress) {
         setCurrentUser(user);
+        setLoading(false);
         return;
       }
 
@@ -56,124 +211,93 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(user);
 
       try {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-          const profile = userDoc.data();
-          if (profile.disabled) {
-            await firebaseSignOut(auth);
-            setError('Your account has been disabled. Please contact an administrator.');
-            setLoading(false);
-            return;
-          }
-          if (profile.deleted) {
-            await firebaseSignOut(auth);
-            setError('Your account has been removed. Please contact an administrator.');
-            setLoading(false);
-            return;
-          }
-          setUserProfile(profile);
-        } else {
-          // Create initial profile for new users (social login without signup flow)
-          const initialProfile = {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName || '',
-            role: 'pending', // Pending admin approval
-            needsRegistration: true, // Show registration form to collect extra info
-            createdAt: new Date().toISOString(),
-            photoURL: user.photoURL || null
-          };
-          try {
-            await setDoc(doc(db, 'users', user.uid), initialProfile);
-          } catch (createErr) {
-            console.error('Failed to create user document in Firestore:', createErr.code || createErr.message || createErr);
-            setError('Failed to create your account profile. Please try again or contact an administrator.');
-            setLoading(false);
-            return;
-          }
-          setUserProfile(initialProfile);
-
-          // Create in-app notification for admins about new pending user
-          try {
-            await addDoc(collection(db, 'notifications'), {
-              title: 'New User Pending Approval',
-              message: `${user.displayName || user.email || 'A new user'} signed up and is awaiting approval.`,
-              type: 'pending_user',
-              targetRoles: ['admin', 'president', 'vice_president'],
-              status: 'sent',
-              readBy: [],
-              deletedBy: [],
-              metadata: { pendingUid: user.uid, email: user.email },
-              createdAt: serverTimestamp(),
-              date: new Date().toISOString()
-            });
-          } catch (notifErr) {
-            console.error('Failed to create admin notification for new user:', notifErr.code || notifErr.message);
-          }
-        }
+        await loadUserProfile(user);
       } catch (err) {
-        console.error('Error fetching user profile:', err.code || 'unknown');
-        setError('Failed to load user profile. Please try again.');
+        console.error('Error fetching user profile:', err.code || err.message || 'unknown');
+        setError(err.message === 'google-email-mismatch'
+          ? 'Please sign in with the email address from your invitation.'
+          : 'Failed to load user profile. Please try again.');
       } finally {
         processingRef.current = false;
+        setLoading(false);
       }
+    };
 
-      setLoading(false);
+    supabase.auth.getUser()
+      .then(({ data, error: authError }) => {
+        if (authError && authError.message !== 'Auth session missing!') throw authError;
+        return handleAuthUser(data?.user);
+      })
+      .catch((err) => {
+        if (!mounted) return;
+        console.error('Supabase auth initialization error:', err.message || err);
+        setError('Failed to initialize authentication.');
+        setLoading(false);
+      });
+
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      handleAuthUser(session?.user);
     });
 
-    return unsubscribe;
+    return () => {
+      mounted = false;
+      subscription?.subscription?.unsubscribe?.();
+    };
   }, [signupInProgress]);
 
   const signInWithGoogle = async () => {
     try {
       setError(null);
-      const result = await signInWithPopup(auth, googleProvider);
-      logActivity(
-        { uid: result.user.uid, displayName: result.user.displayName, email: result.user.email },
-        'user.login',
-        `${result.user.displayName || result.user.email} signed in with Google`
-      );
-      return result.user;
+      const { error: signInError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: getOAuthRedirectTo() }
+      });
+      if (signInError) throw mapAuthError(signInError);
+      return null;
     } catch (err) {
-      // Don't show error if user just closed the popup
-      if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
-        return null;
-      }
-      console.error('Google Sign-In Error:', err.code, err.message);
-      setError(err.message);
-      throw err;
+      const mapped = mapAuthError(err) || err;
+      console.error('Google Sign-In Error:', mapped.code, mapped.message);
+      setError(mapped.message);
+      throw mapped;
     }
   };
 
   const signInWithApple = async () => {
     try {
       setError(null);
-      const result = await signInWithPopup(auth, appleProvider);
-      logActivity(
-        { uid: result.user.uid, displayName: result.user.displayName, email: result.user.email },
-        'user.login',
-        `${result.user.displayName || result.user.email} signed in with Apple`
-      );
-      return result.user;
+      const { error: signInError } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: { redirectTo: getOAuthRedirectTo() }
+      });
+      if (signInError) throw mapAuthError(signInError);
+      return null;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      const mapped = mapAuthError(err) || err;
+      setError(mapped.message);
+      throw mapped;
     }
   };
 
   const signInWithEmail = async (email, password) => {
     try {
       setError(null);
-      const result = await signInWithEmailAndPassword(auth, email, password);
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password
+      });
+      if (signInError) throw mapAuthError(signInError);
+
+      const user = normalizeSupabaseUser(data.user);
       logActivity(
-        { uid: result.user.uid, email: result.user.email },
+        { uid: user.uid, email: user.email },
         'user.login',
-        `${result.user.email} signed in with email`
+        `${user.email} signed in with email`
       );
-      return result.user;
+      return user;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      const mapped = mapAuthError(err) || err;
+      setError(mapped.message);
+      throw mapped;
     }
   };
 
@@ -182,50 +306,48 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setSignupInProgress(true);
 
-      const result = await createUserWithEmailAndPassword(auth, email, password);
+      const normalizedEmail = email.trim().toLowerCase();
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: normalizedEmail,
+        password,
+        options: {
+          data: {
+            display_name: (displayName || '').trim()
+          }
+        }
+      });
+      if (signUpError) throw mapAuthError(signUpError);
 
-      // All new signups go to pending for admin approval
+      const user = normalizeSupabaseUser(data.user);
       const profile = {
-        uid: result.user.uid,
-        email: email.trim().toLowerCase(),
+        uid: user.uid,
+        email: normalizedEmail,
         displayName: (displayName || '').trim(),
         role: 'pending',
         requestedRole: additionalData.requestedRole || additionalData.role || '',
         requestedTeam: additionalData.requestedTeam || '',
         phone: additionalData.phone || '',
         registrationNote: additionalData.registrationNote || '',
-        needsRegistration: false, // Already collected during signup
+        needsRegistration: false,
         createdAt: new Date().toISOString(),
-        photoURL: null
+        photoURL: null,
+        __notifyPending: true
       };
 
-      await setDoc(doc(db, 'users', result.user.uid), profile);
-      setUserProfile(profile);
-
-      // Create in-app notification for admins about new pending user
-      try {
-        await addDoc(collection(db, 'notifications'), {
-          title: 'New User Pending Approval',
-          message: `${(displayName || '').trim() || email} signed up and is awaiting approval.`,
-          type: 'pending_user',
-          targetRoles: ['admin', 'president', 'vice_president'],
-          status: 'sent',
-          readBy: [],
-          deletedBy: [],
-          metadata: { pendingUid: result.user.uid, email: email.trim().toLowerCase(), requestedRole: additionalData.requestedRole || '' },
-          createdAt: serverTimestamp(),
-          date: new Date().toISOString()
-        });
-      } catch (_) {
-        // Never let notification creation block the auth flow
-      }
-
-      setSignupInProgress(false);
-      return result.user;
+      savePendingProfile(user.uid, profile);
+      await writeProfile(user.uid, profile, {
+        notifyPending: true,
+        messageName: profile.displayName || normalizedEmail
+      });
+      getStorage('local')?.removeItem(pendingProfileKey(user.uid));
+      setCurrentUser(user);
+      return user;
     } catch (err) {
+      const mapped = mapAuthError(err) || err;
+      setError(mapped.message);
+      throw mapped;
+    } finally {
       setSignupInProgress(false);
-      setError(err.message);
-      throw err;
     }
   };
 
@@ -234,11 +356,22 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setSignupInProgress(true);
 
-      const result = await createUserWithEmailAndPassword(auth, email, password);
+      const normalizedEmail = email.trim().toLowerCase();
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: normalizedEmail,
+        password,
+        options: {
+          data: {
+            display_name: (displayName || '').trim()
+          }
+        }
+      });
+      if (signUpError) throw mapAuthError(signUpError);
 
+      const user = normalizeSupabaseUser(data.user);
       const profile = {
-        uid: result.user.uid,
-        email: email.trim().toLowerCase(),
+        uid: user.uid,
+        email: normalizedEmail,
         displayName: (displayName || '').trim(),
         role: 'parent',
         linkedPlayerIds: invitationData.playerIds || [],
@@ -247,99 +380,67 @@ export const AuthProvider = ({ children }) => {
         photoURL: null
       };
 
-      await setDoc(doc(db, 'users', result.user.uid), profile);
-      setUserProfile(profile);
-      setSignupInProgress(false);
-
-      return result.user;
+      savePendingProfile(user.uid, profile);
+      await writeProfile(user.uid, profile);
+      getStorage('local')?.removeItem(pendingProfileKey(user.uid));
+      setCurrentUser(user);
+      return user;
     } catch (err) {
+      const mapped = mapAuthError(err) || err;
+      setError(mapped.message);
+      throw mapped;
+    } finally {
       setSignupInProgress(false);
-      setError(err.message);
-      throw err;
     }
   };
 
   const signUpParentWithGoogle = async (requiredEmail, invitationData = {}) => {
     try {
       setError(null);
-      setSignupInProgress(true);
+      getStorage('session')?.setItem(PENDING_PARENT_GOOGLE_KEY, JSON.stringify({
+        requiredEmail,
+        invitationData
+      }));
 
-      const result = await signInWithPopup(auth, googleProvider);
-
-      // Validate the Google email matches the invitation email (if provided)
-      if (requiredEmail && result.user.email?.toLowerCase() !== requiredEmail.toLowerCase()) {
-        // Sign out the mismatched Google account
-        await firebaseSignOut(auth);
-        setSignupInProgress(false);
-        throw new Error('google-email-mismatch');
-      }
-
-      // Check if user already exists in Firestore
-      const existingDoc = await getDoc(doc(db, 'users', result.user.uid));
-      if (existingDoc.exists()) {
-        // User already has an account — merge linkedPlayerIds if needed
-        const existingData = existingDoc.data();
-        const existingPlayerIds = existingData.linkedPlayerIds || [];
-        const newPlayerIds = invitationData.playerIds || [];
-        const mergedPlayerIds = [...new Set([...existingPlayerIds, ...newPlayerIds])];
-
-        if (newPlayerIds.length > 0 && mergedPlayerIds.length !== existingPlayerIds.length) {
-          await setDoc(doc(db, 'users', result.user.uid), {
-            linkedPlayerIds: mergedPlayerIds,
-            invitationCode: invitationData.invitationCode || existingData.invitationCode || ''
-          }, { merge: true });
-          const updated = { ...existingData, linkedPlayerIds: mergedPlayerIds };
-          setUserProfile(updated);
-        } else {
-          setUserProfile(existingData);
-        }
-
-        setSignupInProgress(false);
-        return result.user;
-      }
-
-      // Create new parent profile
-      const profile = {
-        uid: result.user.uid,
-        email: result.user.email,
-        displayName: result.user.displayName || '',
-        role: 'parent',
-        linkedPlayerIds: invitationData.playerIds || [],
-        invitationCode: invitationData.invitationCode || '',
-        createdAt: new Date().toISOString(),
-        photoURL: result.user.photoURL || null
-      };
-
-      await setDoc(doc(db, 'users', result.user.uid), profile);
-      setUserProfile(profile);
-      setSignupInProgress(false);
-
-      return result.user;
+      const { error: signInError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: getOAuthRedirectTo() }
+      });
+      if (signInError) throw mapAuthError(signInError);
+      return null;
     } catch (err) {
-      setSignupInProgress(false);
-      setError(err.message);
-      throw err;
+      getStorage('session')?.removeItem(PENDING_PARENT_GOOGLE_KEY);
+      const mapped = mapAuthError(err) || err;
+      setError(mapped.message);
+      throw mapped;
     }
   };
 
   const resetPassword = async (email) => {
     try {
       setError(null);
-      await sendPasswordResetEmail(auth, email);
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        email.trim().toLowerCase(),
+        { redirectTo: getOAuthRedirectTo() }
+      );
+      if (resetError) throw mapAuthError(resetError);
     } catch (err) {
-      setError(err.message);
-      throw err;
+      const mapped = mapAuthError(err) || err;
+      setError(mapped.message);
+      throw mapped;
     }
   };
 
   const signOut = async () => {
     try {
       setError(null);
-      await firebaseSignOut(auth);
+      await signOutSupabase();
+      setCurrentUser(null);
       setUserProfile(null);
     } catch (err) {
-      setError(err.message);
-      throw err;
+      const mapped = mapAuthError(err) || err;
+      setError(mapped.message);
+      throw mapped;
     }
   };
 
@@ -363,22 +464,28 @@ export const AuthProvider = ({ children }) => {
 
     try {
       setError(null);
-      // Strip sensitive fields that users should not self-modify
-      // Role changes must go through admin workflows
       const { role, uid, createdAt, ...safeUpdates } = updates;
       await setDoc(doc(db, 'users', currentUser.uid), safeUpdates, { merge: true });
+
+      if (safeUpdates.displayName || safeUpdates.photoURL) {
+        const { data, error: updateError } = await supabase.auth.updateUser({
+          data: {
+            display_name: safeUpdates.displayName,
+            photoURL: safeUpdates.photoURL
+          }
+        });
+        if (updateError) throw mapAuthError(updateError);
+        setCurrentUser(normalizeSupabaseUser(data.user));
+      }
+
       setUserProfile(prev => ({ ...prev, ...safeUpdates }));
     } catch (err) {
-      setError(err.message);
-      throw err;
+      const mapped = mapAuthError(err) || err;
+      setError(mapped.message);
+      throw mapped;
     }
   };
 
-  // Valid roles in the system
-  // Leadership: admin, president, vice_president, coach_coordinator
-  // Coordinators: girls_coordinator, boys_coordinator
-  // Coaching: youth_head_coach, coach, youth_coach
-  // Other: tryout_assessor, team_manager, player, parent
   const role = userProfile?.role;
 
   const value = {
@@ -396,7 +503,6 @@ export const AuthProvider = ({ children }) => {
     signOut,
     updateUserProfile,
     refreshUserProfile,
-    // Role helper methods
     isAdmin: role === 'admin',
     isCoach: role === 'coach',
     isPending: role === 'pending',
@@ -411,7 +517,6 @@ export const AuthProvider = ({ children }) => {
     isYouthHeadCoach: role === 'youth_head_coach',
     isYouthCoach: role === 'youth_coach',
     isCoachCoordinator: role === 'coach_coordinator',
-    // Composite role checks
     isLeadership: ADMIN_ROLES.includes(role),
     isStaff: STAFF_ROLES.includes(role),
     isCoachOrAdmin: STAFF_ROLES.includes(role),
@@ -423,7 +528,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

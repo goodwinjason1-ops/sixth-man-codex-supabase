@@ -54,11 +54,11 @@ const SECTIONS = [
     title: 'How Data Is Stored',
     icon: Lock,
     content: [
-      { heading: 'Cloud Infrastructure', text: 'All data is stored securely using Firebase (Google Cloud Platform), hosted in Google\'s data centres with enterprise-grade physical and digital security.' },
+      { heading: 'Cloud Infrastructure', text: 'All data is stored securely using Supabase and Postgres, hosted on managed cloud infrastructure with enterprise-grade physical and digital security.' },
       { heading: 'Encryption in Transit', text: 'All data transmitted between your device and our servers is encrypted using TLS (Transport Layer Security), the industry standard for secure web communication.' },
-      { heading: 'Encryption at Rest', text: 'Data stored in our database is encrypted at rest using Google Cloud\'s default encryption, which uses AES-256 encryption.' },
-      { heading: 'Authentication Security', text: 'User authentication is handled by Firebase Authentication, supporting secure sign-in via Google, Apple, or email/password with industry-standard password hashing.' },
-      { heading: 'Firestore Security Rules', text: 'Database access is enforced through Firestore security rules that validate every read and write operation against the user\'s authenticated role and permissions.' },
+      { heading: 'Encryption at Rest', text: 'Data stored in our database is encrypted at rest by the managed database provider.' },
+      { heading: 'Authentication Security', text: 'User authentication is handled by Supabase Auth, supporting secure sign-in via Google, Apple, or email/password with industry-standard password hashing.' },
+      { heading: 'Database Security Policies', text: 'Database access is enforced through Supabase Row Level Security policies that validate read and write operations against the user\'s authenticated role and permissions.' },
     ],
   },
   {
@@ -91,7 +91,7 @@ const SECTIONS = [
     content: [
       { heading: 'No Third-Party Sales', text: 'Your data is never sold to third parties. The Emerald Lakers Basketball Club does not engage in any commercial data sharing.' },
       { heading: 'Club Use Only', text: 'Data is only accessible within the Emerald Lakers club management system and is used exclusively for club administration, team management, and player development.' },
-      { heading: 'Infrastructure Providers', text: 'Data is stored on Google Cloud Platform (Firebase) infrastructure. Google acts as a data processor under their standard terms of service and does not access your data for advertising or other purposes.' },
+      { heading: 'Infrastructure Providers', text: 'Data is stored using Supabase-managed infrastructure. Supabase and its underlying hosting providers act as data processors under their standard terms of service and do not access your data for advertising purposes.' },
       { heading: 'Legal Requirements', text: 'We may disclose data if required by law, court order, or to protect the safety of club members. We will notify affected users where legally permitted to do so.' },
     ],
   },

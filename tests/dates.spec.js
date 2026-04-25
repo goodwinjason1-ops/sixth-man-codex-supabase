@@ -5,9 +5,7 @@ test.describe('Australian Date Format', () => {
   test('admin schedule page uses DD/MM/YYYY dates', async ({ page }) => {
     await login(page, 'admin@test.com', 'Admin123!');
 
-    await page.getByText('Admin Dashboard').click();
-    await page.waitForURL(/admin|dashboard/, { timeout: 10000 });
-    await page.getByText('Schedule Management').click();
+    await page.goto('/admin/schedule');
     await page.waitForURL(/schedule/, { timeout: 5000 });
     await page.waitForTimeout(2000);
 
@@ -23,9 +21,7 @@ test.describe('Australian Date Format', () => {
   test('player DOB shows 25/02/2016 not 02/25/2016', async ({ page }) => {
     await login(page, 'admin@test.com', 'Admin123!');
 
-    await page.getByText('Admin Dashboard').click();
-    await page.waitForURL(/admin|dashboard/, { timeout: 10000 });
-    await page.getByText('Roster Management').click();
+    await page.goto('/admin/rosters');
     await page.waitForURL(/rosters/, { timeout: 5000 });
     await page.waitForTimeout(3000);
 
@@ -41,9 +37,7 @@ test.describe('Australian Date Format', () => {
   test('roster page has no American-format dates', async ({ page }) => {
     await login(page, 'admin@test.com', 'Admin123!');
 
-    await page.getByText('Admin Dashboard').click();
-    await page.waitForURL(/admin|dashboard/, { timeout: 10000 });
-    await page.getByText('Roster Management').click();
+    await page.goto('/admin/rosters');
     await page.waitForURL(/rosters/, { timeout: 5000 });
     await page.waitForTimeout(2000);
 

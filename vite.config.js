@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
   plugins: [
@@ -34,18 +35,18 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         globIgnores: [],
-        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB — reduced after tree-shaking optimization
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\/.*/i,
+            urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/v1\/object\/public\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'firebase-storage',
+              cacheName: 'supabase-storage',
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+                maxAgeSeconds: 60 * 60 * 24 * 30
               }
             }
           },
@@ -56,7 +57,7 @@ export default defineConfig({
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                maxAgeSeconds: 60 * 60 * 24 * 365
               }
             }
           }
@@ -64,43 +65,36 @@ export default defineConfig({
       }
     })
   ],
+  resolve: {
+    alias: {
+      'firebase/app': fileURLToPath(new URL('./src/lib/firebaseCompat/app.js', import.meta.url)),
+      'firebase/auth': fileURLToPath(new URL('./src/lib/firebaseCompat/auth.js', import.meta.url)),
+      'firebase/firestore': fileURLToPath(new URL('./src/lib/firebaseCompat/firestore.js', import.meta.url)),
+      'firebase/storage': fileURLToPath(new URL('./src/lib/firebaseCompat/storage.js', import.meta.url))
+    }
+  },
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
-          // Vendor: Firebase core + auth
-          'vendor-firebase-core': [
-            'firebase/app',
-            'firebase/auth'
+          'vendor-supabase': [
+            '@supabase/supabase-js'
           ],
-          // Vendor: Firestore (largest Firebase module)
-          'vendor-firebase-firestore': [
-            'firebase/firestore'
-          ],
-          // Vendor: Firebase storage
-          'vendor-firebase-storage': [
-            'firebase/storage'
-          ],
-          // Vendor: Recharts (larger charting lib)
           'vendor-recharts': [
             'recharts'
           ],
-          // Vendor: Chart.js (used by coach/player only)
           'vendor-chartjs': [
             'chart.js',
             'react-chartjs-2'
           ],
-          // Vendor: React core + router
           'vendor-react': [
             'react',
             'react-dom',
             'react-router-dom'
           ],
-          // Vendor: Icons
           'vendor-icons': [
             'lucide-react'
           ],
-          // Vendor: Utilities
           'vendor-utils': [
             'date-fns',
             'idb'

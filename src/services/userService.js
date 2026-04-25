@@ -77,7 +77,7 @@ export async function enableUser(uid) {
 }
 
 /**
- * Soft-delete a user (cannot remove Firebase Auth without Admin SDK).
+ * Soft-delete a user (Auth account removal still requires a privileged server flow).
  */
 export async function softDeleteUser(uid, adminUid, actorInfo) {
   const result = await updateUser(uid, {

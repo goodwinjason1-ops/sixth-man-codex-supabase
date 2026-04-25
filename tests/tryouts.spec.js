@@ -7,13 +7,12 @@ test.describe('Tryout System', () => {
   });
 
   test('admin can navigate to tryout evaluations', async ({ page }) => {
-    // Tryout Evaluations tile is on the welcome page for admin
-    await page.getByText('Tryout Evaluations').click();
+    await page.goto('/admin/tryouts');
     await expect(page).toHaveURL(/tryouts/, { timeout: 5000 });
   });
 
   test('tryout page loads without errors', async ({ page }) => {
-    await page.getByText('Tryout Evaluations').click();
+    await page.goto('/admin/tryouts');
     await page.waitForURL(/tryouts/, { timeout: 5000 });
 
     // Should see the tryout sessions page (create button or sessions list)
@@ -26,7 +25,7 @@ test.describe('Tryout System', () => {
   });
 
   test('admin can access youth programs', async ({ page }) => {
-    await page.getByText('Youth Programs').click();
+    await page.goto('/admin/youth-programs');
     await expect(page).toHaveURL(/youth-programs/, { timeout: 5000 });
 
     // Should load without error

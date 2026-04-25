@@ -505,7 +505,7 @@ const UserManagementPage = () => {
               Are you sure you want to delete <strong className="text-gray-800">{deleteConfirm.displayName}</strong>?
             </p>
             <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-xs text-red-300">
-              This is a soft delete. The user's Firebase Auth account will remain but they won't be able to log in.
+              This is a soft delete. The user's Supabase Auth account will remain but they won't be able to log in.
               This cannot be undone from the UI.
             </div>
             <div className="flex gap-3">
@@ -648,7 +648,7 @@ const EditUserModal = ({ user, onClose, onSave }) => {
           </label>
           <input type="email" value={form.email} disabled
             className="w-full px-3 py-2.5 bg-[#F5F9F5]/50 border border-[#D4E4D4]/50 rounded-lg text-gray-400 text-sm cursor-not-allowed" />
-          <p className="text-gray-800/30 text-xs mt-1">Email cannot be changed (Firebase Auth limitation).</p>
+          <p className="text-gray-800/30 text-xs mt-1">Email cannot be changed from this screen.</p>
         </div>
 
         <div>
@@ -713,9 +713,7 @@ const CreateUserModal = ({ onClose, onSuccess }) => {
     let secondaryApp = null;
     try {
       const config = {
-        apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-        authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-        projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+        supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
       };
       secondaryApp = initializeApp(config, 'SecondaryApp_' + Date.now());
       const secondaryAuth = getAuth(secondaryApp);

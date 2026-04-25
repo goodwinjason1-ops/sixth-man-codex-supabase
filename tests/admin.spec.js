@@ -14,9 +14,9 @@ test.describe('Admin Portal', () => {
 
     // Admin-specific tiles
     await expect(page.getByText('Admin Dashboard')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('Tryout Evaluations')).toBeVisible();
-    await expect(page.getByText('Youth Programs')).toBeVisible();
-    await expect(page.getByText('Club Analytics')).toBeVisible();
+    await expect(page.getByText('Assessments & Selection')).toBeVisible();
+    await expect(page.getByText('Analytics & Reports')).toBeVisible();
+    await expect(page.getByText('Player Database')).toBeVisible();
   });
 
   test('admin can navigate to admin dashboard', async ({ page }) => {

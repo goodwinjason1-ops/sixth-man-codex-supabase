@@ -52,9 +52,7 @@ const UserCreationPage = () => {
     let secondaryApp = null;
     try {
       const config = {
-        apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-        authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-        projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+        supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
       };
 
       secondaryApp = initializeApp(config, 'SecondaryApp');

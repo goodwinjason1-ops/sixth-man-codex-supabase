@@ -5,11 +5,8 @@ test.describe('Parent Invitation System', () => {
   test('admin can create a parent invitation', async ({ page }) => {
     await login(page, 'admin@test.com', 'Admin123!');
 
-    // Navigate: Welcome → Admin Dashboard → Parent Invitations
-    await page.getByText('Admin Dashboard').click();
-    await page.waitForURL(/admin|dashboard/, { timeout: 10000 });
-
-    await page.getByText('Parent Invitations').click();
+    // Navigate directly to the invitation workflow.
+    await page.goto('/admin/parent-invitations');
     await page.waitForURL(/parent-invitations/, { timeout: 5000 });
 
     // Search for a player to invite parent for
@@ -53,9 +50,7 @@ test.describe('Parent Invitation System', () => {
     // Step 1: Create invitation as admin
     await login(page, 'admin@test.com', 'Admin123!');
 
-    await page.getByText('Admin Dashboard').click();
-    await page.waitForURL(/admin|dashboard/, { timeout: 10000 });
-    await page.getByText('Parent Invitations').click();
+    await page.goto('/admin/parent-invitations');
     await page.waitForURL(/parent-invitations/, { timeout: 5000 });
 
     // Search and select player

@@ -1,3 +1,5 @@
+import { installE2EMock } from './e2eFixtures.js';
+
 /**
  * Shared helpers for Playwright tests.
  * Keeps login logic in one place so individual spec files stay lean.
@@ -8,6 +10,8 @@
  * Waits until the app redirects to /welcome or /dashboard.
  */
 export async function login(page, email, password) {
+  await installE2EMock(page);
+  await page.evaluate(() => window.localStorage.removeItem('sixthMan.e2eUser')).catch(() => {});
   await page.goto('/');
   // Wait for the login form to be ready
   await page.getByPlaceholder('you@example.com').waitFor({ state: 'visible', timeout: 10000 });

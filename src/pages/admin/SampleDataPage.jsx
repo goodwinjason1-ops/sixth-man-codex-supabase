@@ -1023,7 +1023,7 @@ const SampleDataPage = () => {
 
           <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
             <p className="text-yellow-300 text-sm">
-              <strong>Note:</strong> These are Firestore user documents only. To actually log in, you'll need to create matching Firebase Auth accounts using the Firebase Console or Auth emulator.
+              <strong>Note:</strong> These are compatibility-layer user documents only. To actually log in, create matching Supabase Auth accounts or use the app's user creation flow.
             </p>
           </div>
         </div>
