@@ -24,6 +24,7 @@ import {
   BookOpen,
   History,
   ClipboardList,
+  Video,
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
@@ -539,6 +540,16 @@ const CoachDashboard = () => {
                 >
                   <Clock className="w-5 h-5" />
                   <span className="hidden sm:inline">Rotations</span>
+                </button>
+              </HelpTooltip>
+
+              <HelpTooltip text="Upload private game video and queue AI-assisted analysis for staff review.">
+                <button
+                  onClick={() => navigate('/coach/videos')}
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors"
+                >
+                  <Video className="w-5 h-5" />
+                  <span className="hidden sm:inline">Video</span>
                 </button>
               </HelpTooltip>
 

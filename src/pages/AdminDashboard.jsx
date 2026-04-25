@@ -35,7 +35,8 @@ import {
   ShieldCheck,
   Dribbble,
   Eye,
-  MessageCircle
+  MessageCircle,
+  Video
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
 import HelpTooltip from '../components/tutorial/HelpTooltip';
@@ -165,6 +166,7 @@ const AdminDashboard = () => {
     { id: 'drill-library', title: 'Drill Library', description: 'Create, edit, and manage basketball drills', icon: Dribbble, path: '/drills', color: 'from-orange-500 to-amber-600' },
     { id: 'training-plans', title: 'Training Plans Library', description: 'Review and approve coach training plans', icon: Dumbbell, path: '/admin/training-plans', color: 'from-lime-500 to-lime-600' },
     { id: 'game-results', title: 'Game Results', description: 'View scores and team performance', icon: Trophy, path: '/admin/game-results', color: 'from-amber-500 to-amber-600' },
+    { id: 'video-analysis', title: 'Video Analysis', description: 'Upload footage and review AI video queues', icon: Video, path: '/coach/videos', color: 'from-violet-500 to-indigo-600' },
     { id: 'parent-invitations', title: 'Parent Invitations', description: 'Invite parents and manage access codes', icon: UserPlus, path: '/admin/parent-invitations', color: 'from-sky-500 to-sky-600' },
     { id: 'youth-programs', title: 'Youth Programs', description: 'Little Lakers (4-5) & Lakers Ready (6-7)', icon: Star, path: '/admin/youth-programs', color: 'from-yellow-400 to-orange-500' },
     { id: 'rep-prospects', title: 'Rep Team Prospects', description: 'Identify standout players for rep teams', icon: Star, path: '/admin/rep-prospects', color: 'from-yellow-500 to-yellow-600' },

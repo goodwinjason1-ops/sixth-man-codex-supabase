@@ -26,6 +26,20 @@ export const ADMIN_ROLES = ['admin', 'president', 'vice_president', 'coach_coord
 // Staff roles that can access coach-level features
 export const STAFF_ROLES = ['admin', 'president', 'vice_president', 'coach_coordinator', 'coach'];
 
+// Roles that can upload and review private game/training video.
+export const VIDEO_STAFF_ROLES = [
+  'admin',
+  'president',
+  'vice_president',
+  'coach_coordinator',
+  'girls_coordinator',
+  'boys_coordinator',
+  'youth_head_coach',
+  'coach',
+  'youth_coach',
+  'team_manager'
+];
+
 // Roles that can perform tryout assessments
 export const TRYOUT_ASSESSOR_ROLES = ['admin', 'president', 'vice_president', 'coach_coordinator', 'coach', 'team_manager', 'tryout_assessor'];
 

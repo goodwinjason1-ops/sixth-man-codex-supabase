@@ -1,5 +1,6 @@
 const AUTH_STORAGE_KEY = 'sixthMan.e2eUser';
 const DOCUMENTS_STORAGE_KEY = 'sixthMan.e2eDocuments';
+const TABLE_STORAGE_PREFIX = 'sixthMan.e2eTable.';
 
 const json = {
   read(key, fallback) {
@@ -65,23 +66,30 @@ const setCurrentUser = (user) => {
   else json.remove(AUTH_STORAGE_KEY);
 };
 
-const getRows = () => json.read(DOCUMENTS_STORAGE_KEY, []);
+const tableStorageKey = (table) =>
+  table === 'documents' ? DOCUMENTS_STORAGE_KEY : `${TABLE_STORAGE_PREFIX}${table}`;
 
-const setRows = (rows) => json.write(DOCUMENTS_STORAGE_KEY, rows);
+const getRows = (table = 'documents') => json.read(tableStorageKey(table), []);
+
+const setRows = (table = 'documents', rows) => json.write(tableStorageKey(table), rows);
+
+const makeId = () => `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
 const matches = (row, filters) =>
   filters.every(({ column, value }) => row[column] === value);
 
-class DocumentsQuery {
-  constructor(action = 'select', payload = null) {
+class TableQuery {
+  constructor(table, action = 'select', payload = null) {
+    this.table = table;
     this.action = action;
     this.payload = payload;
     this.filters = [];
-    this.single = false;
+    this.singleResult = false;
+    this.ordering = null;
+    this.limitCount = null;
   }
 
   select() {
-    this.action = 'select';
     return this;
   }
 
@@ -91,7 +99,22 @@ class DocumentsQuery {
   }
 
   maybeSingle() {
-    this.single = true;
+    this.singleResult = true;
+    return this;
+  }
+
+  single() {
+    this.singleResult = true;
+    return this;
+  }
+
+  order(column, options = {}) {
+    this.ordering = { column, ascending: options.ascending !== false };
+    return this;
+  }
+
+  limit(count) {
+    this.limitCount = count;
     return this;
   }
 
@@ -100,40 +123,87 @@ class DocumentsQuery {
   }
 
   async execute() {
-    const rows = getRows();
+    const rows = getRows(this.table);
+    const now = new Date().toISOString();
 
     if (this.action === 'delete') {
-      setRows(rows.filter((row) => !matches(row, this.filters)));
+      setRows(this.table, rows.filter((row) => !matches(row, this.filters)));
       return { data: null, error: null };
     }
 
-    const data = rows.filter((row) => matches(row, this.filters));
+    if (this.action === 'insert' || this.action === 'upsert') {
+      const incoming = (Array.isArray(this.payload) ? this.payload : [this.payload]).map((row) => ({
+        ...row,
+        id: row.id || makeId(),
+        created_at: row.created_at || now,
+        updated_at: row.updated_at || now
+      }));
+
+      incoming.forEach((row) => {
+        const index = rows.findIndex((existing) =>
+          existing.id === row.id ||
+          (existing.collection === row.collection && existing.id === row.id)
+        );
+        if (index >= 0) rows[index] = { ...rows[index], ...row, updated_at: row.updated_at || now };
+        else rows.push(row);
+      });
+
+      setRows(this.table, rows);
+      return {
+        data: this.singleResult ? incoming[0] : incoming,
+        error: null
+      };
+    }
+
+    if (this.action === 'update') {
+      const updated = [];
+      const nextRows = rows.map((row) => {
+        if (!matches(row, this.filters)) return row;
+        const next = { ...row, ...this.payload, updated_at: now };
+        updated.push(next);
+        return next;
+      });
+      setRows(this.table, nextRows);
+      return {
+        data: this.singleResult ? (updated[0] || null) : updated,
+        error: null
+      };
+    }
+
+    let data = rows.filter((row) => matches(row, this.filters));
+    if (this.ordering) {
+      const { column, ascending } = this.ordering;
+      data = [...data].sort((a, b) => {
+        const left = a[column] || '';
+        const right = b[column] || '';
+        if (left === right) return 0;
+        return (left > right ? 1 : -1) * (ascending ? 1 : -1);
+      });
+    }
+    if (this.limitCount != null) data = data.slice(0, this.limitCount);
+
     return {
-      data: this.single ? (data[0] || null) : data,
+      data: this.singleResult ? (data[0] || null) : data,
       error: null
     };
   }
 }
 
-const makeDocumentsApi = () => ({
+const makeTableApi = (table) => ({
   select() {
-    return new DocumentsQuery('select');
+    return new TableQuery(table, 'select');
+  },
+  insert(payload) {
+    return new TableQuery(table, 'insert', payload);
   },
   upsert(payload) {
-    const rows = getRows();
-    const incoming = Array.isArray(payload) ? payload : [payload];
-    incoming.forEach((row) => {
-      const index = rows.findIndex((existing) =>
-        existing.collection === row.collection && existing.id === row.id
-      );
-      if (index >= 0) rows[index] = { ...rows[index], ...row };
-      else rows.push(row);
-    });
-    setRows(rows);
-    return Promise.resolve({ data: payload, error: null });
+    return new TableQuery(table, 'upsert', payload);
+  },
+  update(payload) {
+    return new TableQuery(table, 'update', payload);
   },
   delete() {
-    return new DocumentsQuery('delete');
+    return new TableQuery(table, 'delete');
   }
 });
 
@@ -215,10 +285,7 @@ const createAuthApi = () => {
 export const createE2ESupabaseClient = () => ({
   auth: createAuthApi(),
   from(table) {
-    if (table !== 'documents') {
-      throw new Error(`E2E Supabase mock only supports public.documents, got ${table}.`);
-    }
-    return makeDocumentsApi();
+    return makeTableApi(table);
   },
   channel() {
     return {

@@ -2,7 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
-import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES } from './constants/roles';
+import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES, VIDEO_STAFF_ROLES } from './constants/roles';
 import { DRILL_VIEW_ROLES, DRILL_EDIT_ROLES } from './constants/drills';
 import ErrorBoundary from './components/ErrorBoundary';
 import OfflineIndicator from './components/OfflineIndicator';
@@ -116,6 +116,7 @@ const CoachMySchedulePage = lazy(() => import('./pages/CoachMySchedulePage'));
 const RecordTrainingPage = lazy(() => import('./pages/coach/RecordTrainingPage'));
 const RecordTrainingSelectionPage = lazy(() => import('./pages/coach/RecordTrainingSelectionPage'));
 const RotationAnalyticsPage = lazy(() => import('./pages/coach/RotationAnalyticsPage'));
+const VideoAnalysisPage = lazy(() => import('./pages/coach/VideoAnalysisPage'));
 
 // Admin rotation analytics
 const AdminRotationAnalyticsPage = lazy(() => import('./pages/admin/AdminRotationAnalyticsPage'));
@@ -302,6 +303,17 @@ const AppRoutes = () => {
             <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
               <ErrorBoundary fallbackMessage="Unable to load training session.">
                 <RecordTrainingPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/coach/videos"
+          element={
+            <ProtectedRoute allowedRoles={[...VIDEO_STAFF_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load video analysis.">
+                <VideoAnalysisPage />
               </ErrorBoundary>
             </ProtectedRoute>
           }

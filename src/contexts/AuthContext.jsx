@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from 'fireba
 import { db, supabase } from '../services/firebase';
 import { getOAuthRedirectTo, mapAuthError, normalizeSupabaseUser } from '../lib/supabaseClient';
 import { logActivity } from '../services/auditService';
-import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES, ASSESSOR_ASSIGNER_ROLES } from '../constants/roles';
+import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES, ASSESSOR_ASSIGNER_ROLES, VIDEO_STAFF_ROLES } from '../constants/roles';
 
 const AuthContext = createContext();
 
@@ -520,6 +520,7 @@ export const AuthProvider = ({ children }) => {
     isLeadership: ADMIN_ROLES.includes(role),
     isStaff: STAFF_ROLES.includes(role),
     isCoachOrAdmin: STAFF_ROLES.includes(role),
+    canManageVideo: VIDEO_STAFF_ROLES.includes(role),
     canAssessTryouts: TRYOUT_ASSESSOR_ROLES.includes(role),
     canViewTryoutResults: TRYOUT_RESULTS_ROLES.includes(role),
     canAssignAssessors: ASSESSOR_ASSIGNER_ROLES.includes(role),

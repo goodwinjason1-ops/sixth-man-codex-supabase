@@ -11,7 +11,8 @@ const roleSurfaces = {
     '/admin',
     '/admin/users',
     '/admin/beta-feedback',
-    '/admin/parent-invitations'
+    '/admin/parent-invitations',
+    '/coach/videos'
   ],
   president: [
     '/welcome',
@@ -70,6 +71,7 @@ const roleSurfaces = {
     '/dashboard',
     '/coach',
     '/coach/players',
+    '/coach/videos',
     '/coach/training-plans',
     '/drills',
     '/tryout/session-1'
@@ -80,6 +82,7 @@ const roleSurfaces = {
     '/manager/team',
     '/manager/scoring',
     '/admin/scoring-roster',
+    '/coach/videos',
     '/tryout/session-1'
   ],
   parent: [
@@ -289,5 +292,24 @@ test.describe('Role perspective smoke coverage', () => {
     await page.getByRole('button', { name: /Submit Feedback/i }).click();
     await expect(page.getByRole('heading', { name: 'Thank you!' })).toBeVisible({ timeout: 10000 });
     expect(consoleErrors, 'feedback flow emitted browser errors').toEqual([]);
+  });
+
+  test('video upload queues analysis jobs', async ({ page }) => {
+    await installRole(page, 'coach');
+    const consoleErrors = attachConsoleGuards(page);
+
+    await expectUsableScreen(page, '/coach/videos', { consoleErrors });
+    await page.locator('input[type="file"]').setInputFiles({
+      name: 'game-video.mp4',
+      mimeType: 'video/mp4',
+      buffer: Buffer.from('e2e video smoke')
+    });
+    await page.getByPlaceholder('U12 Boys vs Hawks').fill('E2E Game Video');
+    await page.getByText('I confirm this footage').click();
+    await page.getByRole('button', { name: /Queue AI Analysis/i }).click();
+
+    await expect(page.getByText('Video uploaded and AI analysis queued')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('E2E Game Video')).toBeVisible();
+    expect(consoleErrors, 'video flow emitted browser errors').toEqual([]);
   });
 });
