@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, AlertCircle, Loader2, Users, CheckCircle2, Chrome, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { validateInvitationCode, acceptInvitation, getPlayerNames } from '../services/parentInvitationService';
+import { validateInvitationCode, getPlayerNames } from '../services/parentInvitationService';
 
 const ParentSignupPage = () => {
   const { invitationCode } = useParams();
@@ -42,8 +42,9 @@ const ParentSignupPage = () => {
           setEmail(result.invitation.parentEmail || '');
           setDisplayName(result.invitation.parentName || '');
 
-          // Fetch player names
-          if (result.invitation.playerIds?.length > 0) {
+          if (result.invitation.playerNames?.length > 0) {
+            setPlayerNames(result.invitation.playerNames);
+          } else if (result.invitation.playerIds?.length > 0) {
             const names = await getPlayerNames(result.invitation.playerIds);
             setPlayerNames(names);
           }
@@ -89,17 +90,11 @@ const ParentSignupPage = () => {
     try {
       setLoading(true);
 
-      // Create parent account with linkedPlayerIds set from the start
-      const user = await signUpParentWithInvitation(email.trim(), password, displayName.trim(), {
+      // Create parent account and let the server-side invitation RPC link players.
+      await signUpParentWithInvitation(email.trim(), password, displayName.trim(), {
         playerIds: invitation.playerIds || [],
         invitationCode: invitation.invitationCode || ''
       });
-
-      // Accept invitation (marks it used, links parent on player docs too)
-      const acceptResult = await acceptInvitation(invitation.id, user.uid);
-      if (!acceptResult.success) {
-        console.error('Failed to accept invitation:', acceptResult.error);
-      }
 
       // Refresh profile to ensure latest data
       await refreshUserProfile();
@@ -112,6 +107,14 @@ const ParentSignupPage = () => {
         setError('Password must be at least 8 characters');
       } else if (err.message?.includes('invalid-email')) {
         setError('Please enter a valid email address');
+      } else if (err.message?.includes('google-email-mismatch')) {
+        setError(`Please use the email address the invitation was sent to (${invitation?.parentEmail}).`);
+      } else if (err.message?.includes('invitation-expired')) {
+        setError('This invitation has expired. Please contact your club administrator for a new one.');
+      } else if (err.message?.includes('invitation-not-pending')) {
+        setError('This invitation has already been used or is no longer valid.');
+      } else if (err.message?.includes('account-has-existing-role')) {
+        setError('This account already has a club role. Please contact your club administrator.');
       } else {
         setError('Account creation failed. Please try again.');
       }
@@ -129,16 +132,11 @@ const ParentSignupPage = () => {
 
     try {
       const requiredEmail = invitation?.parentEmail || null;
-      const user = await signUpParentWithGoogle(requiredEmail, {
+      await signUpParentWithGoogle(requiredEmail, {
         playerIds: invitation.playerIds || [],
-        invitationCode: invitation.invitationCode || ''
+        invitationCode: invitation.invitationCode || '',
+        parentName: invitation.parentName || ''
       });
-
-      // Accept invitation (marks it used, links parent on player docs too)
-      const acceptResult = await acceptInvitation(invitation.id, user.uid);
-      if (!acceptResult.success) {
-        console.error('Failed to accept invitation:', acceptResult.error);
-      }
 
       // Refresh profile to ensure latest data
       await refreshUserProfile();

@@ -268,8 +268,8 @@ const PlayerHQIntegrationPage = () => {
               </p>
               <div className="bg-black/30 rounded-lg p-3 font-mono text-sm text-[#00A651] space-y-1">
                 <p>VITE_PLAYERHQ_API_KEY=your_api_key</p>
-                <p>VITE_PLAYERHQ_API_SECRET=your_api_secret</p>
                 <p>VITE_PLAYERHQ_ORG_ID=your_org_id</p>
+                <p>Store API secrets only in a server-side function.</p>
               </div>
               <p className="text-xs text-gray-400 mt-2">
                 Contact Basketball Victoria to request API access credentials.

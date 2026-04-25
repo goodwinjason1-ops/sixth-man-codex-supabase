@@ -12,15 +12,15 @@
  *
  * Environment Variables Required (when API access granted):
  * - VITE_PLAYERHQ_API_KEY
- * - VITE_PLAYERHQ_API_SECRET
  * - VITE_PLAYERHQ_ORG_ID
+ *
+ * API secrets must stay server-side in a Supabase Edge Function or backend.
  */
 
 // API Configuration
 const PLAYERHQ_CONFIG = {
   baseUrl: 'https://api.playerhq.com/v1', // Placeholder URL
   apiKey: import.meta.env.VITE_PLAYERHQ_API_KEY || '',
-  apiSecret: import.meta.env.VITE_PLAYERHQ_API_SECRET || '',
   orgId: import.meta.env.VITE_PLAYERHQ_ORG_ID || '',
   timeout: 30000,
   retryAttempts: 3,
@@ -39,7 +39,7 @@ let connectionStatus = {
  * Check if PlayerHQ integration is configured
  */
 export const isConfigured = () => {
-  return Boolean(PLAYERHQ_CONFIG.apiKey && PLAYERHQ_CONFIG.apiSecret && PLAYERHQ_CONFIG.orgId);
+  return Boolean(PLAYERHQ_CONFIG.apiKey && PLAYERHQ_CONFIG.orgId);
 };
 
 /**
@@ -56,13 +56,7 @@ export const testConnection = async () => {
   }
 
   try {
-    // Placeholder - would make actual API call when implemented
-    // const response = await fetch(`${PLAYERHQ_CONFIG.baseUrl}/health`, {
-    //   headers: {
-    //     'Authorization': `Bearer ${PLAYERHQ_CONFIG.apiKey}`,
-    //     'X-API-Secret': PLAYERHQ_CONFIG.apiSecret
-    //   }
-    // });
+    // Placeholder - real PlayerHQ calls must be made by a server-side function.
 
     // Simulated response for now
     connectionStatus = {

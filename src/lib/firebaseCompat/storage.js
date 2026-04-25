@@ -52,7 +52,7 @@ export const uploadBytes = async (storageRef, file, metadata = {}) => {
 export const getDownloadURL = async (storageRef) => {
   const { data: signedData, error: signedError } = await storageRef.storage.supabase.storage
     .from(storageRef.bucket)
-    .createSignedUrl(storageRef.path, 60 * 60 * 24 * 30);
+    .createSignedUrl(storageRef.path, 60 * 60);
 
   if (!signedError && signedData?.signedUrl) {
     return signedData.signedUrl;

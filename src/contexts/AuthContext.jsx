@@ -3,6 +3,7 @@ import { doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from 'fireba
 import { db, supabase } from '../services/firebase';
 import { getOAuthRedirectTo, mapAuthError, normalizeSupabaseUser } from '../lib/supabaseClient';
 import { logActivity } from '../services/auditService';
+import { acceptInvitationByCode } from '../services/parentInvitationService';
 import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES, ASSESSOR_ASSIGNER_ROLES, VIDEO_STAFF_ROLES } from '../constants/roles';
 
 const AuthContext = createContext();
@@ -165,35 +166,17 @@ export const AuthProvider = ({ children }) => {
       throw new Error('google-email-mismatch');
     }
 
-    const existingDoc = await getDoc(doc(db, 'users', user.uid));
-    if (existingDoc.exists()) {
-      const existingData = existingDoc.data();
-      const existingPlayerIds = existingData.linkedPlayerIds || [];
-      const newPlayerIds = invitationData.playerIds || [];
-      const mergedPlayerIds = [...new Set([...existingPlayerIds, ...newPlayerIds])];
+    const acceptResult = await acceptInvitationByCode(
+      invitationData.invitationCode || '',
+      user.displayName || invitationData.parentName || ''
+    );
 
-      if (newPlayerIds.length > 0 && mergedPlayerIds.length !== existingPlayerIds.length) {
-        await setDoc(doc(db, 'users', user.uid), {
-          linkedPlayerIds: mergedPlayerIds,
-          invitationCode: invitationData.invitationCode || existingData.invitationCode || ''
-        }, { merge: true });
-        return { ...existingData, linkedPlayerIds: mergedPlayerIds };
-      }
-      return existingData;
+    if (!acceptResult.success) {
+      await signOutSupabase();
+      throw new Error(acceptResult.error || 'Unable to accept invitation');
     }
 
-    const profile = {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName || '',
-      role: 'parent',
-      linkedPlayerIds: invitationData.playerIds || [],
-      invitationCode: invitationData.invitationCode || '',
-      createdAt: new Date().toISOString(),
-      photoURL: user.photoURL || null
-    };
-
-    return writeProfile(user.uid, profile);
+    return acceptResult.profile;
   };
 
   const loadUserProfile = async (user) => {
@@ -418,21 +401,17 @@ export const AuthProvider = ({ children }) => {
       if (signUpError) throw mapAuthError(signUpError);
 
       const user = normalizeSupabaseUser(data.user);
-      const profile = {
-        uid: user.uid,
-        email: normalizedEmail,
-        displayName: (displayName || '').trim(),
-        role: 'parent',
-        linkedPlayerIds: invitationData.playerIds || [],
-        invitationCode: invitationData.invitationCode || '',
-        createdAt: new Date().toISOString(),
-        photoURL: null
-      };
+      const acceptResult = await acceptInvitationByCode(
+        invitationData.invitationCode || '',
+        (displayName || '').trim()
+      );
 
-      savePendingProfile(user.uid, profile);
-      await writeProfile(user.uid, profile);
-      getStorage('local')?.removeItem(pendingProfileKey(user.uid));
+      if (!acceptResult.success) {
+        throw new Error(acceptResult.error || 'Unable to accept invitation');
+      }
+
       setCurrentUser(user);
+      setUserProfile(acceptResult.profile);
       return user;
     } catch (err) {
       const mapped = mapAuthError(err) || err;

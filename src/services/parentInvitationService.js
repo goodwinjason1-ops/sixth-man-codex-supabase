@@ -20,7 +20,7 @@ import {
   writeBatch,
   Timestamp
 } from 'firebase/firestore';
-import { db } from './firebase';
+import { db, supabase } from './firebase';
 
 const INVITATIONS_COLLECTION = 'parent_invitations';
 
@@ -142,6 +142,21 @@ export const createInvitation = async ({ playerIds, parentEmail, parentName, cre
 export const validateInvitationCode = async (code) => {
   try {
     const normalizedCode = code.trim().toUpperCase();
+    const { data: rpcData, error: rpcError } = await supabase.rpc('validate_parent_invitation', {
+      invitation_code: normalizedCode
+    });
+
+    if (!rpcError && rpcData) {
+      return rpcData.valid
+        ? { valid: true, invitation: rpcData.invitation }
+        : { valid: false, error: rpcData.error || 'Invalid invitation code. Please check your invitation email.' };
+    }
+
+    if (rpcError && rpcError.code !== 'PGRST202') {
+      console.error('Invitation validation RPC failed:', rpcError.code, rpcError.message);
+      return { valid: false, error: 'Unable to validate invitation. Please try again later.' };
+    }
+
     const q = query(
       collection(db, INVITATIONS_COLLECTION),
       where('invitationCode', '==', normalizedCode)
@@ -183,6 +198,34 @@ export const validateInvitationCode = async (code) => {
       return { valid: false, error: 'Service temporarily unavailable. Please try again in a moment.' };
     }
     return { valid: false, error: 'Unable to validate invitation. Please try again later.' };
+  }
+};
+
+export const acceptInvitationByCode = async (code, displayName = '') => {
+  try {
+    const normalizedCode = code.trim().toUpperCase();
+    const { data: rpcData, error: rpcError } = await supabase.rpc('accept_parent_invitation', {
+      invitation_code: normalizedCode,
+      display_name: displayName
+    });
+
+    if (rpcError) {
+      console.error('Invitation acceptance RPC failed:', rpcError.code, rpcError.message);
+      return { success: false, error: rpcError.message || 'Unable to accept invitation' };
+    }
+
+    if (!rpcData?.success) {
+      return { success: false, error: rpcData?.error || 'Unable to accept invitation' };
+    }
+
+    return {
+      success: true,
+      profile: rpcData.profile,
+      invitation: rpcData.invitation
+    };
+  } catch (error) {
+    console.error('Error accepting invitation by code:', error.code, error.message);
+    return { success: false, error: error.message };
   }
 };
 
@@ -353,6 +396,7 @@ export default {
   generateUniqueCode,
   createInvitation,
   validateInvitationCode,
+  acceptInvitationByCode,
   acceptInvitation,
   revokeInvitation,
   revokeAllPending,

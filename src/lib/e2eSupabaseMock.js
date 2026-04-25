@@ -207,6 +207,160 @@ const makeTableApi = (table) => ({
   }
 });
 
+const normalizeInvitationCode = (code = '') => code.trim().toUpperCase();
+
+const invitationPlayerNames = (playerIds = []) => getRows('documents')
+  .filter((row) => row.collection === 'players' && playerIds.includes(row.id))
+  .map((row) => ({
+    id: row.id,
+    name: row.data?.name || row.data?.displayName || `${row.data?.firstName || ''} ${row.data?.lastName || ''}`.trim() || 'Unknown'
+  }));
+
+const findInvitationByCode = (code) => {
+  const normalizedCode = normalizeInvitationCode(code);
+  return getRows('documents').find((row) =>
+    row.collection === 'parent_invitations' &&
+    normalizeInvitationCode(row.data?.invitationCode) === normalizedCode
+  );
+};
+
+const validateE2EParentInvitation = (code) => {
+  const invitation = findInvitationByCode(code);
+  if (!invitation) {
+    return {
+      valid: false,
+      error: 'Invalid invitation code. Please check your invitation email.'
+    };
+  }
+
+  if (invitation.data.status === 'accepted') {
+    return { valid: false, error: 'This invitation has already been used.' };
+  }
+
+  if (invitation.data.status === 'revoked') {
+    return {
+      valid: false,
+      error: 'This invitation has been revoked. Please contact your club administrator.'
+    };
+  }
+
+  if (invitation.data.status !== 'pending') {
+    return { valid: false, error: 'This invitation is no longer valid.' };
+  }
+
+  if (invitation.data.expiresAt && new Date(invitation.data.expiresAt) < new Date()) {
+    return {
+      valid: false,
+      error: 'This invitation has expired. Please contact your club administrator for a new one.'
+    };
+  }
+
+  const playerIds = invitation.data.playerIds || [];
+  return {
+    valid: true,
+    invitation: {
+      id: invitation.id,
+      invitationCode: invitation.data.invitationCode,
+      parentEmail: invitation.data.parentEmail || '',
+      parentName: invitation.data.parentName || '',
+      status: invitation.data.status,
+      expiresAt: invitation.data.expiresAt,
+      playerIds,
+      playerNames: invitationPlayerNames(playerIds)
+    }
+  };
+};
+
+const acceptE2EParentInvitation = ({ invitation_code: invitationCode, display_name: displayName }) => {
+  const user = getCurrentUser();
+  if (!user) return { success: false, error: 'auth-required' };
+
+  const invitation = findInvitationByCode(invitationCode);
+  if (!invitation) return { success: false, error: 'invalid-invitation' };
+  if (invitation.data.status !== 'pending') return { success: false, error: 'invitation-not-pending' };
+  if (invitation.data.expiresAt && new Date(invitation.data.expiresAt) < new Date()) {
+    return { success: false, error: 'invitation-expired' };
+  }
+  if (invitation.data.parentEmail && user.email?.toLowerCase() !== invitation.data.parentEmail.toLowerCase()) {
+    return { success: false, error: 'google-email-mismatch' };
+  }
+
+  const now = new Date().toISOString();
+  const playerIds = invitation.data.playerIds || [];
+  const rows = getRows('documents');
+  const userIndex = rows.findIndex((row) => row.collection === 'users' && row.id === user.id);
+  const existingProfile = userIndex >= 0 ? rows[userIndex].data : {};
+  if (existingProfile?.role && !['pending', 'parent'].includes(existingProfile.role)) {
+    return { success: false, error: 'account-has-existing-role' };
+  }
+
+  const profile = {
+    ...existingProfile,
+    uid: user.id,
+    email: user.email,
+    displayName: displayName || existingProfile.displayName || invitation.data.parentName || user.email,
+    role: 'parent',
+    linkedPlayerIds: [...new Set([...(existingProfile.linkedPlayerIds || []), ...playerIds])],
+    invitationCode: invitation.data.invitationCode,
+    createdAt: existingProfile.createdAt || now,
+    photoURL: existingProfile.photoURL || null
+  };
+
+  if (userIndex >= 0) {
+    rows[userIndex] = { ...rows[userIndex], data: profile, updated_at: now, updated_by: user.id };
+  } else {
+    rows.push({
+      collection: 'users',
+      id: user.id,
+      data: profile,
+      created_at: now,
+      updated_at: now,
+      created_by: user.id,
+      updated_by: user.id
+    });
+  }
+
+  const invitationIndex = rows.findIndex((row) => row.collection === 'parent_invitations' && row.id === invitation.id);
+  if (invitationIndex >= 0) {
+    rows[invitationIndex] = {
+      ...rows[invitationIndex],
+      data: {
+        ...rows[invitationIndex].data,
+        status: 'accepted',
+        acceptedBy: user.id,
+        acceptedAt: now
+      },
+      updated_at: now,
+      updated_by: user.id
+    };
+  }
+
+  playerIds.forEach((playerId) => {
+    const playerIndex = rows.findIndex((row) => row.collection === 'players' && row.id === playerId);
+    if (playerIndex < 0) return;
+    rows[playerIndex] = {
+      ...rows[playerIndex],
+      data: {
+        ...rows[playerIndex].data,
+        linkedParentIds: [...new Set([...(rows[playerIndex].data.linkedParentIds || []), user.id])]
+      },
+      updated_at: now,
+      updated_by: user.id
+    };
+  });
+
+  setRows('documents', rows);
+  return {
+    success: true,
+    profile,
+    invitation: {
+      id: invitation.id,
+      invitationCode: invitation.data.invitationCode,
+      playerIds
+    }
+  };
+};
+
 const createAuthApi = () => {
   const listeners = new Set();
 
@@ -287,6 +441,21 @@ const createAuthApi = () => {
 
 export const createE2ESupabaseClient = () => ({
   auth: createAuthApi(),
+  async rpc(functionName, args = {}) {
+    if (functionName === 'validate_parent_invitation') {
+      return { data: validateE2EParentInvitation(args.invitation_code), error: null };
+    }
+    if (functionName === 'accept_parent_invitation') {
+      return { data: acceptE2EParentInvitation(args), error: null };
+    }
+    return {
+      data: null,
+      error: {
+        code: 'PGRST202',
+        message: `Function ${functionName} not found in the E2E Supabase mock`
+      }
+    };
+  },
   from(table) {
     return makeTableApi(table);
   },

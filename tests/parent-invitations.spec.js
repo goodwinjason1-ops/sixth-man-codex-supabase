@@ -92,6 +92,55 @@ test.describe('Parent Invitation System', () => {
     ).toBeVisible({ timeout: 20000 });
   });
 
+  test('parent can create account from invitation and link to player', async ({ page }) => {
+    await login(page, 'admin@test.com', 'Admin123!');
+
+    await page.goto('/admin/parent-invitations');
+    await page.waitForURL(/parent-invitations/, { timeout: 5000 });
+
+    const searchBox = page.getByPlaceholder(/search.*player/i);
+    await searchBox.waitFor({ state: 'visible', timeout: 5000 });
+    await searchBox.fill('Ethan');
+    await page.waitForTimeout(1500);
+
+    await page.getByText(/Ethan/).first().click();
+    await expect(page.getByText('Invite Parent')).toBeVisible({ timeout: 5000 });
+
+    const uniqueEmail = `parent_complete_${Date.now()}@test.com`;
+    await page.locator('input[type="email"]').last().fill(uniqueEmail);
+    await page.getByRole('button', { name: /generate invitation code/i }).click();
+
+    await expect(
+      page.getByRole('button', { name: 'Copy Signup Link', exact: true })
+    ).toBeVisible({ timeout: 30000 });
+    const pageText = await page.locator('body').innerText();
+    const inviteCode = [...pageText.matchAll(/[A-Z0-9]{4}-[A-Z0-9]{4}/g)]
+      .map(match => match[0])
+      .find(code => code !== 'TEST-CODE');
+    expect(inviteCode).toBeTruthy();
+
+    await logout(page);
+
+    await page.goto(`/signup/${inviteCode}`);
+    await expect(page.getByRole('button', { name: /create parent account/i })).toBeVisible({ timeout: 20000 });
+    await page.getByPlaceholder('Enter your name').fill('Complete Parent');
+    await page.getByPlaceholder('you@example.com').fill(uniqueEmail);
+    await page.getByPlaceholder('Min. 8 characters').fill('Parent123!');
+    await page.getByRole('button', { name: /create parent account/i }).click();
+    await page.waitForURL(/welcome|dashboard/, { timeout: 15000 });
+
+    const documents = await page.evaluate(() => JSON.parse(window.localStorage.getItem('sixthMan.e2eDocuments') || '[]'));
+    const invitation = documents.find(doc => doc.collection === 'parent_invitations' && doc.data.invitationCode === inviteCode);
+    const parent = documents.find(doc => doc.collection === 'users' && doc.data.email === uniqueEmail);
+    const player = documents.find(doc => doc.collection === 'players' && doc.id === 'player-1');
+
+    expect(invitation?.data.status).toBe('accepted');
+    expect(invitation?.data.acceptedBy).toBe(parent?.id);
+    expect(parent?.data.role).toBe('parent');
+    expect(parent?.data.linkedPlayerIds).toContain('player-1');
+    expect(player?.data.linkedParentIds).toContain(parent?.id);
+  });
+
   test('parent invitation code entry on login page', async ({ page }) => {
     await page.goto('/login');
     await page.waitForTimeout(1000);
