@@ -261,9 +261,11 @@ const AppRoutes = () => {
           path="/admin/profile"
           element={
             <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
-              <ErrorBoundary fallbackMessage="Unable to load admin profile. Please try again.">
-                <AdminProfilePage />
-              </ErrorBoundary>
+              <Layout>
+                <ErrorBoundary fallbackMessage="Unable to load admin profile. Please try again.">
+                  <AdminProfilePage />
+                </ErrorBoundary>
+              </Layout>
             </ProtectedRoute>
           }
         />

@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useFilteredData } from '../../hooks/useFilteredData';
 import PageShell from '../../components/PageShell';
+import VoiceAssessmentCapture from '../../components/VoiceAssessmentCapture';
 import { toJsDate } from '../../utils/dateUtils';
 import {
   Users,
@@ -23,6 +24,7 @@ import {
 } from 'lucide-react';
 import TrainingPlanPreviewModal from '../../components/TrainingPlanPreviewModal';
 import { logActivity } from '../../services/auditService';
+import { mergeVoiceMatchesIntoTrainingMetrics } from '../../services/voiceAssessmentParser';
 
 const RecordTrainingPage = () => {
   const { gameId } = useParams();
@@ -38,6 +40,8 @@ const RecordTrainingPage = () => {
   const [drillNotes, setDrillNotes] = useState({});
   const [sessionNotes, setSessionNotes] = useState('');
   const [playerNotes, setPlayerNotes] = useState({});
+  const [playerMetricAssessments, setPlayerMetricAssessments] = useState({});
+  const [voiceCaptures, setVoiceCaptures] = useState([]);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
   const [showPlayerNotes, setShowPlayerNotes] = useState(false);
@@ -71,6 +75,25 @@ const RecordTrainingPage = () => {
     });
     return drills;
   }, [linkedPlan]);
+
+  const trainingVoiceMetrics = useMemo(() => {
+    const defaultMetrics = [
+      { id: 'effort', name: 'Effort', aliases: ['work rate', 'energy', 'intensity'] },
+      { id: 'focus', name: 'Focus', aliases: ['attention', 'concentration'] },
+      { id: 'communication', name: 'Communication', aliases: ['talking', 'voice'] },
+      { id: 'skillExecution', name: 'Skill Execution', aliases: ['execution', 'skills', 'technique'] }
+    ];
+
+    const drillMetrics = planDrills
+      .filter(drill => drill.name)
+      .map(drill => ({
+        id: `drill:${drill.key}`,
+        name: drill.name,
+        aliases: [drill.name]
+      }));
+
+    return [...defaultMetrics, ...drillMetrics];
+  }, [planDrills]);
 
   // Find team and players for this session
   const teamDoc = useMemo(() => {
@@ -120,6 +143,8 @@ const RecordTrainingPage = () => {
       setDrillNotes(existingRecord.drillNotes || {});
       setSessionNotes(existingRecord.sessionNotes || '');
       setPlayerNotes(existingRecord.playerNotes || {});
+      setPlayerMetricAssessments(existingRecord.playerMetricAssessments || {});
+      setVoiceCaptures(existingRecord.voiceCaptures || []);
     } else {
       // Default all players to present
       const defaultAttendance = {};
@@ -193,6 +218,8 @@ const RecordTrainingPage = () => {
         drillNotes: cleanDrillNotes,
         sessionNotes: sessionNotes.trim(),
         playerNotes: cleanPlayerNotes,
+        playerMetricAssessments,
+        voiceCaptures,
       };
 
       if (existingRecord) {
@@ -234,6 +261,12 @@ const RecordTrainingPage = () => {
       }
       return next;
     });
+  };
+
+  const handleApplyVoiceMatches = (matches, capture) => {
+    setPlayerMetricAssessments(prev => mergeVoiceMatchesIntoTrainingMetrics(prev, matches));
+    setVoiceCaptures(prev => [capture, ...prev].slice(0, 10));
+    setShowPlayerNotes(true);
   };
 
   // Loading state
@@ -387,6 +420,22 @@ const RecordTrainingPage = () => {
           )}
         </div>
 
+        <VoiceAssessmentCapture
+          title="Voice Training Ratings"
+          contextLabel="Capture quick player scores for effort, focus, communication, skill execution, or a planned drill."
+          players={teamPlayers.filter(p => attendance[p.id] !== 'absent')}
+          metrics={trainingVoiceMetrics}
+          disabled={readOnly}
+          context={{
+            assessmentType: 'training',
+            gameId,
+            teamId: game.teamId,
+            teamName,
+            date: game.date
+          }}
+          onApply={handleApplyVoiceMatches}
+        />
+
         {/* SECTION 2: Drill Completion */}
         <div className="bg-white border border-[#D4E4D4] rounded-xl overflow-hidden">
           <div className="p-4 border-b border-[#D4E4D4] flex items-center gap-2">
@@ -525,6 +574,21 @@ const RecordTrainingPage = () => {
                   .map(player => (
                     <div key={player.id} className="px-4 py-3">
                       <p className="text-sm font-medium text-gray-800 mb-1.5">{player.name}</p>
+                      {Object.keys(playerMetricAssessments[player.id] || {}).length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-2">
+                          {Object.entries(playerMetricAssessments[player.id]).map(([metricId, score]) => {
+                            const metric = trainingVoiceMetrics.find(item => item.id === metricId);
+                            return (
+                              <span
+                                key={metricId}
+                                className="text-[10px] text-[#005028] bg-[#00A651]/10 border border-[#00A651]/20 px-2 py-1 rounded-full"
+                              >
+                                {metric?.name || metricId}: {score}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      )}
                       <input
                         type="text"
                         value={playerNotes[player.id] || ''}

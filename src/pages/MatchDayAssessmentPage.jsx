@@ -39,10 +39,12 @@ import {
   ChevronUp
 } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
+import VoiceAssessmentCapture from '../components/VoiceAssessmentCapture';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { logActivity } from '../services/auditService';
 import { useAutoSave } from '../hooks/useAutoSave';
+import { mergeVoiceMatchesIntoPlayerMetrics } from '../services/voiceAssessmentParser';
 import {
   MATCH_METRICS,
   MATCH_LEVEL_LABELS,
@@ -266,6 +268,7 @@ const MatchDayAssessmentPage = () => {
   const [expandedMetricNotes, setExpandedMetricNotes] = useState({}); // { "playerId-metricId": true }
   const [expandedTeamMetricNotes, setExpandedTeamMetricNotes] = useState({}); // { "metricId": true }
   const [playerAssessments, setPlayerAssessments] = useState({});
+  const [voiceCaptures, setVoiceCaptures] = useState([]);
   const [showTeamNotes, setShowTeamNotes] = useState(false);
 
   // FIX B: Update activeTeamId when coachTeams loads (it's '' on first render)
@@ -279,8 +282,8 @@ const MatchDayAssessmentPage = () => {
   const autoSaveFormData = useMemo(() => ({
     teamId: activeTeamId, matchDate, opponentName, gameResult,
     teamRatings, teamRatingNotes, teamRatingNotesPrivate, teamMetricNotes, teamMetricNotesPrivacy,
-    mvpVotes, mvpNotes, gameNotes, gameNotesPrivate, playerAssessments
-  }), [activeTeamId, matchDate, opponentName, gameResult, teamRatings, teamRatingNotes, teamRatingNotesPrivate, teamMetricNotes, teamMetricNotesPrivacy, mvpVotes, mvpNotes, gameNotes, gameNotesPrivate, playerAssessments]);
+    mvpVotes, mvpNotes, gameNotes, gameNotesPrivate, playerAssessments, voiceCaptures
+  }), [activeTeamId, matchDate, opponentName, gameResult, teamRatings, teamRatingNotes, teamRatingNotesPrivate, teamMetricNotes, teamMetricNotesPrivacy, mvpVotes, mvpNotes, gameNotes, gameNotesPrivate, playerAssessments, voiceCaptures]);
 
   const { savedData: autoSavedData, clearSaved: clearAutoSave, hasSavedData: hasAutoSave } = useAutoSave('match-assessment', autoSaveFormData);
 
@@ -300,6 +303,7 @@ const MatchDayAssessmentPage = () => {
     setGameNotes(autoSavedData.gameNotes || '');
     setGameNotesPrivate(autoSavedData.gameNotesPrivate || false);
     setPlayerAssessments(autoSavedData.playerAssessments || {});
+    setVoiceCaptures(autoSavedData.voiceCaptures || []);
     clearAutoSave();
   };
 
@@ -409,6 +413,7 @@ const MatchDayAssessmentPage = () => {
     setExpandedMetricNotes({});
     setExpandedTeamMetricNotes({});
     setPlayerAssessments({});
+    setVoiceCaptures([]);
     setMatchDate(new Date().toISOString().split('T')[0]);
     setSaveError(null);
     setExistingDraft(null);
@@ -435,6 +440,7 @@ const MatchDayAssessmentPage = () => {
     setExpandedMetricNotes({});
     setExpandedTeamMetricNotes({});
     setPlayerAssessments({});
+    setVoiceCaptures([]);
     setExistingDraft(null);
     setShowDraftBanner(false);
     setShowTeamNotes(false);
@@ -456,6 +462,7 @@ const MatchDayAssessmentPage = () => {
     setGameNotes(existingDraft.gameNotes || '');
     setGameNotesPrivate(existingDraft.gameNotesPrivate || false);
     setPlayerAssessments(existingDraft.playerAssessments || {});
+    setVoiceCaptures(existingDraft.voiceCaptures || []);
     setShowDraftBanner(false);
   };
 
@@ -584,6 +591,15 @@ const MatchDayAssessmentPage = () => {
     return playerAssessments[playerId] || { metrics: {}, notes: '', privateNotes: '', notesPrivate: true, metricNotes: {}, metricNotesPrivacy: {} };
   };
 
+  const handleApplyVoiceMatches = (matches, capture) => {
+    setPlayerAssessments(prev => mergeVoiceMatchesIntoPlayerMetrics(prev, matches));
+    setVoiceCaptures(prev => [capture, ...prev].slice(0, 10));
+    setExpandedPlayers(prev => matches.reduce((next, match) => ({
+      ...next,
+      [match.playerId]: true
+    }), prev));
+  };
+
   // Count assessed metrics for a player
   const getPlayerAssessedCount = (playerId) => {
     const assessment = getPlayerAssessment(playerId);
@@ -615,6 +631,7 @@ const MatchDayAssessmentPage = () => {
         gameNotes,
         gameNotesPrivate,
         playerAssessments,
+        voiceCaptures,
         savedAt: new Date().toISOString(),
         lastModified: Date.now()
       };
@@ -718,6 +735,7 @@ const MatchDayAssessmentPage = () => {
         }, {}),
         teamPerformanceNotes: { note: teamRatingNotes || '', private: !!teamRatingNotesPrivate },
         generalMatchNotes: { note: gameNotes || '', private: !!gameNotesPrivate },
+        voiceCaptures,
         playerAssessments: Object.entries(playerAssessments).reduce((acc, [playerId, data]) => {
           const player = teamPlayers.find(p => p.id === playerId);
           acc[playerId] = {
@@ -898,6 +916,7 @@ const MatchDayAssessmentPage = () => {
       setMvpVotes({ vote3: '', vote2: '', vote1: '' });
       setMvpNotes({ vote3: '', vote2: '', vote1: '' });
       setPlayerAssessments({});
+      setVoiceCaptures([]);
     }
 
     setShowGameSelector(false);
@@ -930,6 +949,7 @@ const MatchDayAssessmentPage = () => {
           setMvpNotes(draft.mvpNotes || { vote3: '', vote2: '', vote1: '' });
           setGameNotes(draft.gameNotes || '');
           setPlayerAssessments(draft.playerAssessments || {});
+          setVoiceCaptures(draft.voiceCaptures || []);
 
           // Hide the draft banner since we're auto-loading
           setShowDraftBanner(false);
@@ -1293,6 +1313,21 @@ const MatchDayAssessmentPage = () => {
             </div>
           </div>
         </div>
+
+        <VoiceAssessmentCapture
+          title="Voice Player Ratings"
+          contextLabel="Speak player names with metric scores, then review before applying."
+          players={teamPlayers}
+          metrics={playerMetrics}
+          context={{
+            assessmentType: 'match',
+            teamId: activeTeamId,
+            teamName: activeTeam?.name || '',
+            gameId: gameDayData?.id || null,
+            date: matchDate
+          }}
+          onApply={handleApplyVoiceMatches}
+        />
 
         {/* Team Performance Section */}
         <div className="mb-6">

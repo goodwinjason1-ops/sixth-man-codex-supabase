@@ -20,7 +20,7 @@ const liveUsers = {
 };
 
 const roleRoutes = {
-  admin: ['/welcome', '/dashboard', '/admin', '/coach/videos'],
+  admin: ['/welcome', '/dashboard', '/admin', '/admin/profile', '/coach/videos'],
   president: ['/welcome', '/dashboard', '/admin', '/coach/videos'],
   vice_president: ['/welcome', '/dashboard', '/admin', '/coach/videos'],
   coach_coordinator: ['/welcome', '/dashboard', '/admin', '/coach/videos'],

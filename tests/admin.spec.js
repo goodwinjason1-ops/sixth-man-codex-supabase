@@ -30,6 +30,20 @@ test.describe('Admin Portal', () => {
     await expect(page.getByText('Data Cleanup')).toBeVisible();
   });
 
+  test('admin profile tile opens a usable profile page with home navigation', async ({ page }) => {
+    await page.getByText('Admin Profile').click();
+    await expect(page).toHaveURL(/admin\/profile/);
+
+    await expect(page.getByRole('heading', { name: /Admin User|Administrator/i })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Club Overview')).toBeVisible();
+    await expect(page.getByText('Account Details')).toBeVisible();
+    await expect(page.getByText(/Something went wrong|Unable to load admin profile/i)).not.toBeVisible();
+
+    await page.getByRole('button', { name: /^Home$/ }).click();
+    await expect(page).toHaveURL(/welcome/);
+    await expect(page.getByText('Admin Dashboard')).toBeVisible();
+  });
+
   test('admin can navigate to parent invitations', async ({ page }) => {
     await page.getByText('Admin Dashboard').click();
     await page.waitForURL(/admin|dashboard/, { timeout: 10000 });

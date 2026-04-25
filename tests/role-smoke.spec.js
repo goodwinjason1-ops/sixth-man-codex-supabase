@@ -9,6 +9,7 @@ const roleSurfaces = {
     '/welcome',
     '/dashboard',
     '/admin',
+    '/admin/profile',
     '/admin/users',
     '/admin/beta-feedback',
     '/admin/parent-invitations',
