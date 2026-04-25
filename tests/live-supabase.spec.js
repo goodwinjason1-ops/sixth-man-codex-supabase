@@ -1,6 +1,13 @@
 import { test, expect } from '@playwright/test';
 
 const LIVE_PASSWORD = process.env.LIVE_QA_PASSWORD;
+const LIVE_BASE_PATH = process.env.LIVE_BASE_PATH || '';
+
+function appRoute(route) {
+  const normalizedRoute = route.startsWith('/') ? route : `/${route}`;
+  const normalizedBase = LIVE_BASE_PATH.replace(/\/$/, '');
+  return `${normalizedBase}${normalizedRoute}`;
+}
 
 const liveUsers = {
   admin: 'admin@test.com',
@@ -41,7 +48,7 @@ const forbiddenText = /Unable to load|Something went wrong|Failed to load user p
 test.skip(!LIVE_PASSWORD, 'Set LIVE_QA_PASSWORD to run live Supabase smoke tests.');
 
 async function login(page, email) {
-  await page.goto('/login');
+  await page.goto(appRoute('/login'));
   await page.getByPlaceholder('you@example.com').fill(email);
   await page.getByPlaceholder('Enter password').fill(LIVE_PASSWORD);
   await page.getByRole('button', { name: 'Sign In' }).click();
@@ -52,7 +59,7 @@ async function expectUsable(page, route) {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
 
-  await page.goto(route);
+  await page.goto(appRoute(route));
   await page.waitForLoadState('domcontentloaded');
   await page.waitForFunction(() => document.body && document.body.innerText.trim().length > 0, null, { timeout: 30000 });
 

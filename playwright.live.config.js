@@ -1,7 +1,8 @@
 import { defineConfig } from '@playwright/test';
 
 const port = Number(process.env.LIVE_PLAYWRIGHT_PORT || 3004);
-const baseURL = `http://127.0.0.1:${port}`;
+const baseURL = process.env.LIVE_BASE_URL || `http://127.0.0.1:${port}`;
+const shouldStartWebServer = !process.env.LIVE_BASE_URL;
 
 export default defineConfig({
   testDir: './tests',
@@ -9,7 +10,7 @@ export default defineConfig({
   expect: { timeout: 15000 },
   retries: 0,
   reporter: [['html', { open: 'never' }], ['list']],
-  webServer: {
+  webServer: shouldStartWebServer ? {
     command: `npm.cmd run dev -- --host 127.0.0.1 --port ${port}`,
     url: baseURL,
     reuseExistingServer: true,
@@ -19,7 +20,7 @@ export default defineConfig({
       VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY,
       VITE_SUPABASE_STORAGE_BUCKET: process.env.VITE_SUPABASE_STORAGE_BUCKET || 'feedback-screenshots'
     }
-  },
+  } : undefined,
   use: {
     baseURL,
     headless: true,
