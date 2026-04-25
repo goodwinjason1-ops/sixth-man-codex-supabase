@@ -64,7 +64,7 @@ const LoginPage = () => {
     } catch (err) {
       // popup-closed-by-user and cancelled-popup-request are handled in AuthContext
       if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
-        setError('Google sign-in failed. Please try again.');
+        setError(err.message || 'Google sign-in failed. Please try again.');
         console.error('Google sign-in error:', err);
       }
     } finally {
@@ -79,7 +79,7 @@ const LoginPage = () => {
       await signInWithApple();
       navigate('/welcome');
     } catch (err) {
-      setError('Failed to sign in with Apple. Please try again.');
+      setError(err.message || 'Failed to sign in with Apple. Please try again.');
       console.error(err);
     } finally {
       setLoading(false);

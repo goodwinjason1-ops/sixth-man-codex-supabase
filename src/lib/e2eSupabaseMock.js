@@ -254,6 +254,9 @@ const createAuthApi = () => {
       return { data: { user, session: { user } }, error: null };
     },
     async signInWithOAuth({ provider }) {
+      if (window.__SIXTH_MAN_E2E_OAUTH_URL__) {
+        return { data: { provider, url: window.__SIXTH_MAN_E2E_OAUTH_URL__ }, error: null };
+      }
       const user = userForEmail(`${provider}@test.com`);
       setCurrentUser(user);
       emit('SIGNED_IN', user);

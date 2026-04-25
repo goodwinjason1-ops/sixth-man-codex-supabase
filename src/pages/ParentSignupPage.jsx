@@ -149,6 +149,8 @@ const ParentSignupPage = () => {
         setError(`Please use the email address the invitation was sent to (${invitation?.parentEmail}).`);
       } else if (err.message?.includes('popup-closed-by-user')) {
         // User closed popup, no error needed
+      } else if (err.message) {
+        setError(err.message);
       } else {
         setError('Google sign-in failed. Please try again or use email/password.');
       }

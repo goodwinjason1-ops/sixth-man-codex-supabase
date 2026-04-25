@@ -8,6 +8,10 @@ import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES, 
 const AuthContext = createContext();
 
 const PENDING_PARENT_GOOGLE_KEY = 'sixthMan.pendingParentGoogleSignup';
+const OAUTH_PROVIDER_LABELS = {
+  apple: 'Apple',
+  google: 'Google'
+};
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -78,6 +82,61 @@ export const AuthProvider = ({ children }) => {
   const signOutSupabase = async () => {
     const { error: signOutError } = await supabase.auth.signOut();
     if (signOutError) throw mapAuthError(signOutError);
+  };
+
+  const startOAuthSignIn = async (provider) => {
+    const label = OAUTH_PROVIDER_LABELS[provider] || provider;
+    const { data, error: signInError } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: getOAuthRedirectTo(),
+        skipBrowserRedirect: true
+      }
+    });
+    if (signInError) throw mapAuthError(signInError);
+
+    const authUrl = data?.url;
+    if (!authUrl) {
+      throw new Error(`${label} sign-in could not start. Please try again.`);
+    }
+
+    if (authUrl.startsWith('/')) {
+      window.location.assign(authUrl);
+      return null;
+    }
+
+    let response;
+    try {
+      response = await fetch(authUrl, {
+        headers: { Accept: 'application/json' },
+        credentials: 'omit',
+        redirect: 'manual'
+      });
+    } catch (_) {
+      window.location.assign(authUrl);
+      return null;
+    }
+
+    if (response.type === 'opaqueredirect' || response.status === 0 || (response.status >= 300 && response.status < 400)) {
+      window.location.assign(authUrl);
+      return null;
+    }
+
+    const contentType = response.headers.get('content-type') || '';
+    const body = contentType.includes('application/json')
+      ? await response.json().catch(() => ({}))
+      : {};
+
+    if (!response.ok) {
+      const message = body?.msg || body?.message || body?.error_description || body?.error;
+      if (String(message || '').toLowerCase().includes('provider')) {
+        throw new Error(`${label} sign-in is not enabled yet. Please use email and password, or ask an administrator to enable ${label} in Supabase Auth.`);
+      }
+      throw new Error(message || `${label} sign-in could not start. Please try again.`);
+    }
+
+    window.location.assign(body?.url || authUrl);
+    return null;
   };
 
   const writeProfile = async (uid, profile, { notifyPending = false, messageName = '' } = {}) => {
@@ -248,12 +307,7 @@ export const AuthProvider = ({ children }) => {
   const signInWithGoogle = async () => {
     try {
       setError(null);
-      const { error: signInError } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: getOAuthRedirectTo() }
-      });
-      if (signInError) throw mapAuthError(signInError);
-      return null;
+      return await startOAuthSignIn('google');
     } catch (err) {
       const mapped = mapAuthError(err) || err;
       console.error('Google Sign-In Error:', mapped.code, mapped.message);
@@ -265,12 +319,7 @@ export const AuthProvider = ({ children }) => {
   const signInWithApple = async () => {
     try {
       setError(null);
-      const { error: signInError } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: { redirectTo: getOAuthRedirectTo() }
-      });
-      if (signInError) throw mapAuthError(signInError);
-      return null;
+      return await startOAuthSignIn('apple');
     } catch (err) {
       const mapped = mapAuthError(err) || err;
       setError(mapped.message);
@@ -402,12 +451,7 @@ export const AuthProvider = ({ children }) => {
         invitationData
       }));
 
-      const { error: signInError } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: getOAuthRedirectTo() }
-      });
-      if (signInError) throw mapAuthError(signInError);
-      return null;
+      return await startOAuthSignIn('google');
     } catch (err) {
       getStorage('session')?.removeItem(PENDING_PARENT_GOOGLE_KEY);
       const mapped = mapAuthError(err) || err;
