@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Emerald Lakers Basketball Club Logo -->
+  <circle cx="100" cy="100" r="95" fill="#005028" stroke="#00A651" stroke-width="4"/>
+  <!-- Basketball -->
+  <circle cx="100" cy="80" r="35" fill="none" stroke="#FFD700" stroke-width="3"/>
+  <path d="M65 80 Q100 60 135 80" fill="none" stroke="#FFD700" stroke-width="2"/>
+  <path d="M65 80 Q100 100 135 80" fill="none" stroke="#FFD700" stroke-width="2"/>
+  <line x1="100" y1="45" x2="100" y2="115" stroke="#FFD700" stroke-width="2"/>
+  <!-- Text -->
+  <text x="100" y="140" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-weight="bold" font-size="18">EMERALD</text>
+  <text x="100" y="160" text-anchor="middle" fill="#00A651" font-family="Arial, sans-serif" font-weight="bold" font-size="18">LAKERS</text>
+  <text x="100" y="178" text-anchor="middle" fill="#FFD700" font-family="Arial, sans-serif" font-size="10" letter-spacing="2">BASKETBALL CLUB</text>
+</svg>

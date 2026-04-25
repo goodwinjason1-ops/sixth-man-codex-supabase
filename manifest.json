@@ -1,0 +1,25 @@
+{
+  "name": "Emerald Lakers Club Portal",
+  "short_name": "Lakers Portal",
+  "description": "Basketball club management and player development tracking",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#005028",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["sports", "education", "productivity"],
+  "screenshots": [],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data"
+  }
+}
