@@ -2,6 +2,8 @@
 
 This rebuild keeps the existing Firebase-style app stable through `public.documents` and adds typed tables for the new video AI workflow.
 
+Current cloud project: `lipjgbcgwokhucbxinmn` (`https://lipjgbcgwokhucbxinmn.supabase.co`). Migrations `202604250001` through `202604250004` have been applied and `supabase db push --dry-run` reports the remote database is up to date.
+
 ## Migration Files
 
 - `supabase/migrations/202604250001_documents_compat.sql`
@@ -12,6 +14,8 @@ This rebuild keeps the existing Firebase-style app stable through `public.docume
   - Replaces Firebase feedback screenshot rules and adds private video policies.
 - `supabase/migrations/202604250003_video_ai_pipeline.sql`
   - Creates normalized video recording, upload, job queue, event, stats, highlight, and correction/approval tables.
+- `supabase/migrations/202604250004_security_hardening.sql`
+  - Adds least-privilege grants, restrictive RLS guards, storage object constraints, and security audit logging for sensitive app/video mutations.
 
 ## Apply Migrations
 
@@ -118,5 +122,5 @@ Realtime still respects RLS for clients. If a table is not visible in the Supaba
 ## Known Gaps
 
 - `public.documents` approximates Firestore rules but is intentionally conservative for service-only or under-specified youth collections.
-- Parent invitation validation remains authenticated like the current Firestore rules. A dedicated RPC can be added later for public invitation-code validation without exposing full invitation rows.
+- Parent invitation validation currently uses the compatibility table. A dedicated RPC can be added later for narrower public invitation-code validation without exposing full invitation rows.
 - Multi-camera sync is represented by `sync_offset_ms` and `sync_calibration` jobs, but full sync workflows can be added after the first upload-and-analysis path is working.

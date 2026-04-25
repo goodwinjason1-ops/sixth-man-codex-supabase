@@ -32,7 +32,7 @@ test.describe('Parent Invitation System', () => {
     // The modal shows the code after generation. Look for "Copy" or "Link" text
     // which only appears after the code is generated successfully
     await expect(
-      page.getByText(/copy|copied|signup link|invitation created/i).first()
+      page.getByRole('button', { name: 'Copy Signup Link', exact: true })
     ).toBeVisible({ timeout: 30000 });
   });
 
@@ -70,10 +70,13 @@ test.describe('Parent Invitation System', () => {
 
     // Step 2: Wait for code to be generated, then extract it from the modal
     // Look for the signup link text which contains the code
-    const linkLocator = page.locator('text=/signup\\/[A-Z0-9]{4}-[A-Z0-9]{4}/');
-    await linkLocator.waitFor({ state: 'visible', timeout: 30000 });
-    const linkText = await linkLocator.textContent();
-    const inviteCode = linkText?.match(/[A-Z0-9]{4}-[A-Z0-9]{4}/)?.[0];
+    await expect(
+      page.getByRole('button', { name: 'Copy Signup Link', exact: true })
+    ).toBeVisible({ timeout: 30000 });
+    const pageText = await page.locator('body').innerText();
+    const inviteCode = [...pageText.matchAll(/[A-Z0-9]{4}-[A-Z0-9]{4}/g)]
+      .map(match => match[0])
+      .find(code => code !== 'TEST-CODE');
     expect(inviteCode).toBeTruthy();
 
     // Step 3: Logout admin
@@ -85,7 +88,7 @@ test.describe('Parent Invitation System', () => {
     // Should show either the signup form OR "Already Logged In" OR "Invalid"
     // (NOT stay on a loading spinner forever)
     await expect(
-      page.locator('text=/Create Parent Account|already logged in|Invalid Invitation/i')
+      page.getByRole('button', { name: /create parent account/i })
     ).toBeVisible({ timeout: 20000 });
   });
 

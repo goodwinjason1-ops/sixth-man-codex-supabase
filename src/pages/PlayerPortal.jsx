@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,17 +13,49 @@ import {
   BarChart2,
   ArrowLeft
 } from 'lucide-react';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend
+);
+
+const PLAYER_SKILL_CHART_ID = 'player-skill-progression-chart';
 
 const PlayerPortal = () => {
   const navigate = useNavigate();
   const { players, games, matchAssessments, evaluations, skills, attendance, trainingNotes } = useData();
   const { userProfile } = useAuth();
+  const [chartReady, setChartReady] = useState(false);
 
   // Get player data
   const playerData = useMemo(() => {
     return players.find(p => p.id === userProfile?.playerId) || {};
   }, [players, userProfile]);
+
+  useEffect(() => {
+    ChartJS.getChart(PLAYER_SKILL_CHART_ID)?.destroy();
+    setChartReady(true);
+
+    return () => {
+      ChartJS.getChart(PLAYER_SKILL_CHART_ID)?.destroy();
+    };
+  }, [playerData.id]);
 
   // Calculate MVP stats using 3-2-1 voting system (matches CoachDashboard)
   const mvpStats = useMemo(() => {
@@ -196,7 +228,11 @@ const PlayerPortal = () => {
 
               {playerEvaluations.length > 0 ? (
                 <div className="h-64">
+                  {chartReady ? (
                   <Line
+                    id={PLAYER_SKILL_CHART_ID}
+                    key={`${playerData.id || 'player'}-${playerEvaluations.length}`}
+                    redraw
                     data={skillProgressionData}
                     options={{
                       responsive: true,
@@ -223,6 +259,11 @@ const PlayerPortal = () => {
                       }
                     }}
                   />
+                  ) : (
+                    <div className="h-full flex items-center justify-center">
+                      <p className="text-sm text-[#6B7C6B]">Preparing chart...</p>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <p className="text-sm text-[#6B7C6B] text-center py-12">No skill assessments yet</p>

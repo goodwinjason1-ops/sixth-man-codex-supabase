@@ -63,6 +63,7 @@ export const seedDocuments = () => {
       parentEmail: 'parent@test.com',
       playerNumber: 12,
       ageGroup: 'U12',
+      team: 'U12 Boys Green',
       teamId: 'team-1',
       teamIds: ['team-1'],
       linkedParentIds: ['parent-user'],
@@ -76,6 +77,7 @@ export const seedDocuments = () => {
       parentEmail: 'parent2@test.com',
       playerNumber: 7,
       ageGroup: 'U12',
+      team: 'U12 Boys Green',
       teamId: 'team-1',
       teamIds: ['team-1']
     }),
@@ -86,6 +88,7 @@ export const seedDocuments = () => {
       parentEmail: 'parent3@test.com',
       playerNumber: 4,
       ageGroup: 'U14',
+      team: 'U14 Girls Gold',
       teamId: 'team-2',
       teamIds: ['team-2']
     }),
@@ -127,8 +130,11 @@ export const seedDocuments = () => {
     }),
     docRow('attendance', 'attendance-1', {
       playerId: 'player-1',
+      team: 'U12 Boys Green',
+      teamId: 'team-1',
       sessionId: 'schedule-1',
-      present: true,
+      present: ['player-1', 'player-2'],
+      absent: [],
       date: now
     }),
     docRow('training_notes', 'note-1', {
@@ -325,7 +331,9 @@ export async function installE2EMock(page, role = null) {
   const documents = seedDocuments();
   const user = role ? supabaseUser(roleUsers[role]) : null;
   await page.addInitScript(({ documents: seededDocuments, user: seededUser }) => {
-    window.localStorage.setItem('sixthMan.e2eDocuments', JSON.stringify(seededDocuments));
+    if (!window.localStorage.getItem('sixthMan.e2eDocuments')) {
+      window.localStorage.setItem('sixthMan.e2eDocuments', JSON.stringify(seededDocuments));
+    }
     if (seededUser) {
       window.localStorage.setItem('sixthMan.e2eUser', JSON.stringify(seededUser));
     }

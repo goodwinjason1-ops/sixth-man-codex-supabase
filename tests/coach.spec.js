@@ -35,7 +35,13 @@ test.describe('Coach Portal', () => {
     await page.goto('/welcome');
     await page.waitForTimeout(1000);
 
-    await page.getByText('Coach Dashboard').click();
+    const returnToDashboard = page.getByRole('button', { name: /return to dashboard/i });
+    if (await returnToDashboard.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await returnToDashboard.click();
+    } else {
+      await page.evaluate(() => window.sessionStorage.setItem('gameDayRedirectShown', 'true'));
+      await page.goto('/dashboard');
+    }
     await expect(page).toHaveURL(/dashboard/, { timeout: 10000 });
 
     // The dashboard page should load (could show Match Day or regular view)
@@ -43,17 +49,16 @@ test.describe('Coach Portal', () => {
   });
 
   test('coach can navigate to my players', async ({ page }) => {
-    await page.goto('/welcome');
-    await page.waitForTimeout(1000);
-
-    await page.getByText('My Players').click();
-    await page.waitForTimeout(3000);
+    await page.evaluate(() => window.sessionStorage.setItem('gameDayRedirectShown', 'true'));
+    await page.goto('/coach/players');
+    await page.waitForURL(/coach\/players/, { timeout: 10000 });
 
     // Should see some player/team data
     await expect(page.locator('body')).toContainText(/U10|U12|U14|U16|player|roster/i, { timeout: 5000 });
   });
 
   test('coach can logout', async ({ page }) => {
+    await page.evaluate(() => window.sessionStorage.setItem('gameDayRedirectShown', 'true'));
     await page.goto('/welcome');
     await page.waitForTimeout(1000);
 

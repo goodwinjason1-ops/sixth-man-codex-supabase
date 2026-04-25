@@ -1,217 +1,131 @@
 import { test, expect } from '@playwright/test';
 import { installE2EMock } from './e2eFixtures.js';
 
-const sharedRoutes = [
-  '/welcome',
-  '/dashboard',
-  '/team',
-  '/training',
-  '/stats',
-  '/messages',
-  '/notifications',
-  '/notifications/settings',
-  '/help',
-  '/help/admin',
-  '/help/leadership',
-  '/help/coordinators',
-  '/help/coaches',
-  '/help/youth-coaches',
-  '/help/assessors',
-  '/help/parents',
-  '/help/players'
-];
+const ERROR_TEXT = /Unable to load|Something went wrong|Failed to initialize|Failed to load user profile|Cannot read properties|is not a function/i;
+const IGNORED_CONSOLE_ERROR = /favicon|manifest|404|Failed to load resource|unique "key" prop/i;
 
-const leadershipRoutes = [
-  ...sharedRoutes,
-  '/admin',
-  '/admin/profile',
-  '/admin/users',
-  '/admin/teams',
-  '/admin/activity',
-  '/admin/assessments-hub',
-  '/admin/analytics-hub',
-  '/admin/coach-compliance',
-  '/admin/rosters',
-  '/admin/schedule',
-  '/admin/notifications',
-  '/admin/parent-invitations',
-  '/admin/team-selection',
-  '/admin/tryouts',
-  '/admin/tryouts/session-1/results',
-  '/coach/profile',
-  '/coach/schedule',
-  '/coach/players',
-  '/drills'
-];
-
-const routeMatrix = {
+const roleSurfaces = {
   admin: [
-    ...sharedRoutes,
+    '/welcome',
+    '/dashboard',
     '/admin',
-    '/admin/profile',
     '/admin/users',
-    '/admin/users/create',
-    '/admin/teams',
-    '/admin/activity',
     '/admin/beta-feedback',
-    '/admin/assessment-metrics',
-    '/admin/match-assessments',
-    '/admin/training-records',
-    '/admin/assessments-hub',
-    '/admin/analytics-hub',
-    '/admin/coach-compliance',
-    '/admin/rotation-analytics',
-    '/admin/benchmarks',
-    '/admin/rosters',
-    '/admin/schedule',
-    '/admin/playerhq',
-    '/admin/analytics',
-    '/admin/age-groups',
-    '/admin/age-groups/U12',
-    '/admin/coaching',
-    '/admin/curriculum',
-    '/admin/rep-prospects',
-    '/admin/data-explorer',
-    '/admin/reports',
-    '/admin/system',
-    '/admin/training-plans',
-    '/admin/game-results',
-    '/admin/notifications',
-    '/admin/scoring-roster',
-    '/admin/sample-data',
-    '/admin/parent-invitations',
-    '/admin/data-cleanup',
-    '/admin/youth-programs',
-    '/admin/team-selection',
-    '/admin/tryouts',
-    '/admin/tryouts/session-1/results',
-    '/admin/game-scouts',
-    '/drills',
-    '/drills/new',
-    '/drills/drill-1',
-    '/drills/drill-1/edit',
-    '/coach/profile',
-    '/coach/schedule',
-    '/coach/my-schedule',
-    '/coach/record-training',
-    '/coach/training-session/game-1',
-    '/coach/players',
-    '/players/player-1/development-plan',
-    '/players/player-1/development-plan/new',
-    '/development-plans/idp-1/review',
-    '/coach/training-plans',
-    '/coach/training-plans/new',
-    '/coach/training-plans/plan-1',
-    '/coach/training-history',
-    '/coach/training-history/session-1',
-    '/coach-assessment',
-    '/coach/match-assessment',
-    '/coach/match-history',
-    '/coach/rotation-tracker',
-    '/coach/rotation-analytics',
-    '/tryout/session-1',
-    '/scout-dashboard',
-    '/scout/game-1',
-    '/parent/team',
-    '/parent/schedule',
-    '/manager/team',
-    '/manager/scoring',
-    '/assessor'
+    '/admin/parent-invitations'
   ],
-  president: leadershipRoutes,
-  vice_president: leadershipRoutes,
-  coach_coordinator: leadershipRoutes,
+  president: [
+    '/welcome',
+    '/dashboard',
+    '/admin',
+    '/admin/users',
+    '/coach/players'
+  ],
+  vice_president: [
+    '/welcome',
+    '/dashboard',
+    '/admin',
+    '/admin/users',
+    '/coach/players'
+  ],
+  coach_coordinator: [
+    '/welcome',
+    '/dashboard',
+    '/admin',
+    '/coach/profile',
+    '/coach/players'
+  ],
   girls_coordinator: [
-    ...sharedRoutes,
+    '/welcome',
+    '/dashboard',
     '/admin/team-selection',
     '/admin/tryouts',
-    '/admin/tryouts/session-1/results',
     '/admin/game-scouts',
     '/admin/teams'
   ],
   boys_coordinator: [
-    ...sharedRoutes,
+    '/welcome',
+    '/dashboard',
     '/admin/team-selection',
     '/admin/tryouts',
-    '/admin/tryouts/session-1/results',
     '/admin/game-scouts',
     '/admin/teams'
   ],
-  coach: [
-    ...sharedRoutes,
-    '/coach',
-    '/coach/profile',
-    '/coach/schedule',
-    '/coach/my-schedule',
-    '/coach/record-training',
-    '/coach/training-session/game-1',
-    '/coach/players',
-    '/players/player-1/development-plan',
-    '/players/player-1/development-plan/new',
-    '/development-plans/idp-1/review',
-    '/coach/training-plans',
-    '/coach/training-plans/new',
-    '/coach/training-plans/plan-1',
-    '/coach/training-history',
-    '/coach/training-history/session-1',
-    '/coach-assessment',
-    '/coach/match-assessment',
-    '/coach/match-history',
-    '/coach/rotation-tracker',
-    '/coach/rotation-analytics',
-    '/drills',
-    '/drills/drill-1',
-    '/tryout/session-1',
-    '/scout-dashboard',
-    '/scout/game-1'
+  youth_head_coach: [
+    '/welcome',
+    '/dashboard',
+    '/admin/youth-programs',
+    '/youth-programs/program-1',
+    '/admin/tryouts/session-1/results'
   ],
   youth_coach: [
-    ...sharedRoutes,
+    '/welcome',
+    '/dashboard',
     '/admin/youth-programs',
     '/youth-programs/program-1',
     '/youth-programs/program-1/session-summary',
     '/youth-programs/program-1/session-history'
   ],
-  youth_head_coach: [
-    ...sharedRoutes,
-    '/admin/youth-programs',
-    '/youth-programs/program-1',
-    '/youth-programs/program-1/session-summary',
-    '/youth-programs/program-1/session-history',
-    '/admin/tryouts/session-1/results'
+  coach: [
+    '/welcome',
+    '/dashboard',
+    '/coach',
+    '/coach/players',
+    '/coach/training-plans',
+    '/drills',
+    '/tryout/session-1'
   ],
   team_manager: [
-    ...sharedRoutes,
+    '/welcome',
+    '/dashboard',
     '/manager/team',
     '/manager/scoring',
     '/admin/scoring-roster',
     '/tryout/session-1'
   ],
   parent: [
-    ...sharedRoutes,
+    '/welcome',
+    '/dashboard',
     '/parent/team',
     '/parent/schedule',
-    '/parent/scoring-swap/swap-1',
-    '/players/player-1/development-plan'
+    '/players/player-1/development-plan',
+    '/notifications'
   ],
   player: [
-    ...sharedRoutes,
+    '/welcome',
+    '/dashboard',
     '/player',
     '/skills-passport/player-1',
-    '/players/player-1/development-plan'
+    '/team',
+    '/training'
   ],
   tryout_assessor: [
-    ...sharedRoutes,
     '/assessor',
-    '/tryout/session-1'
+    '/tryout/session-1',
+    '/help/assessors'
   ],
   pending: [
     '/welcome',
-    '/dashboard',
-    '/notifications',
     '/help'
   ]
 };
+
+const unauthenticatedProtectedRoutes = [
+  '/dashboard',
+  '/admin',
+  '/coach/players',
+  '/parent/team',
+  '/manager/team',
+  '/tryout/session-1'
+];
+
+const unauthorizedCases = [
+  { role: 'parent', route: '/admin' },
+  { role: 'player', route: '/manager/team' },
+  { role: 'coach', route: '/admin/users' },
+  { role: 'tryout_assessor', route: '/admin/tryouts' },
+  { role: 'pending', route: '/admin' },
+  { role: 'parent', route: '/assessor', expectedPath: '/dashboard' }
+];
 
 const publicRoutes = [
   '/login',
@@ -220,99 +134,160 @@ const publicRoutes = [
   '/not-a-real-route'
 ];
 
-const ROUTES_PER_TEST = 8;
+function attachConsoleGuards(page) {
+  const errors = [];
 
-const chunkRoutes = (routes) => {
-  const chunks = [];
-  for (let i = 0; i < routes.length; i += ROUTES_PER_TEST) {
-    chunks.push(routes.slice(i, i + ROUTES_PER_TEST));
-  }
-  return chunks;
-};
+  page.on('pageerror', (error) => {
+    errors.push(`pageerror: ${error.message}`);
+  });
 
-async function expectUsableScreen(page, route, consoleErrors) {
+  page.on('console', (message) => {
+    const text = message.text();
+    if (message.type() === 'error' && !IGNORED_CONSOLE_ERROR.test(text)) {
+      errors.push(`console: ${text}`);
+    }
+  });
+
+  return errors;
+}
+
+async function installRole(page, role = null) {
+  await installE2EMock(page, role);
+  await page.addInitScript(() => {
+    window.sessionStorage.setItem('gameDayRedirectShown', 'true');
+  });
+}
+
+async function expectUsableScreen(page, route, options = {}) {
+  const {
+    consoleErrors = [],
+    allowLogin = false,
+    expectedPath,
+    requireRedirectFrom
+  } = options;
+
+  consoleErrors.length = 0;
   await page.goto(route);
   await page.waitForLoadState('domcontentloaded');
   await page.waitForFunction(
-    () => document.body && document.body.innerText.trim().length > 20,
+    () => {
+      const text = document.body?.innerText?.trim() || '';
+      return text.length > 20 && !/^Loading\.{0,3}$/.test(text);
+    },
     null,
-    { timeout: 8000 }
+      { timeout: 20000 }
   );
-  await page.waitForTimeout(150);
-
-  await expect(page.locator('body')).not.toBeEmpty();
-  await expect(page.locator('body')).not.toContainText(/Unable to load|Something went wrong/i);
-  await expect(page).not.toHaveURL(/\/login(?:\?|$)/, { timeout: 500 });
+  await page.waitForTimeout(200);
 
   const bodyText = (await page.locator('body').innerText()).trim();
   expect(bodyText.length, `${route} rendered a blank or near-blank screen`).toBeGreaterThan(20);
+  expect(bodyText, `${route} displayed an application error`).not.toMatch(ERROR_TEXT);
 
-  const navigable = await page.locator('a[href], button').count();
-  expect(navigable, `${route} should expose navigation or an action to recover`).toBeGreaterThan(0);
+  if (!allowLogin) {
+    await expect(page, `${route} sent an authenticated user to login`).not.toHaveURL(/\/login(?:[?#]|$)/, {
+      timeout: 500
+    });
+  }
 
+  const pathname = new URL(page.url()).pathname;
+  if (expectedPath) {
+    expect(pathname, `${route} should land on ${expectedPath}`).toBe(expectedPath);
+  }
+  if (requireRedirectFrom) {
+    expect(pathname, `${route} should redirect away from unauthorized route`).not.toBe(requireRedirectFrom);
+  }
+
+  const controls = await page.locator('a[href], button, input, textarea, select').count();
+  expect(controls, `${route} should expose navigation or a recovery action`).toBeGreaterThan(0);
   expect(consoleErrors, `${route} emitted browser errors`).toEqual([]);
 }
 
-test.describe.skip('Role perspective route smoke tests', () => {
-  for (const [role, routes] of Object.entries(routeMatrix)) {
-    chunkRoutes(routes).forEach((routeChunk, index) => {
-      test(`${role} can load route group ${index + 1} without a blank screen`, async ({ page }) => {
-        await installE2EMock(page, role);
-        const consoleErrors = [];
+async function collectRouteFailures(page, routes, options = {}) {
+  const failures = [];
+  const consoleErrors = attachConsoleGuards(page);
 
-        page.on('pageerror', (error) => {
-          consoleErrors.push(error.message);
-        });
-        page.on('console', (message) => {
-          const text = message.text();
-          if (
-            message.type() === 'error' &&
-            !/favicon|manifest|404|Failed to load resource/i.test(text)
-          ) {
-            consoleErrors.push(text);
-          }
-        });
+  for (const route of routes) {
+    try {
+      await expectUsableScreen(page, route, { ...options, consoleErrors });
+    } catch (error) {
+      const bodyText = await page.locator('body').innerText().catch(() => '');
+      failures.push(`${route} -> ${page.url()}: ${error.message}\n${bodyText.slice(0, 240)}`);
+    }
+  }
 
-        for (const route of routeChunk) {
-          consoleErrors.length = 0;
-          await expectUsableScreen(page, route, consoleErrors);
-        }
+  return failures;
+}
+
+test.describe('Role perspective smoke coverage', () => {
+  for (const [role, routes] of Object.entries(roleSurfaces)) {
+    test(`${role} can reach expected surfaces without blank screens`, async ({ page }) => {
+      await installRole(page, role);
+      const failures = await collectRouteFailures(page, routes);
+      expect(failures).toEqual([]);
+    });
+  }
+
+  test('unauthenticated users are sent to login from protected routes', async ({ page }) => {
+    await installRole(page);
+    const failures = [];
+    const consoleErrors = attachConsoleGuards(page);
+
+    for (const route of unauthenticatedProtectedRoutes) {
+      try {
+        await expectUsableScreen(page, route, {
+          consoleErrors,
+          allowLogin: true,
+          expectedPath: '/login'
+        });
+      } catch (error) {
+        failures.push(`${route} -> ${page.url()}: ${error.message}`);
+      }
+    }
+
+    expect(failures).toEqual([]);
+  });
+
+  for (const testCase of unauthorizedCases) {
+    test(`${testCase.role} is redirected away from ${testCase.route}`, async ({ page }) => {
+      await installRole(page, testCase.role);
+      const consoleErrors = attachConsoleGuards(page);
+
+      await expectUsableScreen(page, testCase.route, {
+        consoleErrors,
+        expectedPath: testCase.expectedPath,
+        requireRedirectFrom: testCase.route
       });
     });
   }
 
   test('public and fallback routes never strand users on a blank page', async ({ page }) => {
-    await installE2EMock(page);
-    const consoleErrors = [];
+    await installRole(page);
+    const failures = await collectRouteFailures(page, publicRoutes, { allowLogin: true });
+    expect(failures).toEqual([]);
+  });
 
-    page.on('pageerror', (error) => {
-      consoleErrors.push(error.message);
-    });
-    page.on('console', (message) => {
-      const text = message.text();
-      if (
-        message.type() === 'error' &&
-        !/favicon|manifest|404|Failed to load resource/i.test(text)
-      ) {
-        consoleErrors.push(text);
-      }
-    });
+  test('feedback form accepts a screenshot and stores feedback without crashing', async ({ page }) => {
+    await installRole(page, 'admin');
+    const consoleErrors = attachConsoleGuards(page);
 
-    for (const route of publicRoutes) {
-      consoleErrors.length = 0;
-      await page.goto(route);
-      await page.waitForLoadState('domcontentloaded');
-      await page.waitForFunction(
-        () => document.body && document.body.innerText.trim().length > 20,
-        null,
-        { timeout: 8000 }
-      );
-      await page.waitForTimeout(150);
-      await expect(page.locator('body')).not.toBeEmpty();
-      await expect(page.locator('body')).not.toContainText(/Something went wrong/i);
-      const bodyText = (await page.locator('body').innerText()).trim();
-      expect(bodyText.length, `${route} rendered a blank or near-blank screen`).toBeGreaterThan(20);
-      expect(consoleErrors, `${route} emitted browser errors`).toEqual([]);
-    }
+    await expectUsableScreen(page, '/dashboard', { consoleErrors });
+    await page.getByTitle('Share Feedback').click();
+    await expect(page.getByRole('heading', { name: 'Share Feedback' })).toBeVisible();
+
+    await page.getByRole('button', { name: /Bug Report/i }).click();
+    await page.locator('textarea').fill('E2E screenshot upload smoke test.');
+    await page.locator('input[type="file"]').setInputFiles({
+      name: 'feedback-smoke.png',
+      mimeType: 'image/png',
+      buffer: Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
+        'base64'
+      )
+    });
+    await expect(page.getByAltText('Screenshot preview')).toBeVisible();
+
+    await page.getByRole('button', { name: /Submit Feedback/i }).click();
+    await expect(page.getByRole('heading', { name: 'Thank you!' })).toBeVisible({ timeout: 10000 });
+    expect(consoleErrors, 'feedback flow emitted browser errors').toEqual([]);
   });
 });

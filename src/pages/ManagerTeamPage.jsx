@@ -27,6 +27,62 @@ const ManagerTeamPage = () => {
   } = useFilteredData();
 
   const [selectedTeamIdx, setSelectedTeamIdx] = useState(0);
+  const teamList = teams || [];
+  const playerList = allPlayers || [];
+  const scheduleList = schedule || [];
+  const selectedTeam = teamList[selectedTeamIdx] || teamList[0] || null;
+
+  // Get coach info from team doc — try coachId lookup first, then fall back to coachName field
+  const coachInfo = useMemo(() => {
+    if (!selectedTeam) return null;
+    if (selectedTeam.coachId && playerList.length > 0) {
+      // Look up coach in allPlayers by userId match (coaches may have a user doc referenced in allPlayers)
+      // In many setups the coach is a user, not a player — so also check the coachName field
+      const coachPlayer = playerList.find(p => p.userId === selectedTeam.coachId || p.id === selectedTeam.coachId);
+      if (coachPlayer) {
+        return coachPlayer.name || coachPlayer.firstName || 'Unknown Coach';
+      }
+    }
+    return selectedTeam.coachName || selectedTeam.coach || null;
+  }, [selectedTeam, playerList]);
+
+  // Full roster for the selected team — managers see full names
+  const teamRoster = useMemo(() => {
+    if (!selectedTeam || playerList.length === 0) return [];
+    const playerIds = selectedTeam.playerIds || [];
+    return playerList
+      .filter(p => playerIds.includes(p.id) || p.teamId === selectedTeam.id)
+      .map(p => ({
+        id: p.id,
+        name: p.name || `${p.firstName || ''} ${p.lastName || ''}`.trim() || 'Unknown Player',
+        playerNumber: p.playerNumber,
+        position: p.position,
+        ageGroup: p.ageGroup,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [selectedTeam, playerList]);
+
+  // Upcoming schedule for this team (games + training)
+  const upcomingEvents = useMemo(() => {
+    if (!selectedTeam || scheduleList.length === 0) return [];
+    const now = new Date();
+    const teamName = (selectedTeam.name || '').toLowerCase();
+
+    return scheduleList
+      .filter(event => {
+        const eventDate = event.date?.toDate ? event.date.toDate() : new Date(event.date);
+        if (isNaN(eventDate.getTime()) || eventDate < now) return false;
+        if (event.teamId === selectedTeam.id) return true;
+        if (event.teamName?.toLowerCase() === teamName) return true;
+        return false;
+      })
+      .sort((a, b) => {
+        const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+        const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+        return dateA - dateB;
+      })
+      .slice(0, 8);
+  }, [selectedTeam, scheduleList]);
 
   // Loading state
   if (loading) {
@@ -41,7 +97,7 @@ const ManagerTeamPage = () => {
   }
 
   // No teams assigned
-  if (!teams || teams.length === 0) {
+  if (teamList.length === 0) {
     return (
       <PageShell title="My Team" backTo="/dashboard" breadcrumbs={[{ label: 'Home', url: '/welcome' }, { label: 'Dashboard', url: '/dashboard' }, { label: 'My Team' }]}>
         <div className="flex flex-col items-center justify-center py-16">
@@ -55,72 +111,18 @@ const ManagerTeamPage = () => {
     );
   }
 
-  const selectedTeam = teams[selectedTeamIdx] || teams[0] || null;
-
-  // Get coach info from team doc — try coachId lookup first, then fall back to coachName field
-  const coachInfo = useMemo(() => {
-    if (!selectedTeam) return null;
-    if (selectedTeam.coachId && allPlayers) {
-      // Look up coach in allPlayers by userId match (coaches may have a user doc referenced in allPlayers)
-      // In many setups the coach is a user, not a player — so also check the coachName field
-      const coachPlayer = allPlayers.find(p => p.userId === selectedTeam.coachId || p.id === selectedTeam.coachId);
-      if (coachPlayer) {
-        return coachPlayer.name || coachPlayer.firstName || 'Unknown Coach';
-      }
-    }
-    return selectedTeam.coachName || selectedTeam.coach || null;
-  }, [selectedTeam, allPlayers]);
-
-  // Full roster for the selected team — managers see full names
-  const teamRoster = useMemo(() => {
-    if (!selectedTeam || !allPlayers) return [];
-    const playerIds = selectedTeam.playerIds || [];
-    return allPlayers
-      .filter(p => playerIds.includes(p.id) || p.teamId === selectedTeam.id)
-      .map(p => ({
-        id: p.id,
-        name: p.name || `${p.firstName || ''} ${p.lastName || ''}`.trim() || 'Unknown Player',
-        playerNumber: p.playerNumber,
-        position: p.position,
-        ageGroup: p.ageGroup,
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [selectedTeam, allPlayers]);
-
-  // Upcoming schedule for this team (games + training)
-  const upcomingEvents = useMemo(() => {
-    if (!selectedTeam || !schedule?.length) return [];
-    const now = new Date();
-    const teamName = (selectedTeam.name || '').toLowerCase();
-
-    return schedule
-      .filter(event => {
-        const eventDate = event.date?.toDate ? event.date.toDate() : new Date(event.date);
-        if (isNaN(eventDate.getTime()) || eventDate < now) return false;
-        if (event.teamId === selectedTeam.id) return true;
-        if (event.teamName?.toLowerCase() === teamName) return true;
-        return false;
-      })
-      .sort((a, b) => {
-        const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
-        const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
-        return dateA - dateB;
-      })
-      .slice(0, 8);
-  }, [selectedTeam, schedule]);
-
   return (
     <PageShell title="My Team" backTo="/dashboard" breadcrumbs={[{ label: 'Home', url: '/welcome' }, { label: 'Dashboard', url: '/dashboard' }, { label: 'My Team' }]}>
       <div className="space-y-4">
         {/* Team selector (if multiple teams) */}
-        {teams.length > 1 && (
+        {teamList.length > 1 && (
           <div className="relative">
             <select
               value={selectedTeamIdx}
               onChange={(e) => setSelectedTeamIdx(Number(e.target.value))}
               className="w-full px-4 py-3 bg-white border border-[#D4E4D4] rounded-xl text-gray-800 appearance-none focus:border-[#00A651] focus:outline-none"
             >
-              {teams.map((team, idx) => (
+              {teamList.map((team, idx) => (
                 <option key={team.id} value={idx}>{team.name}</option>
               ))}
             </select>

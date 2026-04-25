@@ -921,7 +921,7 @@ const AppRoutes = () => {
         <Route
           path="/tryout/:sessionId"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={TRYOUT_ASSESSOR_ROLES}>
               <ErrorBoundary fallbackMessage="Unable to load assessor view.">
                 <TryoutAssessorPage />
               </ErrorBoundary>
@@ -1022,7 +1022,7 @@ const AppRoutes = () => {
         <Route
           path="/assessor"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={TRYOUT_ASSESSOR_ROLES}>
               <ErrorBoundary fallbackMessage="Unable to load assessor dashboard.">
                 <AssessorDashboard />
               </ErrorBoundary>

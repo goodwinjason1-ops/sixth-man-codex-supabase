@@ -27,47 +27,25 @@ const ParentTeamViewPage = () => {
   } = useFilteredData();
 
   const [selectedTeamIdx, setSelectedTeamIdx] = useState(0);
-
-  // Loading state
-  if (loading) {
-    return (
-      <PageShell title="Team Info" backTo="/dashboard">
-        <div className="flex flex-col items-center justify-center py-16">
-          <Loader2 className="w-8 h-8 text-[#00A651] animate-spin mb-4" />
-          <p className="text-gray-500">Loading team information...</p>
-        </div>
-      </PageShell>
-    );
-  }
-
-  // No children linked
-  if (!players || players.length === 0) {
-    return (
-      <PageShell title="Team Info" backTo="/dashboard">
-        <div className="flex flex-col items-center justify-center py-16">
-          <AlertCircle className="w-12 h-12 text-[#6B7C6B] mb-4" />
-          <h2 className="text-lg font-bold text-gray-800 mb-2">No Team Found</h2>
-          <p className="text-[#6B7C6B] text-sm text-center">
-            Your account is not linked to any players yet. Please contact your club administrator.
-          </p>
-        </div>
-      </PageShell>
-    );
-  }
+  const childPlayers = players || [];
+  const teamList = teams || [];
+  const playerList = allPlayers || [];
+  const childIds = userChildrenIds || [];
+  const scheduleList = schedule || [];
 
   // teams is already filtered to the parent's children's teams
-  const selectedTeam = teams[selectedTeamIdx] || teams[0] || null;
+  const selectedTeam = teamList[selectedTeamIdx] || teamList[0] || null;
 
   // Get roster for the selected team (first names only for privacy)
   const teamRoster = useMemo(() => {
-    if (!selectedTeam || !allPlayers) return [];
+    if (!selectedTeam || playerList.length === 0) return [];
     const playerIds = selectedTeam.playerIds || [];
     // Also include players whose teamId matches the selected team
-    return allPlayers
+    return playerList
       .filter(p => playerIds.includes(p.id) || p.teamId === selectedTeam.id)
       .map(p => {
         const firstName = (p.name || '').split(' ')[0] || 'Player';
-        const isMyChild = userChildrenIds.includes(p.id);
+        const isMyChild = childIds.includes(p.id);
         return {
           id: p.id,
           firstName,
@@ -82,18 +60,18 @@ const ParentTeamViewPage = () => {
         if (!a.isMyChild && b.isMyChild) return 1;
         return a.firstName.localeCompare(b.firstName);
       });
-  }, [selectedTeam, allPlayers, userChildrenIds]);
+  }, [selectedTeam, playerList, childIds]);
 
   // Coach info from the team doc
   const coachName = selectedTeam?.coachName || selectedTeam?.coach || null;
 
   // Upcoming schedule for this team
   const upcomingEvents = useMemo(() => {
-    if (!selectedTeam || !schedule?.length) return [];
+    if (!selectedTeam || scheduleList.length === 0) return [];
     const now = new Date();
     const teamName = (selectedTeam.name || '').toLowerCase();
 
-    return schedule
+    return scheduleList
       .filter(event => {
         const eventDate = event.date?.toDate ? event.date.toDate() : new Date(event.date);
         if (eventDate < now) return false;
@@ -107,20 +85,47 @@ const ParentTeamViewPage = () => {
         return dateA - dateB;
       })
       .slice(0, 5);
-  }, [selectedTeam, schedule]);
+  }, [selectedTeam, scheduleList]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <PageShell title="Team Info" backTo="/dashboard">
+        <div className="flex flex-col items-center justify-center py-16">
+          <Loader2 className="w-8 h-8 text-[#00A651] animate-spin mb-4" />
+          <p className="text-gray-500">Loading team information...</p>
+        </div>
+      </PageShell>
+    );
+  }
+
+  // No children linked
+  if (childPlayers.length === 0) {
+    return (
+      <PageShell title="Team Info" backTo="/dashboard">
+        <div className="flex flex-col items-center justify-center py-16">
+          <AlertCircle className="w-12 h-12 text-[#6B7C6B] mb-4" />
+          <h2 className="text-lg font-bold text-gray-800 mb-2">No Team Found</h2>
+          <p className="text-[#6B7C6B] text-sm text-center">
+            Your account is not linked to any players yet. Please contact your club administrator.
+          </p>
+        </div>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell title="Team Info" backTo="/dashboard" breadcrumbs={[{ label: 'Home', url: '/welcome' }, { label: 'Dashboard', url: '/dashboard' }, { label: 'Team Info' }]}>
       <div className="space-y-4">
         {/* Team selector (if multiple teams) */}
-        {teams.length > 1 && (
+        {teamList.length > 1 && (
           <div className="relative">
             <select
               value={selectedTeamIdx}
               onChange={(e) => setSelectedTeamIdx(Number(e.target.value))}
               className="w-full px-4 py-3 bg-white border border-[#D4E4D4] rounded-xl text-gray-800 appearance-none focus:border-[#00A651] focus:outline-none"
             >
-              {teams.map((team, idx) => (
+              {teamList.map((team, idx) => (
                 <option key={team.id} value={idx}>{team.name}</option>
               ))}
             </select>
