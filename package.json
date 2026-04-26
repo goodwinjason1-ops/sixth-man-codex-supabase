@@ -33,6 +33,7 @@
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "qa:live": "node scripts/run-live-qa.mjs",
-    "qa:live:deployed": "node scripts/run-live-qa.mjs --deployed"
+    "qa:live:deployed": "node scripts/run-live-qa.mjs --deployed",
+    "qa:voice": "node scripts/run-live-voice-transcription.mjs"
   }
 }

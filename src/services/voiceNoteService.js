@@ -1,6 +1,16 @@
 import { supabase } from './firebase';
 
-const TRANSCRIPTION_ENDPOINT = import.meta.env.VITE_VOICE_TRANSCRIPTION_ENDPOINT;
+const resolveTranscriptionEndpoint = () => {
+  const configuredEndpoint = import.meta.env.VITE_VOICE_TRANSCRIPTION_ENDPOINT;
+  if (configuredEndpoint) return configuredEndpoint.replace(/\/$/, '');
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  if (!supabaseUrl) return '';
+
+  return `${supabaseUrl.replace(/\/$/, '')}/functions/v1/voice-transcription`;
+};
+
+const TRANSCRIPTION_ENDPOINT = resolveTranscriptionEndpoint();
 const MAX_AUDIO_BYTES = 25 * 1024 * 1024;
 
 export const supportsVoiceRecording = () =>
@@ -24,7 +34,7 @@ export const transcribeVoiceNote = async ({ audioBlob, context = {}, fallbackTra
       status: fallbackTranscript ? 'manual_transcript' : 'needs_transcript',
       provider: 'manual',
       transcript: fallbackTranscript,
-      message: 'Set VITE_VOICE_TRANSCRIPTION_ENDPOINT to enable server-side AI transcription.'
+      message: 'Configure Supabase or set VITE_VOICE_TRANSCRIPTION_ENDPOINT to enable server-side AI transcription.'
     };
   }
 
@@ -71,4 +81,3 @@ export const createVoiceCaptureRecord = ({
   warnings,
   context
 });
-

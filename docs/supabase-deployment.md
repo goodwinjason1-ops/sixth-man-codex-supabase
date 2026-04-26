@@ -96,6 +96,25 @@ Buckets created by migration:
 
 Keep raw junior sports video private. Prefer short-lived signed URLs for playback, and avoid copying raw video into public buckets. Any AI worker should use the service role only on trusted server/worker infrastructure.
 
+## Voice Transcription Edge Function
+
+The coach voice notes feature can use `supabase/functions/voice-transcription` for secure server-side speech-to-text. Set the Hugging Face provider token as a Supabase secret, then deploy the function:
+
+```powershell
+supabase secrets set HF_TOKEN="<hugging-face-token>"
+supabase functions deploy voice-transcription --no-verify-jwt
+```
+
+The Vite app derives the function endpoint from `VITE_SUPABASE_URL` as:
+
+```powershell
+https://<project-ref>.supabase.co/functions/v1/voice-transcription
+```
+
+Set `VITE_VOICE_TRANSCRIPTION_ENDPOINT` only if you need a custom endpoint.
+
+See `docs/voice-transcription-edge-function.md` for local testing, optional model settings, and the response contract.
+
 ## Realtime
 
 The migrations add these tables to `supabase_realtime` when that publication exists:
