@@ -18,6 +18,11 @@ import {
 import { SKILL_CATEGORIES, GOAL_STATUSES, REVIEW_TYPES } from '../data/idpConstants';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../services/firebase';
+import {
+  buildReviewedDevelopmentPlan,
+  getCurrentSkillLevels,
+  parseIDPDate
+} from '../services/idpService';
 
 const LEVEL_LABELS = {
   1: 'Emerging',
@@ -43,15 +48,19 @@ const STATUS_ICONS = {
 const IDPReviewPage = () => {
   const { planId } = useParams();
   const navigate = useNavigate();
+  const { updateDocument } = useData();
   const { userProfile } = useAuth();
   const [developmentPlans, setDevelopmentPlans] = useState([]);
+  const [plansLoaded, setPlansLoaded] = useState(false);
 
   // Load development plans from Firestore
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'development_plans'), (snap) => {
       setDevelopmentPlans(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setPlansLoaded(true);
     }, (err) => {
       console.error('Development plans subscription error:', err);
+      setPlansLoaded(true);
     });
     return () => unsub();
   }, []);
@@ -66,7 +75,7 @@ const IDPReviewPage = () => {
   const [reviewType, setReviewType] = useState('mid_season');
   const [goalsProgress, setGoalsProgress] = useState(() => {
     if (!plan) return [];
-    return plan.goals.map(goal => ({
+    return (plan.goals || []).map(goal => ({
       goalId: goal.id,
       status: goal.status,
       note: ''
@@ -75,21 +84,22 @@ const IDPReviewPage = () => {
   const [assessedSkills, setAssessedSkills] = useState({});
   const [coachComments, setCoachComments] = useState('');
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [reviewTypeOpen, setReviewTypeOpen] = useState(false);
+
+  useEffect(() => {
+    if (!plan?.goals) return;
+    setGoalsProgress(plan.goals.map(goal => ({
+      goalId: goal.id,
+      status: goal.status || 'not_started',
+      note: ''
+    })));
+  }, [plan]);
 
   // Get current skill levels — last review's assessed skills merged over baseline
   const currentSkillLevels = useMemo(() => {
     if (!plan) return {};
-    const baseline = { ...plan.baselineAssessment.skills };
-    // Apply any assessed skills from previous reviews (in order)
-    plan.reviews.forEach(review => {
-      if (review.assessedSkills) {
-        Object.entries(review.assessedSkills).forEach(([skillId, level]) => {
-          baseline[skillId] = level;
-        });
-      }
-    });
-    return baseline;
+    return getCurrentSkillLevels(plan);
   }, [plan]);
 
   // Handle goal status change
@@ -126,9 +136,9 @@ const IDPReviewPage = () => {
   // Save review
   const handleSaveReview = async () => {
     setSaving(true);
+    setSaveError(null);
 
     const review = {
-      date: new Date(),
       type: reviewType,
       assessedSkills: Object.keys(assessedSkills).length > 0 ? assessedSkills : null,
       coachComments,
@@ -139,15 +149,28 @@ const IDPReviewPage = () => {
       }))
     };
 
-    // Log to console since we cannot update sample data
-    console.log('Review saved:', review);
-    console.log('Plan ID:', planId);
-
-    // Simulate a brief save delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    setSaving(false);
-    navigate(-1);
+    try {
+      const nextPlan = buildReviewedDevelopmentPlan(plan, review, {
+        reviewer: userProfile,
+        now: new Date()
+      });
+      const result = await updateDocument('development_plans', planId, {
+        goals: nextPlan.goals,
+        reviews: nextPlan.reviews,
+        currentSkillLevels: nextPlan.currentSkillLevels,
+        status: nextPlan.status,
+        lastReviewAt: nextPlan.lastReviewAt
+      });
+      if (!result?.success) {
+        throw new Error(result?.error || 'Failed to save review. Please try again.');
+      }
+      navigate(`/players/${plan.playerId}/development-plan`);
+    } catch (error) {
+      console.error('Error saving IDP review:', error);
+      setSaveError(error.message || 'Failed to save review. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Get the skill category label from its id
@@ -155,6 +178,20 @@ const IDPReviewPage = () => {
     const cat = SKILL_CATEGORIES.find(c => c.id === skillId);
     return cat ? cat.label : skillId;
   };
+
+  if (!plansLoaded) {
+    return (
+      <PageShell
+        title="Review Development Plan"
+        backTo="/dashboard"
+      >
+        <div className="flex flex-col items-center justify-center py-16">
+          <Loader2 size={36} className="text-[#00A651] animate-spin mb-4" />
+          <p className="text-[#6B7C6B] text-sm">Loading development plan...</p>
+        </div>
+      </PageShell>
+    );
+  }
 
   // Error state - plan not found
   if (!plan) {
@@ -172,10 +209,10 @@ const IDPReviewPage = () => {
             The development plan you are looking for does not exist or may have been removed.
           </p>
           <button
-            onClick={() => navigate('/development-plans')}
+            onClick={() => navigate('/dashboard')}
             className="px-4 py-2 bg-[#005028] text-white rounded-lg hover:bg-[#005028]/90 transition-colors"
           >
-            Back to Development Plans
+            Back to Dashboard
           </button>
         </div>
       </PageShell>
@@ -188,11 +225,11 @@ const IDPReviewPage = () => {
     <PageShell
       title="Review Development Plan"
       subtitle={plan.playerName}
-      backTo={`/development-plans/${planId}`}
+      backTo={`/players/${plan.playerId}/development-plan`}
       breadcrumbs={[
         { label: 'Home', url: '/welcome' },
         { label: 'Dashboard', url: '/dashboard' },
-        { label: 'Development Plans', url: `/development-plans/${planId}` },
+        { label: 'Development Plan', url: `/players/${plan.playerId}/development-plan` },
         { label: 'Review' }
       ]}
     >
@@ -217,7 +254,7 @@ const IDPReviewPage = () => {
             <div>
               <p className="text-xs text-[#6B7C6B] uppercase tracking-wide">Baseline Date</p>
               <p className="text-sm font-medium text-gray-800">
-                {plan.baselineAssessment.date.toLocaleDateString('en-AU', {
+                {(parseIDPDate(plan.baselineAssessment?.date) || new Date()).toLocaleDateString('en-AU', {
                   day: 'numeric',
                   month: 'short',
                   year: 'numeric'
@@ -227,7 +264,7 @@ const IDPReviewPage = () => {
             <div>
               <p className="text-xs text-[#6B7C6B] uppercase tracking-wide">Status</p>
               <p className="text-sm font-medium text-gray-800 capitalize">
-                {plan.status.replace('_', ' ')}
+                {(plan.status || 'active').replace('_', ' ')}
               </p>
             </div>
           </div>
@@ -236,7 +273,7 @@ const IDPReviewPage = () => {
           <div>
             <p className="text-xs text-[#6B7C6B] uppercase tracking-wide mb-2">Current Goals</p>
             <div className="space-y-2">
-              {plan.goals.map(goal => {
+              {(plan.goals || []).map(goal => {
                 const statusDef = GOAL_STATUSES.find(s => s.id === goal.status);
                 const StatusIcon = STATUS_ICONS[goal.status] || Clock;
                 return (
@@ -307,7 +344,7 @@ const IDPReviewPage = () => {
           </div>
 
           <div className="space-y-5">
-            {plan.goals.map((goal, idx) => {
+            {(plan.goals || []).map((goal, idx) => {
               const progress = goalsProgress.find(gp => gp.goalId === goal.id);
               return (
                 <div
@@ -455,7 +492,7 @@ const IDPReviewPage = () => {
 
           <div className="space-y-4">
             {SKILL_CATEGORIES.map(category => {
-              const baselineLevel = plan.baselineAssessment.skills[category.id] || 0;
+              const baselineLevel = plan.baselineAssessment?.skills?.[category.id] || 0;
               const currentLevel = assessedSkills[category.id] || currentSkillLevels[category.id] || baselineLevel;
               const baselineWidth = (baselineLevel / 4) * 100;
               const currentWidth = (currentLevel / 4) * 100;
@@ -505,6 +542,12 @@ const IDPReviewPage = () => {
         </section>
 
         {/* G. Save Button */}
+        {saveError && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+            <p className="text-sm text-red-700">{saveError}</p>
+          </div>
+        )}
+
         <div className="pb-4">
           <button
             onClick={handleSaveReview}

@@ -28,14 +28,15 @@ import Breadcrumb from '../components/Breadcrumb';
 import FirstTimeHint from '../components/tutorial/FirstTimeHint';
 import TutorialPromptCard from '../components/tutorial/TutorialPromptCard';
 import { getParentSummaries } from '../services/youthProgramService';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import SessionSummaryCard from '../components/youth/SessionSummaryCard';
+import { selectVisiblePlanForPlayer } from '../services/idpService';
 
 const ParentDashboard = () => {
   const navigate = useNavigate();
   const { refreshUserProfile } = useAuth();
-  const { players, teams, evaluations, schedule, games, matchAssessments, userProfile, userChildrenIds, loading } = useFilteredData();
+  const { players, teams, evaluations, schedule, games, matchAssessments, userProfile, userChildrenIds, currentUser, loading } = useFilteredData();
   const [refreshing, setRefreshing] = useState(false);
 
   // If linkedPlayerIds is empty but user is a parent, try refreshing from Firestore
@@ -53,6 +54,7 @@ const ParentDashboard = () => {
   const [selectedChildIdx, setSelectedChildIdx] = useState(0);
   const [expandedMatchId, setExpandedMatchId] = useState(null);
   const [expandedMetrics, setExpandedMetrics] = useState({});
+  const [developmentPlans, setDevelopmentPlans] = useState([]);
   const toggleMetric = (key) => setExpandedMetrics(prev => ({ ...prev, [key]: !prev[key] }));
   const selectedChild = linkedPlayers[selectedChildIdx] || null;
 
@@ -69,8 +71,25 @@ const ParentDashboard = () => {
     return evals.sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0)).slice(0, 5);
   }, [selectedChild, evaluations]);
 
-  // IDP placeholder — real IDP data would come from Firestore if available
-  const childIDP = null;
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'development_plans'), (snap) => {
+      setDevelopmentPlans(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (err) => {
+      console.error('Development plans subscription error:', err);
+      setDevelopmentPlans([]);
+    });
+    return () => unsub();
+  }, []);
+
+  const childIDP = useMemo(() => {
+    if (!selectedChild) return null;
+    return selectVisiblePlanForPlayer({
+      plans: developmentPlans,
+      playerId: selectedChild.id,
+      userProfile,
+      currentUser
+    });
+  }, [developmentPlans, selectedChild, userProfile, currentUser]);
 
   // Session summaries from youth programs
   const [sessionSummaries, setSessionSummaries] = useState([]);

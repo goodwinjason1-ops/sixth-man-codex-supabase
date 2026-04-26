@@ -35,37 +35,54 @@ import { SKILL_CATEGORIES, GOAL_STATUSES } from '../data/idpConstants';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { STAFF_ROLES } from '../constants/roles';
+import {
+  getLinkedParentIdsForPlayer,
+  parseIDPDate,
+  selectVisiblePlanForPlayer
+} from '../services/idpService';
 
 const PlayerIDPPage = () => {
   const { playerId } = useParams();
   const navigate = useNavigate();
   const { players, updateDocument } = useData();
-  const { userProfile } = useAuth();
+  const { currentUser, userProfile } = useAuth();
 
   const [expandedReviews, setExpandedReviews] = useState({});
   const [parentVisible, setParentVisible] = useState(false);
   const [developmentPlans, setDevelopmentPlans] = useState([]);
+  const [plansLoaded, setPlansLoaded] = useState(false);
 
   // Load development plans from Firestore
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'development_plans'), (snap) => {
       setDevelopmentPlans(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setPlansLoaded(true);
     }, (err) => {
       console.error('Development plans subscription error:', err);
+      setPlansLoaded(true);
     });
     return () => unsub();
   }, []);
 
-  // Find IDP for this player from Firestore
+  const playerRecord = useMemo(() => {
+    return players.find(p => p.id === playerId) || null;
+  }, [players, playerId]);
+
+  // Find a visible IDP for this player from Firestore/Supabase.
   const idp = useMemo(() => {
     if (!developmentPlans || developmentPlans.length === 0) return null;
-    return developmentPlans.find(plan => plan.playerId === playerId) || null;
-  }, [developmentPlans, playerId]);
+    return selectVisiblePlanForPlayer({
+      plans: developmentPlans,
+      playerId,
+      userProfile,
+      currentUser
+    });
+  }, [developmentPlans, playerId, userProfile, currentUser]);
 
   // Sync parentVisible state with IDP data
   useEffect(() => {
     if (idp) {
-      setParentVisible(idp.parentVisible);
+      setParentVisible(Boolean(idp.parentVisible));
     }
   }, [idp]);
 
@@ -79,9 +96,8 @@ const PlayerIDPPage = () => {
     if (idp) {
       return { name: idp.playerName, team: idp.teamId };
     }
-    const player = players.find(p => p.id === playerId);
-    return player ? { name: player.name, team: player.team } : { name: 'Unknown Player', team: '' };
-  }, [idp, players, playerId]);
+    return playerRecord ? { name: playerRecord.name, team: playerRecord.team } : { name: 'Unknown Player', team: '' };
+  }, [idp, playerRecord]);
 
   // Build radar chart data: baseline vs latest assessment
   const radarData = useMemo(() => {
@@ -122,7 +138,18 @@ const PlayerIDPPage = () => {
     const newValue = !parentVisible;
     setParentVisible(newValue);
     if (idp?.id) {
-      await updateDocument('development_plans', idp.id, { parentVisible: newValue });
+      const parentIds = newValue ? getLinkedParentIdsForPlayer(playerRecord) : [];
+      await updateDocument('development_plans', idp.id, {
+        parentVisible: newValue,
+        parentIds,
+        visibility: {
+          ...(idp.visibility || {}),
+          parent: {
+            shared: newValue,
+            parentIds
+          }
+        }
+      });
     }
   };
 
@@ -167,8 +194,8 @@ const PlayerIDPPage = () => {
 
   // Format date for display
   const formatDate = (date) => {
-    if (!date) return '';
-    const d = date instanceof Date ? date : new Date(date);
+    const d = parseIDPDate(date);
+    if (!d) return '';
     return d.toLocaleDateString('en-AU', {
       year: 'numeric',
       month: 'long',
@@ -187,8 +214,26 @@ const PlayerIDPPage = () => {
     return labels[type] || type;
   };
 
-  // Empty state: no IDP exists for this player
+  if (!plansLoaded) {
+    return (
+      <PageShell
+        title="Development Plan"
+        subtitle={playerInfo.name}
+        backTo={`/players/${playerId}`}
+      >
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="bg-white rounded-xl border border-[#D4E4D4] shadow-sm p-8 text-center max-w-md">
+            <Clock className="w-12 h-12 text-[#00A651] mx-auto mb-4 animate-pulse" />
+            <p className="text-[#6B7C6B] text-sm">Loading development plan...</p>
+          </div>
+        </div>
+      </PageShell>
+    );
+  }
+
+  // Empty state: no IDP exists for this player, or it is not shared with this viewer.
   if (!idp) {
+    const isParent = userProfile?.role === 'parent';
     return (
       <PageShell
         title="Development Plan"
@@ -202,8 +247,9 @@ const PlayerIDPPage = () => {
               No Development Plan Yet
             </h2>
             <p className="text-[#6B7C6B] mb-6">
-              An Individual Development Plan helps track skill goals, progress reviews,
-              and targeted practice recommendations.
+              {isParent
+                ? 'A development plan has not been shared for this player yet.'
+                : 'An Individual Development Plan helps track skill goals, progress reviews, and targeted practice recommendations.'}
             </p>
             {isCoachOrStaff && (
               <FirstTimeHint hintKey="create-idp">
@@ -316,7 +362,7 @@ const PlayerIDPPage = () => {
             <h3 className="text-lg font-bold text-gray-800">Development Goals</h3>
           </div>
           <div className="space-y-4">
-            {idp.goals.map((goal) => {
+            {(idp.goals || []).map((goal) => {
               const goalStatus = getGoalStatus(goal.status);
               return (
                 <div
@@ -413,7 +459,7 @@ const PlayerIDPPage = () => {
               <h3 className="text-lg font-bold text-gray-800">Review Timeline</h3>
             </div>
             <div className="space-y-3">
-              {idp.reviews.map((review, index) => {
+              {(idp.reviews || []).map((review, index) => {
                 const isExpanded = expandedReviews[index];
                 return (
                   <div

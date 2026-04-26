@@ -82,6 +82,20 @@ test.describe('Admin Portal', () => {
     await expect(page).toHaveURL(/schedule/);
   });
 
+  test('admin can open advanced analytics without a dead end', async ({ page }) => {
+    await page.goto('/admin/analytics-hub');
+    await expect(page.getByRole('heading', { name: 'Analytics & Reports' })).toBeVisible({ timeout: 10000 });
+
+    await page.getByRole('button', { name: /Advanced/ }).click();
+    await expect(page.getByRole('heading', { name: 'Advanced Analytics' })).toBeVisible();
+
+    await page.getByRole('button', { name: /Open Advanced Analytics/i }).click();
+    await expect(page).toHaveURL(/admin\/advanced-analytics/);
+    await expect(page.getByRole('heading', { name: 'Advanced Analytics' })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Shot Chart Foundation')).toBeVisible();
+    await expect(page.getByText(/Something went wrong|Unable to load/i)).not.toBeVisible();
+  });
+
   test('admin can logout', async ({ page }) => {
     const logoutBtn = page.getByRole('button', { name: /logout/i });
     await logoutBtn.click();

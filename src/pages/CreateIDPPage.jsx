@@ -20,6 +20,7 @@ import {
 import { SKILL_CATEGORIES } from '../data/idpConstants';
 import HelpTooltip from '../components/tutorial/HelpTooltip';
 import { fetchDrills } from '../services/drillService';
+import { buildDevelopmentPlanPayload } from '../services/idpService';
 
 const levelLabels = {
   1: 'Emerging',
@@ -253,19 +254,12 @@ const CreateIDPPage = () => {
     setSaveError(null);
 
     try {
-      const now = new Date();
-      const data = {
-        playerId: player.id,
-        playerName: player.name || player.displayName || 'Unknown',
-        teamId: playerTeam?.id || player.teamId || '',
-        coachId: currentUser.uid,
+      const data = buildDevelopmentPlanPayload({
+        player,
+        team: playerTeam,
+        coach: currentUser,
         season,
-        status: 'active',
-        baselineAssessment: {
-          date: now,
-          skills: { ...baselineSkills },
-          overallLevel
-        },
+        baselineSkills,
         goals: goals.map(g => ({
           id: g.id,
           skillCategory: g.skillCategory,
@@ -275,17 +269,15 @@ const CreateIDPPage = () => {
           drillsRecommended: g.drillsRecommended,
           homePractice: g.homePractice,
           status: 'not_started',
-          coachNotes: ''
+          coachNotes: g.coachNotes || ''
         })),
-        reviews: [],
-        parentIds: [],
-        parentVisible,
-        parentComments: [],
-        createdAt: now,
-        updatedAt: now
-      };
+        parentVisible
+      });
 
-      await addDocument('development_plans', data);
+      const result = await addDocument('development_plans', data);
+      if (!result?.success) {
+        throw new Error(result?.error || 'Failed to create plan. Please try again.');
+      }
       navigate(`/players/${playerId}/development-plan`);
     } catch (error) {
       console.error('Error creating IDP:', error);
