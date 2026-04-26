@@ -76,10 +76,19 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
-const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+const command = process.platform === 'win32' ? process.env.ComSpec || 'cmd.exe' : 'npx';
+const commandArgs = [
+  ...(process.platform === 'win32' ? ['/d', '/s', '/c', 'npx'] : []),
+  'playwright',
+  'test',
+  '--config=playwright.live.config.js',
+  'tests/live-supabase.spec.js',
+  ...forwardedArgs
+];
+
 const result = spawnSync(
   command,
-  ['playwright', 'test', '--config=playwright.live.config.js', 'tests/live-supabase.spec.js', ...forwardedArgs],
+  commandArgs,
   {
     cwd: process.cwd(),
     env,
@@ -87,5 +96,9 @@ const result = spawnSync(
     shell: false
   }
 );
+
+if (result.error) {
+  console.error(`Unable to start live QA command: ${result.error.message}`);
+}
 
 process.exit(result.status ?? 1);
