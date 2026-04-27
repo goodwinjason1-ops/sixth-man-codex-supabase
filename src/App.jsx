@@ -66,6 +66,7 @@ const RosterManagementPage = lazy(() => import('./pages/admin/RosterManagementPa
 const ScheduleManagementPage = lazy(() => import('./pages/admin/ScheduleManagementPage'));
 const PlayerHQIntegrationPage = lazy(() => import('./pages/admin/PlayerHQIntegrationPage'));
 const ClubAnalyticsPage = lazy(() => import('./pages/admin/ClubAnalyticsPage'));
+const AdvancedAnalyticsPage = lazy(() => import('./pages/admin/AdvancedAnalyticsPage'));
 const AgeGroupReportsPage = lazy(() => import('./pages/admin/AgeGroupReportsPage'));
 const AgeGroupDetailReportPage = lazy(() => import('./pages/admin/AgeGroupDetailReportPage'));
 const CoachingEffectivenessPage = lazy(() => import('./pages/admin/CoachingEffectivenessPage'));
@@ -686,6 +687,17 @@ const AppRoutes = () => {
             <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
               <ErrorBoundary fallbackMessage="Unable to load club analytics.">
                 <ClubAnalyticsPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/advanced-analytics"
+          element={
+            <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load advanced analytics.">
+                <AdvancedAnalyticsPage />
               </ErrorBoundary>
             </ProtectedRoute>
           }

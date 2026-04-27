@@ -19,6 +19,7 @@ const TABS = [
   { id: 'age-groups', label: 'Age Groups', icon: Users },
   { id: 'coaching', label: 'Coaching', icon: GraduationCap },
   { id: 'rotations', label: 'Rotations', icon: Clock },
+  { id: 'advanced', label: 'Advanced', icon: TrendingUp },
 ];
 
 const AnalyticsHubPage = () => {
@@ -144,6 +145,25 @@ const AnalyticsHubPage = () => {
             <p className="text-sm text-gray-500 mb-4">Club-wide playing time analysis, fairness tracking, and equity alerts across all teams.</p>
             <button onClick={() => navigate('/admin/rotation-analytics')} className="px-6 py-3 bg-[#005028] text-white rounded-xl text-sm font-medium hover:bg-[#003018] transition-colors inline-flex items-center gap-2">
               Open Rotation Analytics <ExternalLink size={14} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Advanced Tab */}
+      {tab === 'advanced' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <StatCard icon={Target} label="Shot Charts" value="Ready" color="text-blue-500" />
+            <StatCard icon={Shield} label="Fair Play" value="Context" color="text-purple-500" />
+            <StatCard icon={Award} label="Selection" value="Governed" color="text-amber-500" />
+          </div>
+          <div className="bg-white rounded-xl border border-[#D4E4D4]/30 p-6 text-center">
+            <TrendingUp size={32} className="mx-auto text-emerald-500 mb-3" />
+            <h3 className="font-semibold text-gray-800 mb-1">Advanced Analytics</h3>
+            <p className="text-sm text-gray-500 mb-4">Shot charts, movement-ready trends, fair-play context, and committee selection checks.</p>
+            <button onClick={() => navigate('/admin/advanced-analytics')} className="px-6 py-3 bg-[#005028] text-white rounded-xl text-sm font-medium hover:bg-[#003018] transition-colors inline-flex items-center gap-2">
+              Open Advanced Analytics <ExternalLink size={14} />
             </button>
           </div>
         </div>

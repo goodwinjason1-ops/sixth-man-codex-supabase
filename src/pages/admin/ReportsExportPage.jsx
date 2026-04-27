@@ -1,7 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../contexts/DataContext';
 import PageShell from '../../components/PageShell';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../../services/firebase';
+import { buildCommitteeReportPack } from '../../services/committeeReportService';
 import {
   FileText,
   Download,
@@ -22,6 +25,8 @@ import {
 const ReportsExportPage = () => {
   const navigate = useNavigate();
   const { players, evaluations, teams } = useData();
+  const [developmentPlans, setDevelopmentPlans] = useState([]);
+  const [playingTimeRecords, setPlayingTimeRecords] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [dateRange, setDateRange] = useState({
@@ -33,6 +38,25 @@ const ReportsExportPage = () => {
   const [error, setError] = useState(null);
   const [downloadSuccess, setDownloadSuccess] = useState(null);
 
+  useEffect(() => {
+    const unsubscribers = [
+      onSnapshot(collection(db, 'development_plans'), (snap) => {
+        setDevelopmentPlans(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      }, (err) => {
+        console.error('Development plans subscription error:', err);
+        setDevelopmentPlans([]);
+      }),
+      onSnapshot(collection(db, 'playing_time'), (snap) => {
+        setPlayingTimeRecords(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      }, (err) => {
+        console.error('Playing time subscription error:', err);
+        setPlayingTimeRecords([]);
+      })
+    ];
+
+    return () => unsubscribers.forEach(unsub => unsub());
+  }, []);
+
   // Get unique teams
   const teamList = useMemo(() => {
     if (teams?.length) return teams.map(t => t.name || t);
@@ -41,6 +65,14 @@ const ReportsExportPage = () => {
 
   // Report templates
   const reportTemplates = [
+    {
+      id: 'committee_pack',
+      name: 'Committee Meeting Pack',
+      description: 'Meeting-ready club oversight pack with development, coaching and fair-play summaries',
+      icon: Calendar,
+      filters: ['dateRange'],
+      format: ['pdf', 'csv']
+    },
     {
       id: 'player_progress',
       name: 'Player Progress Report',
@@ -140,6 +172,9 @@ const ReportsExportPage = () => {
           case 'coach_activity':
             csvData = generateCoachActivityCSV();
             break;
+          case 'committee_pack':
+            csvData = generateCommitteePackCSV();
+            break;
           default:
             csvData = generateGenericCSV(reportId);
         }
@@ -165,6 +200,94 @@ const ReportsExportPage = () => {
     let content = '';
 
     switch (reportId) {
+      case 'committee_pack': {
+        const pack = buildCommitteePack();
+        content = `
+          <h2>Committee Meeting Pack</h2>
+          ${renderMetricCards([
+            { label: 'Players', value: pack.clubOverview.totalPlayers },
+            { label: 'Teams', value: pack.clubOverview.totalTeams },
+            { label: 'Assessments', value: pack.clubOverview.totalAssessments },
+            { label: 'Active IDPs', value: pack.clubOverview.activeDevelopmentPlans }
+          ])}
+
+          <h3>Age Group Snapshot</h3>
+          <table>
+            <thead><tr><th>Age Group</th><th>Players</th><th>Teams</th></tr></thead>
+            <tbody>
+              ${pack.clubOverview.ageGroups.map(row => `
+                <tr>
+                  <td>${escapeHtml(row.ageGroup)}</td>
+                  <td>${escapeHtml(row.players)}</td>
+                  <td>${escapeHtml(row.teams)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <h3>Player Development</h3>
+          ${renderMetricCards([
+            { label: 'Players With Plans', value: pack.playerDevelopment.playersWithPlans },
+            { label: 'Reviews Due', value: pack.playerDevelopment.reviewsDue },
+            { label: 'Active Goals', value: pack.playerDevelopment.goals.active },
+            { label: 'Completed Goals', value: pack.playerDevelopment.goals.completed }
+          ])}
+          <table>
+            <thead><tr><th>Player</th><th>Team</th><th>Plan</th><th>Assessments</th><th>Avg Level</th></tr></thead>
+            <tbody>
+              ${pack.playerDevelopment.players.slice(0, 40).map(row => `
+                <tr>
+                  <td>${escapeHtml(row.name)}</td>
+                  <td>${escapeHtml(row.team)}</td>
+                  <td>${escapeHtml(row.planStatus)}</td>
+                  <td>${escapeHtml(row.assessmentCount)}</td>
+                  <td>${escapeHtml(row.averageLevel || '-')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <h3>Coach Activity</h3>
+          <table>
+            <thead><tr><th>Coach</th><th>Assessments</th><th>Players</th><th>Teams</th><th>Last Activity</th></tr></thead>
+            <tbody>
+              ${pack.coachActivity.coaches.map(row => `
+                <tr>
+                  <td>${escapeHtml(row.coachName)}</td>
+                  <td>${escapeHtml(row.assessmentCount)}</td>
+                  <td>${escapeHtml(row.playerCount)}</td>
+                  <td>${escapeHtml(row.teams.join(', ') || '-')}</td>
+                  <td>${escapeHtml(row.lastActivityAt || '-')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <h3>Fair Play</h3>
+          ${renderMetricCards([
+            { label: 'Games Tracked', value: pack.fairPlay.totalGames },
+            { label: 'Fair Games', value: pack.fairPlay.fairGames },
+            { label: 'Fairness Rate', value: `${pack.fairPlay.fairnessRate}%` },
+            { label: 'Equity Alerts', value: pack.fairPlay.equityAlertCount }
+          ])}
+          <table>
+            <thead><tr><th>Team</th><th>Games</th><th>Fairness Rate</th><th>Avg Minutes</th></tr></thead>
+            <tbody>
+              ${pack.fairPlay.teamSummaries.map(row => `
+                <tr>
+                  <td>${escapeHtml(row.teamName)}</td>
+                  <td>${escapeHtml(row.gameCount)}</td>
+                  <td>${escapeHtml(`${row.fairnessRate}%`)}</td>
+                  <td>${escapeHtml(row.averageMinutes)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <p class="privacy-note">${escapeHtml(pack.privacy.policy)}</p>
+        `;
+        break;
+      }
       case 'player_progress':
         const progressPlayers = selectedTeam === 'all'
           ? players
@@ -226,6 +349,12 @@ const ReportsExportPage = () => {
           tr:nth-child(even) { background-color: #f2f2f2; }
           .header { border-bottom: 2px solid #005028; padding-bottom: 10px; margin-bottom: 20px; }
           .meta { color: #666; font-size: 12px; }
+          .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0 20px; }
+          .metric { border: 1px solid #D4E4D4; border-radius: 6px; padding: 10px; background: #F5F9F5; }
+          .metric p { margin: 0 0 6px; color: #666; font-size: 11px; text-transform: uppercase; }
+          .metric strong { color: #005028; font-size: 20px; }
+          .privacy-note { margin-top: 24px; padding: 12px; background: #F5F9F5; border-left: 4px solid #005028; color: #555; font-size: 12px; }
+          @media print { .metric-grid { grid-template-columns: repeat(2, 1fr); } }
         </style>
       </head>
       <body>
@@ -263,6 +392,67 @@ const ReportsExportPage = () => {
 
     return [headers.join(','), ...rows].join('\n');
   };
+
+  const buildCommitteePack = () => buildCommitteeReportPack({
+    players,
+    teams,
+    evaluations: Object.values(evaluations || {}),
+    developmentPlans,
+    playingTimeRecords,
+    generatedAt: new Date().toISOString(),
+    dateRange: {
+      start: `${dateRange.start}T00:00:00.000`,
+      end: `${dateRange.end}T23:59:59.999`
+    }
+  });
+
+  const generateCommitteePackCSV = () => {
+    const pack = buildCommitteePack();
+    const rows = [
+      ['Section', 'Metric', 'Value'],
+      ['Overview', 'Total Players', pack.clubOverview.totalPlayers],
+      ['Overview', 'Total Teams', pack.clubOverview.totalTeams],
+      ['Overview', 'Assessments In Period', pack.clubOverview.totalAssessments],
+      ['Overview', 'Active Development Plans', pack.clubOverview.activeDevelopmentPlans],
+      ['Player Development', 'Players With Plans', pack.playerDevelopment.playersWithPlans],
+      ['Player Development', 'Reviews Due', pack.playerDevelopment.reviewsDue],
+      ['Player Development', 'Active Goals', pack.playerDevelopment.goals.active],
+      ['Player Development', 'Completed Goals', pack.playerDevelopment.goals.completed],
+      ['Coaching', 'Active Coaches', pack.coachActivity.activeCoaches],
+      ['Coaching', 'Assessments In Period', pack.coachActivity.totalAssessments],
+      ['Fair Play', 'Games Tracked', pack.fairPlay.totalGames],
+      ['Fair Play', 'Fairness Rate', `${pack.fairPlay.fairnessRate}%`],
+      ['Fair Play', 'Equity Alerts', pack.fairPlay.equityAlertCount]
+    ];
+
+    pack.clubOverview.ageGroups.forEach(row => {
+      rows.push(['Age Group', row.ageGroup, `${row.players} players / ${row.teams} teams`]);
+    });
+
+    pack.coachActivity.coaches.forEach(row => {
+      rows.push(['Coach Activity', row.coachName, `${row.assessmentCount} assessments / ${row.playerCount} players`]);
+    });
+
+    return rows.map(row => row.map(value => `"${String(value ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  };
+
+  const escapeHtml = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+  const renderMetricCards = (items) => `
+    <div class="metric-grid">
+      ${items.map(item => `
+        <div class="metric">
+          <p>${escapeHtml(item.label)}</p>
+          <strong>${escapeHtml(item.value)}</strong>
+        </div>
+      `).join('')}
+    </div>
+  `;
 
   // Generate Team Summary CSV
   const generateTeamSummaryCSV = () => {
