@@ -35,8 +35,8 @@
 - [ ] Wire committee report history/snapshot storage.
 - [ ] Replace printable HTML with true PDF generation or stored signed report artifacts.
 - [ ] Add movement-pattern analytics after video worker outputs are production-ready.
-- [ ] Push feature branch to GitHub.
-- [ ] Re-run deployed live QA once `LIVE_QA_PASSWORD` is available.
+- [x] Push feature branch to GitHub.
+- [x] Re-run deployed live QA once `LIVE_QA_PASSWORD` is available.
 - [ ] Deploy app code to GitHub Pages after live QA passes or after explicit release approval.
 
 ## Current Execution Notes
@@ -52,6 +52,7 @@
 - 2026-04-27: role smoke suite passed: `npx playwright test tests/role-smoke.spec.js --project=chromium` with 24 tests.
 - 2026-04-27: production build passed: `npm run build`.
 - 2026-04-27: `LIVE_QA_PASSWORD` is not present in the shell environment, so deployed live QA remains blocked.
+- 2026-04-27: deployed live QA passed after password was provided: `npm run qa:live:deployed` with 15 tests, including all role smoke checks and live coach video upload/queue.
 - Latest verified local checks before this punch list:
   - `npx playwright test tests/idpService.spec.js tests/committeeReportService.spec.js tests/idpParentVisibilityMigration.spec.js --project=chromium`
   - `npx playwright test tests/role-smoke.spec.js --project=chromium`
