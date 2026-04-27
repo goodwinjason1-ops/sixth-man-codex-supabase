@@ -1,1 +1,0 @@
-import{j as t}from"./vendor-chartjs-CUPkkAz_.js";import"./vendor-react-DARuvoUA.js";import{H as o}from"./HelpPageLayout-C2hVok6H.js";import"./index-CMk9rVfe.js";import"./vendor-supabase-Co_IX6oM.js";import"./vendor-utils-CDJY9-SS.js";import"./vendor-icons-bH1XZpxK.js";import"./FAQAccordion-DbiEEaHy.js";const n=()=>t.jsx(o,{roleSlug:"parents"});export{n as default};

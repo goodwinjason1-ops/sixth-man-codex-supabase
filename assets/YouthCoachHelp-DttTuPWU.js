@@ -1,0 +1,1 @@
+import{j as o}from"./vendor-chartjs-CUPkkAz_.js";import"./vendor-react-DARuvoUA.js";import{H as t}from"./HelpPageLayout-CtYAzdhM.js";import"./index-DnSeXb_7.js";import"./vendor-supabase-Co_IX6oM.js";import"./vendor-utils-CDJY9-SS.js";import"./vendor-icons-CAO01yXO.js";import"./FAQAccordion-CBAph40s.js";const l=()=>o.jsx(t,{roleSlug:"youth-coaches"});export{l as default};
