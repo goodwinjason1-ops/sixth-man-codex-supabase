@@ -37,11 +37,11 @@
 - [ ] Add movement-pattern analytics after video worker outputs are production-ready.
 - [x] Push feature branch to GitHub.
 - [x] Re-run deployed live QA once `LIVE_QA_PASSWORD` is available.
-- [ ] Deploy app code to GitHub Pages after live QA passes or after explicit release approval.
+- [x] Deploy app code to GitHub Pages after live QA passes or after explicit release approval.
 
 ## Current Execution Notes
 
-- Branch: `feature/idp-committee-analytics-foundation`
+- Branch: `main`; feature PR #1 merged and deployed to GitHub Pages.
 - 2026-04-27: three bounded workers started for selection governance, fair-play context, and shot-chart foundations. Main thread is coordinating integration and verification.
 - 2026-04-27: fair-play context foundation added in `src/services/fairPlayService.js`; worker reported `npm test -- tests/fairPlayService.spec.js` passing with 5 tests.
 - 2026-04-27: selection committee foundation added in `src/services/selectionCommitteeService.js`; worker reported `npm.cmd test -- tests/selectionCommitteeService.spec.js` passing with 3 tests.
@@ -51,11 +51,12 @@
 - 2026-04-27: admin suite passed: `npx playwright test tests/admin.spec.js --project=chromium` with 9 tests.
 - 2026-04-27: role smoke suite passed: `npx playwright test tests/role-smoke.spec.js --project=chromium` with 24 tests.
 - 2026-04-27: production build passed: `npm run build`.
-- 2026-04-27: `LIVE_QA_PASSWORD` is not present in the shell environment, so deployed live QA remains blocked.
 - 2026-04-27: deployed live QA passed after password was provided: `npm run qa:live:deployed` with 15 tests, including all role smoke checks and live coach video upload/queue.
+- 2026-04-27: GitHub Pages deploy initially rendered blank because the artifact was built with root asset paths and without Vite Supabase env values. Added `build:pages`, made public links base-aware, rebuilt with the live Supabase URL/anon key, and deployed `gh-pages` commit `06a04a2`.
+- 2026-04-27: post-deploy live QA passed: direct Playwright run against `https://goodwinjason1-ops.github.io/sixth-man-codex-supabase/` with 15/15 tests, including admin profile route coverage and live coach video upload/queue.
 - Latest verified local checks before this punch list:
   - `npx playwright test tests/idpService.spec.js tests/committeeReportService.spec.js tests/idpParentVisibilityMigration.spec.js --project=chromium`
   - `npx playwright test tests/role-smoke.spec.js --project=chromium`
   - `npx playwright test tests/admin.spec.js --project=chromium`
   - `npm run build`
-- Blocked live check: `npm run qa:live:deployed` requires `LIVE_QA_PASSWORD` in the shell environment.
+- Deployed live QA command used for final verification: `npx playwright test --config=playwright.live.config.js tests/live-supabase.spec.js --project=chromium --reporter=line`.
