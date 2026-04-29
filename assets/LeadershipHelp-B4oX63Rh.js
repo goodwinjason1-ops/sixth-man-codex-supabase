@@ -1,1 +1,0 @@
-import{j as o}from"./vendor-chartjs-CUPkkAz_.js";import"./vendor-react-DARuvoUA.js";import{H as r}from"./HelpPageLayout-Bfi1FIH6.js";import"./index-DhJwZT62.js";import"./vendor-supabase-Co_IX6oM.js";import"./vendor-utils-CDJY9-SS.js";import"./vendor-icons-CAO01yXO.js";import"./FAQAccordion-CBAph40s.js";const u=()=>o.jsx(r,{roleSlug:"leadership"});export{u as default};
