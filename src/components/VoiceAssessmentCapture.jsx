@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertCircle,
   Check,
@@ -14,6 +14,10 @@ import {
   supportsVoiceRecording,
   transcribeVoiceNote
 } from '../services/voiceNoteService';
+import {
+  appendVoiceTranscript,
+  formatRecordingDuration
+} from '../services/voiceTranscriptService';
 
 const VoiceAssessmentCapture = ({
   title = 'Voice Notes',
@@ -25,8 +29,10 @@ const VoiceAssessmentCapture = ({
   onApply
 }) => {
   const mediaRecorderRef = useRef(null);
+  const recordingStartedAtRef = useRef(null);
   const chunksRef = useRef([]);
   const [recording, setRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [audioBlob, setAudioBlob] = useState(null);
   const [transcript, setTranscript] = useState('');
   const [analysis, setAnalysis] = useState(null);
@@ -34,9 +40,24 @@ const VoiceAssessmentCapture = ({
   const [busy, setBusy] = useState(false);
   const canRecord = useMemo(() => supportsVoiceRecording(), []);
 
+  useEffect(() => {
+    if (!recording) return undefined;
+
+    const tick = () => {
+      if (!recordingStartedAtRef.current) return;
+      setRecordingSeconds(Math.floor((Date.now() - recordingStartedAtRef.current) / 1000));
+    };
+
+    tick();
+    const timer = window.setInterval(tick, 1000);
+    return () => window.clearInterval(timer);
+  }, [recording]);
+
   const startRecording = async () => {
     setStatus(null);
     setAnalysis(null);
+    setAudioBlob(null);
+    setRecordingSeconds(0);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
@@ -47,11 +68,16 @@ const VoiceAssessmentCapture = ({
       recorder.onstop = () => {
         stream.getTracks().forEach((track) => track.stop());
         setAudioBlob(new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' }));
+        setStatus('Recording captured. Press Transcribe to add it to the note.');
+        recordingStartedAtRef.current = null;
       };
       mediaRecorderRef.current = recorder;
       recorder.start();
+      recordingStartedAtRef.current = Date.now();
       setRecording(true);
+      setStatus('Recording now. Speak your player notes, then tap Stop.');
     } catch (error) {
+      recordingStartedAtRef.current = null;
       setStatus(error?.name === 'NotAllowedError'
         ? 'Microphone permission was not granted. You can paste a transcript below.'
         : 'Unable to start voice recording on this device. You can paste a transcript below.');
@@ -59,12 +85,14 @@ const VoiceAssessmentCapture = ({
   };
 
   const stopRecording = () => {
-    mediaRecorderRef.current?.stop();
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
     setRecording(false);
   };
 
   const handleTranscribe = async () => {
-    if (!audioBlob) return;
+    if (!audioBlob || recording) return;
     setBusy(true);
     setStatus(null);
     try {
@@ -73,8 +101,16 @@ const VoiceAssessmentCapture = ({
         context,
         fallbackTranscript: transcript
       });
-      setTranscript(result.transcript || transcript);
-      setStatus(result.message || `Transcript ready via ${result.provider}.`);
+      const nextTranscript = appendVoiceTranscript(transcript, result.transcript);
+      const addedTranscript = nextTranscript.trim() !== transcript.trim();
+      setTranscript(nextTranscript);
+      setAnalysis(null);
+      setAudioBlob(null);
+      setStatus(result.message || (
+        addedTranscript
+          ? `Added new transcript section via ${result.provider}.`
+          : `Transcript already includes this audio via ${result.provider}.`
+      ));
     } catch (error) {
       setStatus(error.message || 'Unable to transcribe this voice note.');
     } finally {
@@ -138,7 +174,7 @@ const VoiceAssessmentCapture = ({
         <button
           type="button"
           onClick={handleTranscribe}
-          disabled={disabled || !audioBlob || busy}
+          disabled={disabled || recording || !audioBlob || busy}
           className="min-h-[44px] rounded-lg bg-[#F5F9F5] border border-[#D4E4D4] text-gray-800 font-medium text-sm flex items-center justify-center gap-2 hover:border-[#00A651] disabled:opacity-50"
         >
           {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileAudio className="w-4 h-4" />}
@@ -154,6 +190,31 @@ const VoiceAssessmentCapture = ({
           Analyse
         </button>
       </div>
+
+      {recording && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 flex items-center justify-between gap-3"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse flex-shrink-0" />
+            <span className="text-sm font-semibold text-red-700">Recording {formatRecordingDuration(recordingSeconds)}</span>
+          </div>
+          <span className="text-xs text-red-700">Audio is being captured</span>
+        </div>
+      )}
+
+      {!recording && audioBlob && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="mb-3 rounded-lg border border-[#D4E4D4] bg-[#F5F9F5] px-3 py-2 flex items-center justify-between gap-3"
+        >
+          <span className="text-sm font-semibold text-gray-800">Recording saved</span>
+          <span className="text-xs text-[#6B7C6B]">{(audioBlob.size / 1024).toFixed(0)} KB ready</span>
+        </div>
+      )}
 
       {!canRecord && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3 flex gap-2">

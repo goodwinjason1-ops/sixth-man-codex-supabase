@@ -28,3 +28,32 @@ test('disabled Google OAuth provider stays on login with a recovery message', as
   await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible();
   await expect(page).toHaveURL(/\/login$/);
 });
+
+test('Google OAuth asks Google to show the account chooser', async ({ page }) => {
+  await installE2EMock(page);
+  await page.addInitScript(() => {
+    window.__SIXTH_MAN_E2E_OAUTH_URL__ = 'https://supabase.test/auth/v1/authorize?provider=google';
+  });
+
+  let requestedUrl = '';
+  await page.route('https://supabase.test/auth/v1/authorize**', async (route) => {
+    requestedUrl = route.request().url();
+    await route.fulfill({
+      status: 400,
+      contentType: 'application/json',
+      headers: {
+        'access-control-allow-origin': '*'
+      },
+      body: JSON.stringify({
+        code: 400,
+        error_code: 'validation_failed',
+        msg: 'Unsupported provider: provider is not enabled'
+      })
+    });
+  });
+
+  await page.goto('/login');
+  await page.getByRole('button', { name: /continue with google/i }).click();
+
+  await expect.poll(() => requestedUrl).toContain('prompt=select_account');
+});

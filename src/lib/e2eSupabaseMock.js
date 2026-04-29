@@ -407,9 +407,13 @@ const createAuthApi = () => {
       emit('SIGNED_IN', user);
       return { data: { user, session: { user } }, error: null };
     },
-    async signInWithOAuth({ provider }) {
+    async signInWithOAuth({ provider, options = {} }) {
       if (window.__SIXTH_MAN_E2E_OAUTH_URL__) {
-        return { data: { provider, url: window.__SIXTH_MAN_E2E_OAUTH_URL__ }, error: null };
+        const url = new URL(window.__SIXTH_MAN_E2E_OAUTH_URL__, window.location.origin);
+        Object.entries(options.queryParams || {}).forEach(([key, value]) => {
+          if (value != null) url.searchParams.set(key, value);
+        });
+        return { data: { provider, url: url.toString() }, error: null };
       }
       const user = userForEmail(`${provider}@test.com`);
       setCurrentUser(user);

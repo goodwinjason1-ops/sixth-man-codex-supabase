@@ -4,11 +4,18 @@ import { db, supabase } from '../services/firebase';
 import { getOAuthRedirectTo, mapAuthError, normalizeSupabaseUser } from '../lib/supabaseClient';
 import { logActivity } from '../services/auditService';
 import { acceptInvitationByCode } from '../services/parentInvitationService';
+import {
+  clearAuthSessionPolicy,
+  markAuthSessionActive,
+  shouldExpireStoredAuthSession
+} from '../services/authSessionPolicy';
 import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES, ASSESSOR_ASSIGNER_ROLES, VIDEO_STAFF_ROLES } from '../constants/roles';
 
 const AuthContext = createContext();
 
 const PENDING_PARENT_GOOGLE_KEY = 'sixthMan.pendingParentGoogleSignup';
+const PENDING_FRESH_OAUTH_KEY = 'sixthMan.pendingFreshOAuth';
+const FRESH_OAUTH_WINDOW_MS = 10 * 60 * 1000;
 const OAUTH_PROVIDER_LABELS = {
   apple: 'Apple',
   google: 'Google'
@@ -72,6 +79,20 @@ const consumePendingProfile = (uid) => {
   }
 };
 
+const markPendingFreshOAuth = () => {
+  getStorage('session')?.setItem(PENDING_FRESH_OAUTH_KEY, String(Date.now()));
+};
+
+const consumePendingFreshOAuth = () => {
+  const storage = getStorage('session');
+  const raw = storage?.getItem(PENDING_FRESH_OAUTH_KEY);
+  if (!raw) return false;
+
+  storage.removeItem(PENDING_FRESH_OAUTH_KEY);
+  const startedAt = Number(raw);
+  return Number.isFinite(startedAt) && Date.now() - startedAt <= FRESH_OAUTH_WINDOW_MS;
+};
+
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
@@ -79,10 +100,17 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [signupInProgress, setSignupInProgress] = useState(false);
   const processingRef = useRef(false);
+  const lastActivityWriteRef = useRef(0);
 
   const signOutSupabase = async () => {
+    clearAuthSessionPolicy(getStorage('local'));
     const { error: signOutError } = await supabase.auth.signOut();
     if (signOutError) throw mapAuthError(signOutError);
+  };
+
+  const redirectToOAuthUrl = (url) => {
+    markPendingFreshOAuth();
+    window.location.assign(url);
   };
 
   const startOAuthSignIn = async (provider) => {
@@ -91,7 +119,10 @@ export const AuthProvider = ({ children }) => {
       provider,
       options: {
         redirectTo: getOAuthRedirectTo(),
-        skipBrowserRedirect: true
+        skipBrowserRedirect: true,
+        queryParams: provider === 'google'
+          ? { prompt: 'select_account' }
+          : undefined
       }
     });
     if (signInError) throw mapAuthError(signInError);
@@ -102,7 +133,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     if (authUrl.startsWith('/')) {
-      window.location.assign(authUrl);
+      redirectToOAuthUrl(authUrl);
       return null;
     }
 
@@ -114,12 +145,12 @@ export const AuthProvider = ({ children }) => {
         redirect: 'manual'
       });
     } catch (_) {
-      window.location.assign(authUrl);
+      redirectToOAuthUrl(authUrl);
       return null;
     }
 
     if (response.type === 'opaqueredirect' || response.status === 0 || (response.status >= 300 && response.status < 400)) {
-      window.location.assign(authUrl);
+      redirectToOAuthUrl(authUrl);
       return null;
     }
 
@@ -136,7 +167,7 @@ export const AuthProvider = ({ children }) => {
       throw new Error(message || `${label} sign-in could not start. Please try again.`);
     }
 
-    window.location.assign(body?.url || authUrl);
+    redirectToOAuthUrl(body?.url || authUrl);
     return null;
   };
 
@@ -230,15 +261,36 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     let mounted = true;
 
-    const handleAuthUser = async (supabaseUser) => {
+    const handleAuthUser = async (supabaseUser, { freshSession = false } = {}) => {
       const user = normalizeSupabaseUser(supabaseUser);
       if (!mounted) return;
 
       if (!user) {
+        clearAuthSessionPolicy(getStorage('local'));
         setCurrentUser(null);
         setUserProfile(null);
         setLoading(false);
         return;
+      }
+
+      const authStorage = getStorage('local');
+      const isFreshSession = freshSession || consumePendingFreshOAuth();
+      if (isFreshSession) {
+        markAuthSessionActive(authStorage);
+      } else if (shouldExpireStoredAuthSession(authStorage)) {
+        try {
+          await signOutSupabase();
+        } catch (signOutError) {
+          console.error('Unable to clear expired auth session:', signOutError.message || signOutError);
+        }
+        if (!mounted) return;
+        setCurrentUser(null);
+        setUserProfile(null);
+        setError('Your session timed out. Please sign in again.');
+        setLoading(false);
+        return;
+      } else {
+        markAuthSessionActive(authStorage);
       }
 
       if (processingRef.current) return;
@@ -277,8 +329,8 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
       });
 
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
-      handleAuthUser(session?.user);
+    const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
+      handleAuthUser(session?.user, { freshSession: event === 'SIGNED_IN' });
     });
 
     return () => {
@@ -286,6 +338,30 @@ export const AuthProvider = ({ children }) => {
       subscription?.subscription?.unsubscribe?.();
     };
   }, [signupInProgress]);
+
+  useEffect(() => {
+    if (!currentUser) return undefined;
+
+    const recordActivity = () => {
+      const now = Date.now();
+      if (now - lastActivityWriteRef.current < 60_000) return;
+      lastActivityWriteRef.current = now;
+      markAuthSessionActive(getStorage('local'), now);
+    };
+
+    recordActivity();
+    window.addEventListener('click', recordActivity);
+    window.addEventListener('keydown', recordActivity);
+    window.addEventListener('touchstart', recordActivity);
+    window.addEventListener('visibilitychange', recordActivity);
+
+    return () => {
+      window.removeEventListener('click', recordActivity);
+      window.removeEventListener('keydown', recordActivity);
+      window.removeEventListener('touchstart', recordActivity);
+      window.removeEventListener('visibilitychange', recordActivity);
+    };
+  }, [currentUser]);
 
   const signInWithGoogle = async () => {
     try {
@@ -320,6 +396,7 @@ export const AuthProvider = ({ children }) => {
       if (signInError) throw mapAuthError(signInError);
 
       const user = normalizeSupabaseUser(data.user);
+      markAuthSessionActive(getStorage('local'));
       logActivity(
         { uid: user.uid, email: user.email },
         'user.login',
@@ -351,6 +428,7 @@ export const AuthProvider = ({ children }) => {
       if (signUpError) throw mapAuthError(signUpError);
 
       const user = normalizeSupabaseUser(data.user);
+      markAuthSessionActive(getStorage('local'));
       const profile = {
         uid: user.uid,
         email: normalizedEmail,
@@ -401,6 +479,7 @@ export const AuthProvider = ({ children }) => {
       if (signUpError) throw mapAuthError(signUpError);
 
       const user = normalizeSupabaseUser(data.user);
+      markAuthSessionActive(getStorage('local'));
       const acceptResult = await acceptInvitationByCode(
         invitationData.invitationCode || '',
         (displayName || '').trim()

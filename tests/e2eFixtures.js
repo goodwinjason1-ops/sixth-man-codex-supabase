@@ -336,6 +336,9 @@ export async function installE2EMock(page, role = null) {
     }
     if (seededUser) {
       window.localStorage.setItem('sixthMan.e2eUser', JSON.stringify(seededUser));
+      const now = String(Date.now());
+      window.localStorage.setItem('sixthMan.authSessionStartedAt', now);
+      window.localStorage.setItem('sixthMan.authSessionLastActiveAt', now);
     }
   }, { documents, user });
 }
