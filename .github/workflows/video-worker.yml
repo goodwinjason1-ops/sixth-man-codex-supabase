@@ -1,0 +1,26 @@
+name: Video Job Worker
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  process-video-jobs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Invoke Supabase video worker
+        env:
+          VIDEO_WORKER_SECRET: ${{ secrets.VIDEO_WORKER_SECRET }}
+        run: |
+          test -n "$VIDEO_WORKER_SECRET"
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --header "x-worker-secret: ${VIDEO_WORKER_SECRET}" \
+            --data '{"limit":10}' \
+            "https://lipjgbcgwokhucbxinmn.supabase.co/functions/v1/video-job-worker"

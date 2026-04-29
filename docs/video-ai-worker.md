@@ -6,6 +6,7 @@ The production video queue is processed by the Supabase Edge Function `video-job
 
 - Claims queued rows through `public.claim_video_analysis_jobs(...)` so concurrent worker calls do not process the same job.
 - Runs from the coach Video Analysis page after upload and through the `Run Worker` button for existing queued jobs.
+- Also runs from the GitHub Actions workflow `.github/workflows/video-worker.yml` every 10 minutes and on manual dispatch.
 - Supports `transcode`, `quality_check`, `vision_event_detection`, `stat_extraction`, and safe manual-review fallback for unsupported job kinds.
 - Writes worker output back to `video_analysis_jobs.result`, `video_events`, `game_video_stats`, and compatible `documents` `shot_events` rows when shot events are returned.
 
