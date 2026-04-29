@@ -16,6 +16,7 @@ import EmptyState from '../../components/EmptyState';
 import { useFilteredData } from '../../hooks/useFilteredData';
 import {
   listVideoAnalysisSessions,
+  runVideoJobWorker,
   uploadVideoForAnalysis,
   validateVideoFile
 } from '../../services/videoAnalysisService';
@@ -79,6 +80,7 @@ const VideoAnalysisPage = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [workerRunning, setWorkerRunning] = useState(false);
   const [form, setForm] = useState(initialForm);
   const [file, setFile] = useState(null);
   const [error, setError] = useState('');
@@ -144,7 +146,7 @@ const VideoAnalysisPage = () => {
 
     try {
       setSubmitting(true);
-      await uploadVideoForAnalysis({
+      const result = await uploadVideoForAnalysis({
         file,
         title: form.title,
         sourceType: form.sourceType,
@@ -159,12 +161,36 @@ const VideoAnalysisPage = () => {
       });
       setForm(initialForm);
       setFile(null);
-      setSuccess('Video uploaded and AI analysis queued for staff review.');
+      const processedCount = result?.worker?.processed?.length || 0;
+      setSuccess(processedCount
+        ? `Video uploaded and ${processedCount} AI job${processedCount === 1 ? '' : 's'} processed for staff review.`
+        : 'Video uploaded and AI analysis queued for staff review.'
+      );
       await loadSessions({ quiet: true });
     } catch (err) {
       setError(err.message || 'Unable to upload video.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleRunWorker = async () => {
+    setError('');
+    setSuccess('');
+    setWorkerRunning(true);
+
+    try {
+      const result = await runVideoJobWorker({ limit: 10 });
+      const processedCount = result?.processed?.length || 0;
+      setSuccess(processedCount
+        ? `${processedCount} queued AI job${processedCount === 1 ? '' : 's'} processed.`
+        : 'No queued AI jobs were waiting.'
+      );
+      await loadSessions({ quiet: true });
+    } catch (err) {
+      setError(err.message || 'Unable to run the video AI worker.');
+    } finally {
+      setWorkerRunning(false);
     }
   };
 
@@ -381,12 +407,20 @@ const VideoAnalysisPage = () => {
             </div>
 
             <div className="bg-white border border-[#D4E4D4] rounded-lg">
-              <div className="flex items-center justify-between p-5 border-b border-[#D4E4D4]/60">
+              <div className="flex flex-col gap-3 p-5 border-b border-[#D4E4D4]/60 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-lg font-bold text-gray-800">Analysis Queue</h2>
-                  <p className="text-xs text-gray-500">Queued jobs are ready for a server-side AI worker.</p>
+                  <p className="text-xs text-gray-500">Queued jobs are processed by the Supabase video AI worker.</p>
                 </div>
-                <Video className="w-5 h-5 text-[#00A651]" />
+                <button
+                  type="button"
+                  onClick={handleRunWorker}
+                  disabled={workerRunning}
+                  className="inline-flex items-center justify-center gap-2 px-3 py-2 border border-[#D4E4D4] rounded-lg text-sm text-gray-700 hover:bg-[#F5F9F5] disabled:opacity-60"
+                >
+                  {workerRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Video className="w-4 h-4 text-[#00A651]" />}
+                  Run Worker
+                </button>
               </div>
 
               {loading ? (
@@ -425,9 +459,16 @@ const InfoTile = ({ icon: Icon, title, text }) => (
 );
 
 const SessionRow = ({ session }) => {
-  const completeJobs = (session.jobs || []).filter((job) => job.status === 'succeeded').length;
+  const completeJobs = (session.jobs || []).filter((job) => ['succeeded', 'needs_review'].includes(job.status)).length;
   const failedJobs = (session.jobs || []).filter((job) => job.status === 'failed').length;
+  const reviewJobs = (session.jobs || []).filter((job) => job.status === 'needs_review').length;
   const totalJobs = session.jobs?.length || 0;
+  const jobSummaries = (session.jobs || [])
+    .map((job) => job.result?.summary)
+    .filter(Boolean)
+    .slice(0, 3);
+  const eventCount = session.events?.length || 0;
+  const statCount = session.stats?.length || 0;
 
   return (
     <article className="p-5 hover:bg-[#F5F9F5]/70 transition-colors">
@@ -447,7 +488,11 @@ const SessionRow = ({ session }) => {
         </div>
         <div className="text-xs text-gray-500 sm:text-right">
           <p>{session.recordings?.length || 0} recording{session.recordings?.length === 1 ? '' : 's'}</p>
-          <p>{completeJobs}/{totalJobs} jobs complete{failedJobs ? `, ${failedJobs} failed` : ''}</p>
+          <p>
+            {completeJobs}/{totalJobs} jobs complete
+            {reviewJobs ? `, ${reviewJobs} need review` : ''}
+            {failedJobs ? `, ${failedJobs} failed` : ''}
+          </p>
         </div>
       </div>
 
@@ -459,6 +504,25 @@ const SessionRow = ({ session }) => {
               <p className="text-xs text-gray-500">{readableStatus(job.status)}</p>
             </div>
           ))}
+        </div>
+      )}
+
+      {(jobSummaries.length > 0 || eventCount > 0 || statCount > 0) && (
+        <div className="mt-4 rounded-lg border border-[#D4E4D4] bg-white p-3">
+          <div className="flex items-center gap-2 text-xs font-semibold text-gray-700">
+            <CheckCircle className="w-4 h-4 text-[#00A651]" />
+            AI Results
+          </div>
+          <p className="mt-1 text-xs text-gray-500">
+            {eventCount} event{eventCount === 1 ? '' : 's'} detected, {statCount} stat rollup{statCount === 1 ? '' : 's'} generated.
+          </p>
+          {jobSummaries.length > 0 && (
+            <div className="mt-3 space-y-1">
+              {jobSummaries.map((summary, index) => (
+                <p key={`${session.id}-summary-${index}`} className="text-xs text-gray-600">{summary}</p>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </article>

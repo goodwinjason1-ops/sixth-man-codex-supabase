@@ -49,6 +49,24 @@ export const validateVideoFile = (file) => {
   return null;
 };
 
+export const runVideoJobWorker = async ({ limit = 3, jobId } = {}) => {
+  if (!supabase.functions?.invoke) {
+    throw new Error('The video AI worker is not available in this environment.');
+  }
+
+  const { data, error } = await supabase.functions.invoke('video-job-worker', {
+    body: {
+      limit,
+      ...(jobId ? { jobId } : {})
+    }
+  });
+  if (error) {
+    throw new Error(error.message || 'Unable to start the video AI worker.');
+  }
+
+  return data;
+};
+
 export const listVideoAnalysisSessions = async () => {
   const sessions = throwIfError(
     await supabase
@@ -77,10 +95,30 @@ export const listVideoAnalysisSessions = async () => {
     'Unable to load analysis jobs.'
   ) || [];
 
+  const events = throwIfError(
+    await supabase
+      .from('video_events')
+      .select('*')
+      .order('start_ms', { ascending: true })
+      .limit(300),
+    'Unable to load AI video events.'
+  ) || [];
+
+  const stats = throwIfError(
+    await supabase
+      .from('game_video_stats')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(300),
+    'Unable to load AI video stats.'
+  ) || [];
+
   return sessions.map((session) => ({
     ...session,
     recordings: recordings.filter((recording) => recording.session_id === session.id),
-    jobs: jobs.filter((job) => job.session_id === session.id)
+    jobs: jobs.filter((job) => job.session_id === session.id),
+    events: events.filter((event) => event.session_id === session.id),
+    stats: stats.filter((stat) => stat.session_id === session.id)
   }));
 };
 
@@ -195,7 +233,7 @@ export const uploadVideoForAnalysis = async ({
       updated_by: uid
     }));
 
-    throwIfError(
+    const queuedJobs = throwIfError(
       await supabase
         .from('video_analysis_jobs')
         .insert(jobs)
@@ -203,7 +241,17 @@ export const uploadVideoForAnalysis = async ({
       'Unable to queue video analysis.'
     );
 
-    return { session, recording };
+    let worker = null;
+    try {
+      worker = await runVideoJobWorker({ limit: queuedJobs?.length || 3 });
+    } catch (workerError) {
+      worker = {
+        claimed: 0,
+        error: workerError.message || 'Video worker did not start.'
+      };
+    }
+
+    return { session, recording, jobs: queuedJobs || [], worker };
   } catch (error) {
     try {
       await supabase

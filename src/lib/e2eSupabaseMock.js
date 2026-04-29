@@ -443,6 +443,147 @@ const createAuthApi = () => {
   };
 };
 
+const processE2EVideoWorker = ({ limit = 3, jobId } = {}) => {
+  const now = new Date().toISOString();
+  const allJobs = getRows('video_analysis_jobs');
+  const claimed = allJobs
+    .filter((job) => job.status === 'queued' && (!jobId || job.id === jobId))
+    .sort((a, b) => (a.priority || 50) - (b.priority || 50) || String(a.created_at || '').localeCompare(String(b.created_at || '')))
+    .slice(0, Math.max(1, Math.min(Number(limit) || 3, 10)));
+
+  if (claimed.length === 0) return { claimed: 0, processed: [] };
+
+  let jobs = allJobs;
+  let events = getRows('video_events');
+  let stats = getRows('game_video_stats');
+  const processed = [];
+  const sessionIds = new Set();
+
+  claimed.forEach((job) => {
+    sessionIds.add(job.session_id);
+    const result = {
+      summary: 'Video AI worker processed this job in the E2E environment.',
+      eventRowsWritten: 0,
+      statRowsWritten: 0,
+      shotDocumentsWritten: 0
+    };
+    let status = 'succeeded';
+    let provider = 'e2e-video-worker';
+    let model = 'mock-video-analysis';
+
+    if (job.job_kind === 'transcode') {
+      result.summary = 'Source video retained in private Supabase Storage for staff review.';
+      model = 'source-retained';
+    } else if (job.job_kind === 'vision_event_detection') {
+      const event = {
+        id: makeId(),
+        session_id: job.session_id,
+        recording_id: job.recording_id || null,
+        analysis_job_id: job.id,
+        event_type: 'video_classification',
+        start_ms: 0,
+        end_ms: null,
+        team_id: job.input?.teamId || null,
+        player_id: null,
+        confidence: 0.82,
+        source: 'ai',
+        status: 'detected',
+        court_position: {},
+        bounding_boxes: [],
+        attributes: {
+          label: 'basketball action',
+          e2e: true
+        },
+        created_at: now,
+        updated_at: now
+      };
+      events = events.filter((row) => row.analysis_job_id !== job.id).concat(event);
+      result.summary = 'Top video classification: basketball action (82%).';
+      result.eventsDetected = 1;
+      result.eventRowsWritten = 1;
+    } else if (job.job_kind === 'stat_extraction') {
+      const sessionEvents = events.filter((event) => event.session_id === job.session_id);
+      const stat = {
+        id: makeId(),
+        session_id: job.session_id,
+        game_id: job.input?.gameId || null,
+        team_id: job.input?.teamId || null,
+        player_id: null,
+        stat_type: 'video_classification_count',
+        stat_value: sessionEvents.length,
+        confidence: null,
+        source: 'ai',
+        status: 'detected',
+        metadata: {
+          analysisJobId: job.id,
+          e2e: true
+        },
+        created_at: now,
+        updated_at: now
+      };
+      stats = stats.filter((row) => row.metadata?.analysisJobId !== job.id).concat(stat);
+      result.summary = `Generated 1 stat rollup from ${sessionEvents.length} detected event${sessionEvents.length === 1 ? '' : 's'}.`;
+      result.statsGenerated = 1;
+      result.statRowsWritten = 1;
+      provider = 'e2e-video-worker';
+      model = 'event-rollup';
+    } else {
+      status = 'needs_review';
+      result.summary = `${job.job_kind || 'Video job'} needs manual review in the E2E environment.`;
+    }
+
+    jobs = jobs.map((row) => row.id === job.id ? {
+      ...row,
+      status,
+      provider,
+      model,
+      result,
+      attempts: (row.attempts || 0) + 1,
+      started_at: row.started_at || now,
+      completed_at: now,
+      locked_by: null,
+      locked_at: null,
+      updated_at: now
+    } : row);
+
+    processed.push({
+      id: job.id,
+      jobKind: job.job_kind,
+      status,
+      eventRowsWritten: result.eventRowsWritten,
+      statRowsWritten: result.statRowsWritten,
+      shotDocumentsWritten: 0
+    });
+  });
+
+  let sessions = getRows('video_recording_sessions');
+  sessions = sessions.map((session) => {
+    if (!sessionIds.has(session.id)) return session;
+    const sessionJobs = jobs.filter((job) => job.session_id === session.id);
+    const active = sessionJobs.some((job) => ['queued', 'running'].includes(job.status));
+    return {
+      ...session,
+      status: active ? 'analysing' : 'review',
+      metadata: {
+        ...(session.metadata || {}),
+        workerUpdatedAt: now,
+        jobStatuses: sessionJobs.map((job) => job.status)
+      },
+      updated_at: now
+    };
+  });
+
+  setRows('video_analysis_jobs', jobs);
+  setRows('video_events', events);
+  setRows('game_video_stats', stats);
+  setRows('video_recording_sessions', sessions);
+
+  return {
+    claimed: claimed.length,
+    processed
+  };
+};
+
 export const createE2ESupabaseClient = () => ({
   auth: createAuthApi(),
   async rpc(functionName, args = {}) {
@@ -462,6 +603,19 @@ export const createE2ESupabaseClient = () => ({
   },
   from(table) {
     return makeTableApi(table);
+  },
+  functions: {
+    async invoke(functionName, options = {}) {
+      if (functionName === 'video-job-worker') {
+        return { data: processE2EVideoWorker(options.body || {}), error: null };
+      }
+      return {
+        data: null,
+        error: {
+          message: `Function ${functionName} not found in the E2E Supabase mock`
+        }
+      };
+    }
   },
   channel() {
     return {
