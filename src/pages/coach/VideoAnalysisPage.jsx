@@ -175,6 +175,7 @@ const VideoAnalysisPage = () => {
           <Breadcrumb
             path={[
               { label: 'Home', url: '/welcome' },
+              { label: 'Dashboard', url: '/dashboard' },
               { label: 'Video Analysis' }
             ]}
             className="mb-3"

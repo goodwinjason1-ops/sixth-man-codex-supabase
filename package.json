@@ -35,6 +35,11 @@
     "test:debug": "playwright test --debug",
     "qa:live": "node scripts/run-live-qa.mjs",
     "qa:live:deployed": "node scripts/run-live-qa.mjs --deployed",
-    "qa:voice": "node scripts/run-live-voice-transcription.mjs"
+    "qa:voice": "node scripts/run-live-voice-transcription.mjs",
+    "qa:data:dry-run": "node scripts/manage-lakers-qa-data.mjs --dry-run",
+    "qa:data:seed": "node scripts/manage-lakers-qa-data.mjs --seed",
+    "qa:data:reset": "node scripts/manage-lakers-qa-data.mjs --reset",
+    "qa:data:cleanup": "node scripts/manage-lakers-qa-data.mjs --cleanup",
+    "qa:data:smoke": "node scripts/manage-lakers-qa-data.mjs --smoke"
   }
 }
