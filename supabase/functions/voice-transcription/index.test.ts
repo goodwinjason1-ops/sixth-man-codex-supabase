@@ -26,6 +26,11 @@ const multipartRequest = (token = "valid-token") => {
 const headerValue = (headers: HeadersInit | undefined, name: string) =>
   new Headers(headers).get(name);
 
+const requestHeaders = (init: unknown) =>
+  init && typeof init === "object" && "headers" in init
+    ? (init as { headers?: HeadersInit }).headers
+    : undefined;
+
 Deno.test("voice-transcription returns normalized provider transcript", async () => {
   const calls: string[] = [];
   const handler = createHandler({
@@ -35,12 +40,12 @@ Deno.test("voice-transcription returns normalized provider transcript", async ()
       calls.push(url);
 
       if (url.endsWith("/auth/v1/user")) {
-        assertEquals(headerValue(init?.headers, "Authorization"), "Bearer valid-token");
+        assertEquals(headerValue(requestHeaders(init), "Authorization"), "Bearer valid-token");
         return Response.json({ id: "user-123" });
       }
 
       assertEquals(url, "https://hf.test/asr");
-      assertEquals(headerValue(init?.headers, "Authorization"), "Bearer hf-test-token");
+      assertEquals(headerValue(requestHeaders(init), "Authorization"), "Bearer hf-test-token");
       return Response.json({ text: " Ava defense four. ", language: "en" });
     }
   });

@@ -650,9 +650,9 @@ const updateSessionStatus = async (supabase: any, sessionId: string) => {
     .eq("session_id", sessionId);
   if (error) throw new Error(`Unable to refresh video session status: ${error.message}`);
 
-  const statuses = (jobs || []).map((job: Record<string, unknown>) => String(job.status));
-  const active = statuses.some((status) => status === "queued" || status === "running");
-  const complete = statuses.length > 0 && statuses.every((status) => (
+  const statuses: string[] = (jobs || []).map((job: Record<string, unknown>) => String(job.status));
+  const active = statuses.some((status: string) => status === "queued" || status === "running");
+  const complete = statuses.length > 0 && statuses.every((status: string) => (
     status === "succeeded" ||
     status === "failed" ||
     status === "cancelled" ||
