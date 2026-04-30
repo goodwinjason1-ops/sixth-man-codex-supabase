@@ -22,6 +22,8 @@ deno test --allow-net=deno.land,esm.sh \
   supabase/functions/voice-transcription/index.test.ts
 ```
 
+The repo also includes a minimal `deno.json` with `nodeModulesDir` set to `auto` so Deno 2 can resolve npm type shims needed by the Supabase Edge Function test graph in GitHub Actions.
+
 ## Optional Local Fix
 
 Install Deno locally if you want Codex to run these tests directly on this machine:
