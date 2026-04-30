@@ -184,14 +184,49 @@ Explicitly out of scope for MVP:
 
 ## Recommended First Code Change
 
-Before writing the adapter, improve the existing worker contract slightly:
+Completed first repo-side start:
 
-- Preserve provider metadata returned by the custom endpoint.
-- Preserve `needsReview` if returned.
-- Add tests for `normalizeProviderPayload`.
-- Document the expected adapter response shape in `docs/video-ai-worker.md`.
+- `scripts/video-ai-adapter/analyzer.mjs` defines a deterministic adapter contract implementation.
+- `scripts/video-ai-adapter/server.mjs` exposes `GET /health` and `POST /analyze`.
+- `npm run adapter:video-ai:test` runs the adapter contract tests.
+- `npm run adapter:video-ai` starts the local adapter on `VIDEO_AI_ADAPTER_PORT` or `8788`.
+
+The adapter currently returns one low-confidence `shot_attempt` smoke event and one `shot_attempt_count` stat so the Supabase worker integration can be exercised before real model inference is enabled.
+
+The earlier worker contract changes already preserve custom provider metadata and `needsReview`, so the next step is to point the worker at this adapter in a development Supabase environment and confirm the returned event/stat rows are persisted correctly.
+
+Verification completed for this first adapter start:
+
+- `npm run adapter:video-ai:test` passed 5 tests.
+- `node --check scripts/video-ai-adapter/server.mjs` passed.
+- Local HTTP smoke of `GET /health` and `POST /analyze` returned 1 review-only event and 1 stat.
+
+Before writing real model inference, keep the worker contract stable:
+
+- Do not regress provider metadata returned by the custom endpoint.
+- Do not regress `needsReview` propagation.
+- Keep `normalizeProviderPayload` tests passing.
+- Keep `docs/video-ai-worker.md` aligned with the adapter response shape.
 
 This gives a stable contract before model code enters the picture.
+
+## Local Adapter Usage
+
+Start the local deterministic adapter:
+
+```powershell
+$env:VIDEO_AI_ADAPTER_TOKEN = "local-dev-token"
+npm run adapter:video-ai
+```
+
+Point the Supabase worker at it in development:
+
+```text
+VIDEO_ANALYSIS_ENDPOINT=http://localhost:8788/analyze
+VIDEO_ANALYSIS_TOKEN=local-dev-token
+```
+
+Production should use a hosted adapter with HTTPS, token auth, private logs, and no persistent storage of junior footage unless explicitly approved.
 
 ## Quality Gates
 

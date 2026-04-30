@@ -1,0 +1,31 @@
+name: Edge Function Tests
+
+on:
+  push:
+    paths:
+      - ".github/workflows/edge-function-tests.yml"
+      - "supabase/functions/**"
+  pull_request:
+    paths:
+      - ".github/workflows/edge-function-tests.yml"
+      - "supabase/functions/**"
+  workflow_dispatch:
+
+jobs:
+  deno-tests:
+    name: Deno Edge Function tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Run Edge Function tests
+        run: |
+          deno test --allow-net=deno.land,esm.sh \
+            supabase/functions/video-job-worker/index.test.ts \
+            supabase/functions/voice-transcription/index.test.ts

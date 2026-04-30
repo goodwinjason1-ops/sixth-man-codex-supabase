@@ -33,6 +33,8 @@
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
+    "adapter:video-ai": "node scripts/video-ai-adapter/server.mjs",
+    "adapter:video-ai:test": "node --test scripts/video-ai-adapter/*.test.mjs",
     "qa:live": "node scripts/run-live-qa.mjs",
     "qa:live:deployed": "node scripts/run-live-qa.mjs --deployed",
     "qa:voice": "node scripts/run-live-voice-transcription.mjs",
