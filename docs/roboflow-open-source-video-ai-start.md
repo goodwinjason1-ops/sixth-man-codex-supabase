@@ -193,13 +193,43 @@ Completed first repo-side start:
 
 The adapter currently returns one low-confidence `shot_attempt` smoke event and one `shot_attempt_count` stat so the Supabase worker integration can be exercised before real model inference is enabled.
 
+Second repo-side start:
+
+- `buildShotCandidatesFromFrames` maps Roboflow-style frame detections into app-level `shot_attempt` candidates.
+- It looks for `ball`/`basketball` detections near `rim`/`hoop`/`basket`/`backboard` detections.
+- Nearby frame hits are grouped into one candidate so a single shot sequence does not become many separate events.
+- The mapper keeps the result review-only, includes bounding-box evidence, estimates rough court position, and creates a `shot_attempt_count` stat.
+- `analyzeVideoJob` now uses supplied `frames` or `inference.frames` before falling back to deterministic smoke output.
+- The Supabase video worker now preserves adapter `court_position`, `bounding_boxes`, and event `attributes` as top-level event evidence before writing `video_events` and shot documents.
+
+Example frame-detection input:
+
+```json
+{
+  "inference": {
+    "frames": [
+      {
+        "timestampMs": 10420,
+        "width": 1280,
+        "height": 720,
+        "predictions": [
+          { "class": "rim", "x": 612, "y": 222, "width": 80, "height": 50, "confidence": 0.9 },
+          { "class": "basketball", "x": 626, "y": 218, "width": 22, "height": 22, "confidence": 0.81 }
+        ]
+      }
+    ]
+  }
+}
+```
+
 The earlier worker contract changes already preserve custom provider metadata and `needsReview`, so the next step is to point the worker at this adapter in a development Supabase environment and confirm the returned event/stat rows are persisted correctly.
 
 Verification completed for this first adapter start:
 
-- `npm run adapter:video-ai:test` passed 5 tests.
+- `npm run adapter:video-ai:test` passed 7 tests.
 - `node --check scripts/video-ai-adapter/server.mjs` passed.
 - Local HTTP smoke of `GET /health` and `POST /analyze` returned 1 review-only event and 1 stat.
+- GitHub Actions `Edge Function Tests` covers the worker-level adapter persistence path because local Deno is not currently available on this Windows shell.
 
 Before writing real model inference, keep the worker contract stable:
 

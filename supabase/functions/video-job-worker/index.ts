@@ -169,7 +169,10 @@ export const normalizeProviderPayload = (
       team_id: event.team_id || event.teamId || context.session.team_id || null,
       player_id: event.player_id || event.playerId || null,
       confidence: confidenceNumber(event.confidence ?? event.score),
+      court_position: event.court_position || event.courtPosition || {},
+      bounding_boxes: event.bounding_boxes || event.boundingBoxes || event.boxes || [],
       attributes: {
+        ...(event.attributes && typeof event.attributes === "object" ? event.attributes : {}),
         sourceIndex: index,
         raw: event
       }

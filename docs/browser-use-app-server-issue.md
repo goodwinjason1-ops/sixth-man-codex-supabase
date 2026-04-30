@@ -40,8 +40,30 @@ This looks like a Codex desktop/plugin packaging or install-state issue rather t
      -NewName "0.1.0-alpha1.backup-$(Get-Date -Format yyyyMMddHHmmss)"
    ```
 
-3. Reopen Codex and trigger `@browser-use health check`.
-4. If it still fails, reinstall or repair the Codex desktop app because the app package appears to be missing the app-server component.
+3. If Windows returns `Rename-Item: Access to the path ... is denied`, treat it as a local file-lock or ACL issue:
+
+   - Fully exit Codex first, then try the rename again from a fresh PowerShell window.
+   - Make sure no `Codex` or `node` processes are still holding the plugin folder open:
+
+     ```powershell
+     Get-Process Codex,node -ErrorAction SilentlyContinue
+     ```
+
+   - If any stale Codex or Node process remains after Codex is closed, end it from Task Manager, then retry the non-destructive rename.
+   - Prefer renaming the parent Browser Use cache directory after Codex is closed:
+
+     ```powershell
+     Rename-Item `
+       -LiteralPath "C:\Users\Kidsg\.codex\plugins\cache\openai-bundled\browser-use" `
+       -NewName "browser-use.backup-$(Get-Date -Format yyyyMMddHHmmss)"
+     ```
+
+   - Do not delete the cache folder. Renaming keeps a rollback copy and lets Codex recreate a fresh plugin cache on next launch.
+   - OneDrive is not involved in this specific issue because this cache lives under `C:\Users\Kidsg\.codex`, not under the repo or Desktop sync folder.
+   - If the rename still fails after all Codex/Node processes are closed, open PowerShell as Administrator and retry the same rename command. This can be necessary when WindowsApps/plugin-cache ACLs block the current shell.
+
+4. Reopen Codex and trigger `@browser-use health check`.
+5. If it still fails, reinstall or repair the Codex desktop app because the app package appears to be missing the app-server component.
 
 ## Workaround
 
