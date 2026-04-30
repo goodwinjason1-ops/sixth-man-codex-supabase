@@ -4,10 +4,12 @@ on:
   push:
     paths:
       - ".github/workflows/edge-function-tests.yml"
+      - "deno.json"
       - "supabase/functions/**"
   pull_request:
     paths:
       - ".github/workflows/edge-function-tests.yml"
+      - "deno.json"
       - "supabase/functions/**"
   workflow_dispatch:
 
