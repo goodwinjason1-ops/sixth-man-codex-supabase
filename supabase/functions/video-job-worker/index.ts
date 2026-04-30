@@ -36,6 +36,13 @@ type WorkerResult = {
   stats?: Array<Record<string, unknown>>;
 };
 
+type ProviderAnalysisResult = {
+  payload: unknown;
+  provider: string;
+  model: string;
+  needsReview?: boolean;
+};
+
 const DEFAULT_HF_VIDEO_MODEL = "MCG-NJU/videomae-base-finetuned-kinetics";
 const DEFAULT_MAX_PROVIDER_VIDEO_BYTES = 20 * 1024 * 1024;
 const DEFAULT_SIGNED_URL_TTL_SECONDS = 15 * 60;
@@ -121,6 +128,17 @@ const asRecord = (value: unknown): Record<string, unknown> =>
 
 const compactObject = (value: Record<string, unknown>) =>
   Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined));
+
+const nonEmptyString = (value: unknown) => {
+  const text = typeof value === "string" ? value.trim() : "";
+  return text || null;
+};
+
+const truthyFlag = (value: unknown) => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") return ["true", "1", "yes", "y"].includes(value.trim().toLowerCase());
+  return Boolean(value);
+};
 
 export const normalizeProviderPayload = (
   payload: unknown,
@@ -259,10 +277,14 @@ const callCustomProvider = async ({
     throw new Error(`Video analysis provider failed (${response.status}): ${detail.slice(0, 300)}`);
   }
 
+  const payload = await response.json();
+  const metadata = asRecord(payload);
+
   return {
-    payload: await response.json(),
-    provider: "custom",
-    model: endpoint
+    payload,
+    provider: nonEmptyString(metadata.provider || metadata.source || metadata.vendor) || "custom",
+    model: nonEmptyString(metadata.model || metadata.model_id || metadata.modelId || metadata.adapter) || endpoint,
+    needsReview: truthyFlag(metadata.needs_review ?? metadata.needsReview ?? metadata.reviewRequired)
   };
 };
 
@@ -386,7 +408,7 @@ const runVisionAnalysis = async ({
 }): Promise<WorkerResult> => {
   const signedUrl = await createSignedVideoUrl({ supabase, recording: context.recording, env });
   let providerError: unknown = null;
-  let providerResult = null;
+  let providerResult: ProviderAnalysisResult | null = null;
 
   try {
     providerResult = await callCustomProvider({ env, fetcher, job, context, signedUrl });
@@ -423,7 +445,7 @@ const runVisionAnalysis = async ({
   if (!providerResult) return noProviderResult(context);
 
   const normalized = normalizeProviderPayload(providerResult.payload, { ...context, job });
-  const needsReview = Boolean((providerResult as Record<string, unknown>).needsReview);
+  const needsReview = Boolean(providerResult.needsReview);
 
   return {
     status: needsReview ? "needs_review" : "succeeded",
@@ -431,6 +453,8 @@ const runVisionAnalysis = async ({
     model: providerResult.model,
     result: {
       summary: normalized.summary,
+      analysisProvider: providerResult.provider,
+      analysisModel: providerResult.model,
       classifications: normalized.classifications,
       eventsDetected: normalized.events.length,
       statsGenerated: normalized.stats.length,
