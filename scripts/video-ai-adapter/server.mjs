@@ -1,14 +1,22 @@
 import {
-  analyzeVideoJob,
   isAuthorized,
   jsonResponse,
   normalizePort
 } from './analyzer.mjs';
+import {
+  createFfmpegFrameSamplerFromEnv,
+  createRoboflowHostedDetectorFromEnv,
+  runInferenceForJob
+} from './inference-worker.mjs';
 
 const port = normalizePort(process.env.VIDEO_AI_ADAPTER_PORT);
 const token = process.env.VIDEO_AI_ADAPTER_TOKEN || '';
 const adapterName = process.env.VIDEO_AI_ADAPTER_NAME || 'open-source-shot-mvp';
 const modelName = process.env.VIDEO_AI_ADAPTER_MODEL || 'deterministic-adapter-smoke';
+const allowSmokeFallback = process.env.VIDEO_AI_ALLOW_SMOKE_FALLBACK !== 'false';
+const frameDetector = createRoboflowHostedDetectorFromEnv();
+const frameSampler = createFfmpegFrameSamplerFromEnv();
+const maxFrames = Number(process.env.VIDEO_AI_MAX_FRAMES || 12);
 
 const nodeServer = await import('node:http');
 
@@ -68,7 +76,14 @@ const app = nodeServer.createServer(async (request, response) => {
     }
 
     const payload = await readJsonBody(request);
-    const result = await analyzeVideoJob(payload, { adapterName, modelName });
+    const result = await runInferenceForJob(payload, {
+      adapterName,
+      modelName,
+      allowSmokeFallback,
+      frameDetector,
+      frameSampler,
+      maxFrames
+    });
     await writeResponse(response, jsonResponse(result));
   } catch (error) {
     await writeResponse(response, jsonResponse({

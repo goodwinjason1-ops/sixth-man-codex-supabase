@@ -161,6 +161,7 @@ export const analyzeVideoJob = async (payload, options = {}) => {
   const task = nonEmptyString(source.task || job.job_kind) || 'vision_event_detection';
   const adapterName = options.adapterName || 'open-source-shot-mvp';
   const modelName = options.modelName || 'deterministic-adapter-smoke';
+  const allowSmokeFallback = options.allowSmokeFallback ?? true;
   const inference = asRecord(source.inference);
   const frames = source.frames || inference.frames || inference.frameDetections;
 
@@ -213,6 +214,26 @@ export const analyzeVideoJob = async (payload, options = {}) => {
         recordingId: recording.id || null,
         videoUrlPresent,
         framesProcessed: Array.isArray(frames) ? frames.length : 0
+      }
+    };
+  }
+
+  if (!allowSmokeFallback) {
+    return {
+      provider: adapterName,
+      model: modelName,
+      needsReview: true,
+      summary: 'Video analysed. No shot candidates were detected by the configured inference provider.',
+      events: [],
+      stats: [],
+      metadata: {
+        adapterVersion: '0.2.0',
+        task,
+        sessionId: session.id || null,
+        recordingId: recording.id || null,
+        videoUrlPresent,
+        framesProcessed: Array.isArray(frames) ? frames.length : 0,
+        smokeFallback: false
       }
     };
   }

@@ -202,6 +202,16 @@ Second repo-side start:
 - `analyzeVideoJob` now uses supplied `frames` or `inference.frames` before falling back to deterministic smoke output.
 - The Supabase video worker now preserves adapter `court_position`, `bounding_boxes`, and event `attributes` as top-level event evidence before writing `video_events` and shot documents.
 
+Third repo-side start:
+
+- `scripts/video-ai-adapter/inference-worker.mjs` adds the first real inference-worker layer.
+- It can download a signed Supabase video URL and sample low-FPS JPEG frames with FFmpeg when `VIDEO_AI_ENABLE_FFMPEG=true`.
+- It can call Roboflow Hosted object detection for sampled base64 frames using `ROBOFLOW_API_KEY` plus either `ROBOFLOW_MODEL_ID` or `ROBOFLOW_INFER_ENDPOINT`.
+- It normalizes Roboflow `predictions` and image dimensions into the existing frame-detection shape.
+- It feeds detected frames into `buildShotCandidatesFromFrames`, so provider output becomes coach-review shot candidates rather than raw model JSON.
+- The adapter server now uses `runInferenceForJob`, which means the deployed adapter can run this inference path when FFmpeg and Roboflow env vars are configured.
+- Smoke fallback can be disabled with `VIDEO_AI_ALLOW_SMOKE_FALLBACK=false` so production does not create fake shot events when no frames are available.
+
 Example frame-detection input:
 
 ```json
@@ -226,7 +236,7 @@ The earlier worker contract changes already preserve custom provider metadata an
 
 Verification completed for this first adapter start:
 
-- `npm run adapter:video-ai:test` passed 7 tests.
+- `npm run adapter:video-ai:test` passed 12 tests.
 - `node --check scripts/video-ai-adapter/server.mjs` passed.
 - Local HTTP smoke of `GET /health` and `POST /analyze` returned 1 review-only event and 1 stat.
 - GitHub Actions `Edge Function Tests` covers the worker-level adapter persistence path because local Deno is not currently available on this Windows shell.
@@ -256,6 +266,23 @@ VIDEO_ANALYSIS_ENDPOINT=http://localhost:8788/analyze
 VIDEO_ANALYSIS_TOKEN=local-dev-token
 ```
 
+Run the local inference adapter with FFmpeg and Roboflow Hosted API:
+
+```powershell
+$env:VIDEO_AI_ADAPTER_TOKEN = "local-dev-token"
+$env:VIDEO_AI_ALLOW_SMOKE_FALLBACK = "false"
+$env:VIDEO_AI_ENABLE_FFMPEG = "true"
+$env:VIDEO_AI_FFMPEG_PATH = "ffmpeg"
+$env:VIDEO_AI_SAMPLE_FPS = "0.5"
+$env:VIDEO_AI_MAX_FRAMES = "12"
+$env:ROBOFLOW_API_KEY = "<server-side-key>"
+$env:ROBOFLOW_MODEL_ID = "<project-slug>/<version>"
+$env:ROBOFLOW_CLASSES = "ball,basketball,rim,hoop,backboard"
+npm run adapter:video-ai
+```
+
+This path still needs real model credentials and a consent-cleared test video before it can produce meaningful shot candidates.
+
 Production should use a hosted adapter with HTTPS, token auth, private logs, and no persistent storage of junior footage unless explicitly approved.
 
 ## Quality Gates
@@ -267,3 +294,28 @@ Do not show AI-generated shot stats to parents or committees until:
 - Shot attempt detection precision is acceptable.
 - Player identity is explicitly confirmed or hidden.
 - Privacy and consent terms for uploaded youth footage are documented.
+
+## Test Footage Guidance
+
+Early inference testing does not require Lakers game footage. Any consent-cleared junior domestic basketball footage is useful for validating:
+
+- Video upload and signed URL access.
+- FFmpeg frame extraction.
+- Roboflow request/response handling.
+- Ball/rim/backboard detection quality.
+- Shot-candidate grouping and coach-review UX.
+
+Lakers-specific footage becomes important for tuning:
+
+- Local venue lighting and camera height.
+- Uniform colours and visual clutter.
+- Common game angles used by coaches and parents.
+- Club-specific review workflows.
+- Future player/team identity workflows.
+
+For the first real test set, collect short clips before full games:
+
+- 3-5 clips of 30-90 seconds.
+- At least one made shot, one missed shot, one layup/close shot, and one possession with no shot.
+- Camera view should include the hoop, ball, and as much half-court as practical.
+- Avoid uploading identifiable junior footage to third-party providers unless club/guardian consent and provider data terms are acceptable.
