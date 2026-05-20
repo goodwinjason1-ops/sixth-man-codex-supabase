@@ -14,7 +14,8 @@ import {
   Wifi,
   Bell,
   User,
-  HelpCircle
+  HelpCircle,
+  ClipboardList
 } from 'lucide-react';
 import FirstTimeHint from './tutorial/FirstTimeHint';
 import { HEADER_LOGO_SRC } from '../lib/publicAssets';
@@ -41,6 +42,7 @@ const Layout = ({ children }) => {
     { icon: Home, label: 'Home', path: '/welcome', roles: ['player', 'coach', 'admin', 'president', 'vice_president', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach', 'youth_coach', 'parent', 'team_manager'] },
     { icon: BarChart3, label: 'Dashboard', path: '/dashboard', roles: ['player', 'coach', 'admin', 'president', 'vice_president', 'girls_coordinator', 'boys_coordinator', 'youth_head_coach', 'youth_coach', 'team_manager'] },
     { icon: Users, label: 'Coach Portal', path: '/coach', roles: ['coach'] },
+    { icon: ClipboardList, label: 'Playboard', path: '/coach/playboard', roles: ['coach', 'admin', 'president', 'vice_president', 'coach_coordinator'] },
     { icon: Settings, label: 'Admin Portal', path: '/admin', roles: ['admin', 'president', 'vice_president'] },
     { icon: User, label: 'My Profile', path: '/player', roles: ['player'] },
   ];

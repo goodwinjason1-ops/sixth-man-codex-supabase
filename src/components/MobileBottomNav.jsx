@@ -65,6 +65,7 @@ const roleNavItems = {
     { icon: ClipboardList, label: 'Assess', path: '/coach-assessment' },
     { icon: Gamepad2, label: 'Match Day', path: '/coach/match-assessment' },
     { icon: Dumbbell, label: 'Plans', path: '/coach/training-plans' },
+    { icon: ClipboardList, label: 'Board', path: '/coach/playboard' },
   ],
   team_manager: [
     { icon: Home, label: 'Home', path: '/welcome' },

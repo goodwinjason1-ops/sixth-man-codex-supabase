@@ -26,6 +26,9 @@ export const ADMIN_ROLES = ['admin', 'president', 'vice_president', 'coach_coord
 // Staff roles that can access coach-level features
 export const STAFF_ROLES = ['admin', 'president', 'vice_president', 'coach_coordinator', 'coach'];
 
+// Roles that can create and manage tactical playboards.
+export const PLAYBOARD_ROLES = [...STAFF_ROLES];
+
 // Roles that can upload and review private game/training video.
 export const VIDEO_STAFF_ROLES = [
   'admin',
