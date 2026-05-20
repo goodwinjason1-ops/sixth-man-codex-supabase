@@ -23,7 +23,7 @@ const DataContext = createContext();
 const COLLECTION_KEYS = [
   'players', 'skills', 'evaluations', 'games', 'attendance',
   'trainingNotes', 'schedule', 'notifications', 'teams', 'trainingPlans',
-  'trainingRecords', 'matchAssessments'
+  'trainingRecords', 'matchAssessments', 'playboards'
 ];
 
 const initialLoadingStates = Object.fromEntries(COLLECTION_KEYS.map(k => [k, true]));
@@ -51,6 +51,7 @@ export const DataProvider = ({ children }) => {
   const [trainingPlans, setTrainingPlans] = useState([]);
   const [trainingRecords, setTrainingRecords] = useState([]);
   const [matchAssessments, setMatchAssessments] = useState([]);
+  const [playboards, setPlayboards] = useState([]);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pendingSync, setPendingSync] = useState([]);
 
@@ -386,6 +387,35 @@ export const DataProvider = ({ children }) => {
     );
     }
 
+    // Playboards (skip for tryout_assessor - no access needed)
+    if (userProfile?.role === 'tryout_assessor') {
+      markLoaded('playboards');
+    } else {
+      const playboardsQuery = query(collection(db, 'playboards'), orderBy('updatedAt', 'desc'));
+      unsubscribers.push(
+        onSnapshot(playboardsQuery, async (snapshot) => {
+          const data = snapshot.docs.map(d => {
+            const board = { id: d.id, ...d.data() };
+            return {
+              ...board,
+              players: Array.isArray(board.players) ? board.players : [],
+              objects: Array.isArray(board.objects) ? board.objects : [],
+              actions: Array.isArray(board.actions) ? board.actions : [],
+              frames: Array.isArray(board.frames) ? board.frames : [],
+            };
+          });
+          setPlayboards(data);
+          markLoaded('playboards');
+          await dbService.setAll('playboards', data);
+        }, async (error) => {
+          console.error('Playboards snapshot error:', error.code, error.message);
+          markError('playboards', error.code || 'unknown');
+          const offlineData = await dbService.getAll('playboards');
+          setPlayboards(offlineData || []);
+        })
+      );
+    }
+
     // NO synchronous setLoading(false) here — loading is derived from loadingStates
 
     return () => {
@@ -527,6 +557,7 @@ export const DataProvider = ({ children }) => {
     teams,
     trainingPlans,
     trainingRecords,
+    playboards,
     loading,
     loadingStates,
     errors,

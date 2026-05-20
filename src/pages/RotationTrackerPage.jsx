@@ -26,6 +26,7 @@ import {
   Trophy,
   Sparkles,
   ListOrdered,
+  ClipboardList,
   History
 } from 'lucide-react';
 import { collection, query, where, orderBy, getDocs, limit } from 'firebase/firestore';
@@ -452,6 +453,24 @@ const RotationTrackerPage = () => {
       playerInfo
     );
     setRotationPlan(plan);
+  };
+
+  const openRotationPlayboard = () => {
+    const params = new URLSearchParams({ source: 'rotation' });
+    if (selectedTeamId) params.set('teamId', selectedTeamId);
+    if (primaryGame?.id) params.set('gameId', primaryGame.id);
+
+    navigate(`/coach/playboard/new?${params.toString()}`, {
+      state: {
+        sourceType: 'rotation',
+        sourcePayload: {
+          opponent,
+          roster,
+          rotationPlan,
+          gameId: primaryGame?.id || '',
+        },
+      },
+    });
   };
 
   const canGeneratePlan = roster.length > COURT_SIZE &&
@@ -1048,6 +1067,13 @@ const RotationTrackerPage = () => {
                     className="w-full py-2 text-gray-400 hover:text-gray-500 text-sm transition-colors"
                   >
                     Regenerate Plan
+                  </button>
+                  <button
+                    onClick={openRotationPlayboard}
+                    className="w-full py-3 bg-white border border-[#D4E4D4] text-[#005028] rounded-xl font-bold hover:border-[#00A651] transition-all flex items-center justify-center gap-2"
+                  >
+                    <ClipboardList className="w-5 h-5" />
+                    Open in Playboard
                   </button>
                 </div>
               )}

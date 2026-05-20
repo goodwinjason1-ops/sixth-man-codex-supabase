@@ -16,6 +16,7 @@ import {
   Trophy,
   FileText,
   Trash2,
+  Plus,
   Play,
   Clock,
   AlertCircle,
@@ -499,6 +500,17 @@ const CoachDashboard = () => {
                 </button>
               </HelpTooltip>
 
+              {/* Playboard Button */}
+              <HelpTooltip text="Create tactical playboards for drills, rotations, and game-day planning.">
+                <button
+                  onClick={() => navigate('/coach/playboard')}
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors"
+                >
+                  <ClipboardList className="w-5 h-5" />
+                  <span className="hidden sm:inline">Playboard</span>
+                </button>
+              </HelpTooltip>
+
               {/* Training History Button */}
               <HelpTooltip text="Review past training session records and attendance.">
                 <button
@@ -782,6 +794,34 @@ const CoachDashboard = () => {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Playboard Quick Card */}
+        <div
+          onClick={() => navigate('/coach/playboard')}
+          className="bg-white rounded-xl border border-[#D4E4D4]/30 p-5 mb-6 hover:border-[#00A651]/50 transition-colors cursor-pointer"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 bg-[#005028]/10 rounded-lg flex items-center justify-center">
+                <ClipboardList className="w-5 h-5 text-[#005028]" />
+              </div>
+              <div>
+                <h3 className="text-gray-800 font-bold text-sm">Playboard</h3>
+                <p className="text-[#6B7C6B] text-xs">Build tactical boards from drills, training plans, and rotations</p>
+              </div>
+            </div>
+            <button
+              onClick={(event) => {
+                event.stopPropagation();
+                navigate('/coach/playboard/new');
+              }}
+              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[#005028] text-white rounded-lg font-medium hover:bg-[#00A651] transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              New Board
+            </button>
+          </div>
         </div>
 
         {/* Rotation Analytics Card */}

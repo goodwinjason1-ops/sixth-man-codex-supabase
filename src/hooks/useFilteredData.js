@@ -4,7 +4,7 @@ import { useData } from '../contexts/DataContext';
 
 export function useFilteredData() {
   const { currentUser, userProfile } = useAuth();
-  const { players, teams, loading, errors, ...rest } = useData();
+  const { players, teams, playboards = [], loading, errors, ...rest } = useData();
 
   const userTeamIds = useMemo(() => {
     if (!userProfile) return [];
@@ -112,12 +112,33 @@ export function useFilteredData() {
     return [];
   }, [userProfile, currentUser, players, userTeamIds, userChildrenIds]);
 
+  const filteredPlayboards = useMemo(() => {
+    if (!userProfile || !playboards) return [];
+    const role = userProfile.role;
+
+    if (['admin', 'president', 'vice_president', 'coach_coordinator'].includes(role)) {
+      return playboards;
+    }
+
+    if (role === 'coach') {
+      return playboards.filter(board =>
+        board.coachId === currentUser?.uid ||
+        (board.teamId && userTeamIds.includes(board.teamId)) ||
+        board.visibility === 'club'
+      );
+    }
+
+    return [];
+  }, [userProfile, currentUser, playboards, userTeamIds]);
+
   return {
     ...rest,
     players: filteredPlayers,
     teams: filteredTeams,
+    playboards: filteredPlayboards,
     allPlayers: players,
     allTeams: teams,
+    allPlayboards: playboards,
     loading,
     errors,
     userTeamIds,

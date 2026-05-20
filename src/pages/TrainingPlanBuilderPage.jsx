@@ -169,6 +169,7 @@ const TrainingPlanBuilderPage = () => {
     const newSessions = [...sessions];
     const newDrill = {
       id: `${drill.id}-${Date.now()}`,
+      sourceDrillId: drill.id,
       name: drill.name,
       description: drill.description,
       duration: drill.duration,
@@ -184,6 +185,28 @@ const TrainingPlanBuilderPage = () => {
     }
     setSessions(newSessions);
     setShowDrillLibrary(false);
+  };
+
+  const openDrillPlayboard = (drill, sessionIndex) => {
+    const params = new URLSearchParams({
+      source: 'trainingPlan',
+      sessionIndex: String(sessionIndex),
+    });
+    if (selectedTeam) params.set('teamId', selectedTeam);
+    if (planId) params.set('planId', planId);
+    if (drill.sourceDrillId || drill.id) params.set('drillId', drill.sourceDrillId || drill.id);
+
+    navigate(`/coach/playboard/new?${params.toString()}`, {
+      state: {
+        sourceType: 'trainingPlan',
+        sourcePayload: {
+          planId,
+          planName,
+          sessionIndex,
+          drill,
+        },
+      },
+    });
   };
 
   // Remove drill from session
@@ -314,6 +337,8 @@ const TrainingPlanBuilderPage = () => {
         sessions: sessions.map(s => ({
           ...s,
           drills: s.drills.map(d => ({
+            id: d.id,
+            sourceDrillId: d.sourceDrillId || d.id,
             name: d.name,
             description: d.description,
             duration: d.duration,
@@ -873,6 +898,13 @@ const SessionBuilder = ({
                         </div>
                       </div>
 
+                      <button
+                        onClick={() => openDrillPlayboard(drill, sessionIndex)}
+                        className="p-1.5 text-[#005028] hover:bg-[#005028]/10 rounded-lg transition-colors"
+                        title="Open in Playboard"
+                      >
+                        <Target className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={() => onRemoveDrill(drillIndex)}
                         className="p-1.5 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"

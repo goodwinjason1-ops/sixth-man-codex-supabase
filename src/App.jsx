@@ -2,7 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
-import { ADMIN_ROLES, STAFF_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES, VIDEO_STAFF_ROLES } from './constants/roles';
+import { ADMIN_ROLES, STAFF_ROLES, PLAYBOARD_ROLES, TRYOUT_ASSESSOR_ROLES, TRYOUT_RESULTS_ROLES, VIDEO_STAFF_ROLES } from './constants/roles';
 import { DRILL_VIEW_ROLES, DRILL_EDIT_ROLES } from './constants/drills';
 import ErrorBoundary from './components/ErrorBoundary';
 import OfflineIndicator from './components/OfflineIndicator';
@@ -34,6 +34,7 @@ const TrainingPlansListPage = lazy(() => import('./pages/TrainingPlansListPage')
 const TrainingPlanBuilderPage = lazy(() => import('./pages/TrainingPlanBuilderPage'));
 const TrainingHistoryPage = lazy(() => import('./pages/TrainingHistoryPage'));
 const MatchHistoryPage = lazy(() => import('./pages/MatchHistoryPage'));
+const CoachPlayboardPage = lazy(() => import('./pages/CoachPlayboardPage'));
 
 // Drill chunk
 const DrillLibraryPage = lazy(() => import('./pages/DrillLibraryPage'));
@@ -419,6 +420,38 @@ const AppRoutes = () => {
             <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
               <ErrorBoundary fallbackMessage="Unable to load training session.">
                 <TrainingHistoryPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Coach Playboard Routes */}
+        <Route
+          path="/coach/playboard"
+          element={
+            <ProtectedRoute allowedRoles={[...PLAYBOARD_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load playboard.">
+                <CoachPlayboardPage />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/coach/playboard/new"
+          element={
+            <ProtectedRoute allowedRoles={[...PLAYBOARD_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load playboard.">
+                <CoachPlayboardPage mode="new" />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/coach/playboard/:id"
+          element={
+            <ProtectedRoute allowedRoles={[...PLAYBOARD_ROLES]}>
+              <ErrorBoundary fallbackMessage="Unable to load playboard.">
+                <CoachPlayboardPage mode="edit" />
               </ErrorBoundary>
             </ProtectedRoute>
           }

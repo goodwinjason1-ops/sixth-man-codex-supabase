@@ -1,7 +1,7 @@
 import { openDB, deleteDB } from 'idb';
 
 const DB_NAME = 'emerald-lakers-db';
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 
 let dbPromise = null;
 let dbDisabled = false;
@@ -12,6 +12,7 @@ const createDB = () => {
       const stores = [
         'players', 'games', 'evaluations', 'skills', 'attendance',
         'trainingNotes', 'schedule', 'notifications', 'teams',
+        'trainingPlans', 'trainingRecords', 'playboards',
         'parent_invitations', 'match_assessments',
       ];
       stores.forEach(name => {
@@ -78,10 +79,9 @@ export const dbService = {
   async setAll(storeName, dataArray) {
     return safeOp(async (db) => {
       const tx = db.transaction(storeName, 'readwrite');
-      await Promise.all([
-        ...dataArray.map(item => tx.store.put(item)),
-        tx.done
-      ]);
+      await tx.store.clear();
+      await Promise.all(dataArray.map(item => tx.store.put(item)));
+      await tx.done;
     });
   },
 

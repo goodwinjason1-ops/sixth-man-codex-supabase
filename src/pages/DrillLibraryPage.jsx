@@ -4,6 +4,7 @@ import { Search, Plus, SlidersHorizontal, X, BookOpen } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchDrills } from '../services/drillService';
 import { DRILL_CATEGORIES, CATEGORY_COLORS, DIFFICULTY_LEVELS, AGE_GROUPS, DRILL_EDIT_ROLES } from '../constants/drills';
+import { PLAYBOARD_ROLES } from '../constants/roles';
 import DrillCard from '../components/drills/DrillCard';
 import PageShell from '../components/PageShell';
 
@@ -32,6 +33,7 @@ const DrillLibraryPage = () => {
   const [showFilters, setShowFilters] = useState(false);
 
   const canCreate = DRILL_EDIT_ROLES.includes(userProfile?.role);
+  const canUsePlayboard = PLAYBOARD_ROLES.includes(userProfile?.role);
 
   useEffect(() => {
     loadDrills();
@@ -278,11 +280,21 @@ const DrillLibraryPage = () => {
           <p className="text-sm text-[#6B7C6B] mb-4">{filteredDrills.length} drill{filteredDrills.length !== 1 ? 's' : ''} found</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredDrills.map(drill => (
-              <DrillCard
-                key={drill.id}
-                drill={drill}
-                onClick={() => navigate(`/drills/${drill.id}`)}
-              />
+              <div key={drill.id} className="space-y-2">
+                <DrillCard
+                  drill={drill}
+                  onClick={() => navigate(`/drills/${drill.id}`)}
+                />
+                {canUsePlayboard && (
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/coach/playboard/new?source=drill&drillId=${encodeURIComponent(drill.id)}`)}
+                    className="w-full px-3 py-2 bg-[#F5F9F5] border border-[#D4E4D4] rounded-lg text-sm font-medium text-[#005028] hover:border-[#00A651] transition-colors"
+                  >
+                    Open in Playboard
+                  </button>
+                )}
+              </div>
             ))}
           </div>
         </>
